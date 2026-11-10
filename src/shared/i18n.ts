@@ -1,0 +1,304 @@
+import type { Locale } from './types'
+
+const it = {
+  appName: 'Molo',
+  tagline: 'terminali',
+  loading: 'Caricamento…',
+  openDesktop: 'Apri Molo dalla finestra dell’app. Il terminale ha bisogno del processo desktop.',
+  bootError: 'Molo non è riuscito ad avviarsi.',
+  newSession: 'Nuova sessione',
+  open: 'Apri',
+  cancel: 'Annulla',
+  close: 'Chiudi',
+  rename: 'Rinomina',
+  pin: 'Affianca',
+  unpin: 'Togli dalla vista',
+  settings: 'Impostazioni',
+  sessions: 'Sessioni',
+  noSessions: 'Nessuna sessione',
+  emptyTitle: 'Nessun terminale aperto',
+  emptyBody: 'Apri una sessione per lanciare Codex o un’altra shell.',
+  layoutSingle: 'Una',
+  layoutSplit: 'Affiancate',
+  splitHint: 'Fissa un’altra sessione per dividerla.',
+  name: 'Nome',
+  namePlaceholder: 'Lascia vuoto per un nome automatico',
+  shell: 'Shell',
+  folder: 'Cartella',
+  browse: 'Sfoglia',
+  createFailed: 'Impossibile aprire il terminale.',
+  confirmCloseTitle: 'Chiudere la sessione?',
+  confirmCloseBody: '«{name}» è ancora al lavoro. Il processo verrà interrotto.',
+  confirmCloseAttention: '«{name}» attende un tuo input. Chiuderla comunque?',
+  phaseStarting: 'Avvio',
+  phaseBusy: 'Al lavoro',
+  phaseIdle: 'In attesa',
+  phaseAttention: 'Azione',
+  phaseExited: 'Terminata',
+  exitedCode: 'Uscita {code}',
+  defaultSession: 'Terminale {n}',
+  notifyIdleTitle: 'Terminale in attesa',
+  notifyIdleBody: '{name} ha finito ed è in attesa di input.',
+  notifyAttentionTitle: 'Azione richiesta',
+  notifyAttentionBody: '{name} attende un tuo intervento.',
+  badge: 'Novità',
+  appearance: 'Aspetto',
+  theme: 'Tema',
+  themeSystem: 'Sistema',
+  themeLight: 'Chiaro',
+  themeDark: 'Scuro',
+  language: 'Lingua',
+  fontSize: 'Corpo del terminale',
+  alerts: 'Avvisi',
+  notifyDesktop: 'Notifica di sistema',
+  notifyDesktopHelp: 'Quando una sessione al lavoro torna in attesa, o chiede un’azione, e non la stai guardando.',
+  notifyBadge: 'Pallino nella barra',
+  showReasons: 'Mostra il motivo dello stato',
+  showReasonsHelp: 'Utile mentre regoli i tempi qui sotto.',
+  detection: 'Rilevamento dello stato',
+  detectionHelp: 'Euristica pensata per Codex. I numeri si applicano subito e restano salvati su questo computer.',
+  quietTimeout: 'Silenzio prima di «in attesa»',
+  quietTimeoutHelp: 'Dopo l’ultimo burst di output, se non c’è un altro segnale.',
+  promptIdle: 'Prompt riconosciuto',
+  promptIdleHelp: 'Se l’ultima riga è un prompt di shell o di Codex.',
+  busyMarker: 'Indicatore ancora visibile',
+  busyMarkerHelp: 'Per quanto tenere «al lavoro» se sullo schermo resta Working, Thinking o lo spinner.',
+  titleBusy: 'Titolo animato',
+  titleBusyHelp: 'Se il titolo di Codex non si aggiorna più, smetti di considerarlo al lavoro.',
+  childQuiet: 'Comando figlio silenzioso',
+  childQuietHelp: 'Solo nel buffer normale, non nel TUI a schermo intero. Copre make, sleep e simili.',
+  startupGrace: 'Avvio',
+  startupGraceHelp: 'Prima del primo output la sessione resta in avvio.',
+  minBusyNotify: 'Durata minima per l’avviso',
+  minBusyNotifyHelp: 'Un comando breve non manda la notifica di «in attesa». Un’azione richiesta la manda sempre.',
+  attentionHold: 'Tenuta dell’azione richiesta',
+  advanced: 'Burst di output',
+  burstBytes: 'Byte per un burst',
+  burstCount: 'Pezzi nella finestra',
+  burstWindow: 'Finestra del burst',
+  resetDefaults: 'Ripristina i tempi',
+  openConfig: 'Apri il file di configurazione',
+  patternsHelp: 'Pattern aggiuntivi: campi extraIdlePatterns, extraBusyPatterns, extraAttentionPatterns nel file JSON. Sono regex JavaScript.',
+  ms: 'ms',
+  shortcuts: 'Scorciatoie',
+  shortcutNew: 'Nuova sessione',
+  shortcutClose: 'Chiudi la sessione attiva',
+  shortcutSplit: 'Vista una / affiancata',
+  shortcutSettings: 'Impostazioni',
+  shortcutPin: 'Affianca la sessione',
+  shortcutCopy: 'Copia la selezione',
+  shortcutPaste: 'Incolla',
+  maxSessions: 'Puoi tenere aperti al massimo {n} terminali.',
+  badCwd: 'Quella cartella non esiste.',
+  badShell: 'Quella shell non è disponibile.',
+  ptyMissing: 'Il modulo del terminale (node-pty) non è disponibile. Esegui npm run rebuild e riavvia.',
+  version: 'Versione {version}',
+  sidebarToggle: 'Sessioni',
+  removeFromView: 'Togli dalla vista',
+  reason_process_exited: 'Il processo è uscito',
+  reason_startup_grace: 'In attesa del primo output',
+  reason_no_output: 'Nessun output',
+  reason_title_attention: 'Il titolo dice «Action required»',
+  reason_screen_attention: 'Sullo schermo c’è una richiesta',
+  reason_title_busy: 'Il titolo di Codex è al lavoro',
+  reason_busy_marker: 'Sullo schermo c’è Working o uno spinner',
+  reason_idle_prompt: 'L’ultima riga è un prompt',
+  reason_recent_activity: 'Output recente',
+  reason_active_child: 'C’è un processo figlio senza prompt',
+  reason_shell_waiting: 'La shell non ha processi figli',
+  reason_quiet: 'Nessun segnale di lavoro',
+  reason_attention_hold: 'Azione richiesta, tenuta per un attimo',
+  shellLogin: 'Shell di login',
+  shellZsh: 'zsh',
+  shellBash: 'bash',
+  shellFish: 'fish',
+  shellPwsh: 'PowerShell 7',
+  shellPowershell: 'Windows PowerShell',
+  shellCmd: 'Prompt dei comandi',
+  shellGitBash: 'Git Bash',
+}
+
+const en: { [K in keyof typeof it]: string } = {
+  appName: 'Molo',
+  tagline: 'terminals',
+  loading: 'Loading…',
+  openDesktop: 'Open Molo from the desktop window. The terminal needs the desktop process.',
+  bootError: 'Molo failed to start.',
+  newSession: 'New session',
+  open: 'Open',
+  cancel: 'Cancel',
+  close: 'Close',
+  rename: 'Rename',
+  pin: 'Tile',
+  unpin: 'Remove from view',
+  settings: 'Settings',
+  sessions: 'Sessions',
+  noSessions: 'No sessions',
+  emptyTitle: 'No terminal open',
+  emptyBody: 'Open a session to run Codex or another shell.',
+  layoutSingle: 'One',
+  layoutSplit: 'Side by side',
+  splitHint: 'Pin another session to split the view.',
+  name: 'Name',
+  namePlaceholder: 'Leave empty for an automatic name',
+  shell: 'Shell',
+  folder: 'Folder',
+  browse: 'Browse',
+  createFailed: 'Could not open the terminal.',
+  confirmCloseTitle: 'Close this session?',
+  confirmCloseBody: '“{name}” is still working. The process will be stopped.',
+  confirmCloseAttention: '“{name}” is waiting for you. Close it anyway?',
+  phaseStarting: 'Starting',
+  phaseBusy: 'Working',
+  phaseIdle: 'Idle',
+  phaseAttention: 'Action',
+  phaseExited: 'Exited',
+  exitedCode: 'Exit {code}',
+  defaultSession: 'Terminal {n}',
+  notifyIdleTitle: 'Terminal is idle',
+  notifyIdleBody: '{name} finished and is waiting for input.',
+  notifyAttentionTitle: 'Action required',
+  notifyAttentionBody: '{name} is waiting for you.',
+  badge: 'Update',
+  appearance: 'Appearance',
+  theme: 'Theme',
+  themeSystem: 'System',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+  language: 'Language',
+  fontSize: 'Terminal size',
+  alerts: 'Alerts',
+  notifyDesktop: 'System notification',
+  notifyDesktopHelp: 'When a working session becomes idle, or asks for action, and you are not looking at it.',
+  notifyBadge: 'Dot in the sidebar',
+  showReasons: 'Show why the status was chosen',
+  showReasonsHelp: 'Useful while you tune the timings below.',
+  detection: 'Status detection',
+  detectionHelp: 'A heuristic aimed at Codex. Changes apply immediately and stay on this computer.',
+  quietTimeout: 'Silence before idle',
+  quietTimeoutHelp: 'After the last burst of output, when nothing else says otherwise.',
+  promptIdle: 'Recognized prompt',
+  promptIdleHelp: 'When the last line is a shell or Codex prompt.',
+  busyMarker: 'Marker still on screen',
+  busyMarkerHelp: 'How long to stay working if Working, Thinking, or a spinner is still visible.',
+  titleBusy: 'Animated title',
+  titleBusyHelp: 'If the Codex title stops updating, stop treating it as working.',
+  childQuiet: 'Silent child process',
+  childQuietHelp: 'Normal screen only, not a full-screen TUI. Covers make, sleep, and similar commands.',
+  startupGrace: 'Startup',
+  startupGraceHelp: 'Before the first output the session stays in starting.',
+  minBusyNotify: 'Minimum time before an alert',
+  minBusyNotifyHelp: 'A short command does not send the idle alert. Action required always does.',
+  attentionHold: 'Action-required hold',
+  advanced: 'Output bursts',
+  burstBytes: 'Bytes in one burst',
+  burstCount: 'Chunks in the window',
+  burstWindow: 'Burst window',
+  resetDefaults: 'Reset timings',
+  openConfig: 'Open the configuration file',
+  patternsHelp: 'Extra patterns live in the JSON file as extraIdlePatterns, extraBusyPatterns, and extraAttentionPatterns. They are JavaScript regexes.',
+  ms: 'ms',
+  shortcuts: 'Shortcuts',
+  shortcutNew: 'New session',
+  shortcutClose: 'Close the active session',
+  shortcutSplit: 'One view / side by side',
+  shortcutSettings: 'Settings',
+  shortcutPin: 'Tile the session',
+  shortcutCopy: 'Copy selection',
+  shortcutPaste: 'Paste',
+  maxSessions: 'You can keep at most {n} terminals open.',
+  badCwd: 'That folder does not exist.',
+  badShell: 'That shell is not available.',
+  ptyMissing: 'The terminal module (node-pty) is not available. Run npm run rebuild and start again.',
+  version: 'Version {version}',
+  sidebarToggle: 'Sessions',
+  removeFromView: 'Remove from view',
+  reason_process_exited: 'The process exited',
+  reason_startup_grace: 'Waiting for the first output',
+  reason_no_output: 'No output',
+  reason_title_attention: 'The title says “Action required”',
+  reason_screen_attention: 'The screen is asking for input',
+  reason_title_busy: 'The Codex title is working',
+  reason_busy_marker: 'Working or a spinner is on screen',
+  reason_idle_prompt: 'The last line is a prompt',
+  reason_recent_activity: 'Recent output',
+  reason_active_child: 'A child process is running and there is no prompt',
+  reason_shell_waiting: 'The shell has no child processes',
+  reason_quiet: 'No sign of work',
+  reason_attention_hold: 'Action required, held briefly',
+  shellLogin: 'Login shell',
+  shellZsh: 'zsh',
+  shellBash: 'bash',
+  shellFish: 'fish',
+  shellPwsh: 'PowerShell 7',
+  shellPowershell: 'Windows PowerShell',
+  shellCmd: 'Command Prompt',
+  shellGitBash: 'Git Bash',
+}
+
+export function shellLabel(locale: Locale, labelKey: string): string {
+  if (labelKey in it) return translate(locale, labelKey as MessageKey)
+  return labelKey
+}
+
+const dictionaries = { it, en }
+
+export type MessageKey = keyof typeof it
+
+export function translate(locale: Locale, key: MessageKey, vars?: Record<string, string | number>): string {
+  const template = dictionaries[locale][key] ?? dictionaries.it[key]
+  if (!vars) return template
+  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? ''))
+}
+
+export function phaseKey(phase: string): MessageKey {
+  switch (phase) {
+    case 'starting':
+      return 'phaseStarting'
+    case 'busy':
+      return 'phaseBusy'
+    case 'attention':
+      return 'phaseAttention'
+    case 'exited':
+      return 'phaseExited'
+    default:
+      return 'phaseIdle'
+  }
+}
+
+export function reasonKey(reason: string): MessageKey {
+  const key = `reason_${reason.replace(/-/g, '_')}` as MessageKey
+  if (key in it) return key
+  return 'reason_quiet'
+}
+
+export function shortcutLabels(platform: NodeJS.Platform): {
+  newSession: string
+  close: string
+  split: string
+  settings: string
+  pin: string
+  copy: string
+  paste: string
+} {
+  if (platform === 'darwin') {
+    return {
+      newSession: '⌘T',
+      close: '⌘W',
+      split: '⌘\\',
+      settings: '⌘,',
+      pin: '⌘-clic',
+      copy: '⌘C',
+      paste: '⌘V',
+    }
+  }
+  return {
+    newSession: 'Ctrl+Shift+T',
+    close: 'Ctrl+Shift+W',
+    split: 'Ctrl+Shift+D',
+    settings: 'Ctrl+Shift+,',
+    pin: 'Ctrl+clic',
+    copy: 'Ctrl+Shift+C',
+    paste: 'Ctrl+Shift+V',
+  }
+}
