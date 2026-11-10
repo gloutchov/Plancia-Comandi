@@ -1,158 +1,227 @@
 # Plancia Comandi
 
-Plancia Comandi is a desktop app for keeping several real terminals open at once. It is meant for AI coding CLIs, especially the OpenAI Codex CLI: a sidebar shows every session and whether it is working or waiting, and the main area can show one terminal or several side by side.
+## Italiano
 
-The interface is in Italian by default. English is in Settings.
+Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-![Plancia Comandi in dark mode, Codex working beside an idle shell](docs/screenshots/plancia-dark.png)
+**Versione 0.1.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
-## Stack
+![Terminali affiancati e stati delle sessioni nel tema scuro](docs/screenshots/plancia-dark.png)
 
-- Electron 45 and electron-builder
-- React 19 and Vite 6
-- [xterm.js](https://xtermjs.org/) 5.5 for the visible terminal, plus the fit and web-links addons
-- `@xterm/headless` in the main process, so status detection sees the screen Codex actually draws
-- [node-pty](https://github.com/microsoft/node-pty) 1.1 for a real PTY (ConPTY on Windows, Unix ptys elsewhere)
+**Sommario**
 
-`npm install` rebuilds `node-pty` for Electron's Node version (`electron-builder install-app-deps`).
+- [1. Funzioni principali](#1-funzioni-principali)
+- [2. Installazione e primo utilizzo](#2-installazione-e-primo-utilizzo)
+- [3. Impostazioni](#3-impostazioni)
+- [4. Sicurezza e privacy](#4-sicurezza-e-privacy)
+- [5. Sviluppo e verifiche](#5-sviluppo-e-verifiche)
+- [6. Distribuzione](#6-distribuzione)
+- [7. Documentazione e licenza](#7-documentazione-e-licenza)
 
-## Run it
+### 1. Funzioni principali
+
+- Fino a 12 sessioni, con scelta della shell e della cartella iniziale.
+- Vista **Una** o **Affiancate**, rinomina e chiusura delle sessioni.
+- Stati **Avvio**, **Al lavoro**, **In attesa**, **Azione** e **Terminata**, stimati dall'output, dal titolo e dai processi figli.
+- Pallini nella barra e notifiche di sistema per sessioni che richiedono attenzione.
+- Tema di sistema, chiaro o scuro; interfaccia italiana o inglese; dimensione del testo e tempi configurabili.
+- Copia, incolla, collegamenti nel browser e scorciatoie adatte alla piattaforma.
+
+Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. La lingua iniziale è italiana; il rilevamento automatico della lingua di sistema non è ancora implementato. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
+
+![Vista affiancata nel tema chiaro](docs/screenshots/plancia-light.png)
+
+### 2. Installazione e primo utilizzo
+
+Per l'avvio dai sorgenti servono Git, Node.js con npm e gli strumenti di compilazione del modulo nativo `node-pty`. Le istruzioni complete per installarli sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Node.js 24 è l'ambiente usato per le verifiche locali di questa documentazione.
 
 ```bash
-npm install
-npm test
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
 npm run dev
 ```
 
-`npm run dev` starts Vite and opens the Electron window. The renderer is also served at <http://127.0.0.1:47231/>. That page cannot spawn terminals: the PTY lives in the Electron main process. Use the window.
+Il repository è privato: per il clone occorre un account autorizzato. `npm ci` scarica dipendenze ed Electron e ricompila il modulo del terminale. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
 
-A session starts in your home directory. On macOS and Linux the default shell is your login shell (`$SHELL`, or `/bin/zsh` / `/bin/bash`) started with `-l`, so a GUI launch still picks up Homebrew, nvm, and similar profile setup. On Windows the default is Windows PowerShell (`powershell.exe -NoLogo`). PowerShell 7, Command Prompt, and Git Bash are offered when they are installed.
+1. Premi **Nuova sessione**.
+2. Scegli shell e cartella, inserisci un nome facoltativo e premi **Apri**.
+3. Usa il terminale come quello di sistema. Per affiancarne un altro, aprilo e premi l'icona **Affianca** nella sua riga.
 
-## Try the status lights without Codex
+Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](ISTRUZIONI.md).
+
+### 3. Impostazioni
+
+Apri **Impostazioni** per lingua, tema, corpo del terminale, avvisi e tempi del rilevamento. Le modifiche effettuate nell'interfaccia si applicano subito e restano sul computer in `settings.json`, nella cartella dati dell'app. **Apri il file di configurazione** mostra il file nel gestore dei file; dopo una modifica manuale riavvia l'app.
+
+Il tema predefinito segue il sistema. Le impostazioni non contengono credenziali né ripristinano le sessioni. Valori mancanti o non validi ricevono i valori predefiniti o sono limitati all'intervallo ammesso. Vedi la [configurazione completa](ISTRUZIONI.md#6-configurazione).
+
+![Impostazioni di aspetto, avvisi e rilevamento](docs/screenshots/plancia-settings.png)
+
+### 4. Sicurezza e privacy
+
+I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono leggere o modificare file e usare la rete. L'app non integra un provider AI, non gestisce API key e non impone il consenso o i permessi dei tool avviati: autenticazione e invio dei dati dipendono da quei tool.
+
+Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md), inclusi i controlli Electron ancora mancanti.
+
+### 5. Sviluppo e verifiche
+
+Stack: Electron 45, React 19, TypeScript, Vite 6, xterm.js, `@xterm/headless` e `node-pty`. La UI è in `src/`, l'accesso a PTY e sistema in `electron/`, la logica pura degli stati in `src/shared/status.ts`. Vedi [MAP.md](MAP.md) e [AGENTS.md](AGENTS.md).
+
+```bash
+npm test
+npm run build
+```
+
+Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione e notifiche; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e, né workflow CI. La build non verifica una shell reale o un installer.
+
+Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
 ```bash
 PLANCIA_DEMO=1 npm run dev
 ```
 
-`MOLO_DEMO=1` still starts the same demo.
+La demo apre due shell, avvia un indicatore simulato e imposta il tema scuro, salvandolo nelle preferenze correnti. Non usa un modello AI. Il manuale descrive demo, variabili di sviluppo e limiti.
 
-That opens two sessions: one runs `scripts/demo-codex.sh busy` (a full-screen spinner and a `Working` title, like Codex), and one is a normal shell. The script also accepts `attention` and `idle`:
+### 6. Distribuzione
+
+Eseguire prima test e build, poi creare il pacchetto sul sistema di destinazione:
 
 ```bash
-scripts/demo-codex.sh attention
+npm run dist:mac
+npm run dist:win
+npm run dist:linux
 ```
 
-## Layout
+Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. `node-pty` viene ricompilato per Electron con `npm run rebuild` quando necessario.
 
-- **Una** shows the session you click.
-- **Affiancate** shows every session you pin. The pin is the columns icon on the row. Ctrl-click (Command-click on macOS) toggles it too.
-- The focused tile is the one that receives the keyboard.
-- Closing a session that is working, or that needs you, asks first.
+La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
-Copy and paste follow the platform: Command-C / Command-V on macOS, Ctrl-Shift-C / Ctrl-Shift-V on Windows and Linux. A right-click copies the selection, or pastes when nothing is selected.
+Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. Non sono stati generati o verificati nuovi installer da questa patch documentale. Vedi [PLAN.md](PLAN.md).
 
-## How status detection works
+### 7. Documentazione e licenza
 
-Each session is one of five phases:
-
-| Phase | Meaning |
+| Documento | Contenuto |
 | --- | --- |
-| Avvio | The process has not printed anything yet. |
-| Al lavoro | Codex or the shell is producing output or still running a command. |
-| In attesa | It is quiet and waiting for you. |
-| Azione | Codex (or the screen) is asking for a decision. |
-| Terminata | The process exited. |
+| [ISTRUZIONI.md](ISTRUZIONI.md) | Manuale completo in italiano. |
+| [INSTRUCTIONS.md](INSTRUCTIONS.md) | Traduzione inglese completa del manuale. |
+| [QUICK-START_Desktop.md](QUICK-START_Desktop.md) | Avvio rapido desktop IT/EN. |
+| [SECURITY_MODEL.md](SECURITY_MODEL.md) | Sicurezza, privacy, controlli e rischi IT/EN. |
+| [MAP.md](MAP.md) | Struttura e responsabilità del repository IT/EN. |
+| [PLAN.md](PLAN.md) | Piano, verifiche e procedura di chiusura IT/EN. |
+| [AGENTS.md](AGENTS.md) | Regole operative per agenti e maintainer. |
 
-The rules live in `src/shared/status.ts` and are covered by `src/shared/status.test.ts`. The main process only feeds them facts: timestamps, the parsed screen, the window title, and whether the shell has a live child. Nothing in the detector touches a PTY, so the thresholds can be changed without guessing.
+Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
-Codex is the case the rules are written for. While a turn runs, its window title cycles a Braille spinner about every 100 ms and the screen shows `Working` and `esc to interrupt`. When it needs you (an approval, a question), the title becomes `Action required`. When it is sitting in the composer, the redraws stop.
+## English
 
-The decision, in order:
+Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-1. A dead process is **terminated**.
-2. No output yet, inside the startup grace, is **starting**. After that, **idle**.
-3. A fresh title or the bottom of the screen matching “action required”, “waiting for approval”, or “do you want to proceed” is **action**. This wins over a spinner, because you are the blocker.
-4. A title that still says working, or still contains the spinner, is **busy**. A title that stops changing is ignored after `titleBusyMaxMs` (3 s). Codex animates the spinner the whole time it works, so a frozen “Working” does not stick forever. That also limits the known stale-footer bug in Codex.
-5. `Working`, `Thinking`, `esc to interrupt`, or a spinner still on the last lines of the screen keeps the session **busy** for `busyMarkerQuietMs` (12 s) after real output pauses.
-6. A recognized prompt on the last non-empty line (`›`, `❯`, `PS C:\…>`, `user@host path $`, a bare `%`) becomes **idle** after `promptIdleTimeoutMs` (280 ms), unless a busy marker is still holding.
-7. A burst of output is **busy** until `quietTimeoutMs` (900 ms) of silence. One echoed keystroke is not a burst. A chunk of at least `burstBytes` (16), or `burstCount` chunks inside `burstWindowMs`, is.
-8. On a normal screen, a child process with no prompt stays **busy** for `childQuietTimeoutMs` (8 s). That covers `sleep`, a quiet compiler, and similar commands. A full-screen TUI such as Codex is an alternate screen and ignores this rule: Codex stays running while it waits for you, so a live child must not mean “working”.
-9. Otherwise the session is **idle**.
+**Version 0.1.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
-An action-required state is held for `attentionHoldMs` (1.8 s) so a blinking title does not flicker the badge.
+![Tiled terminals and session status in the dark theme](docs/screenshots/plancia-dark.png)
 
-### Alerts
+**Contents**
 
-When a session leaves **working** and you are not looking at it, Plancia Comandi can show a sidebar dot and a system notification. A short command (under `minBusyForNotifyMs`, 1.6 s) does not notify on the way back to idle. **Action required** always notifies, even if the busy stretch was short. Nothing notifies for the first prompt when a shell starts, and nothing notifies for the session you are already watching.
+- [1. Main features](#1-main-features)
+- [2. Installation and first use](#2-installation-and-first-use)
+- [3. Settings](#3-settings)
+- [4. Security and privacy](#4-security-and-privacy)
+- [5. Development and checks](#5-development-and-checks)
+- [6. Distribution](#6-distribution)
+- [7. Documentation and license](#7-documentation-and-license)
 
-Both switches are in Settings. Timings apply immediately and are saved in Electron's user-data folder (`settings.json`, under the name Plancia Comandi). If that file is missing, the app copies one left behind by the previous name, Molo. Use **Apri il file di configurazione** to reveal it. Extra regexes go in that file:
+### 1. Main features
 
-```json
-{
-  "status": {
-    "quietTimeoutMs": 900,
-    "extraIdlePatterns": ["^ready>"],
-    "extraBusyPatterns": ["compiling"],
-    "extraAttentionPatterns": ["allow this edit"]
-  }
-}
+- Up to 12 sessions, with a choice of shell and starting folder.
+- **One** or **Side by side** view, session renaming and closing.
+- **Starting**, **Working**, **Idle**, **Action** and **Exited** states estimated from output, titles and child processes.
+- Sidebar dots and system notifications for sessions requiring attention.
+- System, light or dark theme; Italian or English interface; configurable text size and detection timings.
+- Copy, paste, browser links and platform-specific shortcuts.
+
+Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
+
+![Side-by-side view in the light theme](docs/screenshots/plancia-light.png)
+
+### 2. Installation and first use
+
+Running from source requires Git, Node.js with npm and build tools for the native `node-pty` module. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. Node.js 24 is the environment used for this documentation's local checks.
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm run dev
 ```
 
-A broken regex is ignored. Numbers are clamped to a safe range. **Ripristina i tempi** puts the built-in timings back. **Mostra il motivo dello stato** prints the rule that fired (`title-busy`, `idle-prompt`, `active-child`, …) under each session.
+This is a private repository: cloning requires an authorized account. `npm ci` downloads dependencies and Electron and rebuilds the terminal module. A desktop window opens: the development web page cannot create terminals on its own.
 
-### Limits
+1. Click **New session**.
+2. Choose a shell and folder, optionally enter a name, and click **Open**.
+3. Use it like your system terminal. To tile another one, open it and click its **Tile** icon in the sidebar.
 
-- This is a heuristic. It does not read Codex's internal state.
-- Apps that keep redrawing while they wait (htop, a clock in the prompt, a spinner that never stops) stay **working**. That matches “producing output”.
-- A TUI that waits for you without an “action required” title, and without a prompt Plancia Comandi recognizes, becomes **idle** about a second after the redraws stop. If the word `Working` is still on screen, that wait is up to 12 seconds.
-- The child-process signal is only for the normal screen. It asks `ps` on macOS and Linux, and PowerShell CIM on Windows, about every 2.5 seconds. A process that exits in between polls can be a moment late.
-- Prompt detection looks at the last non-empty line. A command whose last line happens to look like a shell prompt can be marked idle early.
-- `100%` is not treated as a zsh prompt. Other odd last lines can still be.
-- The window-title signal depends on Codex keeping the OSC title updated. If a build stops doing that, the screen markers and the silence timer are the fallback.
-- System notifications need the OS to allow them. On Linux that means a working notification daemon. The sidebar dot does not.
+See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTRUCTIONS.md). To change the initial Italian interface, open **Impostazioni** and choose **English**.
 
-## Tests
+### 3. Settings
+
+Open **Settings** for language, theme, terminal size, alerts and detection timings. Interface changes apply immediately and remain on this computer in `settings.json`, in the app's data directory. **Open the configuration file** reveals the file in the file manager; restart the app after editing it manually.
+
+The default theme follows the system. Settings do not store credentials or restore sessions. Missing or invalid values receive defaults or are clamped to their allowed range. See the [full configuration](INSTRUCTIONS.md#6-configuration).
+
+![Appearance, alert and detection settings](docs/screenshots/plancia-settings.png)
+
+### 4. Security and privacy
+
+Commands run with the permissions of the user starting the app and can read or change files and use the network. The app has no integrated AI provider, does not manage API keys, and does not enforce consent or permissions for launched tools: those tools control authentication and data transmission.
+
+Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md), including missing Electron protections.
+
+### 5. Development and checks
+
+Stack: Electron 45, React 19, TypeScript, Vite 6, xterm.js, `@xterm/headless` and `node-pty`. UI lives in `src/`, PTY and system access in `electron/`, and pure status logic in `src/shared/status.ts`. See [MAP.md](MAP.md) and [AGENTS.md](AGENTS.md).
 
 ```bash
 npm test
+npm run build
 ```
 
-Vitest runs the detector, the output-burst tracker, the title parser, the attention hold, and the notification rules. It does not launch Electron.
+Vitest checks status detection, output bursts, titles, stabilization and notifications; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands, and no CI workflows. Building does not verify a real shell or installer.
 
-## Package
-
-Build the web and Electron bundles first, then package on the OS you are shipping:
+For a demo from a checkout with Bash on macOS/Linux:
 
 ```bash
-npm run build
-npm run dist:mac    # on macOS: dmg and zip
-npm run dist:win    # on Windows: NSIS installer and a portable exe
-npm run dist:linux  # AppImage and deb
+PLANCIA_DEMO=1 npm run dev
 ```
 
-`npm run dist` packages for the current OS. Output goes to `release/`. Installer file names start with `PlanciaComandi`. The app id is `it.plancia.comandi`, and the executable is `plancia-comandi`.
+The demo opens two shells, runs a simulated indicator and selects the dark theme, saving it to current preferences. It uses no AI model. The manual covers the demo, development variables and limitations.
 
-`node-pty` is a native addon. `postinstall` rebuilds it for the local Electron. If you switch Electron versions, run `npm run rebuild`. The builder unpacks `node-pty` and `@xterm/headless` from the asar, because the `.node` binary and the pty helper cannot be loaded from inside an archive.
+### 6. Distribution
 
-macOS packaging is set with `"identity": null`, so a local build is unsigned and Gatekeeper will warn. To sign and notarize, remove that field and provide an Apple Developer certificate (`CSC_NAME` or the usual `CSC_*` variables). Windows signing is not configured; set `CSC_LINK` / `CSC_KEY_PASSWORD` when you have a certificate.
+Run tests and build first, then create the package on its target OS:
 
-Icons are generated from `build/icon.png`. electron-builder turns that into `.icns` and `.ico` during the platform build.
+```bash
+npm run dist:mac
+npm run dist:win
+npm run dist:linux
+```
 
-## What still needs a real Mac or Windows machine
+Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. Rebuild `node-pty` for Electron with `npm run rebuild` when necessary.
 
-This repo was developed on Linux. The PTY, the split view, both themes, and the busy/idle lights were exercised here with the demo script. These pieces were not run on macOS or Windows:
+macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 
-- Spawning the login shell from a Finder / Dock launch, and Windows PowerShell, Command Prompt, and Git Bash.
-- Whether `-l` loads the PATH you expect for a globally installed `codex`.
-- ConPTY resizing, color, and mouse input under Windows Terminal's console host.
-- The real Codex TUI: confirm the title still says `Working` / `Action required`, and adjust the regexes in `settings.json` if a release changes the words.
-- System notifications and the click-to-focus behavior.
-- IME input, and the macOS traffic-light spacing in the sidebar.
-- Keyboard shortcuts (Command on macOS, Ctrl-Shift on Windows).
-- A signed installer. `npm run dist:mac` and `npm run dist:win` have not been produced from this environment.
+Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. No new installers were generated or verified by this documentation patch. See [PLAN.md](PLAN.md).
 
-Linux DBus warnings in the dev log are harmless when no notification bus is available. Codex itself is not bundled; install it in the shell you open inside Plancia Comandi.
+### 7. Documentation and license
 
-## License
+| Document | Contents |
+| --- | --- |
+| [ISTRUZIONI.md](ISTRUZIONI.md) | Complete Italian manual. |
+| [INSTRUCTIONS.md](INSTRUCTIONS.md) | Complete English translation of the manual. |
+| [QUICK-START_Desktop.md](QUICK-START_Desktop.md) | IT/EN desktop quick start. |
+| [SECURITY_MODEL.md](SECURITY_MODEL.md) | IT/EN security, privacy, controls and risks. |
+| [MAP.md](MAP.md) | IT/EN repository structure and responsibilities. |
+| [PLAN.md](PLAN.md) | IT/EN plan, checks and closure procedure. |
+| [AGENTS.md](AGENTS.md) | Operating rules for agents and maintainers. |
 
-Plancia Comandi is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
+Licensed under the **Apache License 2.0**: see the full text in [LICENSE](LICENSE).

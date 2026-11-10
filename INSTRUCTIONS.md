@@ -1,0 +1,243 @@
+# User manual — Plancia Comandi
+
+This manual describes Plancia Comandi **0.1.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+
+**Contents**
+
+- [1. Requirements](#1-requirements)
+- [2. Installation](#2-installation)
+- [3. First start](#3-first-start)
+- [4. Sessions and views](#4-sessions-and-views)
+- [5. Status and alerts](#5-status-and-alerts)
+- [6. Configuration](#6-configuration)
+- [7. Keyboard, clipboard and links](#7-keyboard-clipboard-and-links)
+- [8. Practical examples](#8-practical-examples)
+- [9. Troubleshooting](#9-troubleshooting)
+- [10. Updating and removal](#10-updating-and-removal)
+- [11. Security and limitations](#11-security-and-limitations)
+- [12. Development and distribution](#12-development-and-distribution)
+
+## 1. Requirements
+
+You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
+
+Running source requires Git, Node.js with npm, authorized access to the private repository and tools to compile `node-pty`. This documentation's local checks use Node.js 24. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+
+## 2. Installation
+
+### 2.1 Install the required software
+
+1. Install **Git** from its [official website](https://git-scm.com/downloads), choosing your OS and following the installer. On Windows you can also install Git Bash. Open a new terminal and check `git --version`.
+2. Install **Node.js 24** with npm from its [official website](https://nodejs.org/en/download), choosing the appropriate version, OS and architecture. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
+3. Prepare native tools if compilation requires them: Xcode development tools on macOS; Python and Visual Studio C++/Windows SDK tools on Windows; Python, `make` and a C++ compiler on Linux. Follow the requirements for the project's `node-pty` version, also available in `node_modules/node-pty/README.md` after dependencies have been downloaded. These tools are not needed to use a future prebuilt package.
+4. If you want an optional shell, install it with its own installer and restart Plancia Comandi. Windows detection looks for PowerShell 7 in `PATH` and Git Bash in standard Git directories. Windows PowerShell is the initial choice; macOS/Linux use the login shell.
+5. To use an AI CLI, first complete its installation and sign-in in your normal system terminal. Plancia Comandi does not include the CLI, configure its account or manage its credentials.
+
+To prepare native tools:
+
+- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation.
+- **Windows:** download and install [Python](https://www.python.org/downloads/) and [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). In the Build Tools installer, select the desktop C++ development tools and a Windows SDK. Reopen the terminal and check that Python is available. If an error mentions Spectre libraries, add the component matching your compiler through Visual Studio Installer, as described in the `node-pty` README.
+- **Linux:** use your distribution's package manager to install Python 3, `make`, a C++ compiler and its development tools; names and installation steps depend on the distribution. Then retry `npm ci` in the project folder.
+
+### 2.2 Get and start Plancia Comandi
+
+With a GitHub account authorized for the repository:
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm run dev
+```
+
+If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions and runs the native rebuild for Electron; it requires network access. Wait for it to finish before starting the app.
+
+The desktop window opens. Vite also serves `http://127.0.0.1:47231/`, but the browser page cannot open terminals: use the Electron window. To stop the development environment, quit the app and interrupt the command in the terminal that started it.
+
+### 2.3 Prebuilt packages
+
+This guide does not assume that a verified installer already exists. If a release is published, use only the artifacts and SHA-256 listed in its notes: DMG/ZIP for macOS, NSIS installer or portable executable for Windows, AppImage/DEB for Linux. The Windows portable executable runs without the installer; its name does not guarantee settings are stored beside it.
+
+After verifying the file for your OS and architecture, follow release notes: on macOS open the DMG and copy the app to Applications, or extract the app from the ZIP; on Windows run the installer and choose a folder, or use the portable executable; on Linux open the DEB with the package manager, or grant execution permission to the AppImage through file properties and launch it. These are the procedures expected for the configured targets, still awaiting verification with real packages.
+
+Distribution is expected to be unsigned. Gatekeeper and SmartScreen may display warnings. Verify origin and checksum before following the OS opening procedure; do not disable global protections. Signing, notarization and automatic updates are not configured.
+
+## 3. First start
+
+1. The window starts in the workspace with no open terminals. Click **New session** (initially **Nuova sessione** in Italian).
+2. Enter an optional **Name**; leave it empty for a numbered name.
+3. Choose a **Shell** and **Folder**. **Browse** opens the folder picker. The first proposed folder is your home directory; later the app offers the last used folder.
+4. Click **Open** and wait for the prompt. If the folder is invalid or the terminal module cannot load, correct the displayed error.
+5. Type a shell command as you would in your system terminal.
+
+The initial language is Italian even on non-Italian systems. Open **Impostazioni** to choose **Italiano** or **English**. The initial theme follows the system; you can force **Light** or **Dark** in **Settings**. Preferences remain saved.
+
+## 4. Sessions and views
+
+You can keep up to **12 sessions**, including exited sessions that have not been closed. At the limit, close one before creating another.
+
+- **Select:** click a sidebar row or inside a visible terminal. Typing goes to the active session.
+- **Rename:** click the **Rename** pencil or double-click the name. Press Enter or move focus away to save; Esc cancels. Names are limited to 80 characters.
+- **One view:** shows the selected session.
+- **Side by side view:** shows the selected session and those pinned with **Tile**, the columns icon. Command-click on macOS or Ctrl-click on other systems also works. Tiles use one, two or three columns depending on the number visible.
+- **Remove from view:** unpins a session without stopping its process. The selected session remains visible even when unpinned; select another session to hide it.
+- **Close:** click **×** in its row. **Working** or **Action** states trigger a confirmation; other states close immediately. The terminal process is stopped.
+
+An exited process remains visible as **Exited** with its exit code. Read its output before closing the session. Open a new session to restart work.
+
+A full quit terminates sessions and does not restore them. Names, selection, pins and output are not saved for the next start. On macOS closing the last window normally leaves the app and its sessions running; quitting the app terminates them. There is no general quit confirmation that checks all sessions.
+
+## 5. Status and alerts
+
+| State | Estimated meaning |
+| --- | --- |
+| Starting | No output has arrived yet, within the initial grace period. |
+| Working | The program produces output or there are signs of activity. |
+| Idle | No recent signs of work, or a recognized prompt. |
+| Action | The title or last screen lines suggest a request for input. |
+| Exited | The process has exited. |
+
+The app evaluates, in order: process exit, startup, an input request, an animated/working title, markers on the last lines, a recognized prompt, output bursts, a child process on the normal screen, and finally inactivity. A frozen working title is ignored after 3 seconds; a visible marker can hold **Working** for up to 12 seconds after output. A recognized prompt uses 280 ms; an output burst uses 900 ms. A silent child holds working for 8 seconds on the normal buffer, not in a full-screen TUI. Timings are configurable.
+
+Action requests remain visible for at least 1.8 seconds to reduce flicker. Child-process information is polled roughly every 2.5 seconds using OS tools; it is not instantaneous.
+
+In **Settings → Alerts**, enable **System notification** and **Dot in the sidebar** separately. The app reports a session becoming idle after sufficiently long work or requesting action, when it is not the active session with the window focused. Work shorter than 1.6 seconds does not generate an idle-again alert; an action request can still trigger one. The initial prompt does not notify.
+
+A tiled but inactive session may still generate alerts. Its dot clears when you watch it with the window focused; clicking a notification returns to that session. System alerts depend on OS permissions and, on Linux, the available notification service.
+
+## 6. Configuration
+
+### 6.1 Interface preferences
+
+Open **Settings**: changes apply and save immediately. **Terminal size** ranges from 11 to 22, initially 14. **Show why the status was chosen** adds the reason below sessions; the indicator tooltip helps explain the selected rule. **Reset timings** resets only detection parameters, including patterns, rather than every preference.
+
+The central user preferences file is `settings.json` in the directory Electron returns as `userData`. Use **Open the configuration file** to find the actual path. Usual locations are:
+
+| OS | Usual path |
+| --- | --- |
+| macOS | `~/Library/Application Support/Plancia Comandi/settings.json` |
+| Windows | `%APPDATA%/Plancia Comandi/settings.json` |
+| Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, otherwise `~/.config/Plancia Comandi/settings.json` |
+
+Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language `it`, layout `single`, both alerts enabled, reasons hidden. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
+
+Quit the app before editing JSON manually, keep a copy if it contains customizations, and restart after saving. The file is not reloaded automatically. A missing or unreadable/invalid file uses defaults; a nonexistent last folder falls back to home. If the current file does not exist, the app searches for and copies the file from the former `Molo`/`molo` directories, retaining the original.
+
+### 6.2 Advanced timings and patterns
+
+Numbers are milliseconds except for the two quantity thresholds. Names below are JSON keys inside `status`.
+
+| Key | Default | Range | Purpose |
+| --- | --- | --- | --- |
+| `quietTimeoutMs` | 900 | 200–30000 | Silence after an output burst. |
+| `promptIdleTimeoutMs` | 280 | 50–10000 | Wait for a recognized prompt. |
+| `busyMarkerQuietMs` | 12000 | 500–120000 | Working marker still visible. |
+| `childQuietTimeoutMs` | 8000 | 500–120000 | Silent child on the normal buffer. |
+| `startupGraceMs` | 800 | 0–10000 | Period before the first output. |
+| `titleBusyMaxMs` | 3000 | 500–60000 | Maximum trust duration for a frozen title. |
+| `burstBytes` | 16 | 1–500 | Chunk-length threshold, measured by the code as string length. |
+| `burstCount` | 3 | 1–20 | Number of chunks in the window. |
+| `burstWindowMs` | 500 | 50–5000 | Window for counting chunks. |
+| `minBusyForNotifyMs` | 1600 | 0–60000 | Minimum work duration for an idle-again alert. |
+| `attentionHoldMs` | 1800 | 0–10000 | Hold duration for Action. |
+
+Example partial file without credentials:
+
+```json
+{
+  "theme": "system",
+  "locale": "it",
+  "status": {
+    "quietTimeoutMs": 900,
+    "extraIdlePatterns": ["^ready>"],
+    "extraBusyPatterns": ["compiling"],
+    "extraAttentionPatterns": ["allow this edit"]
+  }
+}
+```
+
+Missing fields receive defaults; numbers are rounded and clamped to the allowed range. The three lists add JavaScript regexes to the built-in rules without replacing them: up to 40 strings per list, each 1–299 characters. Idle patterns apply to the last nonempty line; busy/attention patterns to the last lines. Syntactically invalid regexes are ignored; expensive regexes have no timeout, so use simple, trusted expressions.
+
+## 7. Keyboard, clipboard and links
+
+| Action | macOS | Windows / Linux |
+| --- | --- | --- |
+| New session | Command+T | Ctrl+Shift+T |
+| Close active | Command+W | Ctrl+Shift+W |
+| One / Side by side | Command+\ | Ctrl+Shift+D |
+| Settings | Command+, | Ctrl+Shift+, |
+| Tile a row | Command-click | Ctrl-click |
+| Copy selection | Command+C | Ctrl+Shift+C |
+| Paste | Command+V | Ctrl+Shift+V |
+
+Right-click copies an existing selection; with no selection, it pastes the clipboard. The copy shortcut without a selection does not forward the key combination to the program. Ordinary Ctrl+C remains available to the shell to interrupt a command. Esc closes dialogs; otherwise it passes through to the terminal. Session shortcuts do not apply while a dialog is open.
+
+Paste writes directly into the terminal without a confirmation preview: check the text, especially multiple lines. HTTP/HTTPS links clicked inside the terminal open in the external browser; other protocols are ignored.
+
+## 8. Practical examples
+
+**Two tasks:** open a session named “Project” in your code folder and a “Checks” session in the same folder. Pin them with **Tile**. Use the first for an already installed CLI and the second for the project's validation commands. Click the intended tile before typing.
+
+**Understand a status:** enable **Show why the status was chosen**. If a program still appears working after stopping, check whether it continuously redraws the screen or leaves a working marker. Adjust timings or a specific pattern; do not use an estimated status to decide destructive operations automatically.
+
+**Try indicators without AI**, from a checkout with Bash on macOS/Linux:
+
+```bash
+PLANCIA_DEMO=1 npm run dev
+```
+
+The demo opens an ordinary shell and one running `scripts/demo-codex.sh busy`, selects and saves the dark theme and tiles the sessions. The script simulates activity without AI calls. In a Bash shell, also try `bash scripts/demo-codex.sh attention` or `bash scripts/demo-codex.sh idle`; Ctrl+C stops the simulation. The legacy `MOLO_DEMO=1` alias remains supported. The demo does not use an isolated settings profile.
+
+## 9. Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| Browser asks you to open the desktop window | Use Electron started with `npm run dev`, rather than the Vite page. |
+| Terminal unavailable / `node-pty` error | Check native build tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
+| Invalid folder | Use **Browse** to select an existing, accessible directory. An `app.asar` archive is not a valid working folder. |
+| Shell is missing | Install it in a detected location or in `PATH` where supported, and restart. There is no arbitrary shell-command field. |
+| CLI command not found | Confirm it works in the chosen shell and that its login profile configures `PATH`. The app does not install CLIs. |
+| Unexpected status | Read the actual output, enable reasons and check timings and patterns. Continuous redraws and unusual prompts can produce wrong estimates. |
+| No notification | Check both switches and OS permissions; the active session in a focused window does not notify. On Linux check the notification service. |
+| Development port is occupied | After verifying its identity, stop the other development process using `47231`, then retry. The port is fixed and does not change automatically. |
+| Edited JSON is not used | Quit the app, check syntax and path, save and restart. Invalid files use defaults; a later UI change may rewrite the file. |
+| Sessions missing after restarting | Session restoration is not implemented; open new sessions. |
+
+When reporting issues, share version, OS, reproduction steps and messages with personal data removed. Do not automatically attach screenshots, complete logs, histories or settings containing private paths.
+
+## 10. Updating and removal
+
+To update a checkout, finish tasks, quit the app and inspect local changes with `git status` first. Update only to the revision approved by the maintainer, preserving your files; then run `npm ci`, `npm test` and `npm run build`. Restart with `npm run dev`. Do not use destructive resets to resolve divergence.
+
+For a package, follow the replacement/installation procedure for the verified release on the same platform and architecture. The app does not manage automatic updates. Remove a compiled app using OS tools; the Windows installer is configured to retain user data. Data remains in the directory revealed by settings: if you want to remove it, first copy useful preferences and verify the path. Do not delete working folders or credentials belonging to launched programs.
+
+To stop using source, stop the app; retain the checkout if it contains changes or data you need. Removing the app does not remove separately installed Git, Node.js, shells or CLIs.
+
+## 11. Security and limitations
+
+Plancia Comandi is a local terminal running with your permissions, without workspace confinement. Do not run it with elevated privileges or treat the renderer sandbox as protection against typed commands. Shells inherit almost the entire process environment, potentially including sensitive variables.
+
+The app does not manage API keys or a keychain and does not independently send prompts to AI providers. A launched CLI may do so under its own configuration and consent controls. Check authentication, permissions, accessible files and destinations before giving it private content. `settings.json` must not contain secrets.
+
+Output and session names remain in memory, but shells may save history and programs may write logs, files or use the network. Notifications contain the session name; clipboard, screenshots and diagnostics can reveal data. The app does not guarantee automatic redaction. Backlog limits can lose older output when a view is recreated; do not use it as permanent storage.
+
+Status detection is not a tool-control protocol. A TUI redrawing while waiting can stay **Working**; a command ending with a prompt-like line can appear **Idle** prematurely. The UI confirms only closures it considers working or awaiting action; a full quit has no such protection.
+
+Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for missing Electron controls and [PLAN.md](PLAN.md) for future proposals.
+
+## 12. Development and distribution
+
+```bash
+npm test
+npm run build
+```
+
+`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands and no GitHub Actions workflows. `npm run preview` shows only the renderer and does not replace the desktop window.
+
+After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. Icons derive from `build/icon.png`.
+
+Before distributing, test the package outside the checkout, check that it contains no private data and generate SHA-256 for every artifact, for example `shasum -a 256 <artifact>` on macOS, `sha256sum <artifact>` on Linux or `Get-FileHash <artifact> -Algorithm SHA256` in PowerShell, replacing `<artifact>` with the actual path. Signing and notarization require an explicit process; these commands do not authorize them implicitly.
+
+Development-only variables: `PLANCIA_DEVTOOLS=1` opens DevTools; in demo mode `PLANCIA_SHOT_DIR` enables screenshot writes and `PLANCIA_SHOT_EXIT=1` quits after capture. Legacy aliases `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT` also exist. Screenshots include visible content and the output path is not confined: use only authorized test directories and terminals without private data. Capture also changes the saved theme.
+
+This documentation patch does not generate installers, configure signing or exercise a real AI CLI. Review and distribution rules are in [AGENTS.md](AGENTS.md); structure in [MAP.md](MAP.md); license in [LICENSE](LICENSE).
