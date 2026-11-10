@@ -1,0 +1,36 @@
+{
+  $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  appId: "it.plancia.comandi",
+  productName: "Plancia Comandi",
+  executableName: "plancia-comandi",
+  asar: true,
+  asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
+  directories: {
+    output: "release",
+  },
+  files: ["dist/**/*", "dist-electron/**/*", "package.json", "node_modules/**/*"],
+  mac: {
+    category: "public.app-category.developer-tools",
+    target: ["dmg", "zip"],
+    identity: null,
+    artifactName: "PlanciaComandi-mac-${version}-${arch}.${ext}",
+  },
+  win: {
+    target: [
+      { target: "nsis", arch: ["x64"] },
+      { target: "portable", arch: ["x64"] },
+    ],
+    artifactName: "PlanciaComandi-win-${version}-${arch}.${ext}",
+  },
+  nsis: {
+    oneClick: false,
+    perMachine: false,
+    allowToChangeInstallationDirectory: true,
+    deleteAppDataOnUninstall: false,
+  },
+  linux: {
+    category: "Development",
+    target: ["AppImage", "deb"],
+    artifactName: "PlanciaComandi-linux-${version}-${arch}.${ext}",
+  },
+}
