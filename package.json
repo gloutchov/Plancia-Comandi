@@ -4,6 +4,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Desktop terminal manager for Codex CLI and other shells",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {

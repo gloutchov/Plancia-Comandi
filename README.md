@@ -152,3 +152,7 @@ This repo was developed on Linux. The PTY, the split view, both themes, and the 
 - A signed installer. `npm run dist:mac` and `npm run dist:win` have not been produced from this environment.
 
 Linux DBus warnings in the dev log are harmless when no notification bus is available. Codex itself is not bundled; install it in the shell you open inside Plancia Comandi.
+
+## License
+
+Plancia Comandi is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
