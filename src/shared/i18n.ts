@@ -1,11 +1,11 @@
 import type { Locale } from './types'
 
 const it = {
-  appName: 'Molo',
+  appName: 'Plancia Comandi',
   tagline: 'terminali',
   loading: 'Caricamento…',
-  openDesktop: 'Apri Molo dalla finestra dell’app. Il terminale ha bisogno del processo desktop.',
-  bootError: 'Molo non è riuscito ad avviarsi.',
+  openDesktop: 'Apri Plancia Comandi dalla finestra dell’app. Il terminale ha bisogno del processo desktop.',
+  bootError: 'Plancia Comandi non è riuscito ad avviarsi.',
   newSession: 'Nuova sessione',
   open: 'Apri',
   cancel: 'Annulla',
@@ -119,11 +119,11 @@ const it = {
 }
 
 const en: { [K in keyof typeof it]: string } = {
-  appName: 'Molo',
+  appName: 'Plancia Comandi',
   tagline: 'terminals',
   loading: 'Loading…',
-  openDesktop: 'Open Molo from the desktop window. The terminal needs the desktop process.',
-  bootError: 'Molo failed to start.',
+  openDesktop: 'Open Plancia Comandi from the desktop window. The terminal needs the desktop process.',
+  bootError: 'Plancia Comandi failed to start.',
   newSession: 'New session',
   open: 'Open',
   cancel: 'Cancel',

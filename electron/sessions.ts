@@ -84,7 +84,7 @@ function childEnv(): Record<string, string> {
   }
   env.TERM = 'xterm-256color'
   env.COLORTERM = 'truecolor'
-  env.TERM_PROGRAM = 'molo'
+  env.TERM_PROGRAM = 'plancia-comandi'
   if (!env.LANG && !env.LC_ALL) env.LANG = 'C.UTF-8'
   return env
 }

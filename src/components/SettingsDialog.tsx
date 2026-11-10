@@ -206,7 +206,7 @@ export function SettingsDialog({
             >
               {t('resetDefaults')}
             </button>
-            <button type="button" className="btn" onClick={() => void window.molo?.revealSettings()}>
+            <button type="button" className="btn" onClick={() => void window.plancia?.revealSettings()}>
               {t('openConfig')}
             </button>
           </div>

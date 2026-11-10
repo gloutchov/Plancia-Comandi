@@ -36,7 +36,7 @@ export function TerminalView({
 
   useEffect(() => {
     const host = hostRef.current
-    const bridge = window.molo
+    const bridge = window.plancia
     if (!host || !bridge) return
 
     const term = new Terminal({
@@ -55,7 +55,7 @@ export function TerminalView({
     term.loadAddon(
       new WebLinksAddon((event, uri) => {
         event.preventDefault()
-        window.molo?.openExternal(uri)
+        window.plancia?.openExternal(uri)
       }),
     )
     term.open(host)
@@ -165,7 +165,7 @@ export function TerminalView({
     if (!term || !fit) return
     term.options.fontSize = fontSize
     fit.fit()
-    window.molo?.resize(sessionId, term.cols, term.rows)
+    window.plancia?.resize(sessionId, term.cols, term.rows)
   }, [fontSize, sessionId])
 
   useEffect(() => {
@@ -189,7 +189,7 @@ export function TerminalView({
         void navigator.clipboard
           .readText()
           .then((text) => {
-            if (text) window.molo?.write(sessionId, text)
+            if (text) window.plancia?.write(sessionId, text)
           })
           .catch(() => undefined)
       }}

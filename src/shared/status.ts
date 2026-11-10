@@ -1,7 +1,7 @@
 import type { Phase, StatusConfig, StatusInput, StatusResult, TitleSignal } from './types'
 
 /**
- * Status detection for Molo.
+ * Status detection for Plancia Comandi.
  *
  * The detector is a pure function. The main process feeds it timestamps, the
  * parsed screen, the window title, and whether the shell has a live child.

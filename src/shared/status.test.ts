@@ -73,10 +73,10 @@ describe('prompts and markers', () => {
 
 describe('titles', () => {
   it('classifies Codex titles', () => {
-    expect(classifyTitle('⠋ Working — molo')).toBe('busy')
+    expect(classifyTitle('⠋ Working — repo')).toBe('busy')
     expect(classifyTitle('Working')).toBe('busy')
-    expect(classifyTitle('Action required — molo')).toBe('attention')
-    expect(classifyTitle('~/src/molo')).toBe('unknown')
+    expect(classifyTitle('Action required — repo')).toBe('attention')
+    expect(classifyTitle('~/src/app')).toBe('unknown')
     expect(classifyTitle('')).toBe('unknown')
   })
 
@@ -213,7 +213,7 @@ describe('detectSessionStatus', () => {
       input({
         now: 8_000,
         lastActivityAt: 1_000,
-        title: '⠙ Working — molo',
+        title: '⠙ Working — repo',
         titleChangedAt: 7_900,
         visibleText: '› \n',
         screenMode: 'alternate',
@@ -229,7 +229,7 @@ describe('detectSessionStatus', () => {
       input({
         now: 8_000,
         lastActivityAt: 7_950,
-        title: 'Action required — molo',
+        title: 'Action required — repo',
         titleChangedAt: 7_900,
         visibleText: 'Allow this command?\n› yes',
         screenMode: 'alternate',

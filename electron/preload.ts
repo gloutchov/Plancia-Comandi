@@ -35,6 +35,6 @@ const api = {
   onSettings: (callback: (settings: AppSettings) => void): (() => void) => subscribe('settings:updated', callback),
 }
 
-contextBridge.exposeInMainWorld('molo', api)
+contextBridge.exposeInMainWorld('plancia', api)
 
-export type MoloApi = typeof api
+export type PlanciaApi = typeof api

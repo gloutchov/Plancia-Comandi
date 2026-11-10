@@ -12,6 +12,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
 const RENDERER_DIST = path.join(APP_ROOT, 'dist')
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
+const APP_TITLE = 'Plancia Comandi'
+
+function envFlag(name: string, legacy: string): boolean {
+  return process.env[name] === '1' || process.env[legacy] === '1'
+}
+
+function envText(name: string, legacy: string): string | undefined {
+  return process.env[name] || process.env[legacy]
+}
+
+const demoMode = () => envFlag('PLANCIA_DEMO', 'MOLO_DEMO')
 
 let win: BrowserWindow | null = null
 let manager: SessionManager | null = null
@@ -58,7 +69,7 @@ function bootInfo(): BootInfo {
     platform: process.platform,
     home: app.getPath('home'),
     version: pkg.version,
-    demo: process.env.MOLO_DEMO === '1',
+    demo: demoMode(),
     systemDark: nativeTheme.shouldUseDarkColors,
     settings: settings.data,
     sessions: manager?.list() ?? [],
@@ -188,26 +199,25 @@ async function startDemo(): Promise<void> {
   if (shellSession.ok) {
     manager.write(shellSession.session.id, 'clear\n')
   }
-  if (process.env.MOLO_SHOT_DIR && win) {
-    await captureShots(win, process.env.MOLO_SHOT_DIR)
-  }
+  const shotDir = envText('PLANCIA_SHOT_DIR', 'MOLO_SHOT_DIR')
+  if (shotDir && win) await captureShots(win, shotDir)
 }
 
 async function captureShots(window: BrowserWindow, dir: string): Promise<void> {
   fs.mkdirSync(dir, { recursive: true })
   await delay(3200)
-  fs.writeFileSync(path.join(dir, 'molo-dark.png'), (await window.capturePage()).toPNG())
+  fs.writeFileSync(path.join(dir, 'plancia-dark.png'), (await window.capturePage()).toPNG())
   settings?.update({ theme: 'light' })
   applyThemeSource('light')
   publishSettings()
   await delay(900)
-  fs.writeFileSync(path.join(dir, 'molo-light.png'), (await window.capturePage()).toPNG())
+  fs.writeFileSync(path.join(dir, 'plancia-light.png'), (await window.capturePage()).toPNG())
   await window.webContents.executeJavaScript(
     `document.querySelector('[data-testid="open-settings"]')?.click()`,
   )
   await delay(600)
-  fs.writeFileSync(path.join(dir, 'molo-settings.png'), (await window.capturePage()).toPNG())
-  if (process.env.MOLO_SHOT_EXIT === '1') app.quit()
+  fs.writeFileSync(path.join(dir, 'plancia-settings.png'), (await window.capturePage()).toPNG())
+  if (envFlag('PLANCIA_SHOT_EXIT', 'MOLO_SHOT_EXIT')) app.quit()
 }
 
 function delay(ms: number): Promise<void> {
@@ -218,13 +228,13 @@ function createWindow(): void {
   const darwin = process.platform === 'darwin'
   const dark = settings ? isDark(settings.data.theme) : true
   win = new BrowserWindow({
-    width: process.env.MOLO_DEMO === '1' ? 1440 : 1280,
-    height: process.env.MOLO_DEMO === '1' ? 900 : 820,
+    width: demoMode() ? 1440 : 1280,
+    height: demoMode() ? 900 : 820,
     minWidth: 860,
     minHeight: 560,
     show: false,
     backgroundColor: dark ? '#12141a' : '#f3f0e8',
-    title: 'Molo',
+    title: APP_TITLE,
     autoHideMenuBar: true,
     titleBarStyle: darwin ? 'hiddenInset' : 'default',
     trafficLightPosition: darwin ? { x: 16, y: 18 } : undefined,
@@ -245,19 +255,19 @@ function createWindow(): void {
     win = null
   })
   win.webContents.on('did-finish-load', () => {
-    if (process.env.MOLO_DEMO === '1') void startDemo()
+    if (demoMode()) void startDemo()
   })
 
   if (VITE_DEV_SERVER_URL) void win.loadURL(VITE_DEV_SERVER_URL)
   else void win.loadFile(path.join(RENDERER_DIST, 'index.html'))
 
-  if (process.env.MOLO_DEVTOOLS === '1') win.webContents.openDevTools({ mode: 'detach' })
+  if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })
 }
 
 function start(): void {
   const home = app.getPath('home')
   settings = new SettingsStore(home)
-  if (process.env.MOLO_DEMO === '1') nativeTheme.themeSource = 'dark'
+  if (demoMode()) nativeTheme.themeSource = 'dark'
   else applyThemeSource(settings.data.theme)
 
   shellChoices = detectShells()
@@ -280,7 +290,8 @@ function start(): void {
   createWindow()
 }
 
-if (process.platform === 'win32') app.setAppUserModelId('it.molo.desktop')
+app.setName(APP_TITLE)
+if (process.platform === 'win32') app.setAppUserModelId('it.plancia.comandi')
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {

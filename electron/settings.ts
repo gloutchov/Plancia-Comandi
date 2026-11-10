@@ -76,7 +76,21 @@ export class SettingsStore {
   constructor(home: string) {
     this.home = home
     this.file = path.join(app.getPath('userData'), 'settings.json')
+    this.migrateLegacyFile()
     this.data = this.read()
+  }
+
+  /** Copy settings written by the app when it was still named Molo. */
+  private migrateLegacyFile(): void {
+    if (fs.existsSync(this.file)) return
+    const appData = app.getPath('appData')
+    const legacy = ['Molo', 'molo'].map((name) => path.join(appData, name, 'settings.json'))
+    for (const oldFile of legacy) {
+      if (oldFile === this.file || !fs.existsSync(oldFile)) continue
+      fs.mkdirSync(path.dirname(this.file), { recursive: true })
+      fs.copyFileSync(oldFile, this.file)
+      return
+    }
   }
 
   private read(): AppSettings {
@@ -105,7 +119,7 @@ export class SettingsStore {
     fs.mkdirSync(path.dirname(this.file), { recursive: true })
     const body = {
       _comment:
-        'Molo settings. Timings are milliseconds. extraIdlePatterns, extraBusyPatterns and extraAttentionPatterns are JavaScript regex sources.',
+        'Plancia Comandi settings. Timings are milliseconds. extraIdlePatterns, extraBusyPatterns and extraAttentionPatterns are JavaScript regex sources.',
       ...this.data,
     }
     fs.writeFileSync(this.file, JSON.stringify(body, null, 2))

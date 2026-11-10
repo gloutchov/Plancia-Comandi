@@ -7,7 +7,7 @@ mode="${1:-busy}"
 printf '\033[?1049h\033[H\033[2J'
 
 draw_header() {
-  printf '\033[38;5;245m  Molo demo · Codex\033[0m\r\n'
+  printf '\033[38;5;245m  Plancia Comandi · Codex\033[0m\r\n'
   printf '\r\n'
   printf '\033[38;5;108m  Tu\033[0m\r\n'
   printf '  Aggiungi un indicatore di stato nella barra.\r\n'

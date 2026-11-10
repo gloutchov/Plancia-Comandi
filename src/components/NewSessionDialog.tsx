@@ -73,7 +73,7 @@ export function NewSessionDialog({
               type="button"
               className="btn"
               onClick={() => {
-                void window.molo?.pickDirectory(cwd).then((picked) => {
+                void window.plancia?.pickDirectory(cwd).then((picked) => {
                   if (picked) setCwd(picked)
                 })
               }}

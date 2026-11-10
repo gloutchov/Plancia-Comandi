@@ -16,11 +16,11 @@ export function App() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!window.molo) {
+    if (!window.plancia) {
       setError('desktop')
       return
     }
-    window.molo.boot().then(setBoot).catch((reason: unknown) => {
+    window.plancia.boot().then(setBoot).catch((reason: unknown) => {
       setError(reason instanceof Error ? reason.message : 'boot')
     })
   }, [])
@@ -28,8 +28,8 @@ export function App() {
   if (!boot) {
     return (
       <div className="gate">
-        <strong>Molo</strong>
-        <p>{error === 'desktop' ? 'Apri Molo dalla finestra dell’app.' : error ?? 'Caricamento…'}</p>
+        <strong>Plancia Comandi</strong>
+        <p>{error === 'desktop' ? 'Apri Plancia Comandi dalla finestra dell’app.' : error ?? 'Caricamento…'}</p>
       </div>
     )
   }
@@ -71,7 +71,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [])
 
   useEffect(() => {
-    const bridge = window.molo
+    const bridge = window.plancia
     if (!bridge) return
     const offSessions = bridge.onSessions(setSessions)
     const offTheme = bridge.onSystemTheme(setSystemDark)
@@ -102,8 +102,8 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [sessions])
 
   useEffect(() => {
-    window.molo?.setWatching(focusedId, document.hasFocus())
-    const send = () => window.molo?.setWatching(focusedId, document.hasFocus())
+    window.plancia?.setWatching(focusedId, document.hasFocus())
+    const send = () => window.plancia?.setWatching(focusedId, document.hasFocus())
     window.addEventListener('focus', send)
     window.addEventListener('blur', send)
     return () => {
@@ -135,7 +135,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
       ...patch,
       status: patch.status ? { ...current.status, ...patch.status } : current.status,
     }))
-    void window.molo?.updateSettings(patch).then(setSettings)
+    void window.plancia?.updateSettings(patch).then(setSettings)
   }
 
   function setLayout(mode: LayoutMode) {
@@ -159,12 +159,12 @@ function Workspace({ boot }: { boot: BootInfo }) {
 
   function requestClose(session: SessionInfo) {
     if (session.phase === 'busy' || session.phase === 'attention') setPendingClose(session)
-    else void window.molo?.closeSession(session.id)
+    else void window.plancia?.closeSession(session.id)
   }
 
   function closeNow(session: SessionInfo) {
     setPendingClose(null)
-    void window.molo?.closeSession(session.id)
+    void window.plancia?.closeSession(session.id)
   }
 
   function dismissDialogs() {
@@ -253,7 +253,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
           }}
           onTogglePin={togglePin}
           onClose={requestClose}
-          onRename={(id, name) => void window.molo?.renameSession(id, name)}
+          onRename={(id, name) => void window.plancia?.renameSession(id, name)}
           onCreate={() => setNewOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
         />
@@ -359,7 +359,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
           initialCwd={settings.lastCwd || boot.home}
           onCancel={() => setNewOpen(false)}
           onCreate={async (input) => {
-            const result = await window.molo!.createSession(input)
+            const result = await window.plancia!.createSession(input)
             if (!result.ok) return createError(result.error)
             setFocusedId(result.session.id)
             if (layout === 'split') {

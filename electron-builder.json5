@@ -1,7 +1,8 @@
 {
   $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  appId: "it.molo.desktop",
-  productName: "Molo",
+  appId: "it.plancia.comandi",
+  productName: "Plancia Comandi",
+  executableName: "plancia-comandi",
   asar: true,
   asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
   directories: {
@@ -12,14 +13,14 @@
     category: "public.app-category.developer-tools",
     target: ["dmg", "zip"],
     identity: null,
-    artifactName: "${productName}-mac-${version}-${arch}.${ext}",
+    artifactName: "PlanciaComandi-mac-${version}-${arch}.${ext}",
   },
   win: {
     target: [
       { target: "nsis", arch: ["x64"] },
       { target: "portable", arch: ["x64"] },
     ],
-    artifactName: "${productName}-win-${version}-${arch}.${ext}",
+    artifactName: "PlanciaComandi-win-${version}-${arch}.${ext}",
   },
   nsis: {
     oneClick: false,
@@ -30,6 +31,6 @@
   linux: {
     category: "Development",
     target: ["AppImage", "deb"],
-    artifactName: "${productName}-linux-${version}-${arch}.${ext}",
+    artifactName: "PlanciaComandi-linux-${version}-${arch}.${ext}",
   },
 }

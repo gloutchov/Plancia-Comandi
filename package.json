@@ -1,5 +1,6 @@
 {
-  "name": "molo",
+  "name": "plancia-comandi",
+  "productName": "Plancia Comandi",
   "private": true,
   "version": "0.1.0",
   "description": "Desktop terminal manager for Codex CLI and other shells",

@@ -1,10 +1,10 @@
-# Molo
+# Plancia Comandi
 
-Molo is a desktop app for keeping several real terminals open at once. It is meant for AI coding CLIs, especially the OpenAI Codex CLI: a sidebar shows every session and whether it is working or waiting, and the main area can show one terminal or several side by side.
+Plancia Comandi is a desktop app for keeping several real terminals open at once. It is meant for AI coding CLIs, especially the OpenAI Codex CLI: a sidebar shows every session and whether it is working or waiting, and the main area can show one terminal or several side by side.
 
 The interface is in Italian by default. English is in Settings.
 
-![Molo in dark mode, Codex working beside an idle shell](docs/screenshots/molo-dark.png)
+![Plancia Comandi in dark mode, Codex working beside an idle shell](docs/screenshots/plancia-dark.png)
 
 ## Stack
 
@@ -31,8 +31,10 @@ A session starts in your home directory. On macOS and Linux the default shell is
 ## Try the status lights without Codex
 
 ```bash
-MOLO_DEMO=1 npm run dev
+PLANCIA_DEMO=1 npm run dev
 ```
+
+`MOLO_DEMO=1` still starts the same demo.
 
 That opens two sessions: one runs `scripts/demo-codex.sh busy` (a full-screen spinner and a `Working` title, like Codex), and one is a normal shell. The script also accepts `attention` and `idle`:
 
@@ -81,9 +83,9 @@ An action-required state is held for `attentionHoldMs` (1.8 s) so a blinking tit
 
 ### Alerts
 
-When a session leaves **working** and you are not looking at it, Molo can show a sidebar dot and a system notification. A short command (under `minBusyForNotifyMs`, 1.6 s) does not notify on the way back to idle. **Action required** always notifies, even if the busy stretch was short. Nothing notifies for the first prompt when a shell starts, and nothing notifies for the session you are already watching.
+When a session leaves **working** and you are not looking at it, Plancia Comandi can show a sidebar dot and a system notification. A short command (under `minBusyForNotifyMs`, 1.6 s) does not notify on the way back to idle. **Action required** always notifies, even if the busy stretch was short. Nothing notifies for the first prompt when a shell starts, and nothing notifies for the session you are already watching.
 
-Both switches are in Settings. Timings apply immediately and are saved in Electron's user-data folder (`settings.json`). Use **Apri il file di configurazione** to reveal it. Extra regexes go in that file:
+Both switches are in Settings. Timings apply immediately and are saved in Electron's user-data folder (`settings.json`, under the name Plancia Comandi). If that file is missing, the app copies one left behind by the previous name, Molo. Use **Apri il file di configurazione** to reveal it. Extra regexes go in that file:
 
 ```json
 {
@@ -102,7 +104,7 @@ A broken regex is ignored. Numbers are clamped to a safe range. **Ripristina i t
 
 - This is a heuristic. It does not read Codex's internal state.
 - Apps that keep redrawing while they wait (htop, a clock in the prompt, a spinner that never stops) stay **working**. That matches “producing output”.
-- A TUI that waits for you without an “action required” title, and without a prompt Molo recognizes, becomes **idle** about a second after the redraws stop. If the word `Working` is still on screen, that wait is up to 12 seconds.
+- A TUI that waits for you without an “action required” title, and without a prompt Plancia Comandi recognizes, becomes **idle** about a second after the redraws stop. If the word `Working` is still on screen, that wait is up to 12 seconds.
 - The child-process signal is only for the normal screen. It asks `ps` on macOS and Linux, and PowerShell CIM on Windows, about every 2.5 seconds. A process that exits in between polls can be a moment late.
 - Prompt detection looks at the last non-empty line. A command whose last line happens to look like a shell prompt can be marked idle early.
 - `100%` is not treated as a zsh prompt. Other odd last lines can still be.
@@ -128,7 +130,7 @@ npm run dist:win    # on Windows: NSIS installer and a portable exe
 npm run dist:linux  # AppImage and deb
 ```
 
-`npm run dist` packages for the current OS. Output goes to `release/`.
+`npm run dist` packages for the current OS. Output goes to `release/`. Installer file names start with `PlanciaComandi`. The app id is `it.plancia.comandi`, and the executable is `plancia-comandi`.
 
 `node-pty` is a native addon. `postinstall` rebuilds it for the local Electron. If you switch Electron versions, run `npm run rebuild`. The builder unpacks `node-pty` and `@xterm/headless` from the asar, because the `.node` binary and the pty helper cannot be loaded from inside an archive.
 
@@ -149,4 +151,4 @@ This repo was developed on Linux. The PTY, the split view, both themes, and the 
 - Keyboard shortcuts (Command on macOS, Ctrl-Shift on Windows).
 - A signed installer. `npm run dist:mac` and `npm run dist:win` have not been produced from this environment.
 
-Linux DBus warnings in the dev log are harmless when no notification bus is available. Codex itself is not bundled; install it in the shell you open inside Molo.
+Linux DBus warnings in the dev log are harmless when no notification bus is available. Codex itself is not bundled; install it in the shell you open inside Plancia Comandi.
