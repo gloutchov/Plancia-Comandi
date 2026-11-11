@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.2.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 **Sommario**
 
@@ -210,7 +210,7 @@ Esempio senza segreti:
 
 Su macOS la barra dei menu ha **Modifica**, con **Annulla**, **Ripeti**, **Taglia**, **Copia**, **Incolla** e **Seleziona tutto**. Le etichette seguono la lingua dell'app. I menu **Vista** e **Finestra** restano quelli standard di Electron e seguono la lingua del sistema. Su Windows e Linux la barra si apre con Alt; **Copia** e **Incolla** usano Ctrl+Shift+C e Ctrl+Shift+V, così Ctrl+C resta libero per il comando.
 
-Il tasto destro sul terminale apre **Copia** e **Incolla**. **Copia** è disattivata se non c'è una selezione. Copia e incolla passano dagli appunti di sistema. L'incolla usa la funzione di xterm.js: se il programma nel terminale ha attivato l'incolla fra parentesi (bracketed paste), il testo arriva come un blocco unico; altrimenti un testo su più righe può essere eseguito riga per riga. Controlla sempre ciò che incolli.
+Il tasto destro sul terminale apre **Copia** e **Incolla**. **Copia** è disattivata se non c'è una selezione. Copia e incolla passano dagli appunti di sistema. L'incolla usa la funzione di xterm.js: se il programma nel terminale ha attivato l'incolla fra parentesi (bracketed paste), il testo arriva come un blocco unico; altrimenti un testo su più righe può essere eseguito riga per riga. Controlla sempre ciò che incolli. Una raffica di incolla molto oltre l'uso normale può inserire due volte un testo il cui secondo segnale arriva dopo che l'app ha già dimenticato il primo.
 
 Su Windows e Linux, Ctrl+C copia la selezione e la toglie, così il Ctrl+C successivo interrompe il programma. Senza selezione, Ctrl+C invia subito l'interruzione. Su macOS l'interruzione è Control+C; Command+C copia e non interrompe. La scorciatoia di copia senza selezione non viene inviata al programma.
 
@@ -269,7 +269,9 @@ Output e nomi delle sessioni sono in memoria, ma la shell può salvare la cronol
 
 Il rilevamento degli stati non è un protocollo di controllo dei tool. Un TUI che ridisegna mentre aspetta può restare **Al lavoro**; un comando con una riga simile a un prompt può sembrare **In attesa** prematuramente. La UI chiede conferma solo per le chiusure che considera attive o in attesa di azione; l'uscita completa non ha quella protezione.
 
-La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli Electron mancanti e [PLAN.md](PLAN.md) per le proposte future.
+La finestra carica solo le pagine dell'app. Gli script di produzione arrivano dai file dell'app, non da Internet. I colori del terminale li applica xterm.js nella pagina, perché dipendono dal tema scelto. Con `npm run dev` il server di sviluppo resta su questo computer, all'indirizzo 127.0.0.1 porta 47231; la pagina aperta da sola nel browser non crea terminali.
+
+La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
 

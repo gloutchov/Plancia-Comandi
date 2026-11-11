@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.2.0**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.0**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -29,15 +29,16 @@ Plancia-Comandi/
 |-- package-lock.json                Risoluzione riproducibile delle dipendenze
 |-- .gitignore                       Esclusioni per output, dipendenze e log
 |-- electron-builder.json5           Target e contenuti dei pacchetti
-|-- vite.config.ts                   Server locale e bundle main/preload/renderer
+|-- vite.config.ts                   Server locale, CSP di sviluppo e bundle main/preload/renderer
 |-- vitest.config.ts                 Unit test in ambiente Node
 |-- tsconfig.json                    Controllo TypeScript applicativo
 |-- tsconfig.node.json               Configurazione TypeScript per Vite
-|-- index.html                       Documento HTML del renderer
+|-- index.html                       Documento HTML del renderer; la CSP è iniettata dal plugin Vite
 |-- config/
 |   `-- app.config.json              Limiti di appunti, trascinamento e input
 |-- electron/
-|   |-- main.ts                      Finestra, lifecycle, IPC, notifiche, demo
+|   |-- main.ts                      Finestra, lifecycle, IPC, CSP, notifiche, demo
+|   |-- legacyIpc.ts                 Registrazione dei canali IPC precedenti a M1
 |   |-- preload.ts                   Bridge API dedicato al renderer
 |   |-- editMenu.ts                  Menu Modifica e comandi di editing
 |   |-- clipboardIpc.ts              Lettura e scrittura degli appunti
@@ -55,7 +56,7 @@ Plancia-Comandi/
 |   |-- shortcuts.ts                 Riconoscimento delle scorciatoie
 |   |-- shortcuts.test.ts            Test di copia, incolla e Ctrl+C
 |   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
-|   |-- terminalEdit.test.ts         Test di deduplica dell'incolla e tetto dei gesti
+|   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
 |   |-- cx.ts                        Helper per nomi di classi CSS
 |   |-- components/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
@@ -79,6 +80,10 @@ Plancia-Comandi/
 |       |-- layout.test.ts           Test delle viste
 |       |-- navigation.ts            Decisione di blocco delle navigazioni
 |       |-- navigation.test.ts       Test delle navigazioni consentite
+|       |-- csp.ts                   Policy CSP di produzione e di sviluppo
+|       |-- csp.test.ts              Test della policy, senza eval e senza host remoti
+|       |-- legacyIpc.ts             Mittente e payload degli IPC precedenti a M1
+|       |-- legacyIpc.test.ts        Test negativi isolati per mittente estraneo e payload invalido
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
 |       |-- status.ts                Logica pura di rilevamento e notifiche
@@ -102,7 +107,7 @@ Non esiste una directory `.github/workflows/`: non sono configurati workflow CI,
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
 
-La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
+La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
 ### 3. Comandi e verifiche
 
@@ -117,7 +122,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
 
-Non esistono script npm lint, typecheck separato o e2e. I test presenti non avviano Electron e non verificano pacchetti, shell o IPC reali. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale e file immagine.
+Non esistono script npm lint, typecheck separato o e2e. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP e il cancello degli IPC precedenti a M1.
 
 ### 4. File locali e generati
 
@@ -135,7 +140,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.2.0** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.0** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -162,15 +167,16 @@ Plancia-Comandi/
 |-- package-lock.json                Reproducible dependency resolution
 |-- .gitignore                       Output, dependency and log exclusions
 |-- electron-builder.json5           Package targets and contents
-|-- vite.config.ts                   Local server and main/preload/renderer bundles
+|-- vite.config.ts                   Local server, development CSP and main/preload/renderer bundles
 |-- vitest.config.ts                 Unit tests in a Node environment
 |-- tsconfig.json                    Application TypeScript checking
 |-- tsconfig.node.json               TypeScript configuration for Vite
-|-- index.html                       Renderer HTML document
+|-- index.html                       Renderer HTML document; the Vite plugin injects the CSP
 |-- config/
 |   `-- app.config.json              Clipboard, drag-and-drop and input limits
 |-- electron/
-|   |-- main.ts                      Window, lifecycle, IPC, notifications, demo
+|   |-- main.ts                      Window, lifecycle, IPC, CSP, notifications, demo
+|   |-- legacyIpc.ts                 Registration of the IPC channels that predate M1
 |   |-- preload.ts                   Dedicated renderer API bridge
 |   |-- editMenu.ts                  Edit menu and editing commands
 |   |-- clipboardIpc.ts              Clipboard reads and writes
@@ -188,7 +194,7 @@ Plancia-Comandi/
 |   |-- shortcuts.ts                 Shortcut recognition
 |   |-- shortcuts.test.ts            Copy, paste and Ctrl+C tests
 |   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
-|   |-- terminalEdit.test.ts         Paste deduplication and gesture-cap tests
+|   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
 |   |-- cx.ts                        CSS class-name helper
 |   |-- components/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
@@ -212,6 +218,10 @@ Plancia-Comandi/
 |       |-- layout.test.ts           View tests
 |       |-- navigation.ts            Navigation-blocking decision
 |       |-- navigation.test.ts       Allowed-navigation tests
+|       |-- csp.ts                   Production and development CSP
+|       |-- csp.test.ts              Policy tests, with no eval and no remote hosts
+|       |-- legacyIpc.ts             Sender and payload checks for IPC that predates M1
+|       |-- legacyIpc.test.ts        Isolated negative tests for a foreign sender and an invalid payload
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
 |       |-- status.ts                Pure status and notification logic
@@ -235,7 +245,7 @@ There is no `.github/workflows/` directory: CI, release and GitHub Pages workflo
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
 
-UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
+UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
 ### 3. Commands and checks
 
@@ -250,7 +260,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
-There are no npm lint, separate typecheck or e2e scripts. Existing tests do not launch Electron or verify real packages, shells or IPC. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration and image files.
+There are no npm lint, separate typecheck or e2e scripts. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings and the gate for IPC that predates M1.
 
 ### 4. Local and generated files
 

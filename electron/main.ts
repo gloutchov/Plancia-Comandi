@@ -1,16 +1,18 @@
-import { app, BrowserWindow, Notification, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import { app, BrowserWindow, Notification, dialog, nativeTheme, session, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { SessionManager } from './sessions'
 import { SettingsStore } from './settings'
 import { defaultShellId, detectShells } from './shells'
-import type { BootInfo, CreateSessionInput, SettingsPatch, ShellChoice, ThemeSetting } from '../src/shared/types'
+import type { BootInfo, ShellChoice, ThemeSetting } from '../src/shared/types'
 import { loadAppConfig, resolveAppConfigFile, runtimeLimits, validateAppConfig, type AppConfig } from '../src/shared/appConfig'
 import { cleanupClipboardImages } from '../src/shared/clipboardImages'
+import { contentSecurityPolicyForUrl, withContentSecurityPolicy } from '../src/shared/csp'
 import { shouldBlockNavigation } from '../src/shared/navigation'
 import { registerClipboardIpc } from './clipboardIpc'
 import { installApplicationMenu, registerEditIpc } from './editMenu'
+import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -98,15 +100,6 @@ function notify(title: string, body: string, sessionId: string): void {
   note.show()
 }
 
-function asCreateInput(value: unknown): CreateSessionInput {
-  const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
-  return {
-    name: typeof source.name === 'string' ? source.name : undefined,
-    shellId: typeof source.shellId === 'string' ? source.shellId : undefined,
-    cwd: typeof source.cwd === 'string' ? source.cwd : undefined,
-  }
-}
-
 function isAppSender(event: { sender: Electron.WebContents }): boolean {
   const current = currentWindow()
   return !!current && event.sender === current.webContents
@@ -119,74 +112,68 @@ function registerIpc(): void {
     userDataDir: app.getPath('userData'),
   })
   registerEditIpc(isAppSender)
-
-  ipcMain.handle('app:boot', () => bootInfo())
-
-  ipcMain.handle('sessions:create', (_event, input: unknown) => {
-    const result = manager?.create(asCreateInput(input)) ?? { ok: false, error: 'pty-missing' }
-    publishSettings()
-    return result
+  registerLegacyIpc({
+    appContents: () => currentWindow()?.webContents ?? null,
+    maxWriteChars: () => appConfig.terminal.maxWriteChars,
+    effects: {
+      boot: () => bootInfo(),
+      create: (input) => {
+        const result = manager?.create(input) ?? { ok: false, error: 'pty-missing' }
+        publishSettings()
+        return result
+      },
+      close: (id) => {
+        manager?.close(id)
+      },
+      rename: (id, name) => {
+        manager?.rename(id, name)
+      },
+      subscribe: (id) => (manager ? manager.subscribe(id) : { seq: 0, data: '' }),
+      updateSettings: (patch) => {
+        if (!settings) return null
+        const next = settings.update(patch)
+        applyThemeSource(next.theme)
+        installApplicationMenu(next.locale, currentWindow)
+        manager?.retick()
+        return next
+      },
+      revealSettings: () => {
+        if (settings) shell.showItemInFolder(settings.file)
+      },
+      pickDirectory: async (defaultPath) => {
+        const current = currentWindow()
+        if (!current) return null
+        const result = await dialog.showOpenDialog(current, {
+          properties: ['openDirectory', 'createDirectory'],
+          defaultPath: defaultPath || undefined,
+        })
+        if (result.canceled || result.filePaths.length === 0) return null
+        return result.filePaths[0]
+      },
+      write: (id, data) => {
+        manager?.write(id, data)
+      },
+      resize: (id, cols, rows) => {
+        manager?.resize(id, cols, rows)
+      },
+      watch: (id, focused) => {
+        manager?.setWatching(id, focused)
+      },
+      openExternal: (url) => {
+        void shell.openExternal(url)
+      },
+    },
   })
+}
 
-  ipcMain.handle('sessions:close', (_event, id: unknown) => {
-    if (typeof id === 'string') manager?.close(id)
-  })
-
-  ipcMain.handle('sessions:rename', (_event, id: unknown, name: unknown) => {
-    if (typeof id === 'string' && typeof name === 'string') manager?.rename(id, name)
-  })
-
-  ipcMain.handle('sessions:subscribe', (_event, id: unknown) => {
-    if (typeof id !== 'string' || !manager) return { seq: 0, data: '' }
-    return manager.subscribe(id)
-  })
-
-  ipcMain.handle('settings:update', (_event, patch: unknown) => {
-    if (!settings || !patch || typeof patch !== 'object') return settings?.data
-    const next = settings.update(patch as SettingsPatch)
-    applyThemeSource(next.theme)
-    installApplicationMenu(next.locale, currentWindow)
-    manager?.retick()
-    return next
-  })
-
-  ipcMain.handle('settings:reveal', () => {
-    if (settings) shell.showItemInFolder(settings.file)
-  })
-
-  ipcMain.handle('dialog:directory', async (_event, defaultPath: unknown) => {
-    const current = currentWindow()
-    if (!current) return null
-    const result = await dialog.showOpenDialog(current, {
-      properties: ['openDirectory', 'createDirectory'],
-      defaultPath: typeof defaultPath === 'string' ? defaultPath : undefined,
-    })
-    if (result.canceled || result.filePaths.length === 0) return null
-    return result.filePaths[0]
-  })
-
-  ipcMain.on('terminal:write', (_event, id: unknown, data: unknown) => {
-    if (typeof id === 'string' && typeof data === 'string') manager?.write(id, data)
-  })
-
-  ipcMain.on('terminal:resize', (_event, id: unknown, cols: unknown, rows: unknown) => {
-    if (typeof id === 'string' && typeof cols === 'number' && typeof rows === 'number') {
-      manager?.resize(id, cols, rows)
+function installContentSecurityPolicy(): void {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const policy = contentSecurityPolicyForUrl(details.url, VITE_DEV_SERVER_URL)
+    if (!policy) {
+      callback({ responseHeaders: details.responseHeaders })
+      return
     }
-  })
-
-  ipcMain.on('terminal:watch', (_event, id: unknown, focused: unknown) => {
-    manager?.setWatching(typeof id === 'string' ? id : null, focused === true)
-  })
-
-  ipcMain.on('shell:openExternal', (_event, url: unknown) => {
-    if (typeof url !== 'string') return
-    try {
-      const parsed = new URL(url)
-      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') void shell.openExternal(parsed.toString())
-    } catch {
-      // Ignore malformed links from the terminal.
-    }
+    callback({ responseHeaders: withContentSecurityPolicy(details.responseHeaders, policy) })
   })
 }
 
@@ -313,6 +300,7 @@ function start(): void {
     send('theme:system', nativeTheme.shouldUseDarkColors)
   })
 
+  installContentSecurityPolicy()
   registerIpc()
   installMenu()
   createWindow()

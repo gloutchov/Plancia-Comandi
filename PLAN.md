@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** ha ricevuto la prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome). Merge, tag e release restano in attesa della seconda approvazione. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.0**. La milestone **C1** ha ricevuto la prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome). Merge, tag e release di C1 restano in attesa della seconda approvazione. **M2** è la milestone in corso, sul branch creato dal commit di C1, perché C1 non è ancora su `main`. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -42,7 +42,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 
 ### 2. Milestone corrente e proposte
 
-C1, già M1, è l'unica milestone del piano esecutivo. La prima approvazione è registrata; merge, tag e release attendono la seconda approvazione di Glauco. Le proposte sotto non diventano eseguibili da sole.
+M2 è la milestone in corso. C1, già M1, ha la prima approvazione; merge, tag e release di C1 attendono la seconda approvazione di Glauco. Le proposte sotto non diventano eseguibili da sole.
 
 | Campo | C1 — Clipboard, trascinamento e viste |
 | --- | --- |
@@ -65,9 +65,22 @@ C1, già M1, è l'unica milestone del piano esecutivo. La prima approvazione è 
 
 **Versione e tag.** Versione **0.2.0**. Il tag `v0.2.0` è previsto e va creato solo dopo la seconda approvazione di Glauco. Il checkpoint `milestone/C1` non è stato creato.
 
+| Campo | M2 — Confini del renderer e incolla |
+| --- | --- |
+| Numero e titolo | M2 — Confini del renderer e incolla |
+| Obiettivo | Impedire al renderer di caricare contenuti remoti o script non previsti, accettare gli IPC precedenti a M1 solo dalla finestra dell'app e con payload validi, e limitare la lunghezza delle code FIFO dell'incolla. |
+| Branch | `milestone/2-security-paste-hardening`, creato dal commit `0b8fa43b91fe2236f2d31df2959948247348bfdf` di `milestone/1-clipboard-dnd-layouts`. Non parte da `main`: C1 non è ancora unita. |
+| Tag di checkpoint previsto | `milestone/C2`. Non creato. Il tag di versione previsto è `v0.3.0`: va creato solo dopo le approvazioni. |
+| Tipo incremento versione | `+0.1.0`, da 0.2.0 a **0.3.0**. |
+| Attività | CSP restrittiva in produzione e sul server Vite; niente `unsafe-eval`; `unsafe-inline` per gli script solo in sviluppo, per il preambolo di React Fast Refresh; `unsafe-inline` per gli stili anche in produzione perché il renderer DOM di xterm.js scrive tema e contrasto nella pagina; verifica del mittente e del payload su tutti i canali IPC precedenti a M1, sia `handle` sia `on`; tetto 64 alle code FIFO dell'incolla; test negativi isolati. |
+| Criteri di accettazione | La policy di produzione non contiene `unsafe-eval`, host remoti né `unsafe-inline` negli script. Lo sviluppo parla solo con il loopback `127.0.0.1`. Un mittente diverso dalla finestra dell'app non riceve dati e non esegue l'azione. Un payload non valido non arriva al manager, al dialogo o alla shell. Le code di incolla non superano 64 metà. Terminali e temi restano funzionanti: l'eccezione di stile è documentata. |
+| Test | `npm test` **111/111** e `npm run build` riuscito su questo branch, con l'avviso del bundle renderer oltre 500 kB. Non eseguiti, perché non sostituiscono uno smoke dell'app: DevTools senza violazioni CSP, terminali, temi e incolla su Linux, macOS e Windows; smoke Electron; packaging; checksum. La checklist manuale è nella pull request. |
+| Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. |
+| Stato | `M`. In attesa del controllo di Glauco sulla pull request. Merge, tag e release non sono autorizzati. La pull request ha base `milestone/1-clipboard-dnd-layouts` e va riportata su `main` dopo il merge di M1. |
+
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
-| P1 — Confini di sicurezza | Rafforzare CSP, verifica del mittente su tutti i canali IPC, payload, gestione errori, regex e scritture delle impostazioni. C1 copre solo il blocco di navigazione e finestre e la validazione dei nuovi canali. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
+| P1 — Confini di sicurezza | Resta da decidere ciò che M2 non copre: timeout delle regex, scrittura atomica delle impostazioni e redazione degli errori. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla sono M2. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
 | P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
 
@@ -111,7 +124,7 @@ Al momento non esistono workflow GitHub Actions. Per questa patch bastano verifi
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** received Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome). Merge, tags and release wait for the second approval. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.0**. Milestone **C1** received Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome). C1's merge, tags and release wait for the second approval. **M2** is the milestone in progress, on the branch created from C1's commit, because C1 is not on `main` yet. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -151,7 +164,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 
 ### 2. Current milestone and proposals
 
-C1, formerly M1, is the only milestone in the execution plan. The first approval is recorded; merge, tags and release wait for Glauco's second approval. The proposals below do not become executable on their own.
+M2 is the milestone in progress. C1, formerly M1, has its first approval; C1's merge, tags and release wait for Glauco's second approval. The proposals below do not become executable on their own.
 
 | Field | C1 — Clipboard, drag-and-drop and views |
 | --- | --- |
@@ -174,9 +187,22 @@ C1, formerly M1, is the only milestone in the execution plan. The first approval
 
 **Version and tags.** Version **0.2.0**. Tag `v0.2.0` is planned and is to be created only after Glauco's second approval. The `milestone/C1` checkpoint has not been created.
 
+| Field | M2 — Renderer boundaries and paste |
+| --- | --- |
+| Number and title | M2 — Renderer boundaries and paste |
+| Goal | Stop the renderer from loading remote content or unexpected scripts, accept IPC that predates M1 only from the app window and only with a valid payload, and cap the length of the paste FIFO queues. |
+| Branch | `milestone/2-security-paste-hardening`, created from commit `0b8fa43b91fe2236f2d31df2959948247348bfdf` of `milestone/1-clipboard-dnd-layouts`. It does not start from `main`: C1 is not merged yet. |
+| Planned checkpoint tag | `milestone/C2`. Not created. The planned version tag is `v0.3.0`: create it only after the approvals. |
+| Version increment | `+0.1.0`, from 0.2.0 to **0.3.0**. |
+| Tasks | Restrictive CSP in production and on the Vite server; no `unsafe-eval`; `unsafe-inline` for scripts only in development, for the React Fast Refresh preamble; `unsafe-inline` for styles in production as well because xterm.js's DOM renderer writes the theme and contrast into the page; sender and payload checks on every IPC channel that predates M1, both `handle` and `on`; a cap of 64 on the paste FIFO queues; isolated negative tests. |
+| Acceptance | The production policy contains no `unsafe-eval`, no remote hosts and no `unsafe-inline` for scripts. Development talks only to the `127.0.0.1` loopback. A sender other than the app window receives no data and runs no action. An invalid payload does not reach the manager, the dialog or the shell. Paste queues do not grow past 64 halves. Terminals and themes keep working: the style exception is documented. |
+| Tests | `npm test` **111/111** and `npm run build` passed on this branch, with the renderer bundle warning above 500 kB. Not run, because they do not replace an application smoke test: DevTools with no CSP violations, terminals, themes and paste on Linux, macOS and Windows; Electron smoke; packaging; checksums. The manual checklist is in the pull request. |
+| Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. |
+| Status | `M`. Waiting for Glauco's review on the pull request. Merge, tags and release are not authorized. The pull request is based on `milestone/1-clipboard-dnd-layouts` and must be retargeted to `main` after M1 merges. |
+
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
-| P1 — Security boundaries | Strengthen CSP, sender checks on every IPC channel, payloads, errors, regexes and settings writes. C1 only adds navigation and window blocking and validation of the new channels. | Isolated negative tests and an updated security model; preserve shell operation. |
+| P1 — Security boundaries | Still to be decided, for what M2 does not cover: regex timeouts, atomic settings writes and error redaction. CSP, sender checks on IPC that predates M1 and the paste-queue cap are M2. | Isolated negative tests and an updated security model; preserve shell operation. |
 | P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
 

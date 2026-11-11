@@ -14,7 +14,7 @@ Queste regole adattano al repository le preferenze HOME fornite dal progettista.
 
 - Entry point e ciclo di vita in `electron/main.ts`; bridge in `electron/preload.ts`; PTY in `electron/sessions.ts`; preferenze in `electron/settings.ts`; UI in `src/`; logica pura in `src/shared/`.
 - Mantenere moduli piccoli con dipendenze esplicite; separare dominio, stato UI, filesystem, configurazione, sicurezza e integrazioni. Nessun refactor estraneo al task, import circolare o dipendenza senza motivazione concreta.
-- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.2.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
+- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.3.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
 - `config/app.config.json` è la configurazione centrale dei parametri di appunti, trascinamento e dimensione dell'input introdotti da M1. Va validata all'avvio; i valori fuori intervallo tornano ai default documentati. `settings.json` fuori dal checkout resta la configurazione utente di lingua, tema, vista e rilevamento. Non aggiungere segreti. Gli altri limiti ancora nei moduli restano la proposta P2, non un lavoro implicito.
 - Un task documentale descrive il comportamento reale e registra lacune: non deve trasformarsi in un intervento applicativo non richiesto.
 

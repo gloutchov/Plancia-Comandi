@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.2.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 **Contents**
 
@@ -210,7 +210,7 @@ Example without secrets:
 
 On macOS the menu bar has **Edit**, with **Undo**, **Redo**, **Cut**, **Copy**, **Paste** and **Select All**. The labels follow the app language. The **View** and **Window** menus stay Electron's standard menus and follow the system language. On Windows and Linux the bar opens with Alt; **Copy** and **Paste** use Ctrl+Shift+C and Ctrl+Shift+V, so Ctrl+C stays available for the command.
 
-Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste.
+Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste. A paste burst far beyond ordinary use can insert the same text twice when the second signal arrives after the app has already forgotten the first.
 
 On Windows and Linux, Ctrl+C copies the selection and clears it, so the next Ctrl+C interrupts the program. With no selection, Ctrl+C sends the interrupt immediately. On macOS the interrupt is Control+C; Command+C copies and does not interrupt. The copy shortcut with no selection is not sent to the program.
 
@@ -269,7 +269,9 @@ Output and session names remain in memory, but shells may save history and progr
 
 Status detection is not a tool-control protocol. A TUI redrawing while waiting can stay **Working**; a command ending with a prompt-like line can appear **Idle** prematurely. The UI confirms only closures it considers working or awaiting action; a full quit has no such protection.
 
-Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for missing Electron controls and [PLAN.md](PLAN.md) for future proposals.
+The window loads only the app's own pages. Production scripts come from the app's files, not from the Internet. xterm.js applies the terminal colors in the page, because they depend on the selected theme. With `npm run dev` the development server stays on this computer, at 127.0.0.1 port 47231; the page opened by itself in a browser does not create terminals.
+
+Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for the controls that are present and for the limits that are still open, and [PLAN.md](PLAN.md) for future proposals.
 
 ## 12. Development and distribution
 

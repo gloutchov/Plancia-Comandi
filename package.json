@@ -2,7 +2,7 @@
   "name": "plancia-comandi",
   "productName": "Plancia Comandi",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Desktop terminal manager for Codex CLI and other shells",
   "license": "Apache-2.0",
   "type": "module",
