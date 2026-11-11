@@ -1,4 +1,4 @@
-name: Package Windows release
+name: Windows packaging (not yet verified)
 
 on:
   workflow_dispatch:
@@ -23,6 +23,11 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 25
+    # A green run only builds on a GitHub-hosted runner. The Windows package
+    # stays unverified until that run succeeds and the artifact is tried on a
+    # real Windows machine. Do not pass -c.* or --config.* on this shell:
+    # PowerShell splits those tokens and electron-builder treats the remainder
+    # as a config-file path.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -59,23 +64,18 @@ jobs:
       - name: TypeScript and production build
         working-directory: app
         run: npm run build
-      - name: Package installer and portable executable
+      - name: Build installer and portable executable
         working-directory: app
-        run: >-
-          npm exec electron-builder -- --win --x64 --publish never
-          -c.npmRebuild=false
-          -c.nsis.runAfterFinish=false
-          '-c.nsis.artifactName=PlanciaComandi-win-${version}-${arch}-setup.${ext}'
-          '-c.portable.artifactName=PlanciaComandi-win-${version}-${arch}-portable.${ext}'
-      - name: Smoke unpacked Windows package
+        run: node ../tooling/scripts/package-windows.mjs
+      - name: Runner check of the unpacked executable
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION"
-      - name: Inspect package contents
+      - name: Compare bundle contents with the source checkout
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: node tooling/scripts/inspect-package.mjs app/release/win-unpacked/resources app "$env:EXPECTED_VERSION"
-      - name: Smoke portable executable and installed application
+      - name: Runner check of the portable executable and silent install
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: |

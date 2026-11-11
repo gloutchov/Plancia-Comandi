@@ -278,7 +278,7 @@ npm test
 npm run build
 ```
 
-`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale: usa Node.js 24, costruisce il commit applicativo indicato, prova il pacchetto Windows, il portabile e l’app installata e conserva gli artifact con SHA-256 per sette giorni. Non pubblica la release. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
+`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale e non pubblica la release. È predisposto per usare Node.js 24, costruire il commit applicativo indicato e controllare sul runner l’eseguibile estratto, il portabile e l’installazione silenziosa. La run `43086813880` è fallita prima di produrre un pacchetto: il pacchetto Windows non è ancora verificato, neanche su un Windows reale. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
 
 Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. Le icone derivano da `build/icon.png`.
 

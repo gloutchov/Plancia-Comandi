@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. La patch di packaging sotto integra i pacchetti senza spostare i tag. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. La patch di packaging sotto non sposta i tag. I pacchetti macOS ARM64 sono nella release; il pacchetto Windows non è ancora verificato. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -50,8 +50,23 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 - Verifiche locali: `npm test` 70/70 con Vitest 3.2.4 del tag; build con Node.js 24 riuscita, avviso renderer oltre 500 kB. ZIP e DMG macOS generati; integrità DMG valida; entrambe le app estratte fuori dal checkout superano il controllo dei bundle e lo smoke di bridge, preferenze isolate, IT/EN, chiaro/scuro, PTY nativa, quattro viste e chiusura sessioni.
 - Audit: zero vulnerabilità note nelle dipendenze di produzione; il toolchain del tag riporta sette moderate e due critiche di sviluppo, incluse Vitest/tinypool. Le dipendenze del tag non vengono modificate da questa patch.
 - Documentazione: README, manuali IT/EN, modello di sicurezza, mappa, piano e regole operative aggiornati.
-- Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
-- Stato: patch pronta per il controllo locale prima di push/merge e avvio manuale del workflow. Pubblicazione dei pacchetti e rimozione del branch C1 solo dopo le verifiche dovute; il branch M2 viene preservato.
+- Limiti: la run manuale `43086813880` è fallita prima di produrre installer, portabile o checksum Windows, quindi il pacchetto Windows non è verificato. macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
+- Stato: unita su `main` con il commit `830af0952c384ac27f0af62fac66cffe98da9dc7`. Nessun pacchetto Windows è stato prodotto o verificato. La correzione è la voce 1.2, in stato M. Il branch M2 resta preservato.
+
+#### 1.2 Correzione del packaging Windows — stato M
+
+- Numero e titolo: correzione del workflow Windows, fuori dalla numerazione delle milestone. Non è M3: M2 resta nella PR #2, su un branch distinto, e non viene toccata. Lo stato è **M** finché il progettista non approva questa correzione.
+- Obiettivo: consegnare a electron-builder le opzioni del pacchetto Windows senza dipendere dal parsing di PowerShell, e non presentare quel pacchetto come verificato prima di una run riuscita e di una prova su Windows reale.
+- Branch: `patch/0.2.0-windows-packaging-args`, creato da `main` al commit `830af0952c384ac27f0af62fac66cffe98da9dc7`.
+- Versione: **0.2.0**, senza incremento. Resta una patch sul workflow e sui documenti, non una nuova release applicativa. I pacchetti previsti continuano a riferirsi al codice `4aabc9bc81a60b0c574221ce37578936341ae065`, la cui versione è 0.2.0. Un `+0.0.1` descriverebbe un'altra applicazione e farebbe fallire il controllo di versione del workflow, il cui input predefinito resta 0.2.0. `npmRebuild: false` non è stato messo in `electron-builder.json5`: non c'era e, messo lì, cambierebbe anche il packaging macOS e Linux. `nsis.runAfterFinish: false` resta solo un overlay del workflow, così l'installer usato da una persona può ancora avviare l'app a fine installazione.
+- Checkpoint / release: nessun tag, nessuna release e nessun allegato in questa correzione.
+- Causa: la run `43086813880`, avviata a mano su `main` `830af0952c384ac27f0af62fac66cffe98da9dc7`, fallisce allo step «Package installer and portable executable». Il log indica la shell `pwsh.exe` e l'errore `ENOENT` sul percorso `app\.nsis.runAfterFinish=false`. PowerShell spezza l'argomento non quotato `-c.nsis.runAfterFinish=false`; electron-builder 26.18.0 riceve `.nsis.runAfterFinish=false` come file di configurazione. Lo stesso vale per `-c.npmRebuild=false`. In più, il controllo nel codice di electron-builder è `config.npmRebuild === false`: la stringa `"false"` passata dalla CLI non lo soddisfa. Gli altri step non usano argomenti `-c.` o `--config.`.
+- Attività: `scripts/package-windows.mjs` chiama l'API di electron-builder con booleani veri, `publish: "never"` e nomi `setup`/`portable` distinti. Lo step di workflow esegue solo `node ../tooling/scripts/package-windows.mjs`, così le opzioni valgono anche quando `source_sha` resta il commit applicativo 0.2.0. Trigger, permessi e segreti del workflow non cambiano: resta solo `workflow_dispatch`, con `contents: read`.
+- Criteri di accettazione: nessuno step passa argomenti puntati alla shell; i documenti non dicono che il pacchetto Windows è verificato, prodotto o testato; push e PR non avviano workflow.
+- Verifiche: `npm ci` dal lockfile; `npm test` **72/72** con Vitest 3.2.4, inclusi i due controlli nuovi sulle opzioni; `npm run build` riuscito, con l'avviso del bundle renderer oltre 500 kB. Node.js disponibile in questo ambiente: 22.23.4. Node.js 24, usato dal workflow, non è installato qui.
+- Non eseguiti: il workflow Windows, di proposito, e qualsiasi prova su Windows reale. Una build locale non è uno smoke del pacchetto.
+- Documentazione: `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`, `AGENTS.md`. `QUICK-START_Desktop.md` non afferma che il pacchetto Windows sia verificato, prodotto o testato e non è stato modificato. La descrizione della release `v0.2.0` dice già che i pacchetti Windows non sono pubblicati; non è stata modificata.
+- Stato: **M**. In attesa del controllo del progettista su questa PR. Nessun passaggio a C, merge, tag, release o rimozione di branch.
 
 ### 2. Milestone corrente e proposte
 
@@ -76,7 +91,7 @@ C1, già M1, è integrata e pubblicata con i sorgenti. La PR #2 contiene M2 su u
 
 **Limiti residui.** macOS e Windows non verificati in modo automatico; installer non firmati. Punti rinviati a M2: CSP; verifica del mittente negli IPC precedenti a C1; tetto alle code FIFO dell'incolla; test sulla sequenza alternata e sul gesto orfano; riga sul rischio residuo in `SECURITY_MODEL.md`.
 
-**Versione e tag.** Versione **0.2.0**. I tag `v0.2.0` e `milestone/C1` sono pubblicati sul commit di merge `4aabc9bc81a60b0c574221ce37578936341ae065`, verificati sul remoto. La release esistente viene integrata con i pacchetti verificati.
+**Versione e tag.** Versione **0.2.0**. I tag `v0.2.0` e `milestone/C1` sono pubblicati sul commit di merge `4aabc9bc81a60b0c574221ce37578936341ae065`, verificati sul remoto. I pacchetti macOS ARM64 verificati sono nella release. Il pacchetto Windows non è ancora verificato.
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
@@ -120,11 +135,11 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. Una modifica esclusivamente documentale può lasciare invariata la versione e non richiede una release. Per milestone o patch applicative concluse pubblicare una release secondo le preferenze HOME; se l'app non è utilizzabile, indicarla come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
 
-Il solo workflow `package-windows.yml` si avvia manualmente per le verifiche native Windows non equivalenti in locale. Non parte su push o PR. Le verifiche macOS ARM64 sono locali; altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
+Il solo workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. Il pacchetto Windows non è ancora verificato. Le verifiche macOS ARM64 sono locali; altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. The packaging patch below adds packages without moving tags. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. The packaging patch below does not move tags. macOS ARM64 packages are in the release; the Windows package is not yet verified. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -172,8 +187,23 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 - Local checks: `npm test` 70/70 using the tag’s Vitest 3.2.4; Node.js 24 build passed with the renderer warning above 500 kB. macOS ZIP and DMG generated; DMG integrity passed; both apps extracted outside the checkout passed bundle inspection and smoke tests for bridge, isolated preferences, IT/EN, light/dark, native PTY, four layouts and session closing.
 - Audit: zero known production-dependency vulnerabilities; the tag’s development toolchain reports seven moderate and two critical findings, including Vitest/tinypool. This patch does not change tag dependencies.
 - Documentation: README, IT/EN manuals, security model, map, plan and operating rules updated.
-- Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
-- Status: patch ready for local review before push/merge and manual workflow execution. Package publication and C1 branch removal follow the required checks; the M2 branch is preserved.
+- Limitations: manual run `43086813880` failed before producing a Windows installer, portable executable or checksum, so the Windows package is not verified. macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
+- Status: merged to `main` at `830af0952c384ac27f0af62fac66cffe98da9dc7`. No Windows package was produced or verified. The correction is section 1.2, in state M. The M2 branch stays preserved.
+
+#### 1.2 Windows packaging correction — state M
+
+- Number and title: Windows workflow correction, outside milestone numbering. It is not M3: M2 remains in PR #2, on a separate branch, and is left untouched. The state stays **M** until the designer approves this correction.
+- Goal: deliver the Windows package options to electron-builder without depending on PowerShell parsing, and not present that package as verified before a successful run and a trial on a real Windows machine.
+- Branch: `patch/0.2.0-windows-packaging-args`, created from `main` at `830af0952c384ac27f0af62fac66cffe98da9dc7`.
+- Version: **0.2.0**, with no increment. This remains a workflow and documentation patch, not a new application release. The intended packages still refer to code `4aabc9bc81a60b0c574221ce37578936341ae065`, whose version is 0.2.0. A `+0.0.1` would describe a different application and would fail the workflow's version check, whose default input stays 0.2.0. `npmRebuild: false` was not added to `electron-builder.json5`: it was not there, and adding it would also change macOS and Linux packaging. `nsis.runAfterFinish: false` stays a workflow overlay only, so an installer used by a person can still start the app at the end of installation.
+- Checkpoint / release: no tag, release or asset in this correction.
+- Cause: run `43086813880`, started manually on `main` `830af0952c384ac27f0af62fac66cffe98da9dc7`, fails at the step “Package installer and portable executable”. The log shows shell `pwsh.exe` and `ENOENT` for the path `app\.nsis.runAfterFinish=false`. PowerShell splits the unquoted argument `-c.nsis.runAfterFinish=false`; electron-builder 26.18.0 receives `.nsis.runAfterFinish=false` as a configuration file. The same applies to `-c.npmRebuild=false`. In addition, electron-builder's check is `config.npmRebuild === false`: the CLI string `"false"` does not satisfy it. The other steps do not use `-c.` or `--config.` arguments.
+- Tasks: `scripts/package-windows.mjs` calls the electron-builder API with real booleans, `publish: "never"` and distinct `setup`/`portable` names. The workflow step runs only `node ../tooling/scripts/package-windows.mjs`, so the options apply even when `source_sha` remains the 0.2.0 application commit. Workflow triggers, permissions and secrets are unchanged: it stays `workflow_dispatch` only, with `contents: read`.
+- Acceptance: no step passes dotted arguments to the shell; the documents do not say the Windows package is verified, produced or tested; pushes and PRs do not start workflows.
+- Checks: `npm ci` from the lockfile; `npm test` **72/72** with Vitest 3.2.4, including the two new option checks; `npm run build` passed, with the renderer bundle warning above 500 kB. Node.js available in this environment: 22.23.4. Node.js 24, used by the workflow, is not installed here.
+- Not run: the Windows workflow, on purpose, and any trial on a real Windows machine. A local build is not a package smoke test.
+- Documentation: `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`, `AGENTS.md`. `QUICK-START_Desktop.md` does not claim that the Windows package is verified, produced or tested, and was not changed. The `v0.2.0` release description already says the Windows packages are not published; it was not changed.
+- Status: **M**. Waiting for the designer's review of this PR. No move to C, merge, tag, release or branch deletion.
 
 ### 2. Current milestone and proposals
 
@@ -198,7 +228,7 @@ C1, formerly M1, is merged and published as source. PR #2 contains M2 on a separ
 
 **Residual limitations.** macOS and Windows were not verified automatically; installers are unsigned. Deferred to M2: CSP; sender checks on IPC channels that predate C1; a cap on the paste FIFO queues; a test of the alternating sequence and of the orphan gesture; a residual-risk line in `SECURITY_MODEL.md`.
 
-**Version and tags.** Version **0.2.0**. Tags `v0.2.0` and `milestone/C1` are published at merge commit `4aabc9bc81a60b0c574221ce37578936341ae065`, verified remotely. Verified packages are added to the existing release.
+**Version and tags.** Version **0.2.0**. Tags `v0.2.0` and `milestone/C1` are published at merge commit `4aabc9bc81a60b0c574221ce37578936341ae065`, verified remotely. Verified macOS ARM64 packages are in the release. The Windows package is not yet verified.
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
@@ -242,4 +272,4 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 
 Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Documentation-only work may keep the version unchanged and does not require a release. For completed application milestones or patches, publish a release under HOME preferences; mark it as a prerelease if the app is not usable. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
 
-The only workflow, `package-windows.yml`, is manually triggered for native Windows checks that cannot be performed equivalently locally. It does not run on push or PR. macOS ARM64 checks run locally; additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.
+The only workflow, `package-windows.yml`, is manually triggered for a Windows build attempt that cannot be performed equivalently locally. It does not run on push or PR. The Windows package is not yet verified. macOS ARM64 checks run locally; additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.

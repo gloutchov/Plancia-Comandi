@@ -73,7 +73,7 @@ npm test
 npm run build
 ```
 
-Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione e notifiche; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` costruisce e verifica i pacchetti Windows; non parte su push o PR. La build non verifica una shell reale o un installer.
+Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione e notifiche; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` è predisposto per costruire i pacchetti Windows su un runner GitHub e non parte su push o PR. La run `43086813880` è fallita prima di produrre un pacchetto: il pacchetto Windows non è ancora verificato. La build non verifica una shell reale o un installer.
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -97,7 +97,7 @@ Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quel
 
 La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
-Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti. L’integrazione dei pacchetti macOS ARM64 e Windows x64 è registrata nel piano. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
+Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti e con i pacchetti macOS ARM64. Il pacchetto Windows non è ancora verificato né pubblicato. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
 
 ### 7. Documentazione e licenza
 
@@ -186,7 +186,7 @@ npm test
 npm run build
 ```
 
-Vitest checks status detection, output bursts, titles, stabilization and notifications; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow builds and checks Windows packages; pushes and PRs do not trigger it. Building does not verify a real shell or installer.
+Vitest checks status detection, output bursts, titles, stabilization and notifications; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow is set up to build Windows packages on a GitHub runner and does not run on push or PR. Run `43086813880` failed before producing a package: the Windows package is not yet verified. Building does not verify a real shell or installer.
 
 For a demo from a checkout with Bash on macOS/Linux:
 
@@ -210,7 +210,7 @@ Run only the command for the intended platform. `npm run dist` uses the current 
 
 macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 
-Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The source-only `v0.2.0` release already exists. The plan records the addition of macOS ARM64 and Windows x64 packages. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
+Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The `v0.2.0` release already exists with the sources and the macOS ARM64 packages. The Windows package is not yet verified or published. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
 
 ### 7. Documentation and license
 
