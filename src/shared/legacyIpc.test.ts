@@ -170,6 +170,14 @@ describe('legacy IPC channels', () => {
     expect(harness.calls).toEqual([`write:${ID}:${'x'.repeat(limit)}`, `write:${ID}:${'y'.repeat(limit)}`])
   })
 
+  it('does not leave a high surrogate when an emoji straddles the write limit', () => {
+    const harness = effects()
+    const emoji = '😀'
+    const text = `${'x'.repeat(4)}${emoji}`
+    dispatchLegacyIpc('terminal:write', { sender: app }, [ID, text], app, harness.api, { maxWriteChars: 5 })
+    expect(harness.calls).toEqual([`write:${ID}:${'x'.repeat(4)}`])
+  })
+
   it('returns the current settings when a numeric field is not finite', () => {
     const harness = effects()
     const result = dispatchLegacyIpc(

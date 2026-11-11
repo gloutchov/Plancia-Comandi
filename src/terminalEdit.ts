@@ -1,5 +1,6 @@
 import type { Terminal } from '@xterm/xterm'
 import type { RuntimeLimits } from './shared/appConfig'
+import { limitText } from './shared/textLimit'
 import { interpretDrop } from './shared/drop'
 import { formatDroppedPaths, quoteShellArg, shellQuoteKind } from './shared/shellQuote'
 
@@ -155,7 +156,7 @@ export async function pasteIntoTerminal(
   try {
     const text = await bridge.readClipboardText()
     if (!text) return true
-    term.paste(text.length > limits.maxPasteChars ? text.slice(0, limits.maxPasteChars) : text)
+    term.paste(limitText(text, limits.maxPasteChars))
   } catch {
     // Leave the terminal unchanged when the clipboard cannot be read.
   }

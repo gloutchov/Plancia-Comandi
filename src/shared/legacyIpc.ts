@@ -1,3 +1,4 @@
+import { limitText } from './textLimit'
 import type { CreateSessionInput, SettingsPatch, StatusConfig } from './types'
 
 /**
@@ -278,8 +279,7 @@ function parse(channel: LegacyChannel, args: readonly unknown[], limits: LegacyL
       const id = sessionId(args[0])
       const data = args[1]
       if (!id || typeof data !== 'string') return null
-      const text = data.length > limits.maxWriteChars ? data.slice(0, limits.maxWriteChars) : data
-      return { channel, id, data: text }
+      return { channel, id, data: limitText(data, limits.maxWriteChars) }
     }
     case 'terminal:resize': {
       if (args.length !== 3) return null

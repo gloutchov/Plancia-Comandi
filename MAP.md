@@ -86,6 +86,8 @@ Plancia-Comandi/
 |       |-- legacyIpc.test.ts        Test negativi isolati per mittente estraneo e payload invalido
 |       |-- settingsForm.ts          Numeri del dialogo e aggiornamento delle impostazioni
 |       |-- settingsForm.test.ts     Test di 1e400 e di un aggiornamento nullo
+|       |-- textLimit.ts             Taglio del testo senza spezzare un'emoji
+|       |-- textLimit.test.ts        Test dell'emoji a cavallo del limite
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
 |       |-- status.ts                Logica pura di rilevamento e notifiche
@@ -226,6 +228,8 @@ Plancia-Comandi/
 |       |-- legacyIpc.test.ts        Isolated negative tests for a foreign sender and an invalid payload
 |       |-- settingsForm.ts          Dialog numbers and a settings update
 |       |-- settingsForm.test.ts     Tests for 1e400 and a null update
+|       |-- textLimit.ts             Text cut that does not split an emoji
+|       |-- textLimit.test.ts        Test of an emoji straddling the limit
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
 |       |-- status.ts                Pure status and notification logic
