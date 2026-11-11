@@ -29,8 +29,8 @@ export function App() {
       setError('desktop')
       return
     }
-    window.plancia.boot().then(setBoot).catch((reason: unknown) => {
-      setError(reason instanceof Error ? reason.message : 'boot')
+    window.plancia.boot().then(setBoot).catch(() => {
+      setError('boot')
     })
   }, [])
 
@@ -247,9 +247,11 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [])
 
   useEffect(() => {
-    return window.plancia?.onEditCommand(async (command, id) => {
+    return window.plancia?.onEditCommand(async (command, id, accelerator) => {
       if (command === 'copy') return copyFocusedTerminal()
-      if (command === 'paste') return pasteFocusedTerminal(boot.limits, `edit:${id}`)
+      if (command === 'paste') {
+        return pasteFocusedTerminal(boot.limits, accelerator ? { role: 'accelerator', id } : { role: 'direct', id })
+      }
       if (command === 'selectAll') return selectAllFocusedTerminal()
       if (command === 'cut' || command === 'undo' || command === 'redo') return terminalHasFocus()
       return false

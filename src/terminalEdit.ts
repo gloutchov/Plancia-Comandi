@@ -9,18 +9,60 @@ export interface TerminalEditTarget {
   hasFocus: () => boolean
 }
 
+const GESTURE_LIMIT = 64
 const gestures = new Set<string>()
 const targets = new Map<string, TerminalEditTarget>()
 let focusedId: string | null = null
 
+export interface PasteLane {
+  /** The half of a keyboard shortcut that already pasted, waiting for the other half. */
+  open: { role: 'shortcut' | 'accelerator'; id: string } | null
+}
+
+export type PasteEvent =
+  | { role: 'shortcut'; id: string }
+  | { role: 'accelerator'; id: string }
+  | { role: 'direct'; id: string }
+
+export function createPasteLane(): PasteLane {
+  return { open: null }
+}
+
+const lane = createPasteLane()
+
 /**
- * One user action has one id. The same id is ignored if it is delivered
- * again. A different id is pasted immediately, with no waiting period.
+ * One user action has one id. The same id is ignored if it is delivered again.
+ * The remembered ids are capped so the set cannot grow without limit.
  */
-export function claimPasteGesture(gesture: string, seen: Set<string> = gestures): boolean {
+export function claimPasteGesture(gesture: string, seen: Set<string> = gestures, limit = GESTURE_LIMIT): boolean {
   if (!gesture || seen.has(gesture)) return false
   seen.add(gesture)
+  while (seen.size > limit) {
+    const oldest = seen.values().next().value
+    if (oldest === undefined) break
+    seen.delete(oldest)
+  }
   return true
+}
+
+/**
+ * The terminal shortcut and the Edit-menu accelerator are two deliveries of one
+ * key. Whichever arrives first pastes. The other joins that gesture and does
+ * not paste again. A later shortcut, a later accelerator, or a direct click
+ * (context menu, or Edit → Paste with the mouse) is a new gesture and pastes
+ * immediately.
+ */
+export function decidePaste(state: PasteLane, event: PasteEvent): { paste: boolean; gesture: string } {
+  if (!event.id) return { paste: false, gesture: '' }
+  if (event.role === 'direct') return { paste: true, gesture: `direct:${event.id}` }
+  const open = state.open
+  if (open && open.role !== event.role) {
+    state.open = null
+    return { paste: false, gesture: `${open.role}:${open.id}` }
+  }
+  if (open && open.id === event.id) return { paste: false, gesture: `${event.role}:${event.id}` }
+  state.open = { role: event.role, id: event.id }
+  return { paste: true, gesture: `${event.role}:${event.id}` }
 }
 
 export function registerTerminalEdit(id: string, target: TerminalEditTarget): () => void {
@@ -74,18 +116,20 @@ export async function pasteIntoTerminal(
   term: Terminal,
   shellId: string,
   limits: RuntimeLimits,
-  gesture: string,
-): Promise<void> {
-  if (!claimPasteGesture(gesture)) return
+  event: PasteEvent,
+  state: PasteLane = lane,
+): Promise<boolean> {
+  const decision = decidePaste(state, event)
+  if (!decision.paste || !claimPasteGesture(decision.gesture)) return false
   const bridge = window.plancia
-  if (!bridge) return
+  if (!bridge) return false
   try {
     const imagePath = await bridge.readClipboardImage()
     if (imagePath) {
       const quoted = quoteShellArg(imagePath, shellQuoteKind(shellId))
       if (quoted && quoted.length + 1 <= limits.maxPasteChars) {
         term.paste(`${quoted} `)
-        return
+        return true
       }
     }
   } catch {
@@ -93,17 +137,18 @@ export async function pasteIntoTerminal(
   }
   try {
     const text = await bridge.readClipboardText()
-    if (!text) return
+    if (!text) return true
     term.paste(text.length > limits.maxPasteChars ? text.slice(0, limits.maxPasteChars) : text)
   } catch {
     // Leave the terminal unchanged when the clipboard cannot be read.
   }
+  return true
 }
 
-export async function pasteFocusedTerminal(limits: RuntimeLimits, gesture: string): Promise<boolean> {
+export async function pasteFocusedTerminal(limits: RuntimeLimits, event: PasteEvent): Promise<boolean> {
   const target = activeTarget()
   if (!target) return false
-  await pasteIntoTerminal(target.term, target.shellId, limits, gesture)
+  await pasteIntoTerminal(target.term, target.shellId, limits, event)
   return true
 }
 

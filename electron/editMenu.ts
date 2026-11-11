@@ -32,7 +32,7 @@ function fallback(command: EditCommand, window: BrowserWindow): void {
   else contents.selectAll()
 }
 
-function requestEdit(command: EditCommand, getWindow: () => BrowserWindow | null): void {
+function requestEdit(command: EditCommand, getWindow: () => BrowserWindow | null, accelerator = false): void {
   const current = getWindow()
   if (!current) return
   const id = randomBytes(8).toString('hex')
@@ -45,14 +45,14 @@ function requestEdit(command: EditCommand, getWindow: () => BrowserWindow | null
     clearTimeout(timer)
     if (!handled && !current.isDestroyed()) fallback(command, current)
   })
-  current.webContents.send('edit:command', { id, command })
+  current.webContents.send('edit:command', { id, command, accelerator })
 }
 
 function item(label: string, accelerator: string | undefined, command: EditCommand, getWindow: () => BrowserWindow | null): Electron.MenuItemConstructorOptions {
   return {
     label,
     accelerator,
-    click: () => requestEdit(command, getWindow),
+    click: (_item, _window, event) => requestEdit(command, getWindow, event.triggeredByAccelerator === true),
   }
 }
 

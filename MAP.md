@@ -55,6 +55,7 @@ Plancia-Comandi/
 |   |-- shortcuts.ts                 Riconoscimento delle scorciatoie
 |   |-- shortcuts.test.ts            Test di copia, incolla e Ctrl+C
 |   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
+|   |-- terminalEdit.test.ts         Test di deduplica dell'incolla e tetto dei gesti
 |   |-- cx.ts                        Helper per nomi di classi CSS
 |   |-- components/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
@@ -187,6 +188,7 @@ Plancia-Comandi/
 |   |-- shortcuts.ts                 Shortcut recognition
 |   |-- shortcuts.test.ts            Copy, paste and Ctrl+C tests
 |   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
+|   |-- terminalEdit.test.ts         Paste deduplication and gesture-cap tests
 |   |-- cx.ts                        CSS class-name helper
 |   |-- components/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
