@@ -41,3 +41,19 @@ export function isPasteKey(event: KeyLike, platform: string): boolean {
   if (platform === 'darwin') return event.metaKey && !event.ctrlKey && !event.shiftKey
   return event.ctrlKey && event.shiftKey && !event.metaKey
 }
+
+/** Ctrl+C without Shift, Alt or Command. macOS copy is Command+C, so this key is always the interrupt there. */
+export function isPlainCtrlC(event: KeyLike): boolean {
+  return event.key.toLowerCase() === 'c' && event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey
+}
+
+export type CtrlCAction = 'copy' | 'interrupt'
+
+/**
+ * On Windows and Linux, Ctrl+C copies when the terminal has a selection and
+ * otherwise sends the interrupt. macOS always interrupts on Ctrl+C.
+ */
+export function plainCtrlCAction(platform: string, hasSelection: boolean): CtrlCAction {
+  if (platform === 'darwin') return 'interrupt'
+  return hasSelection ? 'copy' : 'interrupt'
+}

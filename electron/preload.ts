@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type { AppSettings, BootInfo, CreateResult, CreateSessionInput, SessionInfo, SettingsPatch, TerminalChunk, TerminalSnapshot } from '../src/shared/types'
 
 function subscribe<T>(channel: string, callback: (payload: T) => void): () => void {
@@ -27,6 +27,38 @@ const api = {
   revealSettings: (): Promise<void> => ipcRenderer.invoke('settings:reveal'),
   openExternal: (url: string): void => {
     ipcRenderer.send('shell:openExternal', url)
+  },
+  writeClipboard: (text: string): Promise<boolean> => ipcRenderer.invoke('clipboard:writeText', text),
+  readClipboardText: (): Promise<string> => ipcRenderer.invoke('clipboard:readText'),
+  readClipboardImage: (): Promise<string | null> => ipcRenderer.invoke('clipboard:readImage'),
+  pathForFile: (file: File): string => {
+    try {
+      const value = webUtils.getPathForFile(file)
+      return typeof value === 'string' ? value : ''
+    } catch {
+      return ''
+    }
+  },
+  onEditCommand: (callback: (command: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll', id: string, accelerator: boolean) => boolean | Promise<boolean>): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      if (!payload || typeof payload !== 'object') return
+      const source = payload as { id?: unknown; command?: unknown; accelerator?: unknown }
+      const command = source.command
+      if (typeof source.id !== 'string' || !/^[0-9a-f]{16}$/.test(source.id)) return
+      if (command !== 'undo' && command !== 'redo' && command !== 'cut' && command !== 'copy' && command !== 'paste' && command !== 'selectAll') {
+        return
+      }
+      const commandId = source.id
+      const accelerator = source.accelerator === true
+      void Promise.resolve()
+        .then(() => callback(command, commandId, accelerator))
+        .then(
+          (handled) => ipcRenderer.send('edit:result', { id: commandId, handled: handled === true }),
+          () => ipcRenderer.send('edit:result', { id: commandId, handled: false }),
+        )
+    }
+    ipcRenderer.on('edit:command', listener)
+    return () => ipcRenderer.removeListener('edit:command', listener)
   },
   onSessions: (callback: (sessions: SessionInfo[]) => void): (() => void) => subscribe('sessions:updated', callback),
   onData: (callback: (chunk: TerminalChunk) => void): (() => void) => subscribe('terminal:data', callback),

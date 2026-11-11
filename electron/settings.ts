@@ -6,7 +6,7 @@ import type { AppSettings, LayoutMode, Locale, SettingsPatch, ThemeSetting } fro
 
 const THEMES: ThemeSetting[] = ['system', 'light', 'dark']
 const LOCALES: Locale[] = ['it', 'en']
-const LAYOUTS: LayoutMode[] = ['single', 'split']
+const LAYOUTS: LayoutMode[] = ['single', 'split', 'stack', 'grid']
 
 export function defaultSettings(home: string): AppSettings {
   return {

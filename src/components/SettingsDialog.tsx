@@ -44,6 +44,7 @@ export function SettingsDialog({
     [t('shortcutPin'), shortcuts.pin],
     [t('shortcutCopy'), shortcuts.copy],
     [t('shortcutPaste'), shortcuts.paste],
+    [t('shortcutInterrupt'), platform === 'darwin' ? t('shortcutInterruptKeys') : t('shortcutInterruptPlain')],
   ]
 
   function patch(next: SettingsPatch, updated: AppSettings) {

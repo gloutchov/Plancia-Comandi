@@ -1,14 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { NewSessionDialog } from './components/NewSessionDialog'
 import { SettingsDialog } from './components/SettingsDialog'
 import { Sidebar } from './components/Sidebar'
 import { TerminalView } from './components/TerminalView'
+import { LayoutSwitcher } from './components/LayoutSwitcher'
 import { cx } from './cx'
-import { phaseKey, reasonKey, shortcutLabels, translate, type MessageKey } from './shared/i18n'
+import { phaseKey, reasonKey, translate, type MessageKey } from './shared/i18n'
+import { displayedLayout, layoutCapacity, nextLayout, selectVisibleSessions } from './shared/layout'
 import { shortenPath } from './shared/paths'
 import { appShortcut, type KeyLike } from './shortcuts'
 import { darkTerm, lightTerm } from './termTheme'
+import {
+  copyFocusedTerminal,
+  pasteFocusedTerminal,
+  selectAllFocusedTerminal,
+  setFocusedTerminal,
+  terminalHasFocus,
+} from './terminalEdit'
 import type { AppSettings, BootInfo, LayoutMode, SessionInfo, SettingsPatch } from './shared/types'
 
 export function App() {
@@ -20,16 +29,20 @@ export function App() {
       setError('desktop')
       return
     }
-    window.plancia.boot().then(setBoot).catch((reason: unknown) => {
-      setError(reason instanceof Error ? reason.message : 'boot')
+    window.plancia.boot().then(setBoot).catch(() => {
+      setError('boot')
     })
   }, [])
 
   if (!boot) {
+    // Settings are not loaded yet. The app default locale is Italian.
+    const gate = (key: 'appName' | 'openDesktop' | 'bootError' | 'loading') => translate('it', key)
+    const detail =
+      error === 'desktop' ? gate('openDesktop') : error === 'boot' ? gate('bootError') : error ?? gate('loading')
     return (
       <div className="gate">
-        <strong>Plancia Comandi</strong>
-        <p>{error === 'desktop' ? 'Apri Plancia Comandi dalla finestra dell’app.' : error ?? 'Caricamento…'}</p>
+        <strong>{gate('appName')}</strong>
+        <p>{detail}</p>
       </div>
     )
   }
@@ -42,7 +55,6 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const [sessions, setSessions] = useState<SessionInfo[]>(boot.sessions)
   const [systemDark, setSystemDark] = useState(boot.systemDark)
   const [focusedId, setFocusedId] = useState<string | null>(boot.sessions[0]?.id ?? null)
-  const [pinned, setPinned] = useState<Set<string>>(new Set())
   const [layout, setLayoutState] = useState<LayoutMode>(boot.settings.layout)
   const [newOpen, setNewOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -94,14 +106,6 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [sessions, focusedId])
 
   useEffect(() => {
-    setPinned((current) => {
-      const alive = new Set(sessions.map((session) => session.id))
-      const next = new Set([...current].filter((id) => alive.has(id)))
-      return next.size === current.size ? current : next
-    })
-  }, [sessions])
-
-  useEffect(() => {
     window.plancia?.setWatching(focusedId, document.hasFocus())
     const send = () => window.plancia?.setWatching(focusedId, document.hasFocus())
     window.addEventListener('focus', send)
@@ -116,18 +120,28 @@ function Workspace({ boot }: { boot: BootInfo }) {
     if (!boot.demo || demoApplied.current || sessions.length < 2) return
     demoApplied.current = true
     setLayoutState('split')
-    setPinned(new Set(sessions.map((session) => session.id)))
     setFocusedId(sessions[0]?.id ?? null)
   }, [boot.demo, sessions])
 
-  const visibleIds = useMemo(() => {
-    if (layout === 'single') return focusedId ? [focusedId] : []
-    const ids = sessions.map((session) => session.id).filter((id) => pinned.has(id) || id === focusedId)
-    return ids.length > 0 ? ids : focusedId ? [focusedId] : []
-  }, [layout, sessions, pinned, focusedId])
+  const displayed = displayedLayout(layout, sessions.length)
+  const slots = selectVisibleSessions(
+    sessions.map((session) => session.id),
+    focusedId,
+    layoutCapacity(displayed),
+  )
+  const visibleIds = new Set(slots.filter((id): id is string => id !== null))
+  const countRef = useRef(sessions.length)
 
-  const columns = visibleIds.length <= 1 ? 1 : visibleIds.length <= 4 ? 2 : 3
-  const shortcuts = shortcutLabels(boot.platform)
+  useEffect(() => {
+    const previous = countRef.current
+    countRef.current = sessions.length
+    if (sessions.length >= previous) return
+    const next = displayedLayout(layout, sessions.length)
+    if (next !== layout) {
+      setLayoutState(next)
+      saveSettings({ layout: next })
+    }
+  }, [sessions.length, layout])
 
   function saveSettings(patch: SettingsPatch) {
     setSettings((current) => ({
@@ -139,22 +153,15 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }
 
   function setLayout(mode: LayoutMode) {
+    if (displayedLayout(mode, sessions.length) !== mode) return
     setLayoutState(mode)
     saveSettings({ layout: mode })
-    if (mode === 'split') {
-      setPinned((current) => (current.size > 0 ? current : new Set(focusedId ? [focusedId] : [])))
-    }
   }
 
-  function togglePin(id: string) {
-    setPinned((current) => {
-      const next = new Set(current)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  function showSideBySide(id: string) {
+    if (sessions.length < 2) return
     setFocusedId(id)
-    if (layout !== 'split') setLayout('split')
+    setLayout('split')
   }
 
   function requestClose(session: SessionInfo) {
@@ -189,7 +196,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
     if (!action) return
     if (action === 'new') setNewOpen(true)
     if (action === 'close' && focused) requestClose(focused)
-    if (action === 'split') setLayout(layout === 'single' ? 'split' : 'single')
+    if (action === 'split') setLayout(nextLayout(displayed, sessions.length))
     if (action === 'settings') setSettingsOpen(true)
   }
 
@@ -223,6 +230,34 @@ function Workspace({ boot }: { boot: BootInfo }) {
     return () => window.removeEventListener('keydown', onKey)
   })
 
+  useEffect(() => {
+    setFocusedTerminal(focusedId)
+  }, [focusedId])
+
+  useEffect(() => {
+    const prevent = (event: DragEvent) => {
+      event.preventDefault()
+    }
+    window.addEventListener('dragover', prevent, true)
+    window.addEventListener('drop', prevent, true)
+    return () => {
+      window.removeEventListener('dragover', prevent, true)
+      window.removeEventListener('drop', prevent, true)
+    }
+  }, [])
+
+  useEffect(() => {
+    return window.plancia?.onEditCommand(async (command, id, accelerator) => {
+      if (command === 'copy') return copyFocusedTerminal()
+      if (command === 'paste') {
+        return pasteFocusedTerminal(boot.limits, accelerator ? { role: 'accelerator', id } : { role: 'direct', id })
+      }
+      if (command === 'selectAll') return selectAllFocusedTerminal()
+      if (command === 'cut' || command === 'undo' || command === 'redo') return terminalHasFocus()
+      return false
+    })
+  }, [boot.limits])
+
   function createError(code: string): string {
     if (code === 'bad-cwd') return t('badCwd')
     if (code === 'bad-shell') return t('badShell')
@@ -244,14 +279,15 @@ function Workspace({ boot }: { boot: BootInfo }) {
           version={boot.version}
           sessions={sessions}
           focusedId={focusedId}
-          pinned={pinned}
+          visibleIds={visibleIds}
+          canSplit={sessions.length >= 2}
           showReasons={settings.showReasons}
           darwin={boot.platform === 'darwin'}
           onFocus={(id) => {
             setFocusedId(id)
             if (narrow) setSidebarOpen(false)
           }}
-          onTogglePin={togglePin}
+          onTogglePin={showSideBySide}
           onClose={requestClose}
           onRename={(id, name) => void window.plancia?.renameSession(id, name)}
           onCreate={() => setNewOpen(true)}
@@ -278,31 +314,24 @@ function Workspace({ boot }: { boot: BootInfo }) {
               <span>{t('emptyBody')}</span>
             )}
           </div>
-          <div className="segmented" role="radiogroup" aria-label={t('layoutSplit')}>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={layout === 'single'}
-              className={layout === 'single' ? 'is-on' : ''}
-              title={shortcuts.split}
-              onClick={() => setLayout('single')}
-            >
-              {t('layoutSingle')}
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={layout === 'split'}
-              data-testid="layout-split"
-              className={layout === 'split' ? 'is-on' : ''}
-              title={shortcuts.split}
-              onClick={() => setLayout('split')}
-            >
-              {t('layoutSplit')}
-            </button>
-          </div>
+          <LayoutSwitcher
+            layout={displayed}
+            groupLabel={t('layoutViews')}
+            labels={{
+              single: t('layoutSingle'),
+              split: t('layoutSplit'),
+              stack: t('layoutStack'),
+              grid: t('layoutGrid'),
+            }}
+            disabledReasons={{
+              split: sessions.length < 2 ? t('layoutNeedTwo') : undefined,
+              stack: sessions.length < 2 ? t('layoutNeedTwo') : undefined,
+              grid: sessions.length < 3 ? t('layoutNeedThree') : undefined,
+            }}
+            onSelect={setLayout}
+          />
         </header>
-        {visibleIds.length === 0 ? (
+        {visibleIds.size === 0 ? (
           <div className="empty-stage">
             <div className="empty-card">
               <h2>{t('emptyTitle')}</h2>
@@ -313,8 +342,9 @@ function Workspace({ boot }: { boot: BootInfo }) {
             </div>
           </div>
         ) : (
-          <div className="tiles" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
-            {visibleIds.map((id) => {
+          <div className="tiles" data-layout={displayed}>
+            {slots.map((id, index) => {
+              if (!id) return <div key={`empty-${index}`} className="tile tile-empty" aria-hidden="true" />
               const session = sessions.find((item) => item.id === id)
               if (!session) return null
               const active = id === focusedId
@@ -324,18 +354,18 @@ function Workspace({ boot }: { boot: BootInfo }) {
                     <i className={cx('dot', `is-${session.phase}`)} />
                     <strong>{sessionName(session)}</strong>
                     <span>{t(phaseKey(session.phase))}</span>
-                    {layout === 'split' && pinned.has(id) ? (
-                      <button type="button" className="text-btn" onClick={() => togglePin(id)}>
-                        {t('removeFromView')}
-                      </button>
-                    ) : null}
                   </header>
                   <TerminalView
                     sessionId={id}
+                    shellId={session.shellId}
                     theme={termTheme}
                     fontSize={settings.fontSize}
                     active={active && !newOpen && !settingsOpen && !pendingClose}
                     platform={boot.platform}
+                    limits={boot.limits}
+                    fitToken={displayed}
+                    copyLabel={t('menuCopy')}
+                    pasteLabel={t('menuPaste')}
                     onActivate={() => setFocusedId(id)}
                     onShortcut={(event) => actions.current.shortcut(event)}
                     onEscape={() => actions.current.escape()}
@@ -348,7 +378,6 @@ function Workspace({ boot }: { boot: BootInfo }) {
             })}
           </div>
         )}
-        {layout === 'split' && visibleIds.length < 2 ? <p className="split-hint">{t('splitHint')}</p> : null}
       </main>
 
       {newOpen ? (
@@ -362,9 +391,6 @@ function Workspace({ boot }: { boot: BootInfo }) {
             const result = await window.plancia!.createSession(input)
             if (!result.ok) return createError(result.error)
             setFocusedId(result.session.id)
-            if (layout === 'split') {
-              setPinned((current) => new Set(current).add(result.session.id))
-            }
             setNewOpen(false)
             if (narrow) setSidebarOpen(false)
             return null

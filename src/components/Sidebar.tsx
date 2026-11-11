@@ -21,7 +21,8 @@ export function Sidebar({
   version,
   sessions,
   focusedId,
-  pinned,
+  visibleIds,
+  canSplit,
   showReasons,
   darwin,
   onFocus,
@@ -36,7 +37,8 @@ export function Sidebar({
   version: string
   sessions: SessionInfo[]
   focusedId: string | null
-  pinned: Set<string>
+  visibleIds: Set<string>
+  canSplit: boolean
   showReasons: boolean
   darwin: boolean
   onFocus: (id: string) => void
@@ -75,7 +77,7 @@ export function Sidebar({
           return (
             <div
               key={session.id}
-              className={cx('session', session.id === focusedId && 'is-focused', pinned.has(session.id) && 'is-pinned')}
+              className={cx('session', session.id === focusedId && 'is-focused', visibleIds.size > 1 && visibleIds.has(session.id) && 'is-pinned')}
               role="option"
               aria-selected={session.id === focusedId}
               onClick={(event) => {
@@ -83,18 +85,21 @@ export function Sidebar({
                 else onFocus(session.id)
               }}
             >
-              <button
-                type="button"
-                className={cx('pin', pinned.has(session.id) && 'is-on')}
-                aria-pressed={pinned.has(session.id)}
-                title={pinned.has(session.id) ? t('unpin') : t('pin')}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onTogglePin(session.id)
-                }}
-              >
-                <PinIcon />
-              </button>
+              <span className="pin-wrap" title={canSplit ? t('pin') : t('layoutNeedTwo')}>
+                <button
+                  type="button"
+                  className={cx('pin', visibleIds.size > 1 && visibleIds.has(session.id) && 'is-on')}
+                  aria-pressed={visibleIds.size > 1 && visibleIds.has(session.id)}
+                  aria-label={canSplit ? t('pin') : t('layoutNeedTwo')}
+                  disabled={!canSplit}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onTogglePin(session.id)
+                  }}
+                >
+                  <PinIcon />
+                </button>
+              </span>
               <div className="session-body">
                 {renamingId === session.id ? (
                   <RenameField

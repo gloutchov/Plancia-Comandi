@@ -2,12 +2,12 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.1.0**. Le proposte non autorizzano interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** ha ricevuto la prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome). Merge, tag e release restano in attesa della seconda approvazione. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
-- [2. Proposte da pianificare](#2-proposte-da-pianificare)
+- [2. Milestone corrente e proposte](#2-milestone-corrente-e-proposte)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -38,14 +38,37 @@ Verifiche locali del 10 novembre 2026: controlli automatici di documenti, link/a
 
 Non eseguiti smoke Electron, CLI AI reale, packaging, prove Windows/Linux, audit completo delle dipendenze o CI: l'intervento modifica solo documentazione e tali verifiche non sono necessarie per questo ambito. Restano da completare le validazioni applicative e di sicurezza delle proposte P1–P3. Gli output ignorati di build/cache sono conservati; nessuna pulizia automatica, pubblicazione, merge, tag o release effettuata.
 
-### 2. Proposte da pianificare
+La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c702673657bfd2b3dbaf8e`.
 
-Non ci sono milestone `M` autorizzate nel piano esecutivo corrente. Queste proposte restano fuori dall'esecuzione:
+### 2. Milestone corrente e proposte
+
+C1, già M1, è l'unica milestone del piano esecutivo. La prima approvazione è registrata; merge, tag e release attendono la seconda approvazione di Glauco. Le proposte sotto non diventano eseguibili da sole.
+
+| Campo | C1 — Clipboard, trascinamento e viste |
+| --- | --- |
+| Numero e titolo | C1 — Clipboard, trascinamento e viste |
+| Obiettivo | Rendere usabili copia, incolla e trascinamento nei terminali e aggiungere le viste Incolonnate e Griglia accanto a Una e Affiancate. |
+| Branch | `milestone/1-clipboard-dnd-layouts`, creato da `main` al commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
+| Tag di checkpoint previsto | `milestone/C1`. Non creato. Il tag di versione previsto è `v0.2.0`: va creato solo dopo la seconda approvazione di Glauco. |
+| Tipo incremento versione | `+0.1.0`, da 0.1.0 a **0.2.0**. La versione non cambia con il passaggio da M1 a C1. |
+| Attività | Menu **Modifica** con etichette dell'app; copia e incolla, incluso l'incolla fra parentesi di xterm.js; Ctrl+C che copia solo con una selezione su Windows e Linux; menu contestuale; trascinamento di file e testo con percorsi quotati per la shell; salvataggio delle immagini degli appunti in una cartella dedicata sotto i dati utente; blocco di navigazioni e nuove finestre; icone delle viste, disabilitazione e scelta dei riquadri; `config/app.config.json` validato. |
+| Criteri di accettazione | Scorciatoie, menu e viste descritti nei manuali; quotatura verificata per shell POSIX, PowerShell e cmd; Affiancate e Incolonnate disabilitate con una sessione e Griglia sotto le tre; con tre sessioni il quarto riquadro resta vuoto; se chiudendo sessioni la vista non è più possibile si torna a Una e la scelta è salvata; i file temporanei hanno nome generato, restano sotto la cartella dati e non usano un percorso scelto dal renderer. |
+| Test | `npm test` **70/70** e `npm run build` riuscito sul commit approvato `5c61783817db2a33deba8393abd694a3a3270028`. Non eseguiti, perché non sostituiscono uno smoke dell'app: prova manuale su Linux, macOS e Windows 11, smoke Electron, packaging, checksum e una CLI reale. |
+| Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (copia integrale; non è documentazione del repository). |
+| Stato | `C1`. Prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome), sulla PR #1 con head `5c61783817db2a33deba8393abd694a3a3270028`. Parole di Glauco: «M1 funziona correttamente». In attesa della seconda approvazione prima di merge, tag e release. |
+
+**Riepilogo.** Copia, incolla e trascinamento nei terminali; menu Modifica e menu contestuale; immagini degli appunti salvate in una cartella dedicata; viste Una, Affiancate, Incolonnate e Griglia.
+
+**Verifiche.** `npm test` 70/70; `npm run build` riuscito, con l'avviso del bundle renderer oltre 500 kB. Queste verifiche non sono una prova automatica su macOS o Windows.
+
+**Limiti residui.** macOS e Windows non verificati in modo automatico; installer non firmati. Punti rinviati a M2: CSP; verifica del mittente negli IPC precedenti a C1; tetto alle code FIFO dell'incolla; test sulla sequenza alternata e sul gesto orfano; riga sul rischio residuo in `SECURITY_MODEL.md`.
+
+**Versione e tag.** Versione **0.2.0**. Il tag `v0.2.0` è previsto e va creato solo dopo la seconda approvazione di Glauco. Il checkpoint `milestone/C1` non è stato creato.
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
-| P1 — Confini di sicurezza | Rafforzare CSP, navigazioni e popup, verifica del mittente IPC, payload, gestione errori, regex e scritture delle impostazioni. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
-| P2 — Preferenze iniziali | Allineare lingua automatica e configurazione centrale dei limiti alle preferenze del progetto. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
+| P1 — Confini di sicurezza | Rafforzare CSP, verifica del mittente su tutti i canali IPC, payload, gestione errori, regex e scritture delle impostazioni. C1 copre solo il blocco di navigazione e finestre e la validazione dei nuovi canali. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
+| P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
 
 Versione, branch, checkpoint, attività e test dettagliati saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. La landing page GitHub Pages non è stata richiesta e non è inclusa.
@@ -88,12 +111,12 @@ Al momento non esistono workflow GitHub Actions. Per questa patch bastano verifi
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.1.0**. Proposals do not authorize code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** received Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome). Merge, tags and release wait for the second approval. Proposals do not authorize any other code changes.
 
 **Contents**
 
 - [1. Baseline and current work](#1-baseline-and-current-work)
-- [2. Proposals awaiting planning](#2-proposals-awaiting-planning)
+- [2. Current milestone and proposals](#2-current-milestone-and-proposals)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -124,14 +147,37 @@ Local checks on 10 November 2026: automated document, link/anchor, chapter, JSON
 
 Electron smoke, a real AI CLI, packaging, Windows/Linux tests, a complete dependency audit and CI were not run: this is documentation-only work and these checks are unnecessary for its scope. Application and security validation under proposals P1–P3 remains outstanding. Ignored build/cache output is retained; no automatic cleanup, publication, merge, tag or release was performed.
 
-### 2. Proposals awaiting planning
+C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e` as its baseline.
 
-There are no authorized `M` milestones in the current execution plan. These proposals remain outside execution:
+### 2. Current milestone and proposals
+
+C1, formerly M1, is the only milestone in the execution plan. The first approval is recorded; merge, tags and release wait for Glauco's second approval. The proposals below do not become executable on their own.
+
+| Field | C1 — Clipboard, drag-and-drop and views |
+| --- | --- |
+| Number and title | C1 — Clipboard, drag-and-drop and views |
+| Goal | Make copy, paste and drag-and-drop usable in the terminals, and add Stacked and Grid views beside One and Side by side. |
+| Branch | `milestone/1-clipboard-dnd-layouts`, created from `main` at commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
+| Planned checkpoint tag | `milestone/C1`. Not created. The planned version tag is `v0.2.0`: create it only after Glauco's second approval. |
+| Version increment | `+0.1.0`, from 0.1.0 to **0.2.0**. The version does not change with the move from M1 to C1. |
+| Tasks | **Edit** menu with the app's labels; copy and paste, including xterm.js bracketed paste; Ctrl+C copies only when text is selected on Windows and Linux; context menu; file and text drag-and-drop with shell-quoted paths; clipboard images saved in a dedicated folder under the user-data directory; blocked navigations and new windows; view icons, disabled states and pane selection; validated `config/app.config.json`. |
+| Acceptance | Shortcuts, menus and views described in the manuals; quoting checked for POSIX shells, PowerShell and cmd; Side by side and Stacked disabled with one session, and Grid below three; with three sessions the fourth pane stays empty; closing sessions until the view is impossible returns to One and saves that choice; temporary files use generated names, stay under the data directory and never use a renderer-chosen path. |
+| Tests | `npm test` **70/70** and `npm run build` passed on the approved commit `5c61783817db2a33deba8393abd694a3a3270028`. Not run, because they do not replace an application smoke test: manual checks on Linux, macOS and Windows 11, Electron smoke, packaging, checksums and a real CLI. |
+| Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (complete copy; not repository documentation). |
+| Status | `C1`. Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome), on PR #1 at head `5c61783817db2a33deba8393abd694a3a3270028`. Glauco's words: “M1 funziona correttamente”. Waiting for the second approval before any merge, tag or release. |
+
+**Summary.** Copy, paste and drag-and-drop in the terminals; Edit menu and context menu; clipboard images saved in a dedicated folder; One, Side by side, Stacked and Grid views.
+
+**Checks.** `npm test` 70/70; `npm run build` passed, with the renderer bundle warning above 500 kB. These checks are not an automatic macOS or Windows verification.
+
+**Residual limitations.** macOS and Windows were not verified automatically; installers are unsigned. Deferred to M2: CSP; sender checks on IPC channels that predate C1; a cap on the paste FIFO queues; a test of the alternating sequence and of the orphan gesture; a residual-risk line in `SECURITY_MODEL.md`.
+
+**Version and tags.** Version **0.2.0**. Tag `v0.2.0` is planned and is to be created only after Glauco's second approval. The `milestone/C1` checkpoint has not been created.
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
-| P1 — Security boundaries | Strengthen CSP, navigation and popup controls, IPC sender validation, payloads, errors, regexes and settings writes. | Isolated negative tests and an updated security model; preserve shell operation. |
-| P2 — Initial preferences | Align automatic language selection and central limit configuration with project preferences. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
+| P1 — Security boundaries | Strengthen CSP, sender checks on every IPC channel, payloads, errors, regexes and settings writes. C1 only adds navigation and window blocking and validation of the new channels. | Isolated negative tests and an updated security model; preserve shell operation. |
+| P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
 
 Version, branch, checkpoint, detailed tasks and tests will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. A GitHub Pages landing page was not requested and is not included.

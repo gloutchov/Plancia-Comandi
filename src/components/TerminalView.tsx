@@ -1,27 +1,40 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import type { ITheme } from '@xterm/xterm'
-import { appShortcut, isCopyKey, isPasteKey, type KeyLike } from '../shortcuts'
+import type { RuntimeLimits } from '../shared/appConfig'
+import { appShortcut, isCopyKey, isPasteKey, isPlainCtrlC, plainCtrlCAction, type KeyLike } from '../shortcuts'
+import { TerminalMenu } from './TerminalMenu'
+import { dropIntoTerminal, pasteIntoTerminal, registerTerminalEdit, writeClipboardText } from '../terminalEdit'
 
 const FONT = '"JetBrains Mono", "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace'
 
 export function TerminalView({
   sessionId,
+  shellId,
   theme,
   fontSize,
   active,
   platform,
+  limits,
+  fitToken,
+  copyLabel,
+  pasteLabel,
   onShortcut,
   onEscape,
   onActivate,
 }: {
   sessionId: string
+  shellId: string
   theme: ITheme
   fontSize: number
   active: boolean
   platform: string
+  limits: RuntimeLimits
+  fitToken: string
+  copyLabel: string
+  pasteLabel: string
   onShortcut: (event: KeyLike) => void
   onEscape: () => boolean
   onActivate: () => void
@@ -31,8 +44,13 @@ export function TerminalView({
   const fitRef = useRef<FitAddon | null>(null)
   const shortcutRef = useRef(onShortcut)
   const escapeRef = useRef(onEscape)
+  const shellRef = useRef(shellId)
+  const limitsRef = useRef(limits)
+  const [menu, setMenu] = useState<{ x: number; y: number; selection: string } | null>(null)
   shortcutRef.current = onShortcut
   escapeRef.current = onEscape
+  shellRef.current = shellId
+  limitsRef.current = limits
 
   useEffect(() => {
     const host = hostRef.current
@@ -49,6 +67,7 @@ export function TerminalView({
       theme,
       scrollback: 8000,
       drawBoldTextInBrightColors: true,
+      rightClickSelectsWord: false,
     })
     const fit = new FitAddon()
     term.loadAddon(fit)
@@ -95,17 +114,24 @@ export function TerminalView({
       }
       if (isCopyKey(key, platform)) {
         const selection = term.getSelection()
-        if (selection) void navigator.clipboard.writeText(selection)
+        if (selection) writeClipboardText(selection)
         return false
       }
       if (isPasteKey(key, platform)) {
-        void navigator.clipboard
-          .readText()
-          .then((text) => {
-            if (text) bridge.write(sessionId, text)
-          })
-          .catch(() => undefined)
+        void pasteIntoTerminal(term, shellRef.current, limitsRef.current, {
+          role: 'shortcut',
+          id: String(event.timeStamp),
+        })
         return false
+      }
+      if (isPlainCtrlC(key)) {
+        const action = plainCtrlCAction(platform, term.hasSelection())
+        if (action === 'copy') {
+          writeClipboardText(term.getSelection())
+          term.clearSelection()
+          return false
+        }
+        return true
       }
       if (event.key === 'Escape' && escapeRef.current()) return false
       if (appShortcut(key, platform)) {
@@ -117,7 +143,12 @@ export function TerminalView({
 
     const publishSize = () => {
       if (disposed) return
-      fit.fit()
+      if (host.clientWidth < 2 || host.clientHeight < 2) return
+      try {
+        fit.fit()
+      } catch {
+        return
+      }
       bridge.resize(sessionId, term.cols, term.rows)
     }
 
@@ -140,11 +171,21 @@ export function TerminalView({
       })
     })
 
+    const unsubscribeEdit = registerTerminalEdit(sessionId, {
+      term,
+      shellId,
+      hasFocus: () => {
+        const activeElement = document.activeElement
+        return !!activeElement && host.contains(activeElement)
+      },
+    })
+
     return () => {
       disposed = true
       cancelAnimationFrame(frame)
       observer.disconnect()
       unsubscribe()
+      unsubscribeEdit()
       term.dispose()
       termRef.current = null
       fitRef.current = null
@@ -164,9 +205,50 @@ export function TerminalView({
     const fit = fitRef.current
     if (!term || !fit) return
     term.options.fontSize = fontSize
-    fit.fit()
-    window.plancia?.resize(sessionId, term.cols, term.rows)
+    try {
+      fit.fit()
+      window.plancia?.resize(sessionId, term.cols, term.rows)
+    } catch {
+      // Font changes can arrive before the pane has a size.
+    }
   }, [fontSize, sessionId])
+
+  useEffect(() => {
+    const term = termRef.current
+    const fit = fitRef.current
+    if (!term || !fit) return
+    let inner = 0
+    const outer = requestAnimationFrame(() => {
+      try {
+        fit.fit()
+        window.plancia?.resize(sessionId, term.cols, term.rows)
+      } catch {
+        // The pane may still be hidden.
+      }
+      inner = requestAnimationFrame(() => {
+        try {
+          fit.fit()
+          window.plancia?.resize(sessionId, term.cols, term.rows)
+        } catch {
+          // Ignore a second fit that races with disposal.
+        }
+      })
+    })
+    const onResize = () => {
+      try {
+        fit.fit()
+        window.plancia?.resize(sessionId, term.cols, term.rows)
+      } catch {
+        // The window can resize while the terminal is closing.
+      }
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      cancelAnimationFrame(outer)
+      cancelAnimationFrame(inner)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [fitToken, sessionId])
 
   useEffect(() => {
     if (active) termRef.current?.focus()
@@ -176,23 +258,67 @@ export function TerminalView({
     <div
       ref={hostRef}
       className="term-host"
-      onMouseDown={onActivate}
+      onMouseDownCapture={(event) => {
+        if (event.button === 2) event.stopPropagation()
+      }}
+      onMouseDown={(event) => {
+        if (event.button === 2) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        onActivate()
+      }}
+      onDragOver={(event) => {
+        event.preventDefault()
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
+      }}
+      onDrop={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        const term = termRef.current
+        const transfer = event.dataTransfer
+        if (!term || !transfer) return
+        const paths = [...transfer.files].map((file) => window.plancia?.pathForFile(file) ?? '').filter((value) => value.length > 0)
+        dropIntoTerminal(term, shellRef.current, paths, transfer.getData('text/plain') ?? '', limitsRef.current)
+      }}
       onContextMenu={(event) => {
         event.preventDefault()
+        event.stopPropagation()
         const term = termRef.current
         if (!term) return
-        const selection = term.getSelection()
-        if (selection) {
-          void navigator.clipboard.writeText(selection)
-          return
-        }
-        void navigator.clipboard
-          .readText()
-          .then((text) => {
-            if (text) window.plancia?.write(sessionId, text)
-          })
-          .catch(() => undefined)
+        onActivate()
+        setMenu({ x: event.clientX, y: event.clientY, selection: term.getSelection() })
       }}
-    />
+    >
+      {menu ? (
+        <TerminalMenu
+          x={menu.x}
+          y={menu.y}
+          canCopy={menu.selection.length > 0}
+          copyLabel={copyLabel}
+          pasteLabel={pasteLabel}
+          onCopy={() => {
+            writeClipboardText(menu.selection)
+            setMenu(null)
+            termRef.current?.focus()
+          }}
+          onPaste={(event) => {
+            const term = termRef.current
+            setMenu(null)
+            if (term) {
+              void pasteIntoTerminal(term, shellRef.current, limitsRef.current, {
+                role: 'direct',
+                id: `${event.timeStamp}:${event.clientX}:${event.clientY}`,
+              })
+            }
+            term?.focus()
+          }}
+          onClose={() => {
+            setMenu(null)
+            termRef.current?.focus()
+          }}
+        />
+      ) : null}
+    </div>
   )
 }

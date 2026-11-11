@@ -389,13 +389,6 @@ button {
   color: var(--ink-soft);
 }
 
-.split-hint {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 12px;
-  padding: 0 6px;
-}
-
 .empty-stage {
   flex: 1;
   display: grid;
@@ -479,6 +472,7 @@ button {
 
 .segmented {
   display: inline-flex;
+  flex-shrink: 0;
   padding: 3px;
   gap: 2px;
   border-radius: 12px;
@@ -494,10 +488,92 @@ button {
   color: var(--ink-soft);
 }
 
+.layout-choice button {
+  padding: 6px 8px;
+}
+
+.segmented button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 .segmented button.is-on {
   background: var(--bg-elev);
   color: var(--ink);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.segmented button:disabled {
+  color: var(--ink-soft);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.layout-choice { display: inline-flex; }
+
+.term-menu {
+  position: fixed;
+  z-index: 40;
+  min-width: 168px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--bg-elev);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.term-menu button {
+  display: block;
+  width: 100%;
+  text-align: start;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  padding: 8px 10px;
+}
+
+.term-menu button:disabled {
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.term-menu button:hover:not(:disabled),
+.term-menu button:focus-visible {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.pin-wrap { display: inline-flex; }
+.pin:disabled { color: var(--ink-soft); opacity: 1; cursor: not-allowed; }
+
+.tile-empty {
+  background: color-mix(in srgb, var(--bg-sunken) 70%, var(--term-bg));
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.tiles[data-layout='single'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.tiles[data-layout='split'] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.tiles[data-layout='stack'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.tiles[data-layout='grid'] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .overlay {
