@@ -61,12 +61,10 @@ jobs:
         run: npm run build
       - name: Package installer and portable executable
         working-directory: app
-        run: >-
-          npm exec electron-builder -- --win --x64 --publish never
-          -c.npmRebuild=false
-          -c.nsis.runAfterFinish=false
-          '-c.nsis.artifactName=PlanciaComandi-win-${version}-${arch}-setup.${ext}'
-          '-c.portable.artifactName=PlanciaComandi-win-${version}-${arch}-portable.${ext}'
+        run: |
+          node -e "const fs=require('node:fs');const v=require('./package.json').version;fs.writeFileSync('release-windows.config.json',JSON.stringify({extends:'./electron-builder.json5',npmRebuild:false,nsis:{runAfterFinish:false,artifactName:'PlanciaComandi-win-'+v+'-x64-setup.exe'},portable:{artifactName:'PlanciaComandi-win-'+v+'-x64-portable.exe'}}))"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm exec electron-builder -- --win --x64 --publish never --config release-windows.config.json
       - name: Smoke unpacked Windows package
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
