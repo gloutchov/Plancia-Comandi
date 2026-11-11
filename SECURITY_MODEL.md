@@ -108,13 +108,13 @@ Il lockfile fissa le dipendenze; installazione e rebuild possono eseguire script
 
 I pacchetti includono i bundle, `package.json` e le dipendenze secondo [electron-builder.json5](electron-builder.json5); `node-pty` e `@xterm/headless` sono estratti dall'ASAR. ASAR non è un confine di sicurezza. macOS ha `identity: null`; Windows non ha certificati configurati. Non sono configurati notarizzazione, auto-update o workflow di release.
 
-Per una release occorrono controllo del commit, approvazione esplicita, test e smoke della build reale su piattaforme dichiarate, controllo dei contenuti dei pacchetti, SHA-256 e verifica di tag/release sul remoto. Mai allegare credenziali, preferenze personali, log o screenshot privati. M1 non produce artifact: la release `v0.2.0` non è stata creata.
+Per una release occorrono controllo del commit, approvazione esplicita, test e smoke della build reale su piattaforme dichiarate, controllo dei contenuti dei pacchetti, SHA-256 e verifica di tag/release sul remoto. Mai allegare credenziali, preferenze personali, log o screenshot privati. La release `v0.2.0` esiste già sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i nuovi pacchetti sono costruiti da quel commit. Il workflow Windows è solo manuale, ha permessi `contents: read`, Actions fissate a hash e nessun accesso a credenziali di firma o pubblicazione. Usa il prebuild Windows N-API incluso in `node-pty` e salta il rebuild nativo durante il packaging. Gli artifact sono conservati sette giorni; la pubblicazione richiede la verifica locale dei download e dei checksum.
 
 ### 7. Verifiche e rischi residui
 
 La suite in `src/**/*.test.ts` copre stati, configurazione del rilevamento, burst, titoli, stabilizzazione, notifiche, viste, quotatura delle shell, trascinamento, decisione di navigazione, validazione di `config/app.config.json` e la policy dei file immagine. Non copre IPC reale, shell native, CSP, la finestra Electron, pacchetti o rete. Test e build non dimostrano l'assenza di vulnerabilità.
 
-La documentazione viene verificata contro i sorgenti. Gli esiti di M1 sono registrati in [PLAN.md](PLAN.md); non costituiscono uno smoke desktop. Non sono stati usati keychain, credenziali o contenuti privati per esercitare l'app.
+La documentazione viene verificata contro i sorgenti. Gli esiti di M1 e dell’integrazione pacchetti sono registrati in [PLAN.md](PLAN.md). Lo smoke dedicato usa preferenze temporanee precompilate e controlla l’isolamento prima di modificarle. Avvia solo comandi di prova con un ambiente filtrato e, su macOS, una directory di configurazione zsh vuota. Il debug Chromium è limitato al loopback durante la prova; il processo viene terminato alla fine e i temporanei locali restano per il controllo. Non legge gli appunti e non usa CLI AI o credenziali reali. Non sono stati usati keychain, credenziali o contenuti privati per esercitare l'app.
 
 Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente ereditato quando contiene segreti, usare regex semplici e proteggere la directory dati con i permessi del sistema. Limiti residui di M1, oltre a CSP e alla verifica del mittente sui canali IPC precedenti (proposta P1, non parte di questa milestone):
 
@@ -235,13 +235,13 @@ The lockfile pins dependencies; installation and rebuild may execute scripts and
 
 Packages include bundles, `package.json` and dependencies under [electron-builder.json5](electron-builder.json5); `node-pty` and `@xterm/headless` are unpacked from ASAR. ASAR is not a security boundary. macOS has `identity: null`; Windows has no configured certificates. Notarization, automatic updates and release workflows are not configured.
 
-A release requires commit review, explicit approval, tests and real-build smoke on declared platforms, package-content checks, SHA-256 and remote tag/release verification. Never attach credentials, personal preferences, logs or private screenshots. M1 produces no artifacts: the `v0.2.0` release was not created.
+A release requires commit review, explicit approval, tests and real-build smoke on declared platforms, package-content checks, SHA-256 and remote tag/release verification. Never attach credentials, personal preferences, logs or private screenshots. Release `v0.2.0` already exists at commit `4aabc9bc81a60b0c574221ce37578936341ae065`; new packages are built from that commit. The Windows workflow is manual only, uses `contents: read`, pins Actions to hashes and has no signing or publishing credentials. It uses the Windows N-API prebuild shipped in `node-pty` and skips native rebuild during packaging. Artifacts are retained for seven days; publishing requires local download and checksum verification.
 
 ### 7. Checks and residual risks
 
 The suite in `src/**/*.test.ts` covers status, detection configuration, bursts, titles, stabilization, notifications, views, shell quoting, drag-and-drop, the navigation decision, `config/app.config.json` validation and the image-file policy. It does not cover real IPC, native shells, CSP, the Electron window, packages or networking. Tests and build do not establish the absence of vulnerabilities.
 
-Documentation is checked against source. M1 results are recorded in [PLAN.md](PLAN.md); they are not a desktop smoke test. No keychain, credentials or private content were used to exercise the app.
+Documentation is checked against source. M1 and package-integration results are recorded in [PLAN.md](PLAN.md). The dedicated smoke test uses preseeded temporary preferences and verifies isolation before changing them. It runs only fixture commands with a filtered environment and, on macOS, an empty zsh configuration directory. Chromium debugging is limited to loopback during the test; the process terminates afterward and local temporary files remain for inspection. It does not read the clipboard or use real AI CLIs or credentials. No keychain, credentials or private content were used to exercise the app.
 
 Use the app as a trusted terminal under an ordinary user account, limit inherited environments containing secrets, use simple regexes and protect the data directory with OS permissions. Residual limits of M1, besides CSP and sender checks on IPC channels that predate it (proposal P1, not part of this milestone):
 
