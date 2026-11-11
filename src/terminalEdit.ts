@@ -15,8 +15,10 @@ const targets = new Map<string, TerminalEditTarget>()
 let focusedId: string | null = null
 
 export interface PasteLane {
-  /** The half of a keyboard shortcut that already pasted, waiting for the other half. */
-  open: { role: 'shortcut' | 'accelerator'; id: string } | null
+  /** Unmatched shortcut ids, oldest first. */
+  shortcuts: string[]
+  /** Unmatched accelerator ids, oldest first. */
+  accelerators: string[]
 }
 
 export type PasteEvent =
@@ -25,7 +27,7 @@ export type PasteEvent =
   | { role: 'direct'; id: string }
 
 export function createPasteLane(): PasteLane {
-  return { open: null }
+  return { shortcuts: [], accelerators: [] }
 }
 
 const lane = createPasteLane()
@@ -46,22 +48,30 @@ export function claimPasteGesture(gesture: string, seen: Set<string> = gestures,
 }
 
 /**
- * The terminal shortcut and the Edit-menu accelerator are two deliveries of one
- * key. Whichever arrives first pastes. The other joins that gesture and does
- * not paste again. A later shortcut, a later accelerator, or a direct click
- * (context menu, or Edit → Paste with the mouse) is a new gesture and pastes
- * immediately.
+ * Keyboard shortcut and Edit-menu accelerator are two deliveries of one physical
+ * key, matched in arrival order (one FIFO queue per side). The first delivery
+ * pastes. The other closes the oldest unmatched half and does not paste.
+ * A later key therefore closes with its own accelerator, not with whichever
+ * half happens to be newest. A direct click (mouse on Edit → Paste, or the
+ * context menu) is a separate gesture: it pastes and retires any unmatched
+ * halves, so an orphan cannot swallow the next shortcut or accelerator.
  */
 export function decidePaste(state: PasteLane, event: PasteEvent): { paste: boolean; gesture: string } {
   if (!event.id) return { paste: false, gesture: '' }
-  if (event.role === 'direct') return { paste: true, gesture: `direct:${event.id}` }
-  const open = state.open
-  if (open && open.role !== event.role) {
-    state.open = null
-    return { paste: false, gesture: `${open.role}:${open.id}` }
+  if (event.role === 'direct') {
+    state.shortcuts.length = 0
+    state.accelerators.length = 0
+    return { paste: true, gesture: `direct:${event.id}` }
   }
-  if (open && open.id === event.id) return { paste: false, gesture: `${event.role}:${event.id}` }
-  state.open = { role: event.role, id: event.id }
+  const mine = event.role === 'shortcut' ? state.shortcuts : state.accelerators
+  const other = event.role === 'shortcut' ? state.accelerators : state.shortcuts
+  if (mine.includes(event.id)) return { paste: false, gesture: `${event.role}:${event.id}` }
+  const mate = other.shift()
+  if (mate !== undefined) {
+    const mateRole = event.role === 'shortcut' ? 'accelerator' : 'shortcut'
+    return { paste: false, gesture: `${mateRole}:${mate}` }
+  }
+  mine.push(event.id)
   return { paste: true, gesture: `${event.role}:${event.id}` }
 }
 

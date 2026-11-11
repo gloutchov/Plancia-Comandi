@@ -55,7 +55,7 @@ M1 è l'unica milestone del piano esecutivo. La voce resta `M` finché il proget
 | Criteri di accettazione | Scorciatoie, menu e viste descritti nei manuali; quotatura verificata per shell POSIX, PowerShell e cmd; Affiancate e Incolonnate disabilitate con una sessione e Griglia sotto le tre; con tre sessioni il quarto riquadro resta vuoto; se chiudendo sessioni la vista non è più possibile si torna a Una e la scelta è salvata; i file temporanei hanno nome generato, restano sotto la cartella dati e non usano un percorso scelto dal renderer. |
 | Test | `npm test` e `npm run build`. Non eseguiti, perché non sostituiscono uno smoke dell'app: prova manuale su Linux, macOS e Windows 11, smoke Electron, packaging, checksum e una CLI reale. |
 | Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (copia integrale; non è documentazione del repository). |
-| Stato | `M`. Implementazione sul branch, in attesa del controllo del progettista. Verifiche locali della correzione del giro 2: `npm test` 67/67, `npm run build` riuscito con l'avviso del bundle renderer oltre 500 kB. Non eseguiti smoke Electron e prove manuali su Linux, macOS e Windows 11. La voce resta `M`. Nessun merge, tag, release o cancellazione del branch. |
+| Stato | `M`. Implementazione sul branch, in attesa del controllo del progettista. Verifiche locali della correzione del giro 3: `npm test` 70/70, `npm run build` riuscito con l'avviso del bundle renderer oltre 500 kB. Non eseguiti smoke Electron e prove manuali su Linux, macOS e Windows 11. La voce resta `M`. Nessun merge, tag, release o cancellazione del branch. |
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
@@ -156,7 +156,7 @@ M1 is the only milestone in the execution plan. The entry stays `M` until the de
 | Acceptance | Shortcuts, menus and views described in the manuals; quoting checked for POSIX shells, PowerShell and cmd; Side by side and Stacked disabled with one session, and Grid below three; with three sessions the fourth pane stays empty; closing sessions until the view is impossible returns to One and saves that choice; temporary files use generated names, stay under the data directory and never use a renderer-chosen path. |
 | Tests | `npm test` and `npm run build`. Not run, because they do not replace an application smoke test: manual checks on Linux, macOS and Windows 11, Electron smoke, packaging, checksums and a real CLI. |
 | Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (complete copy; not repository documentation). |
-| Status | `M`. Implemented on the branch, waiting for the designer's review. Local checks for review round 2: `npm test` 67/67, `npm run build` passed with the renderer bundle warning above 500 kB. Electron smoke and manual checks on Linux, macOS and Windows 11 were not run. The entry stays `M`. No merge, tag, release or branch deletion. |
+| Status | `M`. Implemented on the branch, waiting for the designer's review. Local checks for review round 3: `npm test` 70/70, `npm run build` passed with the renderer bundle warning above 500 kB. Electron smoke and manual checks on Linux, macOS and Windows 11 were not run. The entry stays `M`. No merge, tag, release or branch deletion. |
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |

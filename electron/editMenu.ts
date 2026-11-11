@@ -52,7 +52,7 @@ function item(label: string, accelerator: string | undefined, command: EditComma
   return {
     label,
     accelerator,
-    click: (_item, _window, event) => requestEdit(command, getWindow, event.triggeredByAccelerator === true),
+    click: (_item, _window, event) => requestEdit(command, getWindow, event?.triggeredByAccelerator === true),
   }
 }
 
