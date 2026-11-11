@@ -33,7 +33,7 @@ Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: 
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git e Node.js con npm. Su Windows non serve compilare `node-pty`: il pacchetto 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Node.js 24 è l'ambiente usato per le verifiche locali di questa documentazione.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12 o successivo con npm: è il minimo richiesto da Electron 45.2.3. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -146,7 +146,7 @@ Detection is heuristic and mainly designed around Codex CLI screens: it does not
 
 ### 2. Installation and first use
 
-Running from source requires Git and Node.js with npm. Windows does not need to compile `node-pty`: package 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. Node.js 24 is the environment used for this documentation's local checks.
+Running from source requires Git and Node.js 22.12 or newer with npm: that is the minimum required by Electron 45.2.3. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git

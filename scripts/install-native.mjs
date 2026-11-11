@@ -8,44 +8,53 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-export const WINDOWS_NODE_PTY_FILES = ['pty.node', 'conpty.node', 'conpty_console_list.node'] as const
+/** @type {readonly ['pty.node', 'conpty.node', 'conpty_console_list.node']} */
+export const WINDOWS_NODE_PTY_FILES = ['pty.node', 'conpty.node', 'conpty_console_list.node']
 
-export function windowsPrebuildDir(ptyRoot: string, arch: string): string {
+/**
+ * @param {string} ptyRoot
+ * @param {string} arch
+ */
+export function windowsPrebuildDir(ptyRoot, arch) {
   return path.join(ptyRoot, 'prebuilds', `win32-${arch}`)
 }
 
-export function hasWindowsNodePtyPrebuild(
-  ptyRoot: string,
-  arch: string,
-  existsSync: (file: string) => boolean = fs.existsSync,
-): boolean {
+/**
+ * @param {string} ptyRoot
+ * @param {string} arch
+ * @param {(file: string) => boolean} [existsSync]
+ */
+export function hasWindowsNodePtyPrebuild(ptyRoot, arch, existsSync = fs.existsSync) {
   const dir = windowsPrebuildDir(ptyRoot, arch)
   return WINDOWS_NODE_PTY_FILES.every((name) => existsSync(path.join(dir, name)))
 }
 
-/** True when electron-builder must compile native modules for Electron. */
-export function shouldRebuildForElectron(
-  platform: string,
-  ptyRoot: string,
-  arch: string,
-  existsSync: (file: string) => boolean = fs.existsSync,
-): boolean {
+/**
+ * True when electron-builder must compile native modules for Electron.
+ * Darwin and Linux always rebuild. Windows skips only when all three prebuilds exist.
+ * @param {string} platform
+ * @param {string} ptyRoot
+ * @param {string} arch
+ * @param {(file: string) => boolean} [existsSync]
+ */
+export function shouldRebuildForElectron(platform, ptyRoot, arch, existsSync = fs.existsSync) {
   if (platform === 'win32' && hasWindowsNodePtyPrebuild(ptyRoot, arch, existsSync)) return false
   return true
 }
 
-function repoRoot(): string {
+function repoRoot() {
   return path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 }
 
-function rebuildForElectron(root: string): void {
+/** @param {string} root */
+function rebuildForElectron(root) {
   const cli = path.join(root, 'node_modules', 'electron-builder', 'cli.js')
   const result = spawnSync(process.execPath, [cli, 'install-app-deps'], { cwd: root, stdio: 'inherit' })
   if (result.error) throw result.error
   process.exit(result.status ?? 1)
 }
 
-function main(): void {
+function main() {
   const root = repoRoot()
   const ptyRoot = path.join(root, 'node_modules', 'node-pty')
   if (!shouldRebuildForElectron(process.platform, ptyRoot, process.arch)) {

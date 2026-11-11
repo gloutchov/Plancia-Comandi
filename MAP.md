@@ -95,7 +95,8 @@ Plancia-Comandi/
 |       `-- status.test.ts           Test della logica pura
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
-|   `-- install-native.ts           Postinstall: prebuild Windows oppure ricompilazione Electron
+|   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
+|   `-- install-native.d.mts        Tipi dello script, usati dai test
 |-- build/
 |   `-- icon.png                     Sorgente delle icone per il packaging
 |-- public/
@@ -239,7 +240,8 @@ Plancia-Comandi/
 |       `-- status.test.ts           Pure-logic tests
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
-|   `-- install-native.ts           Postinstall: Windows prebuild or Electron rebuild
+|   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
+|   `-- install-native.d.mts        Types for the script, used by the tests
 |-- build/
 |   `-- icon.png                     Packaging icon source
 |-- public/

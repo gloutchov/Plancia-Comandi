@@ -1,9 +1,10 @@
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { hasWindowsNodePtyPrebuild, shouldRebuildForElectron, windowsPrebuildDir } from '../../scripts/install-native'
+import { hasWindowsNodePtyPrebuild, shouldRebuildForElectron, windowsPrebuildDir } from '../../scripts/install-native.mjs'
 
 function filesFor(root: string, arch: string): Set<string> {
   const dir = windowsPrebuildDir(root, arch)
-  return new Set(['pty.node', 'conpty.node', 'conpty_console_list.node'].map((name) => `${dir}/${name}`))
+  return new Set(['pty.node', 'conpty.node', 'conpty_console_list.node'].map((name) => path.join(dir, name)))
 }
 
 describe('shouldRebuildForElectron', () => {
@@ -18,7 +19,7 @@ describe('shouldRebuildForElectron', () => {
 
   it('rebuilds on Windows when a prebuild file is missing', () => {
     const present = filesFor(root, 'x64')
-    present.delete(`${windowsPrebuildDir(root, 'x64')}/conpty.node`)
+    present.delete(path.join(windowsPrebuildDir(root, 'x64'), 'conpty.node'))
     const exists = (file: string) => present.has(file)
     expect(shouldRebuildForElectron('win32', root, 'x64', exists)).toBe(true)
   })
