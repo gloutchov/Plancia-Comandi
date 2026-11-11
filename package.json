@@ -6,6 +6,9 @@
   "description": "Desktop terminal manager for Codex CLI and other shells",
   "license": "Apache-2.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",

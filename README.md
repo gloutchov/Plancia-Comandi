@@ -42,7 +42,7 @@ npm ci
 npm run dev
 ```
 
-Il repository è privato: per il clone occorre un account autorizzato. `npm ci` scarica dipendenze ed Electron e ricompila il modulo del terminale. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
+Il repository è privato: per il clone occorre un account autorizzato. `npm ci` scarica dipendenze ed Electron. Su macOS e Linux ricompila il modulo del terminale; su Windows usa la prebuild. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
 
 1. Premi **Nuova sessione**.
 2. Scegli shell e cartella, inserisci un nome facoltativo e premi **Apri**.
@@ -155,7 +155,7 @@ npm ci
 npm run dev
 ```
 
-This is a private repository: cloning requires an authorized account. `npm ci` downloads dependencies and Electron and rebuilds the terminal module. A desktop window opens: the development web page cannot create terminals on its own.
+This is a private repository: cloning requires an authorized account. `npm ci` downloads dependencies and Electron. On macOS and Linux it rebuilds the terminal module; on Windows it uses the prebuild. A desktop window opens: the development web page cannot create terminals on its own.
 
 1. Click **New session**.
 2. Choose a shell and folder, optionally enter a name, and click **Open**.
