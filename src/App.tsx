@@ -35,10 +35,14 @@ export function App() {
   }, [])
 
   if (!boot) {
+    // Settings are not loaded yet. The app default locale is Italian.
+    const gate = (key: 'appName' | 'openDesktop' | 'bootError' | 'loading') => translate('it', key)
+    const detail =
+      error === 'desktop' ? gate('openDesktop') : error === 'boot' ? gate('bootError') : error ?? gate('loading')
     return (
       <div className="gate">
-        <strong>Plancia Comandi</strong>
-        <p>{error === 'desktop' ? 'Apri Plancia Comandi dalla finestra dell’app.' : error ?? 'Caricamento…'}</p>
+        <strong>{gate('appName')}</strong>
+        <p>{detail}</p>
       </div>
     )
   }
@@ -243,9 +247,9 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [])
 
   useEffect(() => {
-    return window.plancia?.onEditCommand(async (command) => {
+    return window.plancia?.onEditCommand(async (command, id) => {
       if (command === 'copy') return copyFocusedTerminal()
-      if (command === 'paste') return pasteFocusedTerminal(boot.limits)
+      if (command === 'paste') return pasteFocusedTerminal(boot.limits, `edit:${id}`)
       if (command === 'selectAll') return selectAllFocusedTerminal()
       if (command === 'cut' || command === 'undo' || command === 'redo') return terminalHasFocus()
       return false

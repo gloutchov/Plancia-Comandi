@@ -39,7 +39,7 @@ const api = {
       return ''
     }
   },
-  onEditCommand: (callback: (command: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => boolean | Promise<boolean>): (() => void) => {
+  onEditCommand: (callback: (command: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll', id: string) => boolean | Promise<boolean>): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {
       if (!payload || typeof payload !== 'object') return
       const source = payload as { id?: unknown; command?: unknown }
@@ -48,11 +48,12 @@ const api = {
       if (command !== 'undo' && command !== 'redo' && command !== 'cut' && command !== 'copy' && command !== 'paste' && command !== 'selectAll') {
         return
       }
+      const commandId = source.id
       void Promise.resolve()
-        .then(() => callback(command))
+        .then(() => callback(command, commandId))
         .then(
-          (handled) => ipcRenderer.send('edit:result', { id: source.id, handled: handled === true }),
-          () => ipcRenderer.send('edit:result', { id: source.id, handled: false }),
+          (handled) => ipcRenderer.send('edit:result', { id: commandId, handled: handled === true }),
+          () => ipcRenderer.send('edit:result', { id: commandId, handled: false }),
         )
     }
     ipcRenderer.on('edit:command', listener)

@@ -118,7 +118,8 @@ export function TerminalView({
         return false
       }
       if (isPasteKey(key, platform)) {
-        void pasteIntoTerminal(term, shellRef.current, limitsRef.current)
+        // One shortcut is one Edit-menu command. Swallow the key here so the
+        // terminal does not insert it and does not paste it a second time.
         return false
       }
       if (isPlainCtrlC(key)) {
@@ -299,10 +300,11 @@ export function TerminalView({
             setMenu(null)
             termRef.current?.focus()
           }}
-          onPaste={() => {
+          onPaste={(event) => {
             const term = termRef.current
+            const gesture = `context:${event.timeStamp}`
             setMenu(null)
-            if (term) void pasteIntoTerminal(term, shellRef.current, limitsRef.current)
+            if (term) void pasteIntoTerminal(term, shellRef.current, limitsRef.current, gesture)
             term?.focus()
           }}
           onClose={() => {

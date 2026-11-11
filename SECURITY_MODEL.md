@@ -116,7 +116,14 @@ La suite in `src/**/*.test.ts` copre stati, configurazione del rilevamento, burs
 
 La documentazione viene verificata contro i sorgenti. Gli esiti di M1 sono registrati in [PLAN.md](PLAN.md); non costituiscono uno smoke desktop. Non sono stati usati keychain, credenziali o contenuti privati per esercitare l'app.
 
-Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente ereditato quando contiene segreti, usare regex semplici e proteggere la directory dati con i permessi del sistema. Le immagini incollate restano leggibili da shell e programmi dello stesso utente finché la pulizia non le rimuove. Evitare output non fidato e controllare ogni comando o incolla prima di eseguirlo. Senza bracketed paste, un testo su più righe può essere eseguito. Disattivare notifiche se i nomi delle sessioni sono sensibili.
+Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente ereditato quando contiene segreti, usare regex semplici e proteggere la directory dati con i permessi del sistema. Limiti residui di M1, oltre a CSP e alla verifica del mittente sui canali IPC precedenti (proposta P1, non parte di questa milestone):
+
+- I tooltip degli attributi `title` sono quelli del sistema operativo e non usano i colori del tema dell'app.
+- La pulizia delle immagini incollate elimina solo i file il cui nome corrisponde al prefisso configurato.
+- Su Windows `chmod` non è un confine: contano le ACL della cartella dati utente.
+- Senza bracketed paste, un incolla su più righe può essere eseguito dal programma nel terminale.
+
+Le immagini incollate restano leggibili da shell e programmi dello stesso utente finché la pulizia non le rimuove. Evitare output non fidato e controllare ogni comando o incolla prima di eseguirlo. Disattivare notifiche se i nomi delle sessioni sono sensibili.
 
 La proposta **P1** resta aperta per CSP e verifica del mittente sui canali precedenti. **P2** resta aperta per la lingua automatica e per i limiti ancora nei moduli. **P3** resta la verifica multipiattaforma. Non sono attività già completate.
 
@@ -236,6 +243,13 @@ The suite in `src/**/*.test.ts` covers status, detection configuration, bursts, 
 
 Documentation is checked against source. M1 results are recorded in [PLAN.md](PLAN.md); they are not a desktop smoke test. No keychain, credentials or private content were used to exercise the app.
 
-Use the app as a trusted terminal under an ordinary user account, limit inherited environments containing secrets, use simple regexes and protect the data directory with OS permissions. Pasted images remain readable by shells and programs of the same user until cleanup removes them. Avoid untrusted output and inspect commands or pasted text before executing them. Without bracketed paste, multiline text can be executed. Disable notifications if session names are sensitive.
+Use the app as a trusted terminal under an ordinary user account, limit inherited environments containing secrets, use simple regexes and protect the data directory with OS permissions. Residual limits of M1, besides CSP and sender checks on IPC channels that predate it (proposal P1, not part of this milestone):
+
+- `title` tooltips are drawn by the operating system and do not use the app theme colors.
+- Cleanup of pasted images deletes only files whose names match the configured prefix.
+- On Windows `chmod` is not a boundary: the user-data directory ACLs are what apply.
+- Without bracketed paste, a multiline paste can be executed by the program in the terminal.
+
+Pasted images remain readable by shells and programs of the same user until cleanup removes them. Avoid untrusted output and inspect commands or pasted text before executing them. Disable notifications if session names are sensitive.
 
 Proposal **P1** remains open for CSP and sender checks on the older channels. **P2** remains open for automatic language selection and for limits that are still in modules. **P3** remains the cross-platform verification. They are not completed work.

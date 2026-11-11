@@ -9,9 +9,19 @@ export interface TerminalEditTarget {
   hasFocus: () => boolean
 }
 
+const gestures = new Set<string>()
 const targets = new Map<string, TerminalEditTarget>()
 let focusedId: string | null = null
-let pasteLock = false
+
+/**
+ * One user action has one id. The same id is ignored if it is delivered
+ * again. A different id is pasted immediately, with no waiting period.
+ */
+export function claimPasteGesture(gesture: string, seen: Set<string> = gestures): boolean {
+  if (!gesture || seen.has(gesture)) return false
+  seen.add(gesture)
+  return true
+}
 
 export function registerTerminalEdit(id: string, target: TerminalEditTarget): () => void {
   targets.set(id, target)
@@ -60,42 +70,40 @@ export function writeClipboardText(text: string): void {
  * xterm's paste() wraps the text in bracketed-paste markers when the program
  * has enabled that mode. See @xterm/xterm Clipboard.paste.
  */
-export async function pasteIntoTerminal(term: Terminal, shellId: string, limits: RuntimeLimits): Promise<void> {
-  if (pasteLock) return
-  pasteLock = true
+export async function pasteIntoTerminal(
+  term: Terminal,
+  shellId: string,
+  limits: RuntimeLimits,
+  gesture: string,
+): Promise<void> {
+  if (!claimPasteGesture(gesture)) return
+  const bridge = window.plancia
+  if (!bridge) return
   try {
-    const bridge = window.plancia
-    if (!bridge) return
-    try {
-      const imagePath = await bridge.readClipboardImage()
-      if (imagePath) {
-        const quoted = quoteShellArg(imagePath, shellQuoteKind(shellId))
-        if (quoted && quoted.length + 1 <= limits.maxPasteChars) {
-          term.paste(`${quoted} `)
-          return
-        }
+    const imagePath = await bridge.readClipboardImage()
+    if (imagePath) {
+      const quoted = quoteShellArg(imagePath, shellQuoteKind(shellId))
+      if (quoted && quoted.length + 1 <= limits.maxPasteChars) {
+        term.paste(`${quoted} `)
+        return
       }
-    } catch {
-      // A missing image still leaves the text clipboard usable.
     }
-    try {
-      const text = await bridge.readClipboardText()
-      if (!text) return
-      term.paste(text.length > limits.maxPasteChars ? text.slice(0, limits.maxPasteChars) : text)
-    } catch {
-      // Leave the terminal unchanged when the clipboard cannot be read.
-    }
-  } finally {
-    setTimeout(() => {
-      pasteLock = false
-    }, 150)
+  } catch {
+    // A missing image still leaves the text clipboard usable.
+  }
+  try {
+    const text = await bridge.readClipboardText()
+    if (!text) return
+    term.paste(text.length > limits.maxPasteChars ? text.slice(0, limits.maxPasteChars) : text)
+  } catch {
+    // Leave the terminal unchanged when the clipboard cannot be read.
   }
 }
 
-export async function pasteFocusedTerminal(limits: RuntimeLimits): Promise<boolean> {
+export async function pasteFocusedTerminal(limits: RuntimeLimits, gesture: string): Promise<boolean> {
   const target = activeTarget()
   if (!target) return false
-  await pasteIntoTerminal(target.term, target.shellId, limits)
+  await pasteIntoTerminal(target.term, target.shellId, limits, gesture)
   return true
 }
 

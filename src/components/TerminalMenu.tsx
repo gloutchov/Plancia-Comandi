@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 
 export function TerminalMenu({
@@ -17,7 +17,7 @@ export function TerminalMenu({
   copyLabel: string
   pasteLabel: string
   onCopy: () => void
-  onPaste: () => void
+  onPaste: (event: ReactMouseEvent<HTMLButtonElement>) => void
   onClose: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
