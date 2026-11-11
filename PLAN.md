@@ -51,7 +51,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 - Audit: zero vulnerabilità note nelle dipendenze di produzione; il toolchain del tag riporta sette moderate e due critiche di sviluppo, incluse Vitest/tinypool. Le dipendenze del tag non vengono modificate da questa patch.
 - Documentazione: README, manuali IT/EN, modello di sicurezza, mappa, piano e regole operative aggiornati.
 - Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
-- Stato: patch pronta per il controllo locale prima di push/merge e avvio manuale del workflow. Pubblicazione dei pacchetti e rimozione del branch C1 solo dopo le verifiche dovute; il branch M2 viene preservato.
+- Stato: strumenti approvati nel commit `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, uniti a `main` con `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). Pacchetti macOS e SHA-256 pubblicati e riscaricati con esito positivo. Il primo run Windows `43086813880` supera installazione e build ma fallisce sul parsing delle opzioni CLI di packaging. La correzione su `patch/0.2.0-windows-cli` genera una configurazione JSON temporanea con booleani e nomi degli artifact, verificata con il loader e lo schema di electron-builder, prima di passare un solo percorso alla CLI. Attende il controllo del nuovo commit prima di push e nuova esecuzione. Pubblicazione Windows e rimozione dei branch conclusi seguono le verifiche; M2 viene preservato.
 
 ### 2. Milestone corrente e proposte
 
@@ -173,7 +173,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 - Audit: zero known production-dependency vulnerabilities; the tag’s development toolchain reports seven moderate and two critical findings, including Vitest/tinypool. This patch does not change tag dependencies.
 - Documentation: README, IT/EN manuals, security model, map, plan and operating rules updated.
 - Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
-- Status: patch ready for local review before push/merge and manual workflow execution. Package publication and C1 branch removal follow the required checks; the M2 branch is preserved.
+- Status: tooling approved at `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, merged into `main` as `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). macOS packages and SHA-256 published and successfully downloaded again. The first Windows run, `43086813880`, passes installation and build but fails while parsing packaging CLI options. The fix on `patch/0.2.0-windows-cli` generates a temporary JSON configuration containing booleans and artifact names, checked with electron-builder's loader and schema, then passes a single path to the CLI. It awaits new-commit review before push and another run. Windows publication and completed-branch removal follow verification; M2 is preserved.
 
 ### 2. Current milestone and proposals
 
