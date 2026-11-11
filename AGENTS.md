@@ -4,18 +4,18 @@ Queste regole adattano al repository le preferenze HOME fornite dal progettista.
 
 ## Prima di lavorare
 
-1. Leggere `AGENTS.md`, `PLAN.md`, `README.md`, `MAP.md` e `SECURITY_MODEL.md`; consultare i due manuali se il task riguarda un comportamento utente. Se viene fornito `STARTUP_PREFERENCES_HOME.md`, leggerlo senza modificarlo o aggiungerlo automaticamente al commit.
+1. Leggere `AGENTS.md`, `PLAN.md`, `README.md`, `MAP.md`, `SECURITY_MODEL.md` e `STARTUP_PREFERENCES_HOME.md`; consultare i due manuali se il task riguarda un comportamento utente. `STARTUP_PREFERENCES_HOME.md` non è documentazione del repository: va letto per intero e non riformulato. Gli agenti cloud seguono in particolare la sua appendice «Lavoro con agenti cloud».
 2. Verificare identità Git e account GitHub prima delle operazioni Git/GitHub: utenza privata `gloutchov`, indirizzo previsto `gloutchov@gmail.com`. In caso di dubbio o discrepanza fermarsi e chiedere conferma; rispettare le eccezioni già esplicitamente autorizzate nella sessione. Non cambiare configurazioni globali o remoti esistenti per aggirare la verifica.
 3. Controllare worktree, branch e remoto. Preservare modifiche e file dell'utente; non fare reset, checkout distruttivi, pulizie o staging indiscriminato. Usare `rg` per le ricerche.
-4. Per milestone partire da `main`, dopo verifica del precedente checkpoint remoto, su `milestone/<n>-<slug>`; per patch usare `patch/<versione>-<slug>`. Non sviluppare direttamente su `main` e non pubblicare commit di sviluppo prima dell'approvazione.
+4. Per milestone partire da `main`, dopo verifica del precedente checkpoint remoto, su `milestone/<n>-<slug>`; per patch usare `patch/<versione>-<slug>`. Non sviluppare direttamente su `main` e non pubblicare commit di sviluppo prima dell'approvazione. Gli agenti cloud presentano il commit con una pull request, secondo l'appendice di `STARTUP_PREFERENCES_HOME.md`.
 5. Eseguire solo le `M` autorizzate, in ordine. Le `P` restano proposte; non promuoverle o implementarle autonomamente. Non attribuire milestone completate alla cronologia preesistente.
 
 ## Architettura e ambito
 
 - Entry point e ciclo di vita in `electron/main.ts`; bridge in `electron/preload.ts`; PTY in `electron/sessions.ts`; preferenze in `electron/settings.ts`; UI in `src/`; logica pura in `src/shared/`.
 - Mantenere moduli piccoli con dipendenze esplicite; separare dominio, stato UI, filesystem, configurazione, sicurezza e integrazioni. Nessun refactor estraneo al task, import circolare o dipendenza senza motivazione concreta.
-- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.1.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
-- `settings.json` fuori dal checkout è la configurazione utente attuale. Documentare e validare i nuovi parametri modificabili; non aggiungere segreti alla configurazione. La configurazione centrale dei limiti ancora hardcoded è una proposta nel piano, non lavoro implicito di una patch documentale.
+- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.2.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
+- `config/app.config.json` è la configurazione centrale dei parametri di appunti, trascinamento e dimensione dell'input introdotti da M1. Va validata all'avvio; i valori fuori intervallo tornano ai default documentati. `settings.json` fuori dal checkout resta la configurazione utente di lingua, tema, vista e rilevamento. Non aggiungere segreti. Gli altri limiti ancora nei moduli restano la proposta P2, non un lavoro implicito.
 - Un task documentale descrive il comportamento reale e registra lacune: non deve trasformarsi in un intervento applicativo non richiesto.
 
 ## Documentazione e UI

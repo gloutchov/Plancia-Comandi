@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Notification, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import { app, BrowserWindow, Notification, dialog, ipcMain, nativeTheme, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -6,6 +6,11 @@ import { SessionManager } from './sessions'
 import { SettingsStore } from './settings'
 import { defaultShellId, detectShells } from './shells'
 import type { BootInfo, CreateSessionInput, SettingsPatch, ShellChoice, ThemeSetting } from '../src/shared/types'
+import { loadAppConfig, resolveAppConfigFile, runtimeLimits, validateAppConfig, type AppConfig } from '../src/shared/appConfig'
+import { cleanupClipboardImages } from '../src/shared/clipboardImages'
+import { shouldBlockNavigation } from '../src/shared/navigation'
+import { registerClipboardIpc } from './clipboardIpc'
+import { installApplicationMenu, registerEditIpc } from './editMenu'
 import pkg from '../package.json'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -29,6 +34,7 @@ let manager: SessionManager | null = null
 let settings: SettingsStore | null = null
 let shellChoices: ShellChoice[] = []
 let demoStarted = false
+let appConfig: AppConfig = validateAppConfig(null)
 
 function preloadPath(): string {
   for (const name of ['preload.mjs', 'preload.js', 'preload.cjs']) {
@@ -74,6 +80,7 @@ function bootInfo(): BootInfo {
     settings: settings.data,
     sessions: manager?.list() ?? [],
     shells: shellChoices,
+    limits: runtimeLimits(appConfig),
   }
 }
 
@@ -100,7 +107,19 @@ function asCreateInput(value: unknown): CreateSessionInput {
   }
 }
 
+function isAppSender(event: { sender: Electron.WebContents }): boolean {
+  const current = currentWindow()
+  return !!current && event.sender === current.webContents
+}
+
 function registerIpc(): void {
+  registerClipboardIpc({
+    isSender: isAppSender,
+    getConfig: () => appConfig,
+    userDataDir: app.getPath('userData'),
+  })
+  registerEditIpc(isAppSender)
+
   ipcMain.handle('app:boot', () => bootInfo())
 
   ipcMain.handle('sessions:create', (_event, input: unknown) => {
@@ -126,6 +145,7 @@ function registerIpc(): void {
     if (!settings || !patch || typeof patch !== 'object') return settings?.data
     const next = settings.update(patch as SettingsPatch)
     applyThemeSource(next.theme)
+    installApplicationMenu(next.locale, currentWindow)
     manager?.retick()
     return next
   })
@@ -170,14 +190,18 @@ function registerIpc(): void {
   })
 }
 
+function guardNavigation(window: BrowserWindow): void {
+  const contents = window.webContents
+  contents.setWindowOpenHandler(() => ({ action: 'deny' }))
+  const block = (event: Electron.Event, url: string) => {
+    if (shouldBlockNavigation(url, contents.getURL(), VITE_DEV_SERVER_URL)) event.preventDefault()
+  }
+  contents.on('will-navigate', block)
+  contents.on('will-redirect', block)
+}
+
 function installMenu(): void {
-  const template: Electron.MenuItemConstructorOptions[] = [
-    ...(process.platform === 'darwin' ? [{ role: 'appMenu' as const }] : []),
-    { role: 'editMenu' },
-    { role: 'viewMenu' },
-    { role: 'windowMenu' },
-  ]
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+  installApplicationMenu(settings?.data.locale ?? 'it', currentWindow)
 }
 
 async function startDemo(): Promise<void> {
@@ -250,6 +274,7 @@ function createWindow(): void {
   win.webContents.on('preload-error', (_event, preload, error) => {
     console.error('preload error', preload, error)
   })
+  guardNavigation(win)
   win.once('ready-to-show', () => win?.show())
   win.on('closed', () => {
     win = null
@@ -266,6 +291,8 @@ function createWindow(): void {
 
 function start(): void {
   const home = app.getPath('home')
+  appConfig = loadAppConfig(resolveAppConfigFile(APP_ROOT, process.resourcesPath))
+  cleanupClipboardImages(app.getPath('userData'), appConfig.clipboardImages)
   settings = new SettingsStore(home)
   if (demoMode()) nativeTheme.themeSource = 'dark'
   else applyThemeSource(settings.data.theme)
@@ -279,6 +306,7 @@ function start(): void {
     shells: shellChoices,
     home,
     notify,
+    maxWriteChars: appConfig.terminal.maxWriteChars,
   })
 
   nativeTheme.on('updated', () => {

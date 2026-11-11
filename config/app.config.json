@@ -1,0 +1,18 @@
+{
+  "_comment": "Plancia Comandi central configuration. No secrets. Invalid values fall back to the documented defaults. Restart the app after editing.",
+  "clipboardImages": {
+    "directoryName": "clipboard-images",
+    "filePrefix": "img",
+    "maxBytes": 12582912,
+    "maxEdgePx": 8000,
+    "maxKeep": 40,
+    "maxAgeHours": 24
+  },
+  "terminal": {
+    "maxWriteChars": 200000
+  },
+  "drop": {
+    "maxFiles": 20,
+    "maxPathChars": 4096
+  }
+}

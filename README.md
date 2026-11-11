@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.1.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione 0.2.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Terminali affiancati e stati delle sessioni nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -21,11 +21,11 @@ Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavo
 ### 1. Funzioni principali
 
 - Fino a 12 sessioni, con scelta della shell e della cartella iniziale.
-- Vista **Una** o **Affiancate**, rinomina e chiusura delle sessioni.
+- Viste **Una**, **Affiancate**, **Incolonnate** e **Griglia**, con icone, rinomina e chiusura delle sessioni.
 - Stati **Avvio**, **Al lavoro**, **In attesa**, **Azione** e **Terminata**, stimati dall'output, dal titolo e dai processi figli.
 - Pallini nella barra e notifiche di sistema per sessioni che richiedono attenzione.
 - Tema di sistema, chiaro o scuro; interfaccia italiana o inglese; dimensione del testo e tempi configurabili.
-- Copia, incolla, collegamenti nel browser e scorciatoie adatte alla piattaforma.
+- Copia, incolla, trascinamento di file e testo, collegamenti nel browser e scorciatoie adatte alla piattaforma.
 
 Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. La lingua iniziale è italiana; il rilevamento automatico della lingua di sistema non è ancora implementato. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
 
@@ -46,7 +46,7 @@ Il repository è privato: per il clone occorre un account autorizzato. `npm ci` 
 
 1. Premi **Nuova sessione**.
 2. Scegli shell e cartella, inserisci un nome facoltativo e premi **Apri**.
-3. Usa il terminale come quello di sistema. Per affiancarne un altro, aprilo e premi l'icona **Affianca** nella sua riga.
+3. Usa il terminale come quello di sistema. Con almeno due sessioni, le icone in alto a destra scelgono **Affiancate** o **Incolonnate**; da tre sessioni è disponibile anche la **Griglia**.
 
 Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](ISTRUZIONI.md).
 
@@ -54,7 +54,7 @@ Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](IS
 
 Apri **Impostazioni** per lingua, tema, corpo del terminale, avvisi e tempi del rilevamento. Le modifiche effettuate nell'interfaccia si applicano subito e restano sul computer in `settings.json`, nella cartella dati dell'app. **Apri il file di configurazione** mostra il file nel gestore dei file; dopo una modifica manuale riavvia l'app.
 
-Il tema predefinito segue il sistema. Le impostazioni non contengono credenziali né ripristinano le sessioni. Valori mancanti o non validi ricevono i valori predefiniti o sono limitati all'intervallo ammesso. Vedi la [configurazione completa](ISTRUZIONI.md#6-configurazione).
+Il tema predefinito segue il sistema. Le impostazioni non contengono credenziali né ripristinano le sessioni. Valori mancanti o non validi ricevono i valori predefiniti o sono limitati all'intervallo ammesso. I limiti di appunti, trascinamento e lunghezza dell'input stanno in [`config/app.config.json`](config/app.config.json); dopo una modifica di quel file riavvia l'app. Vedi la [configurazione completa](ISTRUZIONI.md#6-configurazione).
 
 ![Impostazioni di aspetto, avvisi e rilevamento](docs/screenshots/plancia-settings.png)
 
@@ -117,7 +117,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.1.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Version 0.2.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Tiled terminals and session status in the dark theme](docs/screenshots/plancia-dark.png)
 
@@ -134,11 +134,11 @@ Plancia Comandi brings several real terminals into one desktop window. Work with
 ### 1. Main features
 
 - Up to 12 sessions, with a choice of shell and starting folder.
-- **One** or **Side by side** view, session renaming and closing.
+- **One**, **Side by side**, **Stacked** and **Grid** views, with icons, plus session renaming and closing.
 - **Starting**, **Working**, **Idle**, **Action** and **Exited** states estimated from output, titles and child processes.
 - Sidebar dots and system notifications for sessions requiring attention.
 - System, light or dark theme; Italian or English interface; configurable text size and detection timings.
-- Copy, paste, browser links and platform-specific shortcuts.
+- Copy, paste, file and text drag-and-drop, browser links and platform-specific shortcuts.
 
 Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
 
@@ -159,7 +159,7 @@ This is a private repository: cloning requires an authorized account. `npm ci` d
 
 1. Click **New session**.
 2. Choose a shell and folder, optionally enter a name, and click **Open**.
-3. Use it like your system terminal. To tile another one, open it and click its **Tile** icon in the sidebar.
+3. Use it like your system terminal. With at least two sessions, the icons at the top right choose **Side by side** or **Stacked**; from three sessions **Grid** is available too.
 
 See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTRUCTIONS.md). To change the initial Italian interface, open **Impostazioni** and choose **English**.
 
@@ -167,7 +167,7 @@ See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTR
 
 Open **Settings** for language, theme, terminal size, alerts and detection timings. Interface changes apply immediately and remain on this computer in `settings.json`, in the app's data directory. **Open the configuration file** reveals the file in the file manager; restart the app after editing it manually.
 
-The default theme follows the system. Settings do not store credentials or restore sessions. Missing or invalid values receive defaults or are clamped to their allowed range. See the [full configuration](INSTRUCTIONS.md#6-configuration).
+The default theme follows the system. Settings do not store credentials or restore sessions. Missing or invalid values receive defaults or are clamped to their allowed range. Clipboard, drag-and-drop and input-length limits live in [`config/app.config.json`](config/app.config.json); restart the app after editing that file. See the [full configuration](INSTRUCTIONS.md#6-configuration).
 
 ![Appearance, alert and detection settings](docs/screenshots/plancia-settings.png)
 

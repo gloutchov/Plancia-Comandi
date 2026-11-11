@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.1.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.2.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 **Sommario**
 
@@ -78,14 +78,18 @@ Puoi tenere fino a **12 sessioni**, contando anche quelle terminate ma non ancor
 
 - **Selezionare:** clicca una riga nella barra laterale o dentro un terminale visibile. La tastiera è indirizzata alla sessione attiva.
 - **Rinominare:** premi la matita **Rinomina** o fai doppio clic sul nome. Premi Invio o sposta il focus per salvare; Esc annulla. Il nome è limitato a 80 caratteri.
-- **Vista Una:** mostra la sessione selezionata.
-- **Vista Affiancate:** mostra la sessione selezionata e quelle fissate con **Affianca**, l'icona delle colonne. Puoi usare anche Command-clic su macOS o Ctrl-clic sugli altri sistemi. Le tessere si distribuiscono su una, due o tre colonne in base al numero visibile.
-- **Togli dalla vista:** rimuove il fissaggio, non interrompe il processo. La sessione selezionata resta visibile anche senza fissaggio; selezionane un'altra per nasconderla.
+- **Vista Una:** icona di un quadrato. Mostra solo la sessione selezionata.
+- **Vista Affiancate:** icona di due rettangoli affiancati. Mostra la sessione selezionata e la successiva. Il pulsante è disattivato se c'è una sola sessione; il tooltip dice di aprirne almeno due.
+- **Vista Incolonnate:** icona di due rettangoli uno sopra l'altro. Mostra le stesse due sessioni, una sopra l'altra. Anche questo pulsante è disattivato con una sola sessione.
+- **Vista Griglia:** icona di quattro quadrati. Si attiva da tre sessioni in su. Con tre sessioni il quarto riquadro resta vuoto. Sotto le tre sessioni il pulsante è disattivato e il tooltip chiede di aprirne almeno tre.
+- **Quali sessioni si vedono:** il primo riquadro è la sessione selezionata. Gli altri seguono l'ordine della barra laterale. Arrivati in fondo all'elenco, si ricomincia dall'inizio. Una sessione non compare due volte.
+- **Vista ricordata:** la scelta resta salvata. Se le sessioni aperte non bastano, vedi **Una** e il pulsante della vista scelta è disattivato; quando le sessioni diventano sufficienti, quella vista torna da sola. Se invece chiudi sessioni e la vista non è più possibile, la scelta diventa **Una** e viene salvata così.
+- **Affianca:** l'icona delle colonne nella riga, oppure Command-clic su macOS o Ctrl-clic sugli altri sistemi, seleziona quella sessione e passa ad **Affiancate**, se esiste almeno un'altra sessione. Con una sola sessione il pulsante è disattivato.
 - **Chiudere:** premi **×** nella riga. Se lo stato è **Al lavoro** o **Azione**, compare una conferma; negli altri stati la chiusura è immediata. Il processo del terminale viene interrotto.
 
 Un processo uscito lascia visibile **Terminata** con il codice di uscita. Puoi leggere l'output prima di chiudere la sessione. Per riavviare il lavoro apri una nuova sessione.
 
-All'uscita completa le sessioni vengono terminate e non sono ripristinate. Nomi, selezione, fissaggi e output non sono salvati per il prossimo avvio. Su macOS chiudere l'ultima finestra lascia normalmente attiva l'app e le sue sessioni; uscire dall'app le termina. Non c'è una conferma generale di uscita che controlli tutte le sessioni.
+All'uscita completa le sessioni vengono terminate e non sono ripristinate. Nomi, selezione e output non sono salvati per il prossimo avvio. La vista scelta sì. Su macOS chiudere l'ultima finestra lascia normalmente attiva l'app e le sue sessioni; uscire dall'app le termina. Non c'è una conferma generale di uscita che controlli tutte le sessioni.
 
 ## 5. Stati e avvisi
 
@@ -119,7 +123,7 @@ Il file centrale delle preferenze utente è `settings.json` nella directory rest
 | Windows | `%APPDATA%/Plancia Comandi/settings.json` |
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, oppure `~/.config/Plancia Comandi/settings.json` |
 
-Sono salvati `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` e `status`. Tema iniziale `system`, lingua `it`, vista `single`, avvisi entrambi attivi, motivo nascosto. L'ultima shell e cartella sono riutilizzate per nuove sessioni; un identificatore di shell non disponibile ripiega sulla prima scelta rilevata. Le shell Unix vengono avviate come login shell (`-l`); su Windows la scelta iniziale è Windows PowerShell con `-NoLogo`.
+Sono salvati `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` e `status`. Tema iniziale `system`, lingua `it`, vista `single`, avvisi entrambi attivi, motivo nascosto. `layout` accetta `single`, `split`, `stack` o `grid`; un valore sconosciuto torna a `single`. L'ultima shell e cartella sono riutilizzate per nuove sessioni; un identificatore di shell non disponibile ripiega sulla prima scelta rilevata. Le shell Unix vengono avviate come login shell (`-l`); su Windows la scelta iniziale è Windows PowerShell con `-NoLogo`.
 
 Chiudi l'app prima di modificare il JSON a mano, conserva una copia se contiene personalizzazioni e riavvia dopo il salvataggio. Non c'è ricaricamento automatico del file. Un file mancante o illeggibile/non valido usa i valori predefiniti; un'ultima cartella inesistente ripiega sulla home. Se non esiste il file attuale, l'app cerca e copia quello delle vecchie cartelle `Molo`/`molo`, lasciando l'originale.
 
@@ -158,25 +162,67 @@ Esempio di file parziale senza credenziali:
 
 I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e limitati all'intervallo. Le tre liste aggiungono regex JavaScript alle regole integrate, senza sostituirle: massimo 40 stringhe per lista, ciascuna da 1 a 299 caratteri. I pattern idle si applicano all'ultima riga non vuota; busy/attention alle ultime righe. Le regex sintatticamente errate vengono ignorate; non esiste un timeout per regex costose, quindi usa espressioni semplici e fidate.
 
+### 6.3 File di configurazione dell'app
+
+`config/app.config.json`, nella cartella dell'applicazione, raccoglie i limiti di appunti e trascinamento. Non contiene segreti. All'avvio l'app legge il file, ignora le chiavi sconosciute e, per ogni valore assente o fuori intervallo, usa il default indicato qui. Una modifica richiede il riavvio. Nell'app installata lo stesso file sta nella cartella `resources/config`, fuori dall'archivio interno, così si può modificare senza ricompilare.
+
+| Chiave | Default | Intervallo | Uso |
+| --- | --- | --- | --- |
+| `clipboardImages.directoryName` | `clipboard-images` | un solo tratto di percorso: lettere minuscole, cifre e trattini | Cartella creata dentro i dati utente, non un percorso assoluto. |
+| `clipboardImages.filePrefix` | `img` | lettera minuscola iniziale, poi lettere, cifre o trattini | Prefisso dei file `prefisso-tempo-codice.png`. |
+| `clipboardImages.maxBytes` | 12582912 | 65536–33554432 | Dimensione massima dell'immagine letta dagli appunti e del PNG salvato. |
+| `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Lato massimo, in pixel, dell'immagine accettata. |
+| `clipboardImages.maxKeep` | 40 | 1–200 | Quante immagini recenti tenere. |
+| `clipboardImages.maxAgeHours` | 24 | 1–720 | Dopo questo tempo le immagini generate vengono eliminate. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di un incolla o di una scrittura al terminale. |
+| `drop.maxFiles` | 20 | 1–50 | Quanti file trascinati inserire. |
+| `drop.maxPathChars` | 4096 | 32–32767 | Lunghezza massima di un singolo percorso trascinato. |
+
+Esempio senza segreti:
+
+```json
+{
+  "clipboardImages": {
+    "directoryName": "clipboard-images",
+    "filePrefix": "img",
+    "maxBytes": 12582912,
+    "maxEdgePx": 8000,
+    "maxKeep": 40,
+    "maxAgeHours": 24
+  },
+  "terminal": { "maxWriteChars": 200000 },
+  "drop": { "maxFiles": 20, "maxPathChars": 4096 }
+}
+```
+
 ## 7. Tastiera, clipboard e collegamenti
 
 | Azione | macOS | Windows / Linux |
 | --- | --- | --- |
 | Nuova sessione | Command+T | Ctrl+Shift+T |
 | Chiudi attiva | Command+W | Ctrl+Shift+W |
-| Una / Affiancate | Command+\ | Ctrl+Shift+D |
+| Una / Affiancate / Incolonnate / Griglia | Command+\ | Ctrl+Shift+D |
 | Impostazioni | Command+, | Ctrl+Shift+, |
 | Affianca una riga | Command-clic | Ctrl-clic |
-| Copia selezione | Command+C | Ctrl+Shift+C |
+| Copia selezione | Command+C | Ctrl+Shift+C, oppure Ctrl+C se c'è una selezione |
 | Incolla | Command+V | Ctrl+Shift+V |
+| Interrompi il comando | Control+C | Ctrl+C senza selezione |
 
-Il clic destro copia la selezione presente; senza selezione incolla la clipboard. La scorciatoia di copia senza selezione non viene inoltrata al programma. Ctrl+C ordinario resta disponibile alla shell per interrompere un comando. Esc chiude i dialoghi; negli altri casi passa al terminale. Le scorciatoie di sessione non si applicano mentre un dialogo è aperto.
+Su macOS la barra dei menu ha **Modifica**, con **Annulla**, **Ripeti**, **Taglia**, **Copia**, **Incolla** e **Seleziona tutto**. Le etichette seguono la lingua dell'app. I menu **Vista** e **Finestra** restano quelli standard di Electron e seguono la lingua del sistema. Su Windows e Linux la barra si apre con Alt; **Copia** e **Incolla** usano Ctrl+Shift+C e Ctrl+Shift+V, così Ctrl+C resta libero per il comando.
 
-L'incolla scrive direttamente nel terminale senza anteprima di conferma: controlla il testo, soprattutto se contiene più righe. I collegamenti HTTP/HTTPS cliccati nel terminale vengono aperti nel browser esterno; gli altri protocolli vengono ignorati.
+Il tasto destro sul terminale apre **Copia** e **Incolla**. **Copia** è disattivata se non c'è una selezione. Copia e incolla passano dagli appunti di sistema. L'incolla usa la funzione di xterm.js: se il programma nel terminale ha attivato l'incolla fra parentesi (bracketed paste), il testo arriva come un blocco unico; altrimenti un testo su più righe può essere eseguito riga per riga. Controlla sempre ciò che incolli.
+
+Su Windows e Linux, Ctrl+C copia la selezione e la toglie, così il Ctrl+C successivo interrompe il programma. Senza selezione, Ctrl+C invia subito l'interruzione. Su macOS l'interruzione è Control+C; Command+C copia e non interrompe. La scorciatoia di copia senza selezione non viene inviata al programma.
+
+Trascinare uno o più file nel terminale inserisce i loro percorsi, fra virgolette adatte alla shell della sessione e separati da uno spazio, con uno spazio finale. Un percorso con un a capo non viene inserito. Il testo trascinato, senza file, viene incollato come testo. L'app non apre il file trascinato al posto del terminale e non apre nuove finestre da un link.
+
+Se negli appunti c'è un'immagine e incolli, l'app la salva come PNG in una cartella sua dentro i dati utente e incolla il percorso quotato, con uno spazio finale. Il nome del file è generato dall'app. Le immagini più vecchie del tempo configurato, e quelle oltre il numero massimo, vengono eliminate. Se l'immagine non è accettabile, l'incolla usa il testo degli appunti.
+
+Esc chiude i dialoghi; negli altri casi passa al terminale. Le scorciatoie di sessione non si applicano mentre un dialogo è aperto. I collegamenti HTTP/HTTPS cliccati nel terminale vengono aperti nel browser esterno; gli altri protocolli vengono ignorati.
 
 ## 8. Esempi pratici
 
-**Due attività:** apri una sessione chiamata “Progetto” nella cartella del tuo codice e una “Controlli” nella stessa cartella. Fissale con **Affianca**. Usa la prima per una CLI già installata e la seconda per i comandi di verifica del progetto. Clicca ogni volta nella tessera a cui vuoi inviare i tasti.
+**Due attività:** apri una sessione chiamata “Progetto” nella cartella del tuo codice e una “Controlli” nella stessa cartella. Seleziona la prima e premi l'icona **Affiancate**. Usa la prima per una CLI già installata e la seconda per i comandi di verifica del progetto. Clicca ogni volta nella tessera a cui vuoi inviare i tasti. Per mettere un'immagine in una CLI che accetta un percorso, copiala e incollala nel terminale, oppure trascinala: compare il percorso del file.
 
 **Capire uno stato:** attiva **Mostra il motivo dello stato**. Se un programma appare al lavoro anche dopo essersi fermato, controlla se ridisegna continuamente lo schermo o lascia un indicatore di lavoro. Regola i tempi o un pattern specifico; non usare lo stato stimato per decidere automaticamente operazioni distruttive.
 
@@ -219,7 +265,7 @@ Plancia Comandi è un terminale locale con i tuoi permessi, senza confinamento a
 
 L'app non gestisce API key o un keychain e non invia autonomamente prompt a provider AI. Una CLI avviata può farlo secondo la propria configurazione e i propri consensi. Controlla autenticazione, permessi, file accessibili e destinazioni prima di darle contenuti privati. `settings.json` non deve contenere segreti.
 
-Output e nomi delle sessioni sono in memoria, ma la shell può salvare la cronologia e i programmi possono scrivere log, file o usare la rete. Le notifiche contengono il nome della sessione; clipboard, screenshot e diagnostica possono rivelare dati. L'app non garantisce la redazione automatica. I limiti del backlog possono perdere output precedente quando una vista viene ricreata; non usarlo come archivio permanente.
+Output e nomi delle sessioni sono in memoria, ma la shell può salvare la cronologia e i programmi possono scrivere log, file o usare la rete. Le notifiche contengono il nome della sessione; clipboard, screenshot e diagnostica possono rivelare dati. Un'immagine incollata resta in una cartella dell'app finché la pulizia non la elimina, e qualunque programma con i tuoi permessi può leggerla. L'app non garantisce la redazione automatica. I limiti del backlog possono perdere output precedente quando una vista viene ricreata; non usarlo come archivio permanente.
 
 Il rilevamento degli stati non è un protocollo di controllo dei tool. Un TUI che ridisegna mentre aspetta può restare **Al lavoro**; un comando con una riga simile a un prompt può sembrare **In attesa** prematuramente. La UI chiede conferma solo per le chiusure che considera attive o in attesa di azione; l'uscita completa non ha quella protezione.
 

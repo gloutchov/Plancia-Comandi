@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.1.0** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza. La patch documentale non modifica i controlli.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.2.0** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -51,8 +51,9 @@ Non inserire segreti in JSON, esempi, log o repository. Per una futura integrazi
 | Shell e programmi | Possono salvare cronologie, credenziali, file e log indipendentemente dall'app. |
 | Diagnostica | Errori su console per preload, moduli, scrittura PTY, processi figli o avvio; alcune eccezioni possono mostrare dettagli originali alla UI. Nessun audit log o sistema centralizzato di redazione. |
 | Notifiche | Titolo dello stato e nome sessione al sistema operativo; possono comparire fuori dalla finestra, anche sullo schermo bloccato secondo le impostazioni OS. |
-| Clipboard | Copia/incolla usa la clipboard di sistema, condivisa con altri programmi secondo le loro autorizzazioni. Nessuna anteprima o redazione automatica dell'incolla. |
-| Screenshot demo | `PLANCIA_SHOT_DIR`/alias legacy scrive PNG della finestra nel percorso indicato. La cattura può includere dati visibili e modifica il tema persistente. |
+| Clipboard | Copia e incolla passano dal modulo `clipboard` del processo main. Il testo non è redatto né mostrato in anteprima. Un'immagine accettata viene scritta come PNG sotto la cartella dati utente e nel terminale viene incollato solo il percorso quotato. |
+| Immagini temporanee | Directory e prefisso arrivano da `config/app.config.json`, validati come un solo tratto di percorso. Il nome del file è generato nel main. Scrittura su file temporaneo e poi rinomina. Su Unix la cartella è `0700` e il file `0600`; su Windows valgono i permessi della cartella dati, perché i bit POSIX non sono un confine affidabile. Età e numero massimo eliminano i file generati che corrispondono al prefisso. Gli altri file nella cartella non vengono toccati. |
+| Schermate demo | `PLANCIA_SHOT_DIR`/alias legacy scrive PNG della finestra nel percorso indicato. La cattura può includere dati visibili e modifica il tema persistente. |
 
 Il salvataggio delle preferenze usa una scrittura diretta, senza sostituzione atomica, backup integrato o permessi restrittivi impostati esplicitamente. Si applicano i permessi ordinari del sistema/umask. La lettura invalida ripiega sui default; un successivo salvataggio può sovrascrivere un file corrotto. Non è imposto un limite di dimensione prima della lettura JSON.
 
@@ -70,9 +71,13 @@ In [electron/main.ts](electron/main.ts) sono impostati **`contextIsolation: true
 | `settings:update`, `settings:reveal` | Patch oggetto con normalizzazione dei campi noti; reveal del file noto. |
 | `dialog:directory` | Selettore nativo, con possibilità di creare una directory; path iniziale accettato se stringa. |
 | `shell:openExternal` | URL valido e protocollo HTTP/HTTPS. |
+| `clipboard:writeText`, `clipboard:readText`, `clipboard:readImage` | Solo il mittente della finestra dell'app. Testo limitato a `terminal.maxWriteChars`. L'immagine è un blob `image/*` degli appunti, rifiutata se supera i byte o il lato configurati; il renderer non invia un percorso. |
+| `edit:command`, `edit:result` | Il main invia un identificatore esadecimale e un comando noto. Il renderer risponde solo con quell'identificatore e un booleano. Se il terminale non gestisce il comando, il main usa l'azione di editing della pagina. |
 | Eventi main → UI | Sessioni, output terminale, preferenze, focus e tema; il testo del terminale non viene redatto. |
 
-**Limiti:** non c'è una CSP esplicita in [index.html](index.html) o negli header configurati, non ci sono guardie esplicite `will-navigate`/`setWindowOpenHandler` e gli handler IPC non verificano l'origine o il frame del mittente. La normalizzazione dei tipi non equivale a una validazione completa di schema, autenticità e dimensione di tutti i messaggi. Queste difese vanno progettate e testate prima di dichiarare un confine renderer-main completo.
+La finestra nega le nuove finestre con `setWindowOpenHandler`. `will-navigate` e `will-redirect` sono annullati salvo l'URL già aperto e, in sviluppo, l'origine del server Vite. Il renderer annulla `dragover` e `drop` così un file trascinato non sostituisce la pagina. Il percorso di un file trascinato si ottiene nel preload con `webUtils.getPathForFile` e viene solo quotato e incollato nel terminale.
+
+**Limiti:** non c'è una CSP esplicita in [index.html](index.html) o negli header configurati. I canali IPC precedenti a M1 non verificano l'origine o il frame del mittente. La normalizzazione dei tipi non equivale a una validazione completa di schema, autenticità e dimensione di tutti i messaggi. Queste difese restano la proposta P1.
 
 La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attention`; il main può chiudere direttamente una sessione. L'uscita dall'app termina le PTY senza una conferma complessiva. Un processo discendente che si distacca non è soggetto a una garanzia di terminazione dell'intero albero.
 
@@ -84,7 +89,9 @@ La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attentio
 | Nome | Trim e troncamento a 80 unità di lunghezza stringa; nome automatico se vuoto alla creazione. |
 | Cartella | Deve esistere ed essere una directory; percorsi contenenti/terminanti in `app.asar` sono respinti. Non c'è canonicalizzazione o confinamento a una workspace. |
 | Shell | Scelta tra quelle rilevate; ID non trovato ripiega sulla prima. Nessun comando shell arbitrario nel campo UI. Il percorso scelto nell'ambiente di login è comunque fidato. |
-| Input PTY | Una scrittura viene troncata a 200000 unità di lunghezza stringa; non c'è rate limit complessivo. |
+| Input PTY | Una scrittura viene troncata a `terminal.maxWriteChars` (default 200000, intervallo 1000–1000000). Non c'è rate limit complessivo. |
+| Trascinamento | Al massimo `drop.maxFiles` percorsi, ciascuno fino a `drop.maxPathChars`. I percorsi con NUL o a capo sono scartati e non vengono troncati. Il testo senza file è troncato al limite di scrittura. |
+| Immagini appunti | Byte, lato, età, quantità, cartella e prefisso da `config/app.config.json`. Valori invalidi tornano ai default documentati. |
 | Resize | Interi: 2–500 colonne, 2–200 righe. |
 | Output main | Oltre 300000 unità stringa, conserva le ultime 250000 nel backlog. Il chunk live non ha un limite equivalente per messaggio. |
 | Schermi | Scrollback headless 200 righe; renderer 8000 righe. Non sono garanzie globali contro esaurimento memoria o code di output. |
@@ -93,7 +100,7 @@ La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attentio
 | Regex aggiuntive | Massimo 40 stringhe per lista e lunghezza 1–299; regex non valide ignorate. Nessun timeout di esecuzione o protezione da regex patologiche. |
 | Processi figli | Snapshot PID/PPID; timeout 4 s Unix, 8 s Windows, buffer subprocesso massimo 4000000 byte. Ricerca shell Windows: timeout 3 s per comando `where`. |
 
-Il main scrive preferenze e, solo nella modalità di cattura demo, screenshot nel percorso configurato. Le directory di lavoro dei terminali sono liberamente selezionabili tra quelle accessibili; path assoluti e segmenti relativi non sono trattati come una policy di autorizzazione. Il selettore può creare cartelle fuori dal checkout. Non dichiarare protezioni anti-path-traversal che il prodotto non implementa.
+Il main scrive preferenze, le immagini generate degli appunti nella cartella dati e, solo nella modalità di cattura demo, screenshot nel percorso configurato. La cartella delle immagini è un tratto di percorso validato sotto `userData`, non un percorso ricevuto dal renderer. Le directory di lavoro dei terminali sono liberamente selezionabili tra quelle accessibili; path assoluti e segmenti relativi non sono trattati come una policy di autorizzazione. Il selettore può creare cartelle fuori dal checkout. Non dichiarare protezioni anti-path-traversal che il prodotto non implementa al di fuori della cartella delle immagini incollate.
 
 ### 6. Distribuzione e dipendenze
 
@@ -101,21 +108,21 @@ Il lockfile fissa le dipendenze; installazione e rebuild possono eseguire script
 
 I pacchetti includono i bundle, `package.json` e le dipendenze secondo [electron-builder.json5](electron-builder.json5); `node-pty` e `@xterm/headless` sono estratti dall'ASAR. ASAR non è un confine di sicurezza. macOS ha `identity: null`; Windows non ha certificati configurati. Non sono configurati notarizzazione, auto-update o workflow di release.
 
-Per una release occorrono controllo del commit, approvazione esplicita, test e smoke della build reale su piattaforme dichiarate, controllo dei contenuti dei pacchetti, SHA-256 e verifica di tag/release sul remoto. Mai allegare credenziali, preferenze personali, log o screenshot privati. Per questa patch esclusivamente documentale non sono richiesti né prodotti nuovi artifact.
+Per una release occorrono controllo del commit, approvazione esplicita, test e smoke della build reale su piattaforme dichiarate, controllo dei contenuti dei pacchetti, SHA-256 e verifica di tag/release sul remoto. Mai allegare credenziali, preferenze personali, log o screenshot privati. M1 non produce artifact: la release `v0.2.0` non è stata creata.
 
 ### 7. Verifiche e rischi residui
 
-La suite esistente [status.test.ts](src/shared/status.test.ts) copre regole di stato, configurazione del rilevamento, burst, parsing titoli, stabilizzazione e notifiche. Non copre IPC reale, confinamento filesystem, leak di segreti, shell native, CSP, navigazioni, scrittura atomica, pacchetti o rete. Test e build non dimostrano l'assenza di vulnerabilità.
+La suite in `src/**/*.test.ts` copre stati, configurazione del rilevamento, burst, titoli, stabilizzazione, notifiche, viste, quotatura delle shell, trascinamento, decisione di navigazione, validazione di `config/app.config.json` e la policy dei file immagine. Non copre IPC reale, shell native, CSP, la finestra Electron, pacchetti o rete. Test e build non dimostrano l'assenza di vulnerabilità.
 
-La documentazione viene verificata contro i sorgenti, con controlli di link, struttura, esempi e corrispondenza IT/EN. Gli esiti della patch sono registrati in [PLAN.md](PLAN.md); non costituiscono uno smoke desktop. Non sono stati usati keychain, credenziali o contenuti privati per esercitare l'app.
+La documentazione viene verificata contro i sorgenti. Gli esiti di M1 sono registrati in [PLAN.md](PLAN.md); non costituiscono uno smoke desktop. Non sono stati usati keychain, credenziali o contenuti privati per esercitare l'app.
 
-Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente ereditato quando contiene segreti, usare regex semplici e proteggere la directory dati con i permessi del sistema. Evitare output non fidato e controllare ogni comando o incolla prima di eseguirlo. Disattivare notifiche se i nomi delle sessioni sono sensibili.
+Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente ereditato quando contiene segreti, usare regex semplici e proteggere la directory dati con i permessi del sistema. Le immagini incollate restano leggibili da shell e programmi dello stesso utente finché la pulizia non le rimuove. Evitare output non fidato e controllare ogni comando o incolla prima di eseguirlo. Senza bracketed paste, un testo su più righe può essere eseguito. Disattivare notifiche se i nomi delle sessioni sono sensibili.
 
-Le proposte **P1–P3** del piano registrano l'hardening mancante, l'allineamento delle preferenze e la verifica multipiattaforma; non sono attività autorizzate o controlli già implementati.
+La proposta **P1** resta aperta per CSP e verifica del mittente sui canali precedenti. **P2** resta aperta per la lingua automatica e per i limiti ancora nei moduli. **P3** resta la verifica multipiattaforma. Non sono attività già completate.
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.1.0** source and remaining limitations. It documents implemented behavior rather than certifying security. The documentation patch does not change controls.
+This document describes controls observable in Plancia Comandi **0.2.0** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -164,7 +171,8 @@ Do not place secrets in JSON, examples, logs or the repository. A future AI inte
 | Shells and programs | May save history, credentials, files and logs independently of the app. |
 | Diagnostics | Console errors for preload, modules, PTY writes, child processes or startup; some exceptions may show original details in the UI. No audit log or centralized redaction system. |
 | Notifications | State title and session name sent to the OS; may appear outside the window, including on a locked screen depending on OS settings. |
-| Clipboard | Copy/paste uses the system clipboard, shared with other programs according to their permissions. No automatic paste preview or redaction. |
+| Clipboard | Copy and paste go through the main-process `clipboard` module. Text is not redacted or previewed. An accepted image is written as a PNG under the user-data directory and only its quoted path is pasted into the terminal. |
+| Temporary images | Directory and prefix come from `config/app.config.json` and are validated as a single path segment. The file name is generated in main. The write uses a temporary file and then a rename. On Unix the directory is `0700` and the file `0600`; on Windows the user-data directory ACL is the boundary, because POSIX mode bits are not a reliable boundary there. Age and maximum count delete generated files that match the prefix. Other files in the folder are left untouched. |
 | Demo screenshots | `PLANCIA_SHOT_DIR`/legacy alias writes window PNGs to the specified path. Capture can include visible data and changes the persistent theme. |
 
 Preferences use a direct write without atomic replacement, integrated backup or explicitly restrictive permissions. Ordinary OS/umask permissions apply. Invalid reads fall back to defaults; a later save may overwrite a corrupt file. No size limit is imposed before reading JSON.
@@ -183,9 +191,13 @@ No crash-report upload service is configured in the source. This does not exclud
 | `settings:update`, `settings:reveal` | Object patch with known-field normalization; reveal of the known settings file. |
 | `dialog:directory` | Native picker, including directory creation; initial path accepted when a string. |
 | `shell:openExternal` | Valid URL and HTTP/HTTPS protocol. |
+| `clipboard:writeText`, `clipboard:readText`, `clipboard:readImage` | Only the app window's sender. Text is limited to `terminal.maxWriteChars`. An image is an `image/*` clipboard blob, rejected when it exceeds the configured bytes or edge; the renderer does not send a path. |
+| `edit:command`, `edit:result` | Main sends a hexadecimal identifier and a known command. The renderer replies only with that identifier and a boolean. If the terminal does not handle the command, main uses the page editing action. |
 | Main → UI events | Sessions, terminal output, preferences, focus and theme; terminal text is not redacted. |
 
-**Limitations:** there is no explicit CSP in [index.html](index.html) or configured headers, no explicit `will-navigate`/`setWindowOpenHandler` guards, and IPC handlers do not verify sender origin or frame. Type normalization is not complete schema, authenticity and size validation for all messages. These defenses must be designed and tested before claiming a complete renderer-main boundary.
+The window denies new windows with `setWindowOpenHandler`. `will-navigate` and `will-redirect` are cancelled except for the URL already open and, in development, the Vite server origin. The renderer cancels `dragover` and `drop` so a dropped file does not replace the page. A dropped file's path is obtained in the preload with `webUtils.getPathForFile` and is only quoted and pasted into the terminal.
+
+**Limitations:** there is no explicit CSP in [index.html](index.html) or configured headers. IPC channels that predate M1 do not verify sender origin or frame. Type normalization is not complete schema, authenticity and size validation for all messages. Those defenses remain proposal P1.
 
 Closing confirmation lives in the UI and applies only to `busy`/`attention` states; main can close a session directly. Quitting terminates PTYs without an overall confirmation. A detached descendant is not covered by a guarantee that the entire process tree will terminate.
 
@@ -197,7 +209,9 @@ Closing confirmation lives in the UI and applies only to `busy`/`attention` stat
 | Name | Trimmed and truncated to 80 string-length units; automatic name if empty at creation. |
 | Folder | Must exist and be a directory; paths containing/ending in `app.asar` are rejected. No canonicalization or workspace confinement. |
 | Shell | Chosen from detected entries; an unknown ID falls back to the first. No arbitrary shell command field in the UI. The path chosen from the login environment is still trusted. |
-| PTY input | A write is truncated to 200000 string-length units; no overall rate limit. |
+| PTY input | A write is truncated to `terminal.maxWriteChars` (default 200000, range 1000–1000000). There is no overall rate limit. |
+| Drag and drop | At most `drop.maxFiles` paths, each up to `drop.maxPathChars`. Paths containing NUL or a line break are discarded and are not truncated. Text without files is truncated to the write limit. |
+| Clipboard images | Bytes, edge, age, count, directory and prefix come from `config/app.config.json`. Invalid values fall back to the documented defaults. |
 | Resize | Integers: 2–500 columns, 2–200 rows. |
 | Main output | Above 300000 string units, keeps the latest 250000 in the backlog. Live chunks have no equivalent per-message bound. |
 | Screens | Headless scrollback 200 lines; renderer 8000 lines. These are not global memory-exhaustion or output-queue guarantees. |
@@ -206,7 +220,7 @@ Closing confirmation lives in the UI and applies only to `busy`/`attention` stat
 | Extra regexes | Up to 40 strings per list, length 1–299; invalid regexes ignored. No execution timeout or protection against pathological regexes. |
 | Child processes | PID/PPID snapshot; timeout 4 s Unix, 8 s Windows, subprocess buffer at most 4000000 bytes. Windows shell search: 3 s timeout per `where` command. |
 
-Main writes preferences and, only in demo capture mode, screenshots to the configured path. Terminal working directories can be freely selected among accessible directories; absolute paths and relative segments are not treated as an authorization policy. The picker can create directories outside the checkout. Do not claim path-traversal protections the product does not implement.
+Main writes preferences, generated clipboard images in the data directory and, only in demo capture mode, screenshots to the configured path. The image folder is a validated path segment under `userData`, not a path received from the renderer. Terminal working directories can be freely selected among accessible directories; absolute paths and relative segments are not treated as an authorization policy. The picker can create directories outside the checkout. Do not claim path-traversal protections the product does not implement outside the pasted-image folder.
 
 ### 6. Distribution and dependencies
 
@@ -214,14 +228,14 @@ The lockfile pins dependencies; installation and rebuild may execute scripts and
 
 Packages include bundles, `package.json` and dependencies under [electron-builder.json5](electron-builder.json5); `node-pty` and `@xterm/headless` are unpacked from ASAR. ASAR is not a security boundary. macOS has `identity: null`; Windows has no configured certificates. Notarization, automatic updates and release workflows are not configured.
 
-A release requires commit review, explicit approval, tests and real-build smoke on declared platforms, package-content checks, SHA-256 and remote tag/release verification. Never attach credentials, personal preferences, logs or private screenshots. This documentation-only patch neither requires nor produces new artifacts.
+A release requires commit review, explicit approval, tests and real-build smoke on declared platforms, package-content checks, SHA-256 and remote tag/release verification. Never attach credentials, personal preferences, logs or private screenshots. M1 produces no artifacts: the `v0.2.0` release was not created.
 
 ### 7. Checks and residual risks
 
-The existing [status.test.ts](src/shared/status.test.ts) suite covers status rules, detection configuration, bursts, title parsing, stabilization and notifications. It does not cover real IPC, filesystem confinement, secret leaks, native shells, CSP, navigation, atomic writes, packages or networking. Tests and build do not establish the absence of vulnerabilities.
+The suite in `src/**/*.test.ts` covers status, detection configuration, bursts, titles, stabilization, notifications, views, shell quoting, drag-and-drop, the navigation decision, `config/app.config.json` validation and the image-file policy. It does not cover real IPC, native shells, CSP, the Electron window, packages or networking. Tests and build do not establish the absence of vulnerabilities.
 
-Documentation is checked against source, including links, structure, examples and IT/EN consistency. Patch results are recorded in [PLAN.md](PLAN.md); they are not a desktop smoke test. No keychain, credentials or private content were used to exercise the app.
+Documentation is checked against source. M1 results are recorded in [PLAN.md](PLAN.md); they are not a desktop smoke test. No keychain, credentials or private content were used to exercise the app.
 
-Use the app as a trusted terminal under an ordinary user account, limit inherited environments containing secrets, use simple regexes and protect the data directory with OS permissions. Avoid untrusted output and inspect commands or pasted text before executing them. Disable notifications if session names are sensitive.
+Use the app as a trusted terminal under an ordinary user account, limit inherited environments containing secrets, use simple regexes and protect the data directory with OS permissions. Pasted images remain readable by shells and programs of the same user until cleanup removes them. Avoid untrusted output and inspect commands or pasted text before executing them. Without bracketed paste, multiline text can be executed. Disable notifications if session names are sensitive.
 
-The plan's **P1–P3** proposals record missing hardening, preference alignment and cross-platform verification; they are neither authorized work nor implemented controls.
+Proposal **P1** remains open for CSP and sender checks on the older channels. **P2** remains open for automatic language selection and for limits that are still in modules. **P3** remains the cross-platform verification. They are not completed work.

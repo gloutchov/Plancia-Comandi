@@ -107,6 +107,7 @@ export class SessionManager {
       shells: ShellChoice[]
       home: string
       notify: (title: string, body: string, sessionId: string) => void
+      maxWriteChars: number
     },
   ) {
     this.pty = loadPty()
@@ -225,7 +226,8 @@ export class SessionManager {
     if (typeof data !== 'string' || !data) return
     const session = this.sessions.get(id)
     if (!session || session.exited) return
-    const payload = data.length > 200_000 ? data.slice(0, 200_000) : data
+    const limit = this.deps.maxWriteChars
+    const payload = data.length > limit ? data.slice(0, limit) : data
     try {
       session.pty?.write(payload)
     } catch (error) {

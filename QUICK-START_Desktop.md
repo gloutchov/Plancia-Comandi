@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.1.0**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.2.0**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -25,8 +25,8 @@ Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone
 
 1. Premi **Nuova sessione**, scegli una **Shell** e una **Cartella**, poi **Apri**.
 2. Esegui un comando ordinario nella shell. Per usare una CLI AI, installala e configurala separatamente.
-3. Apri una seconda sessione. Premi **Affianca**, l'icona delle colonne nella riga di ciascuna sessione da mostrare.
-4. Clicca nel terminale da usare: la tastiera scrive nella sessione selezionata. **Una** ritorna alla vista singola.
+3. Apri una seconda sessione. Premi l'icona **Affiancate**, i due rettangoli uno accanto all'altro. **Incolonnate** mette le stesse due sessioni una sopra l'altra. Da tre sessioni, **Griglia** ne mostra fino a quattro.
+4. Clicca nel terminale da usare: la tastiera scrive nella sessione selezionata. **Una**, il quadrato, torna alla vista singola finché non ci sono abbastanza sessioni per la vista che avevi scelto.
 
 **Al lavoro**, **In attesa** e **Azione** sono stime: leggi il terminale prima di decidere se un comando è terminato. I comandi possono modificare file e usare la rete con i tuoi permessi.
 
@@ -40,7 +40,7 @@ Per errori del modulo terminale, esegui `npm run rebuild` e riavvia. Approfondim
 
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.1.0**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.2.0**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 
@@ -63,8 +63,8 @@ Use the desktop window that opens. The development website in a browser has no t
 
 1. Click **New session**, choose a **Shell** and **Folder**, then **Open**.
 2. Run an ordinary shell command. To use an AI CLI, install and configure it separately.
-3. Open a second session. Click **Tile**, the columns icon in each session row you want to display.
-4. Click inside the terminal you want to use: typing goes to the selected session. **One** returns to the single view.
+3. Open a second session. Click the **Side by side** icon, two rectangles next to each other. **Stacked** places the same two sessions one above the other. From three sessions, **Grid** shows up to four.
+4. Click inside the terminal you want to use: typing goes to the selected session. **One**, the square, returns to the single view until there are enough sessions for the view you had chosen.
 
 **Working**, **Idle** and **Action** are estimates: read the terminal before deciding whether a command has finished. Commands can change files and use the network with your permissions.
 

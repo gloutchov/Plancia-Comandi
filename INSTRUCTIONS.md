@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.1.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.2.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 **Contents**
 
@@ -78,14 +78,18 @@ You can keep up to **12 sessions**, including exited sessions that have not been
 
 - **Select:** click a sidebar row or inside a visible terminal. Typing goes to the active session.
 - **Rename:** click the **Rename** pencil or double-click the name. Press Enter or move focus away to save; Esc cancels. Names are limited to 80 characters.
-- **One view:** shows the selected session.
-- **Side by side view:** shows the selected session and those pinned with **Tile**, the columns icon. Command-click on macOS or Ctrl-click on other systems also works. Tiles use one, two or three columns depending on the number visible.
-- **Remove from view:** unpins a session without stopping its process. The selected session remains visible even when unpinned; select another session to hide it.
+- **One:** a square icon. Shows only the selected session.
+- **Side by side:** an icon of two rectangles next to each other. Shows the selected session and the next one. The button is disabled when only one session is open; the tooltip says to open at least two.
+- **Stacked:** an icon of two rectangles, one above the other. Shows the same two sessions, one above the other. This button is also disabled with only one session.
+- **Grid:** an icon of four squares. Available from three sessions upward. With three sessions the fourth pane stays empty. Below three sessions the button is disabled and the tooltip asks you to open at least three.
+- **Which sessions you see:** the first pane is the selected session. The others follow the sidebar order. At the end of the list, counting continues from the top. A session is not shown twice.
+- **Remembered view:** the choice stays saved. If too few sessions are open, you see **One** and the chosen view's button is disabled; when there are enough sessions, that view comes back on its own. If you close sessions until the view is no longer possible, the choice becomes **One** and is saved that way.
+- **Tile:** the columns icon in a row, or Command-click on macOS and Ctrl-click on the other systems, selects that session and switches to **Side by side** when at least one other session exists. With only one session the button is disabled.
 - **Close:** click **×** in its row. **Working** or **Action** states trigger a confirmation; other states close immediately. The terminal process is stopped.
 
 An exited process remains visible as **Exited** with its exit code. Read its output before closing the session. Open a new session to restart work.
 
-A full quit terminates sessions and does not restore them. Names, selection, pins and output are not saved for the next start. On macOS closing the last window normally leaves the app and its sessions running; quitting the app terminates them. There is no general quit confirmation that checks all sessions.
+A full quit terminates sessions and does not restore them. Names, selection and output are not saved for the next start. The chosen view is. On macOS closing the last window normally leaves the app and its sessions running; quitting the app terminates them. There is no general quit confirmation that checks all sessions.
 
 ## 5. Status and alerts
 
@@ -119,7 +123,7 @@ The central user preferences file is `settings.json` in the directory Electron r
 | Windows | `%APPDATA%/Plancia Comandi/settings.json` |
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, otherwise `~/.config/Plancia Comandi/settings.json` |
 
-Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language `it`, layout `single`, both alerts enabled, reasons hidden. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
+Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language `it`, layout `single`, both alerts enabled, reasons hidden. `layout` accepts `single`, `split`, `stack` or `grid`; an unknown value falls back to `single`. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
 
 Quit the app before editing JSON manually, keep a copy if it contains customizations, and restart after saving. The file is not reloaded automatically. A missing or unreadable/invalid file uses defaults; a nonexistent last folder falls back to home. If the current file does not exist, the app searches for and copies the file from the former `Molo`/`molo` directories, retaining the original.
 
@@ -158,25 +162,67 @@ Example partial file without credentials:
 
 Missing fields receive defaults; numbers are rounded and clamped to the allowed range. The three lists add JavaScript regexes to the built-in rules without replacing them: up to 40 strings per list, each 1–299 characters. Idle patterns apply to the last nonempty line; busy/attention patterns to the last lines. Syntactically invalid regexes are ignored; expensive regexes have no timeout, so use simple, trusted expressions.
 
+### 6.3 Application configuration file
+
+`config/app.config.json`, in the application folder, holds the clipboard and drag-and-drop limits. It contains no secrets. At startup the app reads the file, ignores unknown keys and, for each missing or out-of-range value, uses the default listed here. A change requires a restart. In an installed app the same file lives in `resources/config`, outside the inner archive, so it can be edited without rebuilding.
+
+| Key | Default | Range | Use |
+| --- | --- | --- | --- |
+| `clipboardImages.directoryName` | `clipboard-images` | one path segment: lowercase letters, digits and hyphens | Folder created inside the user-data directory, not an absolute path. |
+| `clipboardImages.filePrefix` | `img` | an initial lowercase letter, then letters, digits or hyphens | Prefix of `prefix-time-code.png` files. |
+| `clipboardImages.maxBytes` | 12582912 | 65536–33554432 | Maximum size of the clipboard image read and of the saved PNG. |
+| `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Maximum accepted image edge, in pixels. |
+| `clipboardImages.maxKeep` | 40 | 1–200 | How many recent images to keep. |
+| `clipboardImages.maxAgeHours` | 24 | 1–720 | Generated images older than this are deleted. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one paste or write to the terminal. |
+| `drop.maxFiles` | 20 | 1–50 | How many dropped files to insert. |
+| `drop.maxPathChars` | 4096 | 32–32767 | Maximum length of one dropped path. |
+
+Example without secrets:
+
+```json
+{
+  "clipboardImages": {
+    "directoryName": "clipboard-images",
+    "filePrefix": "img",
+    "maxBytes": 12582912,
+    "maxEdgePx": 8000,
+    "maxKeep": 40,
+    "maxAgeHours": 24
+  },
+  "terminal": { "maxWriteChars": 200000 },
+  "drop": { "maxFiles": 20, "maxPathChars": 4096 }
+}
+```
+
 ## 7. Keyboard, clipboard and links
 
 | Action | macOS | Windows / Linux |
 | --- | --- | --- |
 | New session | Command+T | Ctrl+Shift+T |
 | Close active | Command+W | Ctrl+Shift+W |
-| One / Side by side | Command+\ | Ctrl+Shift+D |
+| One / Side by side / Stacked / Grid | Command+\ | Ctrl+Shift+D |
 | Settings | Command+, | Ctrl+Shift+, |
 | Tile a row | Command-click | Ctrl-click |
-| Copy selection | Command+C | Ctrl+Shift+C |
+| Copy selection | Command+C | Ctrl+Shift+C, or Ctrl+C when text is selected |
 | Paste | Command+V | Ctrl+Shift+V |
+| Interrupt the command | Control+C | Ctrl+C with no selection |
 
-Right-click copies an existing selection; with no selection, it pastes the clipboard. The copy shortcut without a selection does not forward the key combination to the program. Ordinary Ctrl+C remains available to the shell to interrupt a command. Esc closes dialogs; otherwise it passes through to the terminal. Session shortcuts do not apply while a dialog is open.
+On macOS the menu bar has **Edit**, with **Undo**, **Redo**, **Cut**, **Copy**, **Paste** and **Select All**. The labels follow the app language. The **View** and **Window** menus stay Electron's standard menus and follow the system language. On Windows and Linux the bar opens with Alt; **Copy** and **Paste** use Ctrl+Shift+C and Ctrl+Shift+V, so Ctrl+C stays available for the command.
 
-Paste writes directly into the terminal without a confirmation preview: check the text, especially multiple lines. HTTP/HTTPS links clicked inside the terminal open in the external browser; other protocols are ignored.
+Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste.
+
+On Windows and Linux, Ctrl+C copies the selection and clears it, so the next Ctrl+C interrupts the program. With no selection, Ctrl+C sends the interrupt immediately. On macOS the interrupt is Control+C; Command+C copies and does not interrupt. The copy shortcut with no selection is not sent to the program.
+
+Dragging one or more files into the terminal inserts their paths, quoted for that session's shell and separated by a space, with one trailing space. A path that contains a line break is not inserted. Dragged text, with no files, is pasted as text. The app does not open a dropped file in place of the terminal and does not open new windows from a link.
+
+If the clipboard holds an image and you paste, the app saves it as a PNG in its own folder inside the user-data directory and pastes the quoted path, with a trailing space. The file name is generated by the app. Images older than the configured time, and images beyond the maximum count, are deleted. If the image is not acceptable, paste uses the clipboard text.
+
+Esc closes dialogs; otherwise it passes through to the terminal. Session shortcuts do not apply while a dialog is open. Clicked HTTP and HTTPS links in the terminal open in the external browser; other protocols are ignored.
 
 ## 8. Practical examples
 
-**Two tasks:** open a session named “Project” in your code folder and a “Checks” session in the same folder. Pin them with **Tile**. Use the first for an already installed CLI and the second for the project's validation commands. Click the intended tile before typing.
+**Two tasks:** open a session named “Project” in your code folder and a “Checks” session in the same folder. Select the first and click the **Side by side** icon. Use the first for an already installed CLI and the second for the project's validation commands. Click the intended tile before typing. To give an image to a CLI that accepts a path, copy and paste it into the terminal, or drag it in: the file path appears.
 
 **Understand a status:** enable **Show why the status was chosen**. If a program still appears working after stopping, check whether it continuously redraws the screen or leaves a working marker. Adjust timings or a specific pattern; do not use an estimated status to decide destructive operations automatically.
 
@@ -219,7 +265,7 @@ Plancia Comandi is a local terminal running with your permissions, without works
 
 The app does not manage API keys or a keychain and does not independently send prompts to AI providers. A launched CLI may do so under its own configuration and consent controls. Check authentication, permissions, accessible files and destinations before giving it private content. `settings.json` must not contain secrets.
 
-Output and session names remain in memory, but shells may save history and programs may write logs, files or use the network. Notifications contain the session name; clipboard, screenshots and diagnostics can reveal data. The app does not guarantee automatic redaction. Backlog limits can lose older output when a view is recreated; do not use it as permanent storage.
+Output and session names remain in memory, but shells may save history and programs may write logs, files or use the network. Notifications contain the session name; clipboard, screenshots and diagnostics can reveal data. A pasted image stays in an app folder until cleanup removes it, and any program running with your permissions can read it. The app does not guarantee automatic redaction. Backlog limits can lose older output when a view is recreated; do not use it as permanent storage.
 
 Status detection is not a tool-control protocol. A TUI redrawing while waiting can stay **Working**; a command ending with a prompt-like line can appear **Idle** prematurely. The UI confirms only closures it considers working or awaiting action; a full quit has no such protection.
 

@@ -2,12 +2,12 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.1.0**. Le proposte non autorizzano interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **M1** è nel piano esecutivo e resta `M` fino all'approvazione esplicita. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
-- [2. Proposte da pianificare](#2-proposte-da-pianificare)
+- [2. Milestone corrente e proposte](#2-milestone-corrente-e-proposte)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -38,14 +38,29 @@ Verifiche locali del 10 novembre 2026: controlli automatici di documenti, link/a
 
 Non eseguiti smoke Electron, CLI AI reale, packaging, prove Windows/Linux, audit completo delle dipendenze o CI: l'intervento modifica solo documentazione e tali verifiche non sono necessarie per questo ambito. Restano da completare le validazioni applicative e di sicurezza delle proposte P1–P3. Gli output ignorati di build/cache sono conservati; nessuna pulizia automatica, pubblicazione, merge, tag o release effettuata.
 
-### 2. Proposte da pianificare
+La base di `main` per M1 è il commit `05062668b528d737d5c702673657bfd2b3dbaf8e`.
 
-Non ci sono milestone `M` autorizzate nel piano esecutivo corrente. Queste proposte restano fuori dall'esecuzione:
+### 2. Milestone corrente e proposte
+
+M1 è l'unica milestone del piano esecutivo. La voce resta `M` finché il progettista non approva esplicitamente quel commit. Le proposte sotto non diventano eseguibili da sole.
+
+| Campo | M1 — Clipboard, trascinamento e viste |
+| --- | --- |
+| Numero e titolo | M1 — Clipboard, trascinamento e viste |
+| Obiettivo | Rendere usabili copia, incolla e trascinamento nei terminali e aggiungere le viste Incolonnate e Griglia accanto a Una e Affiancate. |
+| Branch | `milestone/1-clipboard-dnd-layouts`, creato da `main` al commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
+| Tag di checkpoint previsto | `milestone/C1`. Non è stato creato: la voce non è ancora `C`. |
+| Tipo incremento versione | `+0.1.0`, da 0.1.0 a **0.2.0**. Il tag `v0.2.0` è previsto e non è stato creato. |
+| Attività | Menu **Modifica** con etichette dell'app; copia e incolla, incluso l'incolla fra parentesi di xterm.js; Ctrl+C che copia solo con una selezione su Windows e Linux; menu contestuale; trascinamento di file e testo con percorsi quotati per la shell; salvataggio delle immagini degli appunti in una cartella dedicata sotto i dati utente; blocco di navigazioni e nuove finestre; icone delle viste, disabilitazione e scelta dei riquadri; `config/app.config.json` validato. |
+| Criteri di accettazione | Scorciatoie, menu e viste descritti nei manuali; quotatura verificata per shell POSIX, PowerShell e cmd; Affiancate e Incolonnate disabilitate con una sessione e Griglia sotto le tre; con tre sessioni il quarto riquadro resta vuoto; se chiudendo sessioni la vista non è più possibile si torna a Una e la scelta è salvata; i file temporanei hanno nome generato, restano sotto la cartella dati e non usano un percorso scelto dal renderer. |
+| Test | `npm test` e `npm run build`. Non eseguiti, perché questo ambiente non è macOS né Windows e non sostituisce uno smoke dell'app: prova manuale su macOS e Windows 11, smoke Electron, packaging, checksum e una CLI reale. |
+| Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (copia integrale; non è documentazione del repository). |
+| Stato | `M`. Implementazione sul branch, in attesa del controllo del progettista. Verifiche locali: `npm test` 61/61, `npm run build` riuscito con l'avviso del bundle renderer oltre 500 kB, `git diff --check` pulito. Non eseguiti smoke Electron e prove su macOS o Windows 11. In questo incarico da cloud agent la pull request verso `main` presenta il commit al posto di un commit solo locale. Nessun merge, tag, release o cancellazione del branch. |
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
-| P1 — Confini di sicurezza | Rafforzare CSP, navigazioni e popup, verifica del mittente IPC, payload, gestione errori, regex e scritture delle impostazioni. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
-| P2 — Preferenze iniziali | Allineare lingua automatica e configurazione centrale dei limiti alle preferenze del progetto. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
+| P1 — Confini di sicurezza | Rafforzare CSP, verifica del mittente su tutti i canali IPC, payload, gestione errori, regex e scritture delle impostazioni. M1 copre solo il blocco di navigazione e finestre e la validazione dei nuovi canali. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
+| P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. M1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
 
 Versione, branch, checkpoint, attività e test dettagliati saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. La landing page GitHub Pages non è stata richiesta e non è inclusa.
@@ -88,12 +103,12 @@ Al momento non esistono workflow GitHub Actions. Per questa patch bastano verifi
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.1.0**. Proposals do not authorize code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **M1** is in the execution plan and stays `M` until explicit approval. Proposals do not authorize any other code changes.
 
 **Contents**
 
 - [1. Baseline and current work](#1-baseline-and-current-work)
-- [2. Proposals awaiting planning](#2-proposals-awaiting-planning)
+- [2. Current milestone and proposals](#2-current-milestone-and-proposals)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -124,14 +139,29 @@ Local checks on 10 November 2026: automated document, link/anchor, chapter, JSON
 
 Electron smoke, a real AI CLI, packaging, Windows/Linux tests, a complete dependency audit and CI were not run: this is documentation-only work and these checks are unnecessary for its scope. Application and security validation under proposals P1–P3 remains outstanding. Ignored build/cache output is retained; no automatic cleanup, publication, merge, tag or release was performed.
 
-### 2. Proposals awaiting planning
+M1 uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e` as its baseline.
 
-There are no authorized `M` milestones in the current execution plan. These proposals remain outside execution:
+### 2. Current milestone and proposals
+
+M1 is the only milestone in the execution plan. The entry stays `M` until the designer explicitly approves that commit. The proposals below do not become executable on their own.
+
+| Field | M1 — Clipboard, drag-and-drop and views |
+| --- | --- |
+| Number and title | M1 — Clipboard, drag-and-drop and views |
+| Goal | Make copy, paste and drag-and-drop usable in the terminals, and add Stacked and Grid views beside One and Side by side. |
+| Branch | `milestone/1-clipboard-dnd-layouts`, created from `main` at commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
+| Planned checkpoint tag | `milestone/C1`. It has not been created: the entry is not yet `C`. |
+| Version increment | `+0.1.0`, from 0.1.0 to **0.2.0**. Tag `v0.2.0` is planned and has not been created. |
+| Tasks | **Edit** menu with the app's labels; copy and paste, including xterm.js bracketed paste; Ctrl+C copies only when text is selected on Windows and Linux; context menu; file and text drag-and-drop with shell-quoted paths; clipboard images saved in a dedicated folder under the user-data directory; blocked navigations and new windows; view icons, disabled states and pane selection; validated `config/app.config.json`. |
+| Acceptance | Shortcuts, menus and views described in the manuals; quoting checked for POSIX shells, PowerShell and cmd; Side by side and Stacked disabled with one session, and Grid below three; with three sessions the fourth pane stays empty; closing sessions until the view is impossible returns to One and saves that choice; temporary files use generated names, stay under the data directory and never use a renderer-chosen path. |
+| Tests | `npm test` and `npm run build`. Not run, because this environment is neither macOS nor Windows and does not replace an application smoke test: manual checks on macOS and Windows 11, Electron smoke, packaging, checksums and a real CLI. |
+| Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (complete copy; not repository documentation). |
+| Status | `M`. Implemented on the branch, waiting for the designer's review. Local checks: `npm test` 61/61, `npm run build` passed with the renderer bundle warning above 500 kB, `git diff --check` clean. Electron smoke and macOS or Windows 11 checks were not run. For this cloud-agent task the pull request into `main` presents the commit instead of keeping it only local. No merge, tag, release or branch deletion. |
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
-| P1 — Security boundaries | Strengthen CSP, navigation and popup controls, IPC sender validation, payloads, errors, regexes and settings writes. | Isolated negative tests and an updated security model; preserve shell operation. |
-| P2 — Initial preferences | Align automatic language selection and central limit configuration with project preferences. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
+| P1 — Security boundaries | Strengthen CSP, sender checks on every IPC channel, payloads, errors, regexes and settings writes. M1 only adds navigation and window blocking and validation of the new channels. | Isolated negative tests and an updated security model; preserve shell operation. |
+| P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. M1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
 
 Version, branch, checkpoint, detailed tasks and tests will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. A GitHub Pages landing page was not requested and is not included.

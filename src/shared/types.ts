@@ -4,7 +4,7 @@ export type ThemeSetting = 'system' | 'light' | 'dark'
 
 export type Locale = 'it' | 'en'
 
-export type LayoutMode = 'single' | 'split'
+export type LayoutMode = 'single' | 'split' | 'stack' | 'grid'
 
 export type ScreenMode = 'normal' | 'alternate' | 'unknown'
 
@@ -103,6 +103,11 @@ export interface BootInfo {
   settings: AppSettings
   sessions: SessionInfo[]
   shells: ShellChoice[]
+  limits: {
+    maxPasteChars: number
+    maxDroppedFiles: number
+    maxPathChars: number
+  }
 }
 
 export interface CreateSessionInput {
