@@ -98,9 +98,16 @@ export function validateAppConfig(input: unknown): AppConfig {
   }
 }
 
+/**
+ * xterm.js bracketed paste wraps the text with ESC [200~ and ESC [201~,
+ * six characters each. The paste budget leaves that room so the closing
+ * marker is not cut off and the write is not dropped.
+ */
+export const BRACKETED_PASTE_WRAP = '\u001b[200~'.length + '\u001b[201~'.length
+
 export function runtimeLimits(config: AppConfig): RuntimeLimits {
   return {
-    maxPasteChars: config.terminal.maxWriteChars,
+    maxPasteChars: Math.max(1, config.terminal.maxWriteChars - BRACKETED_PASTE_WRAP),
     maxDroppedFiles: config.drop.maxFiles,
     maxPathChars: config.drop.maxPathChars,
   }

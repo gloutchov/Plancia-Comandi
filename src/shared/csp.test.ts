@@ -6,6 +6,7 @@ import {
   contentSecurityPolicyMeta,
   developmentContentSecurityPolicy,
   productionContentSecurityPolicy,
+  rendererDevServerUrl,
   withContentSecurityPolicy,
 } from './csp'
 
@@ -76,6 +77,15 @@ describe('development Content-Security-Policy', () => {
     expect(contentSecurityPolicyForRenderer('https://cdn.example')).toBe(productionContentSecurityPolicy())
     expect(contentSecurityPolicyForRenderer(undefined)).toBe(productionContentSecurityPolicy())
     expect(contentSecurityPolicyForRenderer('http://localhost:47231/')).toContain('http://localhost:47231')
+  })
+})
+
+describe('rendererDevServerUrl', () => {
+  it('ignores the dev server URL when the app is packaged', () => {
+    expect(rendererDevServerUrl(true, 'http://127.0.0.1:47231/')).toBeUndefined()
+    expect(rendererDevServerUrl(false, 'http://127.0.0.1:47231/')).toBe('http://127.0.0.1:47231/')
+    expect(rendererDevServerUrl(false, undefined)).toBeUndefined()
+    expect(rendererDevServerUrl(false, '')).toBeUndefined()
   })
 })
 

@@ -29,6 +29,10 @@ function effects(): { calls: string[]; api: LegacyEffects } {
       return { theme: patch.theme ?? 'system' }
     },
     revealSettings: () => calls.push('reveal'),
+    currentSettings: () => {
+      calls.push('current-settings')
+      return { theme: 'system', locale: 'it' }
+    },
     pickDirectory: (defaultPath) => {
       calls.push(`directory:${defaultPath}`)
       return '/picked'
@@ -65,7 +69,7 @@ const invalid: Record<LegacyChannel, readonly unknown[]> = {
   'settings:update': [{ theme: 'blue' }],
   'settings:reveal': [true],
   'dialog:directory': [12],
-  'terminal:write': [ID, 'x'.repeat(21)],
+  'terminal:write': [ID, 9],
   'terminal:resize': [ID, 1.5, 24],
   'terminal:watch': ['session', true],
   'shell:openExternal': ['javascript:alert(1)'],
@@ -113,7 +117,12 @@ describe('legacy IPC channels', () => {
 
   it.each(LEGACY_CHANNELS.map((entry) => entry.channel))('rejects an invalid payload on %s', (channel) => {
     const harness = effects()
-    dispatchLegacyIpc(channel, { sender: app }, invalid[channel], app, harness.api, LIMITS)
+    const result = dispatchLegacyIpc(channel, { sender: app }, invalid[channel], app, harness.api, LIMITS)
+    if (channel === 'settings:update') {
+      expect(result).toEqual({ theme: 'system', locale: 'it' })
+      expect(harness.calls).toEqual(['current-settings'])
+      return
+    }
     expect(harness.calls).toEqual([])
   })
 
@@ -152,6 +161,29 @@ describe('legacy IPC channels', () => {
     ])
   })
 
+  it('truncates a terminal write at maxWriteChars, including the bracketed-paste margin', () => {
+    const harness = effects()
+    const limit = 20
+    const limits = { maxWriteChars: limit }
+    dispatchLegacyIpc('terminal:write', { sender: app }, [ID, 'x'.repeat(limit)], app, harness.api, limits)
+    dispatchLegacyIpc('terminal:write', { sender: app }, [ID, 'y'.repeat(limit + 12)], app, harness.api, limits)
+    expect(harness.calls).toEqual([`write:${ID}:${'x'.repeat(limit)}`, `write:${ID}:${'y'.repeat(limit)}`])
+  })
+
+  it('returns the current settings when a numeric field is not finite', () => {
+    const harness = effects()
+    const result = dispatchLegacyIpc(
+      'settings:update',
+      { sender: app },
+      [{ status: { quietTimeoutMs: Number.POSITIVE_INFINITY } }],
+      app,
+      harness.api,
+      LIMITS,
+    )
+    expect(result).toEqual({ theme: 'system', locale: 'it' })
+    expect(harness.calls).toEqual(['current-settings'])
+  })
+
   it('rejects non-http links and out-of-range terminal sizes', () => {
     const harness = effects()
     for (const args of [['file:///tmp/x'], ['ftp://example.test/'], [''], ['not a url']]) {
@@ -160,8 +192,9 @@ describe('legacy IPC channels', () => {
     dispatchLegacyIpc('terminal:resize', { sender: app }, [ID, 1, 24], app, harness.api, LIMITS)
     dispatchLegacyIpc('terminal:resize', { sender: app }, [ID, 80, 201], app, harness.api, LIMITS)
     dispatchLegacyIpc('terminal:write', { sender: app }, ['../etc', 'ls'], app, harness.api, LIMITS)
-    dispatchLegacyIpc('settings:update', { sender: app }, [{ fontSize: Number.NaN }], app, harness.api, LIMITS)
+    const kept = dispatchLegacyIpc('settings:update', { sender: app }, [{ fontSize: Number.NaN }], app, harness.api, LIMITS)
     dispatchLegacyIpc('sessions:create', { sender: app }, [null], app, harness.api, LIMITS)
-    expect(harness.calls).toEqual([])
+    expect(kept).toEqual({ theme: 'system', locale: 'it' })
+    expect(harness.calls).toEqual(['current-settings'])
   })
 })

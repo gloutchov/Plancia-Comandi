@@ -22,6 +22,13 @@
  * the policy.
  */
 
+/** A packaged app never follows VITE_DEV_SERVER_URL, even if the variable is set. */
+export function rendererDevServerUrl(packaged: boolean, envUrl: string | undefined): string | undefined {
+  if (packaged) return undefined
+  if (!envUrl) return undefined
+  return envUrl
+}
+
 export const DEV_SERVER_HOST = '127.0.0.1'
 export const DEV_SERVER_PORT = 47231
 export const DEV_SERVER_ORIGIN = `http://${DEV_SERVER_HOST}:${DEV_SERVER_PORT}`

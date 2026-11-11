@@ -8,7 +8,7 @@ import { defaultShellId, detectShells } from './shells'
 import type { BootInfo, ShellChoice, ThemeSetting } from '../src/shared/types'
 import { loadAppConfig, resolveAppConfigFile, runtimeLimits, validateAppConfig, type AppConfig } from '../src/shared/appConfig'
 import { cleanupClipboardImages } from '../src/shared/clipboardImages'
-import { contentSecurityPolicyForUrl, withContentSecurityPolicy } from '../src/shared/csp'
+import { contentSecurityPolicyForUrl, rendererDevServerUrl, withContentSecurityPolicy } from '../src/shared/csp'
 import { shouldBlockNavigation } from '../src/shared/navigation'
 import { registerClipboardIpc } from './clipboardIpc'
 import { installApplicationMenu, registerEditIpc } from './editMenu'
@@ -18,8 +18,11 @@ import pkg from '../package.json'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
 const RENDERER_DIST = path.join(APP_ROOT, 'dist')
-const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 const APP_TITLE = 'Plancia Comandi'
+
+function devServerUrl(): string | undefined {
+  return rendererDevServerUrl(app.isPackaged, process.env['VITE_DEV_SERVER_URL'])
+}
 
 function envFlag(name: string, legacy: string): boolean {
   return process.env[name] === '1' || process.env[legacy] === '1'
@@ -137,6 +140,7 @@ function registerIpc(): void {
         manager?.retick()
         return next
       },
+      currentSettings: () => settings?.data ?? null,
       revealSettings: () => {
         if (settings) shell.showItemInFolder(settings.file)
       },
@@ -168,7 +172,7 @@ function registerIpc(): void {
 
 function installContentSecurityPolicy(): void {
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    const policy = contentSecurityPolicyForUrl(details.url, VITE_DEV_SERVER_URL)
+    const policy = contentSecurityPolicyForUrl(details.url, devServerUrl())
     if (!policy) {
       callback({ responseHeaders: details.responseHeaders })
       return
@@ -181,7 +185,7 @@ function guardNavigation(window: BrowserWindow): void {
   const contents = window.webContents
   contents.setWindowOpenHandler(() => ({ action: 'deny' }))
   const block = (event: Electron.Event, url: string) => {
-    if (shouldBlockNavigation(url, contents.getURL(), VITE_DEV_SERVER_URL)) event.preventDefault()
+    if (shouldBlockNavigation(url, contents.getURL(), devServerUrl())) event.preventDefault()
   }
   contents.on('will-navigate', block)
   contents.on('will-redirect', block)
@@ -270,7 +274,8 @@ function createWindow(): void {
     if (demoMode()) void startDemo()
   })
 
-  if (VITE_DEV_SERVER_URL) void win.loadURL(VITE_DEV_SERVER_URL)
+  const devUrl = devServerUrl()
+  if (devUrl) void win.loadURL(devUrl)
   else void win.loadFile(path.join(RENDERER_DIST, 'index.html'))
 
   if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })

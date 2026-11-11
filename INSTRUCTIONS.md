@@ -174,7 +174,7 @@ Missing fields receive defaults; numbers are rounded and clamped to the allowed 
 | `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Maximum accepted image edge, in pixels. |
 | `clipboardImages.maxKeep` | 40 | 1–200 | How many recent images to keep. |
 | `clipboardImages.maxAgeHours` | 24 | 1–720 | Generated images older than this are deleted. |
-| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one paste or write to the terminal. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one write to the terminal. A paste is 12 characters shorter, so the bracketed-paste markers still fit. |
 | `drop.maxFiles` | 20 | 1–50 | How many dropped files to insert. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Maximum length of one dropped path. |
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { parseDialogNumber } from '../shared/settingsForm'
 import { defaultStatusConfig } from '../shared/status'
 import { shortcutLabels, translate, type MessageKey } from '../shared/i18n'
 import type { AppSettings, Locale, SettingsPatch, StatusConfig, ThemeSetting } from '../shared/types'
@@ -35,6 +36,7 @@ export function SettingsDialog({
 }) {
   const t = (key: MessageKey, vars?: Record<string, string | number>) => translate(locale, key, vars)
   const [draft, setDraft] = useState(settings)
+  const [numberError, setNumberError] = useState(false)
   const shortcuts = shortcutLabels(platform)
   const shortcutRows = [
     [t('shortcutNew'), shortcuts.newSession],
@@ -48,8 +50,19 @@ export function SettingsDialog({
   ]
 
   function patch(next: SettingsPatch, updated: AppSettings) {
+    setNumberError(false)
     setDraft(updated)
     onChange(next)
+  }
+
+  function changeStatusNumber(key: (typeof TIMINGS)[number]['key'] | (typeof BURSTS)[number]['key'], raw: string) {
+    const value = parseDialogNumber(raw)
+    if (value === null) {
+      setNumberError(true)
+      return
+    }
+    const status = { ...draft.status, [key]: value }
+    patch({ status: { [key]: value } }, { ...draft, status })
   }
 
   function setTheme(theme: ThemeSetting) {
@@ -164,6 +177,11 @@ export function SettingsDialog({
         <section>
           <h3>{t('detection')}</h3>
           <p className="help">{t('detectionHelp')}</p>
+          {numberError ? (
+            <p className="form-error" role="alert">
+              {t('finiteNumber')}
+            </p>
+          ) : null}
           {TIMINGS.map((field) => (
             <label className="field" key={field.key}>
               <span>{t(field.label)}</span>
@@ -171,11 +189,7 @@ export function SettingsDialog({
               <input
                 type="number"
                 value={Number(draft.status[field.key])}
-                onChange={(event) => {
-                  const value = Number(event.target.value)
-                  const status = { ...draft.status, [field.key]: value }
-                  patch({ status: { [field.key]: value } }, { ...draft, status })
-                }}
+                onChange={(event) => changeStatusNumber(field.key, event.target.value)}
               />
             </label>
           ))}
@@ -187,11 +201,7 @@ export function SettingsDialog({
                 <input
                   type="number"
                   value={Number(draft.status[field.key])}
-                  onChange={(event) => {
-                    const value = Number(event.target.value)
-                    const status = { ...draft.status, [field.key]: value }
-                    patch({ status: { [field.key]: value } }, { ...draft, status })
-                  }}
+                  onChange={(event) => changeStatusNumber(field.key, event.target.value)}
                 />
               </label>
             ))}

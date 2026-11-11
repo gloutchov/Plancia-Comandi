@@ -174,7 +174,7 @@ I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e lim
 | `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Lato massimo, in pixel, dell'immagine accettata. |
 | `clipboardImages.maxKeep` | 40 | 1–200 | Quante immagini recenti tenere. |
 | `clipboardImages.maxAgeHours` | 24 | 1–720 | Dopo questo tempo le immagini generate vengono eliminate. |
-| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di un incolla o di una scrittura al terminale. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di una scrittura al terminale. L'incolla è più corto di 12 caratteri, così i marcatori dell'incolla fra parentesi ci stanno. |
 | `drop.maxFiles` | 20 | 1–50 | Quanti file trascinati inserire. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Lunghezza massima di un singolo percorso trascinato. |
 

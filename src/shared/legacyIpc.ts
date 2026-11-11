@@ -82,6 +82,8 @@ export interface LegacyEffects {
   rename: (id: string, name: string) => void
   subscribe: (id: string) => unknown
   updateSettings: (patch: SettingsPatch) => unknown
+  /** Returned when the app sender's settings payload is rejected, so the UI does not clear its state. */
+  currentSettings: () => unknown
   revealSettings: () => void
   pickDirectory: (defaultPath: string) => unknown
   write: (id: string, data: string) => void
@@ -275,8 +277,9 @@ function parse(channel: LegacyChannel, args: readonly unknown[], limits: LegacyL
       if (args.length !== 2) return null
       const id = sessionId(args[0])
       const data = args[1]
-      if (!id || typeof data !== 'string' || data.length > limits.maxWriteChars) return null
-      return { channel, id, data }
+      if (!id || typeof data !== 'string') return null
+      const text = data.length > limits.maxWriteChars ? data.slice(0, limits.maxWriteChars) : data
+      return { channel, id, data: text }
     }
     case 'terminal:resize': {
       if (args.length !== 3) return null
@@ -363,6 +366,9 @@ export function dispatchLegacyIpc(
 ): unknown {
   if (!isAppSender(event, appContents)) return refused(channel)
   const parsed = parse(channel, args, limits)
-  if (!parsed) return refused(channel)
+  if (!parsed) {
+    if (channel === 'settings:update') return effects.currentSettings()
+    return refused(channel)
+  }
   return run(parsed, effects)
 }
