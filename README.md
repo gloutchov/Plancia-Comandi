@@ -33,7 +33,7 @@ Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: 
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git, Node.js con npm e gli strumenti di compilazione del modulo nativo `node-pty`. Le istruzioni complete per installarli sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Node.js 24 è l'ambiente usato per le verifiche locali di questa documentazione.
+Per l'avvio dai sorgenti servono Git e Node.js con npm. Su Windows non serve compilare `node-pty`: il pacchetto 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Node.js 24 è l'ambiente usato per le verifiche locali di questa documentazione.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -93,7 +93,7 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. `node-pty` viene ricompilato per Electron con `npm run rebuild` quando necessario.
+Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. Su Windows il pacchetto usa le prebuild di `node-pty` e non ricompila. Su macOS e Linux `npm ci` ricompila il modulo per Electron; `npm run rebuild` ripete quella compilazione.
 
 La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
@@ -146,7 +146,7 @@ Detection is heuristic and mainly designed around Codex CLI screens: it does not
 
 ### 2. Installation and first use
 
-Running from source requires Git, Node.js with npm and build tools for the native `node-pty` module. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. Node.js 24 is the environment used for this documentation's local checks.
+Running from source requires Git and Node.js with npm. Windows does not need to compile `node-pty`: package 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. Node.js 24 is the environment used for this documentation's local checks.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -206,7 +206,7 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. Rebuild `node-pty` for Electron with `npm run rebuild` when necessary.
+Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. On Windows the package uses the `node-pty` prebuilds and does not compile. On macOS and Linux `npm ci` rebuilds the module for Electron; `npm run rebuild` repeats that compilation.
 
 macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 

@@ -21,7 +21,7 @@ This manual describes Plancia Comandi **0.3.0**, a desktop app for using multipl
 
 You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
 
-Running source requires Git, Node.js with npm, authorized access to the private repository and tools to compile `node-pty`. This documentation's local checks use Node.js 24. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+Running source requires Git, Node.js with npm and authorized access to the private repository. Windows does not need a compiler: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
 
 ## 2. Installation
 
@@ -29,14 +29,14 @@ Running source requires Git, Node.js with npm, authorized access to the private 
 
 1. Install **Git** from its [official website](https://git-scm.com/downloads), choosing your OS and following the installer. On Windows you can also install Git Bash. Open a new terminal and check `git --version`.
 2. Install **Node.js 24** with npm from its [official website](https://nodejs.org/en/download), choosing the appropriate version, OS and architecture. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
-3. Prepare native tools if compilation requires them: Xcode development tools on macOS; Python and Visual Studio C++/Windows SDK tools on Windows; Python, `make` and a C++ compiler on Linux. Follow the requirements for the project's `node-pty` version, also available in `node_modules/node-pty/README.md` after dependencies have been downloaded. These tools are not needed to use a future prebuilt package.
+3. Prepare native tools only where compilation is still required. On Windows x64 or arm64, do not install Python or the C++ Build Tools: compiling does not require administrator rights, and `npm ci` does not rebuild `node-pty`. macOS needs the Xcode development tools. Linux needs Python, `make` and a C++ compiler, because `node-pty` 1.1.0 does not include a Linux prebuild. A compiler is not required to use an already built package.
 4. If you want an optional shell, install it with its own installer and restart Plancia Comandi. Windows detection looks for PowerShell 7 in `PATH` and Git Bash in standard Git directories. Windows PowerShell is the initial choice; macOS/Linux use the login shell.
 5. To use an AI CLI, first complete its installation and sign-in in your normal system terminal. Plancia Comandi does not include the CLI, configure its account or manage its credentials.
 
 To prepare native tools:
 
-- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation.
-- **Windows:** download and install [Python](https://www.python.org/downloads/) and [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). In the Build Tools installer, select the desktop C++ development tools and a Windows SDK. Reopen the terminal and check that Python is available. If an error mentions Spectre libraries, add the component matching your compiler through Visual Studio Installer, as described in the `node-pty` README.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough, even without administrator rights. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.0-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
+- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
 - **Linux:** use your distribution's package manager to install Python 3, `make`, a C++ compiler and its development tools; names and installation steps depend on the distribution. Then retry `npm ci` in the project folder.
 
 ### 2.2 Get and start Plancia Comandi
@@ -50,7 +50,7 @@ npm ci
 npm run dev
 ```
 
-If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions and runs the native rebuild for Electron; it requires network access. Wait for it to finish before starting the app.
+If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions. On Windows it does not rebuild `node-pty`; on macOS and Linux it rebuilds that module for Electron. In every case it downloads the Electron binary and needs network access. Wait for it to finish before starting the app.
 
 The desktop window opens. Vite also serves `http://127.0.0.1:47231/`, but the browser page cannot open terminals: use the Electron window. To stop the development environment, quit the app and interrupt the command in the terminal that started it.
 
@@ -239,7 +239,7 @@ The demo opens an ordinary shell and one running `scripts/demo-codex.sh busy`, s
 | Problem | What to do |
 | --- | --- |
 | Browser asks you to open the desktop window | Use Electron started with `npm run dev`, rather than the Vite page. |
-| Terminal unavailable / `node-pty` error | Check native build tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
+| Terminal unavailable / `node-pty` error | On Windows check that `node_modules/node-pty/prebuilds/win32-x64` or `win32-arm64` contains `pty.node`, `conpty.node` and `conpty_console_list.node`, then run `npm ci` again. On macOS and Linux check the native tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
 | Invalid folder | Use **Browse** to select an existing, accessible directory. An `app.asar` archive is not a valid working folder. |
 | Shell is missing | Install it in a detected location or in `PATH` where supported, and restart. There is no arbitrary shell-command field. |
 | CLI command not found | Confirm it works in the chosen shell and that its login profile configures `PATH`. The app does not install CLIs. |

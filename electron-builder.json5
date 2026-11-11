@@ -5,6 +5,9 @@
   executableName: "plancia-comandi",
   asar: true,
   asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
+  // Windows uses the N-API prebuilds in node-pty. Rebuilding here would call
+  // node-gyp. Linux and macOS are compiled by scripts/install-native.mjs.
+  npmRebuild: false,
   directories: {
     output: "release",
   },

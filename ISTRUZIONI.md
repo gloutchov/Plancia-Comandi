@@ -21,7 +21,7 @@ Questo manuale descrive Plancia Comandi **0.3.0**, un'app desktop per usare più
 
 Serve un computer desktop con macOS, Windows o Linux e una shell utilizzabile. La finestra ha dimensione minima 860 × 560. Queste sono piattaforme target, non una certificazione di compatibilità per ogni versione del sistema. I pacchetti configurati sono DMG/ZIP per macOS, NSIS/portabile x64 per Windows e AppImage/DEB per Linux; le verifiche reali di distribuzione sono ancora da completare.
 
-Per eseguire i sorgenti servono Git, Node.js con npm, accesso autorizzato al repository privato e strumenti per compilare `node-pty`. Le verifiche locali di questa documentazione usano Node.js 24. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
+Per eseguire i sorgenti servono Git, Node.js con npm e accesso autorizzato al repository privato. Su Windows non serve un compilatore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
 
 ## 2. Installazione
 
@@ -29,14 +29,14 @@ Per eseguire i sorgenti servono Git, Node.js con npm, accesso autorizzato al rep
 
 1. Installa **Git** dal [sito ufficiale](https://git-scm.com/downloads), scegliendo il tuo sistema operativo e seguendo l'installer. Su Windows puoi installare anche Git Bash. Apri un nuovo terminale e verifica `git --version`.
 2. Installa **Node.js 24** con npm dal [sito ufficiale](https://nodejs.org/en/download), scegliendo versione, sistema e architettura appropriati. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
-3. Prepara gli strumenti nativi se la compilazione li richiede: su macOS gli strumenti di sviluppo Xcode; su Windows Python e gli strumenti C++/Windows SDK di Visual Studio; su Linux Python, `make` e un compilatore C++. Segui i requisiti della versione di `node-pty` usata dal progetto, consultabili anche in `node_modules/node-pty/README.md` dopo il download delle dipendenze. Non occorre installare questi strumenti per usare un futuro pacchetto già compilato.
+3. Prepara gli strumenti nativi solo dove la compilazione serve ancora. Su Windows x64 o arm64 non installare Python né i Build Tools C++: non servono diritti di amministratore per compilare, e `npm ci` non ricompila `node-pty`. Su macOS servono gli strumenti di sviluppo Xcode. Su Linux servono Python, `make` e un compilatore C++, perché `node-pty` 1.1.0 non include una prebuild Linux. Non occorre un compilatore per usare un pacchetto già compilato.
 4. Se vuoi una shell opzionale, installala con il suo installer e riavvia Plancia Comandi. Su Windows vengono cercati PowerShell 7 nel `PATH` e Git Bash nelle cartelle standard di Git. La normale Windows PowerShell è la scelta iniziale; su macOS/Linux si usa la shell di login.
 5. Se vuoi usare una CLI AI, completa prima la sua installazione e il suo accesso nel normale terminale di sistema. Plancia Comandi non include la CLI, non ne configura l'account e non gestisce le sue credenziali.
 
 Per preparare gli strumenti nativi:
 
-- **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando.
-- **Windows:** scarica e installa [Python](https://www.python.org/downloads/) e i [Build Tools C++ di Microsoft](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Nell'installer dei Build Tools seleziona gli strumenti per lo sviluppo desktop C++ e un Windows SDK. Riapri il terminale e verifica che Python sia disponibile. Se compare l'errore sulle librerie Spectre, aggiungi il componente corrispondente al compilatore tramite Visual Studio Installer, come indicato nel README di `node-pty`.
+- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano, anche senza essere amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS e il portabile `PlanciaComandi-win-0.3.0-x64.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
+- **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
 - **Linux:** usa il gestore pacchetti della tua distribuzione per installare Python 3, `make` e il compilatore C++ con i relativi strumenti di sviluppo; nomi e procedura dipendono dalla distribuzione. Poi ripeti `npm ci` dalla cartella del progetto.
 
 ### 2.2 Ottenere e avviare Plancia Comandi
@@ -50,7 +50,7 @@ npm ci
 npm run dev
 ```
 
-Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile ed esegue la ricompilazione nativa per Electron; richiede accesso alla rete. Attendi il completamento prima di avviare l'app.
+Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile. Su Windows non ricompila `node-pty`; su macOS e Linux esegue quella ricompilazione per Electron. In tutti i casi scarica il binario di Electron e richiede la rete. Attendi il completamento prima di avviare l'app.
 
 Si apre la finestra desktop. Vite serve anche `http://127.0.0.1:47231/`, ma la pagina nel browser non può aprire terminali: usa la finestra Electron. Per terminare l'ambiente di sviluppo, esci dall'app e interrompi il comando nel terminale che l'ha avviata.
 
@@ -239,7 +239,7 @@ La demo apre una shell ordinaria e una con `scripts/demo-codex.sh busy`, imposta
 | Problema | Cosa fare |
 | --- | --- |
 | Il browser chiede di aprire la finestra desktop | Usa Electron avviato con `npm run dev`, non la pagina Vite. |
-| Il terminale non è disponibile / errore `node-pty` | Controlla gli strumenti nativi, esegui `npm run rebuild` nel checkout e riavvia. Ricompila dopo aver cambiato Electron. |
+| Il terminale non è disponibile / errore `node-pty` | Su Windows controlla che `node_modules/node-pty/prebuilds/win32-x64` o `win32-arm64` contenga `pty.node`, `conpty.node` e `conpty_console_list.node`, poi ripeti `npm ci`. Su macOS e Linux controlla gli strumenti nativi, esegui `npm run rebuild` nel checkout e riavvia. Ricompila dopo aver cambiato Electron. |
 | Cartella non valida | Usa **Sfoglia** e scegli una directory esistente accessibile. Un archivio `app.asar` non è una cartella di lavoro valida. |
 | Una shell non compare | Installala nei percorsi rilevati o nel `PATH` dove previsto e riavvia l'app. Non c'è un campo per comandi shell arbitrari. |
 | Una CLI non viene trovata | Verifica che funzioni nella shell scelta e che il profilo di login configuri il `PATH`. L'app non installa le CLI. |

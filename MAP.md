@@ -88,12 +88,14 @@ Plancia-Comandi/
 |       |-- settingsForm.test.ts     Test di 1e400 e di un aggiornamento nullo
 |       |-- textLimit.ts             Taglio del testo senza spezzare un'emoji
 |       |-- textLimit.test.ts        Test dell'emoji a cavallo del limite
+|       |-- nativeInstall.test.ts    Test della scelta prebuild Windows o ricompilazione
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
 |       |-- status.ts                Logica pura di rilevamento e notifiche
 |       `-- status.test.ts           Test della logica pura
 |-- scripts/
-|   `-- demo-codex.sh                 Simulazione Bash busy/attention/idle
+|   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
+|   `-- install-native.ts           Postinstall: prebuild Windows oppure ricompilazione Electron
 |-- build/
 |   `-- icon.png                     Sorgente delle icone per il packaging
 |-- public/
@@ -117,7 +119,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 | Comando | Responsabilità |
 | --- | --- |
-| `npm ci` | Installazione dal lockfile; il postinstall ricompila i moduli per Electron. |
+| `npm ci` | Installazione dal lockfile. Su Windows non ricompila `node-pty`; su macOS e Linux il postinstall lo ricompila per Electron. Il binario di Electron viene scaricato dal suo postinstall. |
 | `npm run dev` | Server su loopback `47231` e avvio Electron. |
 | `npm test` / `npm run test:watch` | Test Vitest una volta / in osservazione. |
 | `npm run build` | `tsc --noEmit` e bundle Vite. |
@@ -126,7 +128,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
 
-Non esistono script npm lint, typecheck separato o e2e. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP e il cancello degli IPC precedenti a M1.
+Non esistono script npm lint, typecheck separato o e2e. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1 e la scelta di saltare la ricompilazione su Windows.
 
 ### 4. File locali e generati
 
@@ -230,12 +232,14 @@ Plancia-Comandi/
 |       |-- settingsForm.test.ts     Tests for 1e400 and a null update
 |       |-- textLimit.ts             Text cut that does not split an emoji
 |       |-- textLimit.test.ts        Test of an emoji straddling the limit
+|       |-- nativeInstall.test.ts    Test of the Windows prebuild or rebuild choice
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
 |       |-- status.ts                Pure status and notification logic
 |       `-- status.test.ts           Pure-logic tests
 |-- scripts/
-|   `-- demo-codex.sh                 Bash busy/attention/idle simulation
+|   |-- demo-codex.sh                 Bash busy/attention/idle simulation
+|   `-- install-native.ts           Postinstall: Windows prebuild or Electron rebuild
 |-- build/
 |   `-- icon.png                     Packaging icon source
 |-- public/
@@ -259,7 +263,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 
 | Command | Responsibility |
 | --- | --- |
-| `npm ci` | Lockfile installation; postinstall rebuilds modules for Electron. |
+| `npm ci` | Lockfile installation. On Windows it does not rebuild `node-pty`; on macOS and Linux postinstall rebuilds it for Electron. Electron's own postinstall downloads the Electron binary. |
 | `npm run dev` | Loopback server on `47231` and Electron startup. |
 | `npm test` / `npm run test:watch` | Run Vitest once / in watch mode. |
 | `npm run build` | `tsc --noEmit` and Vite bundles. |
@@ -268,7 +272,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
-There are no npm lint, separate typecheck or e2e scripts. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings and the gate for IPC that predates M1.
+There are no npm lint, separate typecheck or e2e scripts. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1 and the choice to skip the Windows rebuild.
 
 ### 4. Local and generated files
 
