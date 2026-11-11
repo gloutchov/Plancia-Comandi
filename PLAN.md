@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** ha ricevuto la prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome). Merge, tag e release restano in attesa della seconda approvazione. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.2.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. La patch di packaging sotto integra i pacchetti senza spostare i tag. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -40,22 +40,35 @@ Non eseguiti smoke Electron, CLI AI reale, packaging, prove Windows/Linux, audit
 
 La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c702673657bfd2b3dbaf8e`.
 
+
+#### 1.1 Integrazione dei pacchetti C1 — 11 novembre 2026
+
+- Obiettivo: aggiungere DMG/ZIP macOS ARM64 e installer/portabile Windows x64 alla release `v0.2.0` già esistente.
+- Branch: `patch/0.2.0-release-packages`. Versione applicativa invariata; nessun nuovo tag o checkpoint. I pacchetti usano esattamente il codice applicativo `4aabc9bc81a60b0c574221ce37578936341ae065`.
+- Implementazione: workflow Windows solo manuale, un job, Node.js 24 e Actions fissate a hash; installazione dal lockfile, prebuild `node-pty` incluso nel pacchetto npm, nomi distinti per installer e portabile, controllo dei bundle ASAR, smoke di pacchetto/portabile/app installata, SHA-256 e artifact conservati sette giorni. Nessun trigger push/PR e nessuna pubblicazione automatica.
+- Motivazione CI: questa macchina è macOS ARM64, priva di un ambiente Windows; un avvio PTY Windows non può essere verificato in modo equivalente in locale.
+- Verifiche locali: `npm test` 70/70 con Vitest 3.2.4 del tag; build con Node.js 24 riuscita, avviso renderer oltre 500 kB. ZIP e DMG macOS generati; integrità DMG valida; entrambe le app estratte fuori dal checkout superano il controllo dei bundle e lo smoke di bridge, preferenze isolate, IT/EN, chiaro/scuro, PTY nativa, quattro viste e chiusura sessioni.
+- Audit: zero vulnerabilità note nelle dipendenze di produzione; il toolchain del tag riporta sette moderate e due critiche di sviluppo, incluse Vitest/tinypool. Le dipendenze del tag non vengono modificate da questa patch.
+- Documentazione: README, manuali IT/EN, modello di sicurezza, mappa, piano e regole operative aggiornati.
+- Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
+- Stato: patch pronta per il controllo locale prima di push/merge e avvio manuale del workflow. Pubblicazione dei pacchetti e rimozione del branch C1 solo dopo le verifiche dovute; il branch M2 viene preservato.
+
 ### 2. Milestone corrente e proposte
 
-C1, già M1, è l'unica milestone del piano esecutivo. La prima approvazione è registrata; merge, tag e release attendono la seconda approvazione di Glauco. Le proposte sotto non diventano eseguibili da sole.
+C1, già M1, è integrata e pubblicata con i sorgenti. La PR #2 contiene M2 su un branch distinto: resta fuori dalla patch di packaging di C1. Le proposte sotto non diventano eseguibili da sole.
 
 | Campo | C1 — Clipboard, trascinamento e viste |
 | --- | --- |
 | Numero e titolo | C1 — Clipboard, trascinamento e viste |
 | Obiettivo | Rendere usabili copia, incolla e trascinamento nei terminali e aggiungere le viste Incolonnate e Griglia accanto a Una e Affiancate. |
 | Branch | `milestone/1-clipboard-dnd-layouts`, creato da `main` al commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
-| Tag di checkpoint previsto | `milestone/C1`. Non creato. Il tag di versione previsto è `v0.2.0`: va creato solo dopo la seconda approvazione di Glauco. |
+| Tag di checkpoint previsto | `milestone/C1` e `v0.2.0`, già pubblicati sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`. |
 | Tipo incremento versione | `+0.1.0`, da 0.1.0 a **0.2.0**. La versione non cambia con il passaggio da M1 a C1. |
 | Attività | Menu **Modifica** con etichette dell'app; copia e incolla, incluso l'incolla fra parentesi di xterm.js; Ctrl+C che copia solo con una selezione su Windows e Linux; menu contestuale; trascinamento di file e testo con percorsi quotati per la shell; salvataggio delle immagini degli appunti in una cartella dedicata sotto i dati utente; blocco di navigazioni e nuove finestre; icone delle viste, disabilitazione e scelta dei riquadri; `config/app.config.json` validato. |
 | Criteri di accettazione | Scorciatoie, menu e viste descritti nei manuali; quotatura verificata per shell POSIX, PowerShell e cmd; Affiancate e Incolonnate disabilitate con una sessione e Griglia sotto le tre; con tre sessioni il quarto riquadro resta vuoto; se chiudendo sessioni la vista non è più possibile si torna a Una e la scelta è salvata; i file temporanei hanno nome generato, restano sotto la cartella dati e non usano un percorso scelto dal renderer. |
 | Test | `npm test` **70/70** e `npm run build` riuscito sul commit approvato `5c61783817db2a33deba8393abd694a3a3270028`. Non eseguiti, perché non sostituiscono uno smoke dell'app: prova manuale su Linux, macOS e Windows 11, smoke Electron, packaging, checksum e una CLI reale. |
 | Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (copia integrale; non è documentazione del repository). |
-| Stato | `C1`. Prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome), sulla PR #1 con head `5c61783817db2a33deba8393abd694a3a3270028`. Parole di Glauco: «M1 funziona correttamente». In attesa della seconda approvazione prima di merge, tag e release. |
+| Stato | `C1`. Prima approvazione di Glauco l'11 novembre 2026 alle 12:33 (Europe/Rome), sulla PR #1 con head `5c61783817db2a33deba8393abd694a3a3270028`. Parole di Glauco: «M1 funziona correttamente». Seconda approvazione registrata nella PR e nelle note della release l’11 novembre 2026 alle 13:26 (Europe/Rome); merge e tag completati. Restano i pacchetti della patch sotto. |
 
 **Riepilogo.** Copia, incolla e trascinamento nei terminali; menu Modifica e menu contestuale; immagini degli appunti salvate in una cartella dedicata; viste Una, Affiancate, Incolonnate e Griglia.
 
@@ -63,7 +76,7 @@ C1, già M1, è l'unica milestone del piano esecutivo. La prima approvazione è 
 
 **Limiti residui.** macOS e Windows non verificati in modo automatico; installer non firmati. Punti rinviati a M2: CSP; verifica del mittente negli IPC precedenti a C1; tetto alle code FIFO dell'incolla; test sulla sequenza alternata e sul gesto orfano; riga sul rischio residuo in `SECURITY_MODEL.md`.
 
-**Versione e tag.** Versione **0.2.0**. Il tag `v0.2.0` è previsto e va creato solo dopo la seconda approvazione di Glauco. Il checkpoint `milestone/C1` non è stato creato.
+**Versione e tag.** Versione **0.2.0**. I tag `v0.2.0` e `milestone/C1` sono pubblicati sul commit di merge `4aabc9bc81a60b0c574221ce37578936341ae065`, verificati sul remoto. La release esistente viene integrata con i pacchetti verificati.
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
@@ -107,11 +120,11 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. Una modifica esclusivamente documentale può lasciare invariata la versione e non richiede una release. Per milestone o patch applicative concluse pubblicare una release secondo le preferenze HOME; se l'app non è utilizzabile, indicarla come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
 
-Al momento non esistono workflow GitHub Actions. Per questa patch bastano verifiche locali; non crearne o avviarne. Valutare la CI futura solo se serve una verifica non equivalente in locale, contenendo job e piattaforme. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
+Il solo workflow `package-windows.yml` si avvia manualmente per le verifiche native Windows non equivalenti in locale. Non parte su push o PR. Le verifiche macOS ARM64 sono locali; altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** received Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome). Merge, tags and release wait for the second approval. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.2.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. The packaging patch below adds packages without moving tags. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -149,22 +162,35 @@ Electron smoke, a real AI CLI, packaging, Windows/Linux tests, a complete depend
 
 C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e` as its baseline.
 
+
+#### 1.1 C1 package integration — 11 November 2026
+
+- Goal: add macOS ARM64 DMG/ZIP and Windows x64 installer/portable packages to the existing `v0.2.0` release.
+- Branch: `patch/0.2.0-release-packages`. Application version unchanged; no new tag or checkpoint. Packages use application code exactly at `4aabc9bc81a60b0c574221ce37578936341ae065`.
+- Implementation: manual-only Windows workflow, one job, Node.js 24 and Actions pinned to hashes; lockfile install, `node-pty` prebuild included in its npm package, distinct installer/portable names, ASAR bundle inspection, unpacked/portable/installed smoke tests, SHA-256 and seven-day artifact retention. No push/PR trigger or automatic publishing.
+- CI rationale: this machine is macOS ARM64 without a Windows environment; a Windows PTY launch cannot be verified equivalently locally.
+- Local checks: `npm test` 70/70 using the tag’s Vitest 3.2.4; Node.js 24 build passed with the renderer warning above 500 kB. macOS ZIP and DMG generated; DMG integrity passed; both apps extracted outside the checkout passed bundle inspection and smoke tests for bridge, isolated preferences, IT/EN, light/dark, native PTY, four layouts and session closing.
+- Audit: zero known production-dependency vulnerabilities; the tag’s development toolchain reports seven moderate and two critical findings, including Vitest/tinypool. This patch does not change tag dependencies.
+- Documentation: README, IT/EN manuals, security model, map, plan and operating rules updated.
+- Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
+- Status: patch ready for local review before push/merge and manual workflow execution. Package publication and C1 branch removal follow the required checks; the M2 branch is preserved.
+
 ### 2. Current milestone and proposals
 
-C1, formerly M1, is the only milestone in the execution plan. The first approval is recorded; merge, tags and release wait for Glauco's second approval. The proposals below do not become executable on their own.
+C1, formerly M1, is merged and published as source. PR #2 contains M2 on a separate branch, outside this C1 packaging patch. The proposals below do not become executable on their own.
 
 | Field | C1 — Clipboard, drag-and-drop and views |
 | --- | --- |
 | Number and title | C1 — Clipboard, drag-and-drop and views |
 | Goal | Make copy, paste and drag-and-drop usable in the terminals, and add Stacked and Grid views beside One and Side by side. |
 | Branch | `milestone/1-clipboard-dnd-layouts`, created from `main` at commit `05062668b528d737d5c702673657bfd2b3dbaf8e`. |
-| Planned checkpoint tag | `milestone/C1`. Not created. The planned version tag is `v0.2.0`: create it only after Glauco's second approval. |
+| Planned checkpoint tag | `milestone/C1` and `v0.2.0`, already published at `4aabc9bc81a60b0c574221ce37578936341ae065`. |
 | Version increment | `+0.1.0`, from 0.1.0 to **0.2.0**. The version does not change with the move from M1 to C1. |
 | Tasks | **Edit** menu with the app's labels; copy and paste, including xterm.js bracketed paste; Ctrl+C copies only when text is selected on Windows and Linux; context menu; file and text drag-and-drop with shell-quoted paths; clipboard images saved in a dedicated folder under the user-data directory; blocked navigations and new windows; view icons, disabled states and pane selection; validated `config/app.config.json`. |
 | Acceptance | Shortcuts, menus and views described in the manuals; quoting checked for POSIX shells, PowerShell and cmd; Side by side and Stacked disabled with one session, and Grid below three; with three sessions the fourth pane stays empty; closing sessions until the view is impossible returns to One and saves that choice; temporary files use generated names, stay under the data directory and never use a renderer-chosen path. |
 | Tests | `npm test` **70/70** and `npm run build` passed on the approved commit `5c61783817db2a33deba8393abd694a3a3270028`. Not run, because they do not replace an application smoke test: manual checks on Linux, macOS and Windows 11, Electron smoke, packaging, checksums and a real CLI. |
 | Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`, `STARTUP_PREFERENCES_HOME.md` (complete copy; not repository documentation). |
-| Status | `C1`. Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome), on PR #1 at head `5c61783817db2a33deba8393abd694a3a3270028`. Glauco's words: “M1 funziona correttamente”. Waiting for the second approval before any merge, tag or release. |
+| Status | `C1`. Glauco's first approval on 11 November 2026 at 12:33 (Europe/Rome), on PR #1 at head `5c61783817db2a33deba8393abd694a3a3270028`. Glauco's words: “M1 funziona correttamente”. Second approval recorded in the PR and release notes on 11 November 2026 at 13:26 (Europe/Rome); merge and tags completed. Packages are tracked in the patch below. |
 
 **Summary.** Copy, paste and drag-and-drop in the terminals; Edit menu and context menu; clipboard images saved in a dedicated folder; One, Side by side, Stacked and Grid views.
 
@@ -172,7 +198,7 @@ C1, formerly M1, is the only milestone in the execution plan. The first approval
 
 **Residual limitations.** macOS and Windows were not verified automatically; installers are unsigned. Deferred to M2: CSP; sender checks on IPC channels that predate C1; a cap on the paste FIFO queues; a test of the alternating sequence and of the orphan gesture; a residual-risk line in `SECURITY_MODEL.md`.
 
-**Version and tags.** Version **0.2.0**. Tag `v0.2.0` is planned and is to be created only after Glauco's second approval. The `milestone/C1` checkpoint has not been created.
+**Version and tags.** Version **0.2.0**. Tags `v0.2.0` and `milestone/C1` are published at merge commit `4aabc9bc81a60b0c574221ce37578936341ae065`, verified remotely. Verified packages are added to the existing release.
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
@@ -216,4 +242,4 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 
 Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Documentation-only work may keep the version unchanged and does not require a release. For completed application milestones or patches, publish a release under HOME preferences; mark it as a prerelease if the app is not usable. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
 
-There are currently no GitHub Actions workflows. Local checks suffice for this patch; do not create or start workflows. Assess future CI only when local checks cannot provide equivalent verification, keeping jobs and platforms limited. `npm run build` alone does not establish that a package has been verified.
+The only workflow, `package-windows.yml`, is manually triggered for native Windows checks that cannot be performed equivalently locally. It does not run on push or PR. macOS ARM64 checks run locally; additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.
