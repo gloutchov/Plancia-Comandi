@@ -1,0 +1,105 @@
+name: Package Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Reviewed application commit to package
+        required: true
+        default: 4aabc9bc81a60b0c574221ce37578936341ae065
+      version:
+        description: Expected application version
+        required: true
+        default: 0.2.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-package-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tooling
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: app
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Validate source and version
+        working-directory: app
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const cp=require('node:child_process');assert.match(process.env.SOURCE_SHA,/^[0-9a-f]{40}$/);assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),process.env.SOURCE_SHA);assert.equal(require('./package.json').version,process.env.EXPECTED_VERSION)"
+      - name: Install pinned dependencies and bundled Windows native prebuild
+        working-directory: app
+        run: |
+          npm ci --ignore-scripts
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node node_modules/electron/install.js
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node node_modules/node-pty/scripts/prebuild.js
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node node_modules/node-pty/scripts/post-install.js
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: TypeScript and production build
+        working-directory: app
+        run: npm run build
+      - name: Package installer and portable executable
+        working-directory: app
+        run: |
+          node -e "const fs=require('node:fs');const v=require('./package.json').version;fs.writeFileSync('release-windows.config.json',JSON.stringify({extends:'./electron-builder.json5',npmRebuild:false,nsis:{runAfterFinish:false,artifactName:'PlanciaComandi-win-'+v+'-x64-setup.exe'},portable:{artifactName:'PlanciaComandi-win-'+v+'-x64-portable.exe'}}))"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm exec electron-builder -- --win --x64 --publish never --config release-windows.config.json
+      - name: Smoke unpacked Windows package
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION"
+      - name: Inspect package contents
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: node tooling/scripts/inspect-package.mjs app/release/win-unpacked/resources app "$env:EXPECTED_VERSION"
+      - name: Smoke portable executable and installed application
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          $portable = Get-ChildItem app/release/PlanciaComandi-win-*-portable.exe
+          $setup = Get-ChildItem app/release/PlanciaComandi-win-*-setup.exe
+          if ($portable.Count -ne 1 -or $setup.Count -ne 1) { throw 'Expected one installer and one portable executable' }
+          node tooling/scripts/smoke-package.mjs $portable.FullName "$env:EXPECTED_VERSION"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $destination = Join-Path $env:RUNNER_TEMP 'plancia-installed-smoke'
+          $installer = Start-Process -Wait -PassThru -FilePath $setup.FullName -ArgumentList '/S', "/D=$destination"
+          if ($installer.ExitCode) { throw 'Silent installation failed' }
+          node tooling/scripts/smoke-package.mjs (Join-Path $destination 'plancia-comandi.exe') "$env:EXPECTED_VERSION"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node tooling/scripts/inspect-package.mjs (Join-Path $destination 'resources') app "$env:EXPECTED_VERSION"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Create SHA-256 manifest
+        working-directory: app/release
+        run: |
+          Get-ChildItem PlanciaComandi-win-*.exe | Sort-Object Name | ForEach-Object {
+            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content -Encoding ascii SHA256SUMS-Windows.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-x64-${{ inputs.source_sha }}
+          path: |
+            app/release/PlanciaComandi-win-*.exe
+            app/release/SHA256SUMS-Windows.txt
+          if-no-files-found: error
+          retention-days: 7

@@ -280,7 +280,7 @@ npm test
 npm run build
 ```
 
-`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands and no GitHub Actions workflows. `npm run preview` shows only the renderer and does not replace the desktop window.
+`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands. The GitHub Actions `package-windows.yml` workflow is manual only: it uses Node.js 24, builds the specified application commit, tests the Windows package, portable executable and installed app, and retains artifacts with SHA-256 for seven days. It does not publish the release. `npm run preview` shows only the renderer and does not replace the desktop window.
 
 After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. Icons derive from `build/icon.png`.
 
@@ -288,4 +288,4 @@ Before distributing, test the package outside the checkout, check that it contai
 
 Development-only variables: `PLANCIA_DEVTOOLS=1` opens DevTools; in demo mode `PLANCIA_SHOT_DIR` enables screenshot writes and `PLANCIA_SHOT_EXIT=1` quits after capture. Legacy aliases `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT` also exist. Screenshots include visible content and the output path is not confined: use only authorized test directories and terminals without private data. Capture also changes the saved theme.
 
-This documentation patch does not generate installers, configure signing or exercise a real AI CLI. Review and distribution rules are in [AGENTS.md](AGENTS.md); structure in [MAP.md](MAP.md); license in [LICENSE](LICENSE).
+To check an existing build, use `node scripts/inspect-package.mjs <resources-directory> <built-checkout> <version>` and, with Node.js 24, `node scripts/smoke-package.mjs <executable> <version>`. Run the smoke test on the target OS: it creates temporary preferences and shells, checks the bridge, PTY, views, languages and themes, and terminates its test processes. It does not use a real AI CLI or the existing clipboard. Local temporary files remain until cleanup is approved. It does not configure signing or notarization. Review and distribution rules are in [AGENTS.md](AGENTS.md); structure in [MAP.md](MAP.md); license in [LICENSE](LICENSE).

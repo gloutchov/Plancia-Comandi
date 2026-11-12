@@ -280,7 +280,7 @@ npm test
 npm run build
 ```
 
-`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck, e2e o workflow GitHub Actions. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
+`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale: usa Node.js 24, costruisce il commit applicativo indicato, prova il pacchetto Windows, il portabile e l’app installata e conserva gli artifact con SHA-256 per sette giorni. Non pubblica la release. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
 
 Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. Le icone derivano da `build/icon.png`.
 
@@ -288,4 +288,4 @@ Prima di distribuire occorre provare il pacchetto fuori dal checkout, controllar
 
 Variabili riservate allo sviluppo: `PLANCIA_DEVTOOLS=1` apre DevTools; in modalità demo `PLANCIA_SHOT_DIR` abilita la scrittura di screenshot e `PLANCIA_SHOT_EXIT=1` esce dopo la cattura. Esistono gli alias storici `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT`. Gli screenshot includono ciò che è visibile e il percorso di output non è confinato: usare solo cartelle di test autorizzate e terminali senza dati privati. La cattura cambia anche il tema salvato.
 
-La patch documentale non genera installer, non configura firma e non prova una CLI AI reale. Regole di revisione e distribuzione in [AGENTS.md](AGENTS.md); struttura in [MAP.md](MAP.md); licenza in [LICENSE](LICENSE).
+Per controllare una build già generata, usa `node scripts/inspect-package.mjs <directory-resources> <checkout-compilato> <versione>` e, con Node.js 24, `node scripts/smoke-package.mjs <eseguibile> <versione>`. Lo smoke va eseguito sul sistema di destinazione: crea preferenze e shell temporanee, verifica bridge, PTY, viste, lingue e temi e termina i processi di prova. Non usa una CLI AI o gli appunti reali. I temporanei locali sono conservati fino alla conferma di pulizia. Non configura firma o notarizzazione. Regole di revisione e distribuzione in [AGENTS.md](AGENTS.md); struttura in [MAP.md](MAP.md); licenza in [LICENSE](LICENSE).

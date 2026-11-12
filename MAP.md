@@ -93,10 +93,15 @@ Plancia-Comandi/
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
 |       |-- status.ts                Logica pura di rilevamento e notifiche
 |       `-- status.test.ts           Test della logica pura
+|-- .github/
+|   `-- workflows/
+|       `-- package-windows.yml      Packaging Windows manuale, smoke e SHA-256
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
+|   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
+|   |-- install-native.d.mts        Tipi dello script, usati dai test
 |   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
-|   `-- install-native.d.mts        Tipi dello script, usati dai test
+|   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
 |   `-- icon.png                     Sorgente delle icone per il packaging
 |-- public/
@@ -108,7 +113,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Esempio delle impostazioni
 ```
 
-Non esiste una directory `.github/workflows/`: non sono configurati workflow CI, release o GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
+`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. Produce installer e portabile con nomi distinti, smoke e checksum. macOS ARM64 viene costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
 
@@ -129,7 +134,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
 
-Non esistono script npm lint, typecheck separato o e2e. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1 e la scelta di saltare la ricompilazione su Windows.
+Non esistono script npm lint, typecheck separato o e2e. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1 e la scelta di saltare la ricompilazione su Windows.
 
 ### 4. File locali e generati
 
@@ -238,10 +243,15 @@ Plancia-Comandi/
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
 |       |-- status.ts                Pure status and notification logic
 |       `-- status.test.ts           Pure-logic tests
+|-- .github/
+|   `-- workflows/
+|       `-- package-windows.yml      Manual Windows packaging, smoke and SHA-256
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
+|   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
+|   |-- install-native.d.mts        Types for the script, used by the tests
 |   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
-|   `-- install-native.d.mts        Types for the script, used by the tests
+|   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/
 |   `-- icon.png                     Packaging icon source
 |-- public/
@@ -253,7 +263,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Settings example
 ```
 
-There is no `.github/workflows/` directory: CI, release and GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
+`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It produces distinctly named installer/portable packages, smoke tests and checksums. macOS ARM64 is built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
 
@@ -274,7 +284,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
-There are no npm lint, separate typecheck or e2e scripts. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1 and the choice to skip the Windows rebuild.
+There are no npm lint, separate typecheck or e2e scripts. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1 and the choice to skip the Windows rebuild.
 
 ### 4. Local and generated files
 
