@@ -98,7 +98,7 @@ npm test
 npm run build
 ```
 
-Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. Il pacchetto Windows non è ancora verificato. La build non verifica una shell reale o un installer.
+Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. Il pacchetto Windows non è ancora verificato. Il workflow manuale `package-macos.yml` non parte su push o PR. È predisposto per un DMG e uno ZIP macOS ARM64 non firmati sul runner `macos-15` e non è ancora stato eseguito. Per la versione 0.3.0, dopo il merge su `main`, va avviato sul branch `main` con `version` `0.3.0` e `source_sha` `94ff1e44106f08fdcf961cab74171668112ad780`. La build non verifica una shell reale o un installer.
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -120,7 +120,7 @@ npm run dist:linux
 
 Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. Su Windows il pacchetto usa le prebuild di `node-pty` e non ricompila. Su macOS e Linux `npm ci` ricompila il modulo per Electron; `npm run rebuild` ripete quella compilazione.
 
-La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
+La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Il pacchetto macOS di questo workflow è solo Apple Silicon (arm64): Intel non è supportato. Gatekeeper e SmartScreen possono mostrare avvisi. Al primo avvio di un download, fai clic destro sull'app e scegli **Apri**. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
 Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti e con i pacchetti macOS ARM64. Il pacchetto Windows non è ancora verificato né pubblicato. La release `v0.3.0` non è stata creata. Su Linux non è stata testata di persona. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
 
@@ -236,7 +236,7 @@ npm test
 npm run build
 ```
 
-Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. The Windows package is not yet verified. Building does not verify a real shell or installer.
+Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. The Windows package is not yet verified. The manual `package-macos.yml` workflow does not run on push or PR. It is set up to build an unsigned macOS ARM64 DMG and ZIP on the `macos-15` runner and has not been run. For version 0.3.0, after the merge to `main`, start it on branch `main` with `version` `0.3.0` and `source_sha` `94ff1e44106f08fdcf961cab74171668112ad780`. Building does not verify a real shell or installer.
 
 For a demo from a checkout with Bash on macOS/Linux:
 
@@ -258,7 +258,7 @@ npm run dist:linux
 
 Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. On Windows the package uses the `node-pty` prebuilds and does not compile. On macOS and Linux `npm ci` rebuilds the module for Electron; `npm run rebuild` repeats that compilation.
 
-macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
+macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. The macOS package from this workflow is Apple Silicon (arm64) only: Intel is not supported. Gatekeeper and SmartScreen may display warnings. The first time you open a download, right-click the app and choose **Open**. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 
 Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The `v0.2.0` release already exists with the sources and the macOS ARM64 packages. The Windows package is not yet verified or published. Release `v0.3.0` has not been created. It has not been tested in person on Linux. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
 

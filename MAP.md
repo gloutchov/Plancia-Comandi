@@ -95,12 +95,17 @@ Plancia-Comandi/
 |       `-- status.test.ts           Test della logica pura
 |-- .github/
 |   `-- workflows/
+|       |-- package-macos.yml         Packaging macOS manuale, non firmato, non ancora eseguito
 |       `-- package-windows.yml      Packaging Windows manuale, non ancora verificato
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
 |   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
 |   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
+|   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
+|   |-- package-macos-cli.mjs        Avvio di electron-builder per macOS
+|   |-- package-macos.mjs            Opzioni macOS arm64, DMG e ZIP, senza firma
+|   |-- package-macos.test.ts        Test delle opzioni e del percorso dell'app
 |   |-- package-windows.mjs          Opzioni Windows per electron-builder, senza shell
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
@@ -117,7 +122,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Esempio delle impostazioni
 ```
 
-`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum; il pacchetto Windows non è ancora verificato. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. Non esiste un workflow macOS. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
+`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum; il pacchetto Windows non è ancora verificato. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e costruisce DMG e ZIP ARM64 non firmati; non è ancora stato eseguito. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
 
@@ -138,7 +143,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
 
-Non esistono script npm lint, typecheck separato o e2e. `scripts/package-windows.mjs` passa a electron-builder le opzioni Windows senza una shell. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1, la scelta di saltare la ricompilazione su Windows e le opzioni di packaging Windows.
+Non esistono script npm lint, typecheck separato o e2e. `scripts/package-macos.mjs` descrive DMG e ZIP ARM64 non firmati. `scripts/package-windows.mjs` passa a electron-builder le opzioni Windows senza una shell. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1, la scelta di saltare la ricompilazione su Windows, le opzioni di packaging Windows e quelle macOS ARM64.
 
 ### 4. File locali e generati
 
@@ -249,12 +254,17 @@ Plancia-Comandi/
 |       `-- status.test.ts           Pure-logic tests
 |-- .github/
 |   `-- workflows/
+|       |-- package-macos.yml         Manual unsigned macOS packaging, not yet run
 |       `-- package-windows.yml      Manual Windows packaging, not yet verified
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
 |   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
 |   |-- install-native.d.mts        Types for the script, used by the tests
 |   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
+|   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
+|   |-- package-macos-cli.mjs        Starts electron-builder for macOS
+|   |-- package-macos.mjs            Unsigned macOS arm64 DMG and ZIP options
+|   |-- package-macos.test.ts        Options and app-path tests
 |   |-- package-windows.mjs          Windows electron-builder options, no shell
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   `-- smoke-package.mjs            Isolated native package smoke test
@@ -271,7 +281,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Settings example
 ```
 
-`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums; the Windows package is not yet verified. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. There is no macOS workflow. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
+`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums; the Windows package is not yet verified. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and builds unsigned ARM64 DMG and ZIP files; it has not been run. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
 
@@ -292,7 +302,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
-There are no npm lint, separate typecheck or e2e scripts. `scripts/package-windows.mjs` passes the Windows options to electron-builder without a shell. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1, the choice to skip the Windows rebuild and the Windows packaging options.
+There are no npm lint, separate typecheck or e2e scripts. `scripts/package-macos.mjs` describes the unsigned ARM64 DMG and ZIP. `scripts/package-windows.mjs` passes the Windows options to electron-builder without a shell. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1, the choice to skip the Windows rebuild, the Windows packaging options and the macOS ARM64 options.
 
 ### 4. Local and generated files
 
