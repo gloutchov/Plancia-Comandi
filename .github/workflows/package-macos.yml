@@ -1,0 +1,95 @@
+name: Package macOS release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full 40-hex commit to package. For 0.3.0 use 94ff1e44106f08fdcf961cab74171668112ad780.
+        required: true
+      version:
+        description: Expected package.json version
+        required: true
+        default: "0.3.0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-package-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    # macos-15 is the Apple Silicon image. The package script requests arm64.
+    runs-on: macos-15
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    # Unsigned. No notarization and no signing secrets. A green run builds on
+    # the GitHub runner; it is not a personal Gatekeeper check.
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tooling
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: app
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Validate source and version
+        working-directory: app
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const cp=require('node:child_process');assert.match(process.env.SOURCE_SHA,/^[0-9a-f]{40}$/);assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),process.env.SOURCE_SHA);assert.equal(require('./package.json').version,process.env.EXPECTED_VERSION)"
+      - name: Install pinned dependencies
+        working-directory: app
+        run: npm ci
+      - name: TypeScript and production build
+        working-directory: app
+        run: npm run build
+      - name: Package unsigned DMG and ZIP
+        working-directory: app
+        run: node ../tooling/scripts/package-macos-cli.mjs
+      - name: Smoke unpacked macOS application
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          executable="app/release/mac-arm64/Plancia Comandi.app/Contents/MacOS/plancia-comandi"
+          node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION"
+      - name: Inspect package contents
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          resources="app/release/mac-arm64/Plancia Comandi.app/Contents/Resources"
+          node tooling/scripts/inspect-package.mjs "$resources" app "$EXPECTED_VERSION"
+      - name: Create SHA-256 manifest
+        working-directory: app/release
+        run: |
+          shopt -s nullglob
+          dmg=(PlanciaComandi-mac-*.dmg)
+          zip=(PlanciaComandi-mac-*.zip)
+          if [ "${#dmg[@]}" -ne 1 ] || [ "${#zip[@]}" -ne 1 ]; then
+            echo "Expected one DMG and one ZIP" >&2
+            exit 1
+          fi
+          shasum -a 256 "${dmg[0]}" "${zip[0]}" | awk '{print $1 "  " $2}' | sort -k 2 > SHA256SUMS-macOS.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos-arm64-${{ inputs.source_sha }}
+          path: |
+            app/release/PlanciaComandi-mac-*.dmg
+            app/release/PlanciaComandi-mac-*.zip
+            app/release/SHA256SUMS-macOS.txt
+          if-no-files-found: error
+          retention-days: 7

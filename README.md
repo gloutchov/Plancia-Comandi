@@ -98,7 +98,7 @@ npm test
 npm run build
 ```
 
-Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. Il pacchetto Windows non è ancora verificato. La build non verifica una shell reale o un installer.
+Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. Il pacchetto Windows non è ancora verificato. Il workflow manuale `package-macos.yml` non parte su push o PR. È predisposto per un DMG e uno ZIP macOS ARM64 non firmati sul runner `macos-15` e non è ancora stato eseguito. Per la versione 0.3.0, dopo il merge su `main`, va avviato sul branch `main` con `version` `0.3.0` e `source_sha` `94ff1e44106f08fdcf961cab74171668112ad780`. La build non verifica una shell reale o un installer.
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -236,7 +236,7 @@ npm test
 npm run build
 ```
 
-Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. The Windows package is not yet verified. Building does not verify a real shell or installer.
+Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. The Windows package is not yet verified. The manual `package-macos.yml` workflow does not run on push or PR. It is set up to build an unsigned macOS ARM64 DMG and ZIP on the `macos-15` runner and has not been run. For version 0.3.0, after the merge to `main`, start it on branch `main` with `version` `0.3.0` and `source_sha` `94ff1e44106f08fdcf961cab74171668112ad780`. Building does not verify a real shell or installer.
 
 For a demo from a checkout with Bash on macOS/Linux:
 
