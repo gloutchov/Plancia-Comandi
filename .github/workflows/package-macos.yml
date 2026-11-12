@@ -61,17 +61,26 @@ jobs:
       - name: Package unsigned DMG and ZIP
         working-directory: app
         run: node ../tooling/scripts/package-macos-cli.mjs
+      - name: Resolve the unpacked application
+        run: |
+          shopt -s nullglob
+          apps=(app/release/mac-arm64/*.app)
+          if [ "${#apps[@]}" -ne 1 ]; then
+            echo "Expected exactly one .app bundle, found ${#apps[@]}" >&2
+            exit 1
+          fi
+          node tooling/scripts/mac-unpacked-paths.mjs app/release/mac-arm64 > "$RUNNER_TEMP/mac-layout.json"
       - name: Smoke unpacked macOS application
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: |
-          executable="app/release/mac-arm64/Plancia Comandi.app/Contents/MacOS/plancia-comandi"
+          executable=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-layout.json")
           node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION"
       - name: Inspect package contents
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: |
-          resources="app/release/mac-arm64/Plancia Comandi.app/Contents/Resources"
+          resources=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).resources)" "$RUNNER_TEMP/mac-layout.json")
           node tooling/scripts/inspect-package.mjs "$resources" app "$EXPECTED_VERSION"
       - name: Create SHA-256 manifest
         working-directory: app/release

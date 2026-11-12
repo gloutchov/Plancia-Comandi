@@ -102,6 +102,7 @@ Plancia-Comandi/
 |   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
 |   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
+|   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
 |   |-- package-macos-cli.mjs        Avvio di electron-builder per macOS
 |   |-- package-macos.mjs            Opzioni macOS arm64, DMG e ZIP, senza firma
 |   |-- package-macos.test.ts        Test delle opzioni e del percorso dell'app
@@ -260,6 +261,7 @@ Plancia-Comandi/
 |   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
 |   |-- install-native.d.mts        Types for the script, used by the tests
 |   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
+|   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
 |   |-- package-macos-cli.mjs        Starts electron-builder for macOS
 |   |-- package-macos.mjs            Unsigned macOS arm64 DMG and ZIP options
 |   |-- package-macos.test.ts        Options and app-path tests

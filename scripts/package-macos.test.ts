@@ -1,7 +1,15 @@
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
-import { macPackageOptions, macUnpackedLayout } from './package-macos.mjs'
+import {
+  MAC_APP_NAME,
+  assertConfiguredMacAppName,
+  discoverMacApp,
+  macPackageOptions,
+  requireSingleAppBundle,
+} from './package-macos.mjs'
 
 const require = createRequire(import.meta.url)
 const { normalizeOptions } = require('electron-builder/out/builder.js') as {
@@ -58,11 +66,44 @@ describe('macPackageOptions', () => {
   })
 })
 
-describe('macUnpackedLayout', () => {
-  it('points smoke and inspect at the arm64 app bundle', () => {
-    const layout = macUnpackedLayout(path.posix, 'release')
-    expect(layout.executable).toBe('release/mac-arm64/Plancia Comandi.app/Contents/MacOS/plancia-comandi')
-    expect(layout.resources).toBe('release/mac-arm64/Plancia Comandi.app/Contents/Resources')
-    expect(layout.resources.endsWith('/Contents/Resources')).toBe(true)
+describe('requireSingleAppBundle', () => {
+  it('fails when no bundle or more than one bundle is present', () => {
+    expect(() => requireSingleAppBundle([])).toThrow(/found 0/)
+    expect(() => requireSingleAppBundle(['notes.txt'])).toThrow(/found 0/)
+    expect(() => requireSingleAppBundle(['one.app', 'two.app'])).toThrow(/found 2/)
+  })
+
+  it('accepts the single bundle, whatever its name is', () => {
+    expect(requireSingleAppBundle(['notes.txt', 'one.app'])).toBe('one.app')
+  })
+})
+
+describe('MAC_APP_NAME', () => {
+  it('matches executableName in electron-builder.json5', () => {
+    const requireJson5 = createRequire(import.meta.url)
+    const JSON5 = requireJson5('json5') as { parse: (text: string) => { executableName: string } }
+    const config = JSON5.parse(readFileSync(new URL('../electron-builder.json5', import.meta.url), 'utf8'))
+    expect(MAC_APP_NAME).toBe(`${config.executableName}.app`)
+    expect(() => assertConfiguredMacAppName('Other.app')).toThrow(/expected plancia-comandi.app/)
+    expect(assertConfiguredMacAppName(MAC_APP_NAME)).toBe(MAC_APP_NAME)
+  })
+})
+
+describe('discoverMacApp', () => {
+  it('reads CFBundleExecutable from the one unpacked bundle', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-mac-app-'))
+    const contents = path.join(root, MAC_APP_NAME, 'Contents')
+    mkdirSync(path.join(contents, 'MacOS'), { recursive: true })
+    writeFileSync(
+      path.join(contents, 'Info.plist'),
+      '<plist><dict><key>CFBundleExecutable</key><string>plancia-comandi</string></dict></plist>',
+    )
+    try {
+      const layout = discoverMacApp(root)
+      expect(layout.executable).toBe(path.join(root, MAC_APP_NAME, 'Contents', 'MacOS', 'plancia-comandi'))
+      expect(layout.resources).toBe(path.join(root, MAC_APP_NAME, 'Contents', 'Resources'))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 })
