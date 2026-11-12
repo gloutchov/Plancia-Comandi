@@ -1,5 +1,6 @@
 import type { Terminal } from '@xterm/xterm'
 import type { RuntimeLimits } from './shared/appConfig'
+import { limitText } from './shared/textLimit'
 import { interpretDrop } from './shared/drop'
 import { formatDroppedPaths, quoteShellArg, shellQuoteKind } from './shared/shellQuote'
 
@@ -10,6 +11,8 @@ export interface TerminalEditTarget {
 }
 
 const GESTURE_LIMIT = 64
+/** Oldest unmatched halves are dropped after this many, one cap per queue. */
+export const PASTE_QUEUE_LIMIT = 64
 const gestures = new Set<string>()
 const targets = new Map<string, TerminalEditTarget>()
 let focusedId: string | null = null
@@ -52,11 +55,14 @@ export function claimPasteGesture(gesture: string, seen: Set<string> = gestures,
  * key, matched in arrival order (one FIFO queue per side). The first delivery
  * pastes. The other closes the oldest unmatched half and does not paste.
  * A later key therefore closes with its own accelerator, not with whichever
- * half happens to be newest. A direct click (mouse on Edit → Paste, or the
- * context menu) is a separate gesture: it pastes and retires any unmatched
- * halves, so an orphan cannot swallow the next shortcut or accelerator.
+ * half happens to be newest. Each queue keeps at most `limit` ids and drops
+ * the oldest. A mate for a dropped half can then paste a second time: the cap
+ * bounds memory, it does not make a burst past the cap unique. A direct click
+ * (mouse on Edit → Paste, or the context menu) is a separate gesture: it
+ * pastes and retires any unmatched halves, so an orphan cannot swallow the
+ * next shortcut or accelerator.
  */
-export function decidePaste(state: PasteLane, event: PasteEvent): { paste: boolean; gesture: string } {
+export function decidePaste(state: PasteLane, event: PasteEvent, limit = PASTE_QUEUE_LIMIT): { paste: boolean; gesture: string } {
   if (!event.id) return { paste: false, gesture: '' }
   if (event.role === 'direct') {
     state.shortcuts.length = 0
@@ -72,6 +78,8 @@ export function decidePaste(state: PasteLane, event: PasteEvent): { paste: boole
     return { paste: false, gesture: `${mateRole}:${mate}` }
   }
   mine.push(event.id)
+  const cap = Number.isFinite(limit) && limit >= 1 ? Math.floor(limit) : PASTE_QUEUE_LIMIT
+  while (mine.length > cap) mine.shift()
   return { paste: true, gesture: `${event.role}:${event.id}` }
 }
 
@@ -148,7 +156,7 @@ export async function pasteIntoTerminal(
   try {
     const text = await bridge.readClipboardText()
     if (!text) return true
-    term.paste(text.length > limits.maxPasteChars ? text.slice(0, limits.maxPasteChars) : text)
+    term.paste(limitText(text, limits.maxPasteChars))
   } catch {
     // Leave the terminal unchanged when the clipboard cannot be read.
   }

@@ -2,10 +2,13 @@
   "name": "plancia-comandi",
   "productName": "Plancia Comandi",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Desktop terminal manager for Codex CLI and other shells",
   "license": "Apache-2.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -18,7 +21,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "rebuild": "electron-builder install-app-deps",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "node scripts/install-native.mjs"
   },
   "dependencies": {
     "@xterm/addon-fit": "0.10.0",

@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.2.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione 0.3.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Terminali affiancati e stati delle sessioni nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -33,7 +33,7 @@ Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: 
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git, Node.js con npm e gli strumenti di compilazione del modulo nativo `node-pty`. Le istruzioni complete per installarli sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Node.js 24 è l'ambiente usato per le verifiche locali di questa documentazione.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12 o successivo con npm: è il minimo richiesto da Electron 45.2.3. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -42,13 +42,38 @@ npm ci
 npm run dev
 ```
 
-Il repository è privato: per il clone occorre un account autorizzato. `npm ci` scarica dipendenze ed Electron e ricompila il modulo del terminale. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
+Il repository è privato: per il clone occorre un account autorizzato. `npm ci` scarica dipendenze ed Electron. Su macOS e Linux ricompila il modulo del terminale; su Windows usa la prebuild. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
 
 1. Premi **Nuova sessione**.
 2. Scegli shell e cartella, inserisci un nome facoltativo e premi **Apri**.
 3. Usa il terminale come quello di sistema. Con almeno due sessioni, le icone in alto a destra scelgono **Affiancate** o **Incolonnate**; da tre sessioni è disponibile anche la **Griglia**.
 
 Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](ISTRUZIONI.md).
+
+#### Compilare ed eseguire su Linux
+
+Su Linux non è stata testata di persona.
+
+1. Installa Git e Node.js 22.12 o successivo, con npm. È il minimo di Electron 45.2.3. I controlli descritti in questi documenti usano Node.js 24.
+2. Installa gli strumenti per compilare `node-pty`. La versione 1.1.0 non ha una prebuild Linux e `npm ci` la ricompila per Electron con node-gyp. Il README di `node-pty` chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`; il pacchetto Python da installare è `python3`.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+Su un'altra distribuzione servono gli equivalenti di `build-essential` e `python3`.
+
+3. Dalla cartella del progetto esegui installazione, test, build e avvio:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+4. Il pacchetto Linux ha uno script: `npm run dist:linux`. Produce un AppImage e un DEB in `release/`, con nomi `PlanciaComandi-linux-<versione>-<arch>.AppImage` e `.deb`. Va eseguito dopo test e build, sul sistema Linux di destinazione. Su Linux non è stata testata di persona.
 
 ### 3. Impostazioni
 
@@ -62,7 +87,7 @@ Il tema predefinito segue il sistema. Le impostazioni non contengono credenziali
 
 I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono leggere o modificare file e usare la rete. L'app non integra un provider AI, non gestisce API key e non impone il consenso o i permessi dei tool avviati: autenticazione e invio dei dati dipendono da quei tool.
 
-Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md), inclusi i controlli Electron ancora mancanti.
+Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. La finestra non carica script da Internet. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md): la shell resta con i permessi dell'utente e i pacchetti non sono firmati.
 
 ### 5. Sviluppo e verifiche
 
@@ -73,7 +98,7 @@ npm test
 npm run build
 ```
 
-Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione e notifiche; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` costruisce e verifica i pacchetti Windows; non parte su push o PR. La build non verifica una shell reale o un installer.
+Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. Il pacchetto Windows non è ancora verificato. La build non verifica una shell reale o un installer.
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -93,11 +118,11 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. `node-pty` viene ricompilato per Electron con `npm run rebuild` quando necessario.
+Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. Su Windows il pacchetto usa le prebuild di `node-pty` e non ricompila. Su macOS e Linux `npm ci` ricompila il modulo per Electron; `npm run rebuild` ripete quella compilazione.
 
 La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
-Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti. L’integrazione dei pacchetti macOS ARM64 e Windows x64 è registrata nel piano. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
+Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti e con i pacchetti macOS ARM64. Il pacchetto Windows non è ancora verificato né pubblicato. La release `v0.3.0` non è stata creata. Su Linux non è stata testata di persona. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
 
 ### 7. Documentazione e licenza
 
@@ -117,7 +142,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.2.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Version 0.3.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Tiled terminals and session status in the dark theme](docs/screenshots/plancia-dark.png)
 
@@ -146,7 +171,7 @@ Detection is heuristic and mainly designed around Codex CLI screens: it does not
 
 ### 2. Installation and first use
 
-Running from source requires Git, Node.js with npm and build tools for the native `node-pty` module. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. Node.js 24 is the environment used for this documentation's local checks.
+Running from source requires Git and Node.js 22.12 or newer with npm: that is the minimum required by Electron 45.2.3. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -155,13 +180,38 @@ npm ci
 npm run dev
 ```
 
-This is a private repository: cloning requires an authorized account. `npm ci` downloads dependencies and Electron and rebuilds the terminal module. A desktop window opens: the development web page cannot create terminals on its own.
+This is a private repository: cloning requires an authorized account. `npm ci` downloads dependencies and Electron. On macOS and Linux it rebuilds the terminal module; on Windows it uses the prebuild. A desktop window opens: the development web page cannot create terminals on its own.
 
 1. Click **New session**.
 2. Choose a shell and folder, optionally enter a name, and click **Open**.
 3. Use it like your system terminal. With at least two sessions, the icons at the top right choose **Side by side** or **Stacked**; from three sessions **Grid** is available too.
 
 See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTRUCTIONS.md). To change the initial Italian interface, open **Impostazioni** and choose **English**.
+
+#### Build and run on Linux
+
+It has not been tested in person on Linux.
+
+1. Install Git and Node.js 22.12 or newer, with npm. That is the minimum for Electron 45.2.3. The checks described in these documents use Node.js 24.
+2. Install the tools that compile `node-pty`. Version 1.1.0 has no Linux prebuild, and `npm ci` rebuilds it for Electron with node-gyp. The `node-pty` README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`; the Python package to install is `python3`.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+On another distribution, install the equivalents of `build-essential` and `python3`.
+
+3. From the project folder, install, test, build and start:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+4. The Linux package has a script: `npm run dist:linux`. It produces an AppImage and a DEB in `release/`, named `PlanciaComandi-linux-<version>-<arch>.AppImage` and `.deb`. Run it after the tests and the build, on the target Linux system. It has not been tested in person on Linux.
 
 ### 3. Settings
 
@@ -175,7 +225,7 @@ The default theme follows the system. Settings do not store credentials or resto
 
 Commands run with the permissions of the user starting the app and can read or change files and use the network. The app has no integrated AI provider, does not manage API keys, and does not enforce consent or permissions for launched tools: those tools control authentication and data transmission.
 
-Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md), including missing Electron protections.
+Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
 
@@ -186,7 +236,7 @@ npm test
 npm run build
 ```
 
-Vitest checks status detection, output bursts, titles, stabilization and notifications; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow builds and checks Windows packages; pushes and PRs do not trigger it. Building does not verify a real shell or installer.
+Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. The Windows package is not yet verified. Building does not verify a real shell or installer.
 
 For a demo from a checkout with Bash on macOS/Linux:
 
@@ -206,11 +256,11 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. Rebuild `node-pty` for Electron with `npm run rebuild` when necessary.
+Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. On Windows the package uses the `node-pty` prebuilds and does not compile. On macOS and Linux `npm ci` rebuilds the module for Electron; `npm run rebuild` repeats that compilation.
 
 macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 
-Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The source-only `v0.2.0` release already exists. The plan records the addition of macOS ARM64 and Windows x64 packages. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
+Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The `v0.2.0` release already exists with the sources and the macOS ARM64 packages. The Windows package is not yet verified or published. Release `v0.3.0` has not been created. It has not been tested in person on Linux. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
 
 ### 7. Documentation and license
 

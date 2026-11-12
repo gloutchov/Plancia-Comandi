@@ -8,6 +8,7 @@ import { LayoutSwitcher } from './components/LayoutSwitcher'
 import { cx } from './cx'
 import { phaseKey, reasonKey, translate, type MessageKey } from './shared/i18n'
 import { displayedLayout, layoutCapacity, nextLayout, selectVisibleSessions } from './shared/layout'
+import { settingsFromUpdate } from './shared/settingsForm'
 import { shortenPath } from './shared/paths'
 import { appShortcut, type KeyLike } from './shortcuts'
 import { darkTerm, lightTerm } from './termTheme'
@@ -149,7 +150,9 @@ function Workspace({ boot }: { boot: BootInfo }) {
       ...patch,
       status: patch.status ? { ...current.status, ...patch.status } : current.status,
     }))
-    void window.plancia?.updateSettings(patch).then(setSettings)
+    void window.plancia?.updateSettings(patch).then((next) => {
+      setSettings((current) => settingsFromUpdate(current, next))
+    })
   }
 
   function setLayout(mode: LayoutMode) {

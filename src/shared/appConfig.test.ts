@@ -4,6 +4,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   APP_CONFIG_DEFAULTS,
+  BRACKETED_PASTE_WRAP,
   loadAppConfig,
   resolveAppConfigFile,
   runtimeLimits,
@@ -14,8 +15,9 @@ describe('validateAppConfig', () => {
   it('reads the shipped central file as the documented defaults', () => {
     const file = path.join(process.cwd(), 'config', 'app.config.json')
     expect(loadAppConfig(file)).toEqual(APP_CONFIG_DEFAULTS)
+    expect(BRACKETED_PASTE_WRAP).toBe(12)
     expect(runtimeLimits(APP_CONFIG_DEFAULTS)).toEqual({
-      maxPasteChars: 200_000,
+      maxPasteChars: 200_000 - BRACKETED_PASTE_WRAP,
       maxDroppedFiles: 20,
       maxPathChars: 4096,
     })

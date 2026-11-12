@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.2.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.0**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 **Sommario**
 
@@ -21,23 +21,23 @@ Questo manuale descrive Plancia Comandi **0.2.0**, un'app desktop per usare più
 
 Serve un computer desktop con macOS, Windows o Linux e una shell utilizzabile. La finestra ha dimensione minima 860 × 560. Queste sono piattaforme target, non una certificazione di compatibilità per ogni versione del sistema. I pacchetti configurati sono DMG/ZIP per macOS, NSIS/portabile x64 per Windows e AppImage/DEB per Linux; le verifiche reali di distribuzione sono ancora da completare.
 
-Per eseguire i sorgenti servono Git, Node.js con npm, accesso autorizzato al repository privato e strumenti per compilare `node-pty`. Le verifiche locali di questa documentazione usano Node.js 24. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
+Per eseguire i sorgenti servono Git, Node.js con npm e accesso autorizzato al repository privato. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.2.3 richiede Node.js 22.12 o successivo: è il minimo per installare le dipendenze. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
 
 ## 2. Installazione
 
 ### 2.1 Installare il software necessario
 
 1. Installa **Git** dal [sito ufficiale](https://git-scm.com/downloads), scegliendo il tuo sistema operativo e seguendo l'installer. Su Windows puoi installare anche Git Bash. Apri un nuovo terminale e verifica `git --version`.
-2. Installa **Node.js 24** con npm dal [sito ufficiale](https://nodejs.org/en/download), scegliendo versione, sistema e architettura appropriati. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
-3. Prepara gli strumenti nativi se la compilazione li richiede: su macOS gli strumenti di sviluppo Xcode; su Windows Python e gli strumenti C++/Windows SDK di Visual Studio; su Linux Python, `make` e un compilatore C++. Segui i requisiti della versione di `node-pty` usata dal progetto, consultabili anche in `node_modules/node-pty/README.md` dopo il download delle dipendenze. Non occorre installare questi strumenti per usare un futuro pacchetto già compilato.
+2. Installa **Node.js 22.12** o successivo, con npm, dal [sito ufficiale](https://nodejs.org/en/download), scegliendo sistema e architettura. È il minimo richiesto da Electron 45.2.3. Le verifiche locali usano Node.js 24. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
+3. Prepara gli strumenti nativi solo dove la compilazione serve ancora. Su Windows x64 o arm64 non serve compilare e non servono diritti di amministratore: non installare Python né i Build Tools C++, e `npm ci` non ricompila `node-pty`. Su macOS servono gli strumenti di sviluppo Xcode. Su Linux servono Python, `make` e un compilatore C++, perché `node-pty` 1.1.0 non include una prebuild Linux. Non occorre un compilatore per usare un pacchetto già compilato.
 4. Se vuoi una shell opzionale, installala con il suo installer e riavvia Plancia Comandi. Su Windows vengono cercati PowerShell 7 nel `PATH` e Git Bash nelle cartelle standard di Git. La normale Windows PowerShell è la scelta iniziale; su macOS/Linux si usa la shell di login.
 5. Se vuoi usare una CLI AI, completa prima la sua installazione e il suo accesso nel normale terminale di sistema. Plancia Comandi non include la CLI, non ne configura l'account e non gestisce le sue credenziali.
 
 Per preparare gli strumenti nativi:
 
-- **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando.
-- **Windows:** scarica e installa [Python](https://www.python.org/downloads/) e i [Build Tools C++ di Microsoft](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Nell'installer dei Build Tools seleziona gli strumenti per lo sviluppo desktop C++ e un Windows SDK. Riapri il terminale e verifica che Python sia disponibile. Se compare l'errore sulle librerie Spectre, aggiungi il componente corrispondente al compilatore tramite Visual Studio Installer, come indicato nel README di `node-pty`.
-- **Linux:** usa il gestore pacchetti della tua distribuzione per installare Python 3, `make` e il compilatore C++ con i relativi strumenti di sviluppo; nomi e procedura dipendono dalla distribuzione. Poi ripeti `npm ci` dalla cartella del progetto.
+- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS e il portabile `PlanciaComandi-win-0.3.0-x64.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
+- **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
+- **Linux:** `node-pty` 1.1.0 non ha una prebuild Linux. Su Debian e Ubuntu installa `build-essential` e `python3`, poi segui [Compilare ed eseguire su Linux](#24-compilare-ed-eseguire-su-linux). Su Linux non è stata testata di persona.
 
 ### 2.2 Ottenere e avviare Plancia Comandi
 
@@ -50,7 +50,7 @@ npm ci
 npm run dev
 ```
 
-Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile ed esegue la ricompilazione nativa per Electron; richiede accesso alla rete. Attendi il completamento prima di avviare l'app.
+Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile. Su Windows non ricompila `node-pty`; su macOS e Linux esegue quella ricompilazione per Electron. In tutti i casi scarica il binario di Electron e richiede la rete. Attendi il completamento prima di avviare l'app.
 
 Si apre la finestra desktop. Vite serve anche `http://127.0.0.1:47231/`, ma la pagina nel browser non può aprire terminali: usa la finestra Electron. Per terminare l'ambiente di sviluppo, esci dall'app e interrompi il comando nel terminale che l'ha avviata.
 
@@ -61,6 +61,35 @@ Questa guida non presuppone che esista già un installer verificato. Se viene pu
 Dopo avere verificato il file per il tuo sistema e la tua architettura, segui le note della release: su macOS apri il DMG e copia l'app in Applicazioni, oppure estrai l'app dallo ZIP; su Windows avvia l'installer e scegli la cartella oppure usa l'eseguibile portabile; su Linux apri il DEB con il gestore pacchetti o assegna all'AppImage il permesso di esecuzione tramite le proprietà del file e avvialo. Queste sono le procedure previste dai target configurati, ancora da verificare sui pacchetti reali.
 
 La distribuzione prevista è non firmata. Gatekeeper e SmartScreen possono mostrare avvisi. Verifica origine e checksum prima di seguire le procedure di apertura previste dal sistema; non disattivare le protezioni globali. Firma, notarizzazione e aggiornamenti automatici non sono configurati.
+
+### 2.4 Compilare ed eseguire su Linux
+
+Su Linux non è stata testata di persona.
+
+1. Installa **Git** e **Node.js 22.12** o successivo, con npm, come nei punti 1 e 2 di questo capitolo. Electron 45.2.3 non si installa con una versione di Node più vecchia. I controlli descritti in questi documenti usano Node.js 24.
+2. Installa gli strumenti che compilano `node-pty`. Il README di `node-pty` 1.1.0 chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`. Il pacchetto Python da installare è `python3`: node-gyp lo usa per la ricompilazione che `npm ci` esegue, perché non esiste una prebuild Linux.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+Su un'altra distribuzione installa l'equivalente di `build-essential` e `python3`.
+
+3. Con un account autorizzato al repository privato, ottieni i sorgenti se non li hai già e, dalla cartella del progetto, installa, prova, compila e avvia:
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+Se il checkout esiste già, non clonarlo di nuovo: esegui gli ultimi quattro comandi nella sua cartella. `npm test` non apre una finestra. `npm run build` controlla TypeScript e genera `dist/` e `dist-electron/`. `npm run dev` apre la finestra desktop.
+
+4. Per il pacchetto Linux esiste lo script `npm run dist:linux`. Dopo test e build produce in `release/` un AppImage e un DEB, con nomi `PlanciaComandi-linux-<versione>-<arch>.AppImage` e `.deb`. Su Linux non è stata testata di persona.
 
 ## 3. Primo avvio
 
@@ -174,7 +203,7 @@ I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e lim
 | `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Lato massimo, in pixel, dell'immagine accettata. |
 | `clipboardImages.maxKeep` | 40 | 1–200 | Quante immagini recenti tenere. |
 | `clipboardImages.maxAgeHours` | 24 | 1–720 | Dopo questo tempo le immagini generate vengono eliminate. |
-| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di un incolla o di una scrittura al terminale. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di una scrittura al terminale. L'incolla è più corto di 12 caratteri, così i marcatori dell'incolla fra parentesi ci stanno. |
 | `drop.maxFiles` | 20 | 1–50 | Quanti file trascinati inserire. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Lunghezza massima di un singolo percorso trascinato. |
 
@@ -210,7 +239,7 @@ Esempio senza segreti:
 
 Su macOS la barra dei menu ha **Modifica**, con **Annulla**, **Ripeti**, **Taglia**, **Copia**, **Incolla** e **Seleziona tutto**. Le etichette seguono la lingua dell'app. I menu **Vista** e **Finestra** restano quelli standard di Electron e seguono la lingua del sistema. Su Windows e Linux la barra si apre con Alt; **Copia** e **Incolla** usano Ctrl+Shift+C e Ctrl+Shift+V, così Ctrl+C resta libero per il comando.
 
-Il tasto destro sul terminale apre **Copia** e **Incolla**. **Copia** è disattivata se non c'è una selezione. Copia e incolla passano dagli appunti di sistema. L'incolla usa la funzione di xterm.js: se il programma nel terminale ha attivato l'incolla fra parentesi (bracketed paste), il testo arriva come un blocco unico; altrimenti un testo su più righe può essere eseguito riga per riga. Controlla sempre ciò che incolli.
+Il tasto destro sul terminale apre **Copia** e **Incolla**. **Copia** è disattivata se non c'è una selezione. Copia e incolla passano dagli appunti di sistema. L'incolla usa la funzione di xterm.js: se il programma nel terminale ha attivato l'incolla fra parentesi (bracketed paste), il testo arriva come un blocco unico; altrimenti un testo su più righe può essere eseguito riga per riga. Controlla sempre ciò che incolli. Una raffica di incolla molto oltre l'uso normale può inserire due volte un testo il cui secondo segnale arriva dopo che l'app ha già dimenticato il primo.
 
 Su Windows e Linux, Ctrl+C copia la selezione e la toglie, così il Ctrl+C successivo interrompe il programma. Senza selezione, Ctrl+C invia subito l'interruzione. Su macOS l'interruzione è Control+C; Command+C copia e non interrompe. La scorciatoia di copia senza selezione non viene inviata al programma.
 
@@ -239,7 +268,7 @@ La demo apre una shell ordinaria e una con `scripts/demo-codex.sh busy`, imposta
 | Problema | Cosa fare |
 | --- | --- |
 | Il browser chiede di aprire la finestra desktop | Usa Electron avviato con `npm run dev`, non la pagina Vite. |
-| Il terminale non è disponibile / errore `node-pty` | Controlla gli strumenti nativi, esegui `npm run rebuild` nel checkout e riavvia. Ricompila dopo aver cambiato Electron. |
+| Il terminale non è disponibile / errore `node-pty` | Su Windows controlla che `node_modules/node-pty/prebuilds/win32-x64` o `win32-arm64` contenga `pty.node`, `conpty.node` e `conpty_console_list.node`, poi ripeti `npm ci`. Su macOS e Linux controlla gli strumenti nativi, esegui `npm run rebuild` nel checkout e riavvia. Ricompila dopo aver cambiato Electron. |
 | Cartella non valida | Usa **Sfoglia** e scegli una directory esistente accessibile. Un archivio `app.asar` non è una cartella di lavoro valida. |
 | Una shell non compare | Installala nei percorsi rilevati o nel `PATH` dove previsto e riavvia l'app. Non c'è un campo per comandi shell arbitrari. |
 | Una CLI non viene trovata | Verifica che funzioni nella shell scelta e che il profilo di login configuri il `PATH`. L'app non installa le CLI. |
@@ -269,7 +298,9 @@ Output e nomi delle sessioni sono in memoria, ma la shell può salvare la cronol
 
 Il rilevamento degli stati non è un protocollo di controllo dei tool. Un TUI che ridisegna mentre aspetta può restare **Al lavoro**; un comando con una riga simile a un prompt può sembrare **In attesa** prematuramente. La UI chiede conferma solo per le chiusure che considera attive o in attesa di azione; l'uscita completa non ha quella protezione.
 
-La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli Electron mancanti e [PLAN.md](PLAN.md) per le proposte future.
+La finestra carica solo le pagine dell'app. Gli script di produzione arrivano dai file dell'app, non da Internet. I colori del terminale li applica xterm.js nella pagina, perché dipendono dal tema scelto. Con `npm run dev` il server di sviluppo resta su questo computer, all'indirizzo 127.0.0.1 porta 47231; la pagina aperta da sola nel browser non crea terminali.
+
+La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
 
@@ -278,9 +309,9 @@ npm test
 npm run build
 ```
 
-`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale: usa Node.js 24, costruisce il commit applicativo indicato, prova il pacchetto Windows, il portabile e l’app installata e conserva gli artifact con SHA-256 per sette giorni. Non pubblica la release. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
+`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale e non pubblica la release. È predisposto per usare Node.js 24, costruire il commit indicato da `source_sha` e controllare sul runner l’eseguibile estratto, il portabile e l’installazione silenziosa. Lo step di packaging esegue `node ../tooling/scripts/package-windows.mjs`: le opzioni restano un oggetto JavaScript e PowerShell non riceve `-c.*` né `--config.*`. La run `43086813880` si è fermata perché quegli argomenti venivano spezzati; la run `43096382710` non è partita (`startup_failure`). Il pacchetto Windows non è ancora verificato, neanche su un Windows reale. Per impacchettare la versione 0.3.0, dopo il merge su `main`, avviare il workflow su `main` con `version` uguale a `0.3.0` e `source_sha` uguale al commit di 40 caratteri esadecimali di quel `main` il cui `package.json` riporta `0.3.0`. Il valore predefinito di `version` è `0.3.0`; `source_sha` non ha un predefinito. Se i due valori non corrispondono, il controllo fallisce prima del packaging. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
 
-Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. Le icone derivano da `build/icon.png`.
+Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. L'icona Linux e quella della finestra sono `build/icon.png`. Windows usa `build/icon.ico`, macOS `build/icon.icns`. Su Linux non è stata testata di persona.
 
 Prima di distribuire occorre provare il pacchetto fuori dal checkout, controllare che non includa dati privati e generare SHA-256 per ogni artifact, per esempio `shasum -a 256 <artifact>` su macOS, `sha256sum <artifact>` su Linux o `Get-FileHash <artifact> -Algorithm SHA256` in PowerShell, sostituendo `<artifact>` con il percorso reale. Firma e notarizzazione richiedono un processo esplicito, non sono un passo implicito di questi comandi.
 

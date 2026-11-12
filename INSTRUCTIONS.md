@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.2.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 **Contents**
 
@@ -21,23 +21,23 @@ This manual describes Plancia Comandi **0.2.0**, a desktop app for using multipl
 
 You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
 
-Running source requires Git, Node.js with npm, authorized access to the private repository and tools to compile `node-pty`. This documentation's local checks use Node.js 24. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+Running source requires Git, Node.js with npm and authorized access to the private repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.2.3 requires Node.js 22.12 or newer: that is the minimum for installing the dependencies. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
 
 ## 2. Installation
 
 ### 2.1 Install the required software
 
 1. Install **Git** from its [official website](https://git-scm.com/downloads), choosing your OS and following the installer. On Windows you can also install Git Bash. Open a new terminal and check `git --version`.
-2. Install **Node.js 24** with npm from its [official website](https://nodejs.org/en/download), choosing the appropriate version, OS and architecture. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
-3. Prepare native tools if compilation requires them: Xcode development tools on macOS; Python and Visual Studio C++/Windows SDK tools on Windows; Python, `make` and a C++ compiler on Linux. Follow the requirements for the project's `node-pty` version, also available in `node_modules/node-pty/README.md` after dependencies have been downloaded. These tools are not needed to use a future prebuilt package.
+2. Install **Node.js 22.12** or newer, with npm, from its [official website](https://nodejs.org/en/download), choosing the OS and architecture. That is the minimum required by Electron 45.2.3. Local checks use Node.js 24. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
+3. Prepare native tools only where compilation is still required. On Windows x64 or arm64, compiling is not required and administrator rights are not required: do not install Python or the C++ Build Tools, and `npm ci` does not rebuild `node-pty`. macOS needs the Xcode development tools. Linux needs Python, `make` and a C++ compiler, because `node-pty` 1.1.0 does not include a Linux prebuild. A compiler is not required to use an already built package.
 4. If you want an optional shell, install it with its own installer and restart Plancia Comandi. Windows detection looks for PowerShell 7 in `PATH` and Git Bash in standard Git directories. Windows PowerShell is the initial choice; macOS/Linux use the login shell.
 5. To use an AI CLI, first complete its installation and sign-in in your normal system terminal. Plancia Comandi does not include the CLI, configure its account or manage its credentials.
 
 To prepare native tools:
 
-- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation.
-- **Windows:** download and install [Python](https://www.python.org/downloads/) and [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). In the Build Tools installer, select the desktop C++ development tools and a Windows SDK. Reopen the terminal and check that Python is available. If an error mentions Spectre libraries, add the component matching your compiler through Visual Studio Installer, as described in the `node-pty` README.
-- **Linux:** use your distribution's package manager to install Python 3, `make`, a C++ compiler and its development tools; names and installation steps depend on the distribution. Then retry `npm ci` in the project folder.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.0-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
+- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
+- **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 
 ### 2.2 Get and start Plancia Comandi
 
@@ -50,7 +50,7 @@ npm ci
 npm run dev
 ```
 
-If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions and runs the native rebuild for Electron; it requires network access. Wait for it to finish before starting the app.
+If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions. On Windows it does not rebuild `node-pty`; on macOS and Linux it rebuilds that module for Electron. In every case it downloads the Electron binary and needs network access. Wait for it to finish before starting the app.
 
 The desktop window opens. Vite also serves `http://127.0.0.1:47231/`, but the browser page cannot open terminals: use the Electron window. To stop the development environment, quit the app and interrupt the command in the terminal that started it.
 
@@ -61,6 +61,35 @@ This guide does not assume that a verified installer already exists. If a releas
 After verifying the file for your OS and architecture, follow release notes: on macOS open the DMG and copy the app to Applications, or extract the app from the ZIP; on Windows run the installer and choose a folder, or use the portable executable; on Linux open the DEB with the package manager, or grant execution permission to the AppImage through file properties and launch it. These are the procedures expected for the configured targets, still awaiting verification with real packages.
 
 Distribution is expected to be unsigned. Gatekeeper and SmartScreen may display warnings. Verify origin and checksum before following the OS opening procedure; do not disable global protections. Signing, notarization and automatic updates are not configured.
+
+### 2.4 Build and run on Linux
+
+It has not been tested in person on Linux.
+
+1. Install **Git** and **Node.js 22.12** or newer, with npm, as in steps 1 and 2 of this chapter. Electron 45.2.3 does not install on an older Node.js. The checks described in these documents use Node.js 24.
+2. Install the tools that compile `node-pty`. The `node-pty` 1.1.0 README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`. The Python package to install is `python3`: node-gyp uses it for the rebuild that `npm ci` runs, because there is no Linux prebuild.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+On another distribution, install the equivalents of `build-essential` and `python3`.
+
+3. With an account authorized for the private repository, get the sources if you do not have them yet and, from the project folder, install, test, build and start:
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+If the checkout already exists, do not clone it again: run the last four commands in its folder. `npm test` does not open a window. `npm run build` checks TypeScript and generates `dist/` and `dist-electron/`. `npm run dev` opens the desktop window.
+
+4. The Linux package has the script `npm run dist:linux`. After the tests and the build it produces an AppImage and a DEB in `release/`, named `PlanciaComandi-linux-<version>-<arch>.AppImage` and `.deb`. It has not been tested in person on Linux.
 
 ## 3. First start
 
@@ -174,7 +203,7 @@ Missing fields receive defaults; numbers are rounded and clamped to the allowed 
 | `clipboardImages.maxEdgePx` | 8000 | 256–16000 | Maximum accepted image edge, in pixels. |
 | `clipboardImages.maxKeep` | 40 | 1–200 | How many recent images to keep. |
 | `clipboardImages.maxAgeHours` | 24 | 1–720 | Generated images older than this are deleted. |
-| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one paste or write to the terminal. |
+| `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one write to the terminal. A paste is 12 characters shorter, so the bracketed-paste markers still fit. |
 | `drop.maxFiles` | 20 | 1–50 | How many dropped files to insert. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Maximum length of one dropped path. |
 
@@ -210,7 +239,7 @@ Example without secrets:
 
 On macOS the menu bar has **Edit**, with **Undo**, **Redo**, **Cut**, **Copy**, **Paste** and **Select All**. The labels follow the app language. The **View** and **Window** menus stay Electron's standard menus and follow the system language. On Windows and Linux the bar opens with Alt; **Copy** and **Paste** use Ctrl+Shift+C and Ctrl+Shift+V, so Ctrl+C stays available for the command.
 
-Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste.
+Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste. A paste burst far beyond ordinary use can insert the same text twice when the second signal arrives after the app has already forgotten the first.
 
 On Windows and Linux, Ctrl+C copies the selection and clears it, so the next Ctrl+C interrupts the program. With no selection, Ctrl+C sends the interrupt immediately. On macOS the interrupt is Control+C; Command+C copies and does not interrupt. The copy shortcut with no selection is not sent to the program.
 
@@ -239,7 +268,7 @@ The demo opens an ordinary shell and one running `scripts/demo-codex.sh busy`, s
 | Problem | What to do |
 | --- | --- |
 | Browser asks you to open the desktop window | Use Electron started with `npm run dev`, rather than the Vite page. |
-| Terminal unavailable / `node-pty` error | Check native build tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
+| Terminal unavailable / `node-pty` error | On Windows check that `node_modules/node-pty/prebuilds/win32-x64` or `win32-arm64` contains `pty.node`, `conpty.node` and `conpty_console_list.node`, then run `npm ci` again. On macOS and Linux check the native tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
 | Invalid folder | Use **Browse** to select an existing, accessible directory. An `app.asar` archive is not a valid working folder. |
 | Shell is missing | Install it in a detected location or in `PATH` where supported, and restart. There is no arbitrary shell-command field. |
 | CLI command not found | Confirm it works in the chosen shell and that its login profile configures `PATH`. The app does not install CLIs. |
@@ -269,7 +298,9 @@ Output and session names remain in memory, but shells may save history and progr
 
 Status detection is not a tool-control protocol. A TUI redrawing while waiting can stay **Working**; a command ending with a prompt-like line can appear **Idle** prematurely. The UI confirms only closures it considers working or awaiting action; a full quit has no such protection.
 
-Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for missing Electron controls and [PLAN.md](PLAN.md) for future proposals.
+The window loads only the app's own pages. Production scripts come from the app's files, not from the Internet. xterm.js applies the terminal colors in the page, because they depend on the selected theme. With `npm run dev` the development server stays on this computer, at 127.0.0.1 port 47231; the page opened by itself in a browser does not create terminals.
+
+Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for the controls that are present and for the limits that are still open, and [PLAN.md](PLAN.md) for future proposals.
 
 ## 12. Development and distribution
 
@@ -278,9 +309,9 @@ npm test
 npm run build
 ```
 
-`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands. The GitHub Actions `package-windows.yml` workflow is manual only: it uses Node.js 24, builds the specified application commit, tests the Windows package, portable executable and installed app, and retains artifacts with SHA-256 for seven days. It does not publish the release. `npm run preview` shows only the renderer and does not replace the desktop window.
+`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands. The GitHub Actions `package-windows.yml` workflow is manual only and does not publish a release. It is set up to use Node.js 24, build the commit named by `source_sha`, and check the unpacked executable, the portable executable and the silent install on the runner. The packaging step runs `node ../tooling/scripts/package-windows.mjs`: the options stay a JavaScript object and PowerShell does not receive `-c.*` or `--config.*`. Run `43086813880` stopped because those arguments were split; run `43096382710` did not start (`startup_failure`). The Windows package is not yet verified, including on a real Windows machine. To package version 0.3.0, after the merge to `main`, start the workflow on `main` with `version` set to `0.3.0` and `source_sha` set to the 40-hex commit of that `main` whose `package.json` says `0.3.0`. The default for `version` is `0.3.0`; `source_sha` has no default. If the two values do not match, the check fails before packaging. `npm run preview` shows only the renderer and does not replace the desktop window.
 
-After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. Icons derive from `build/icon.png`.
+After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. The Linux icon and the window icon are `build/icon.png`. Windows uses `build/icon.ico` and macOS uses `build/icon.icns`. It has not been tested in person on Linux.
 
 Before distributing, test the package outside the checkout, check that it contains no private data and generate SHA-256 for every artifact, for example `shasum -a 256 <artifact>` on macOS, `sha256sum <artifact>` on Linux or `Get-FileHash <artifact> -Algorithm SHA256` in PowerShell, replacing `<artifact>` with the actual path. Signing and notarization require an explicit process; these commands do not authorize them implicitly.
 

@@ -5,18 +5,23 @@
   executableName: "plancia-comandi",
   asar: true,
   asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
+  // Windows uses the N-API prebuilds in node-pty. Rebuilding here would call
+  // node-gyp. Linux and macOS are compiled by scripts/install-native.mjs.
+  npmRebuild: false,
   directories: {
     output: "release",
   },
-  files: ["dist/**/*", "dist-electron/**/*", "package.json", "node_modules/**/*", "config/**/*"],
+  files: ["dist/**/*", "dist-electron/**/*", "package.json", "node_modules/**/*", "config/**/*", "build/icon.png"],
   extraResources: [{ from: "config", to: "config" }],
   mac: {
     category: "public.app-category.developer-tools",
     target: ["dmg", "zip"],
     identity: null,
+    icon: "build/icon.icns",
     artifactName: "PlanciaComandi-mac-${version}-${arch}.${ext}",
   },
   win: {
+    icon: "build/icon.ico",
     target: [
       { target: "nsis", arch: ["x64"] },
       { target: "portable", arch: ["x64"] },
@@ -32,6 +37,7 @@
   linux: {
     category: "Development",
     target: ["AppImage", "deb"],
+    icon: "build/icon.png",
     artifactName: "PlanciaComandi-linux-${version}-${arch}.${ext}",
   },
 }

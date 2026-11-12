@@ -14,7 +14,7 @@ Queste regole adattano al repository le preferenze HOME fornite dal progettista.
 
 - Entry point e ciclo di vita in `electron/main.ts`; bridge in `electron/preload.ts`; PTY in `electron/sessions.ts`; preferenze in `electron/settings.ts`; UI in `src/`; logica pura in `src/shared/`.
 - Mantenere moduli piccoli con dipendenze esplicite; separare dominio, stato UI, filesystem, configurazione, sicurezza e integrazioni. Nessun refactor estraneo al task, import circolare o dipendenza senza motivazione concreta.
-- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.2.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
+- Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.3.0**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
 - `config/app.config.json` è la configurazione centrale dei parametri di appunti, trascinamento e dimensione dell'input introdotti da M1. Va validata all'avvio; i valori fuori intervallo tornano ai default documentati. `settings.json` fuori dal checkout resta la configurazione utente di lingua, tema, vista e rilevamento. Non aggiungere segreti. Gli altri limiti ancora nei moduli restano la proposta P2, non un lavoro implicito.
 - Un task documentale descrive il comportamento reale e registra lacune: non deve trasformarsi in un intervento applicativo non richiesto.
 
@@ -44,7 +44,7 @@ Queste regole adattano al repository le preferenze HOME fornite dal progettista.
 - Per documentazione controllare file obbligatori, link e anchor, sequenza dei capitoli, equivalenza IT/EN, esempi JSON, versione, nomi UI, configurazioni e comandi rispetto ai sorgenti; eseguire `git diff --check`.
 - Per codice aggiungere test proporzionati: unitari per logica pura, integrazione per impostazioni/adapter/IPC, negativi per input invalidi e limiti. Per packaging servono smoke del pacchetto reale fuori dal checkout, piattaforme dichiarate e verifica contenuti e checksum.
 - Riportare sempre test non eseguiti e motivo. Una build riuscita non equivale a uno smoke Electron o a una verifica di sicurezza.
-- Il workflow `package-windows.yml` si avvia solo manualmente per costruire e provare pacchetti Windows da un hash applicativo controllato. È necessario quando manca un ambiente Windows locale; non parte su push o PR e non pubblica release. Non aggiungere o avviare altri workflow se i controlli locali sono equivalenti. Se serve CI remota, motivarla prima del push, limitare job/matrici e verificare i run necessari su branch/PR e `main`. In caso di dubbio sulla necessità chiedere al progettista.
+- Il workflow `package-windows.yml` si avvia solo manualmente per tentare la costruzione dei pacchetti Windows da un hash applicativo controllato. Il pacchetto Windows non è verificato finché una run non riesce e l'artifact non è provato su Windows reale. Lo step di packaging chiama `scripts/package-windows.mjs` e non passa `-c.*` né `--config.*` a PowerShell. È necessario quando manca un ambiente Windows locale; non parte su push o PR e non pubblica release. Non aggiungere o avviare altri workflow se i controlli locali sono equivalenti. Se serve CI remota, motivarla prima del push, limitare job/matrici e verificare i run necessari su branch/PR e `main`. In caso di dubbio sulla necessità chiedere al progettista.
 
 ## Revisione, pubblicazione e chiusura
 

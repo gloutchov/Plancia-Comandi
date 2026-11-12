@@ -23,7 +23,7 @@ const api = {
     ipcRenderer.send('terminal:watch', id, windowFocused)
   },
   pickDirectory: (defaultPath: string): Promise<string | null> => ipcRenderer.invoke('dialog:directory', defaultPath),
-  updateSettings: (patch: SettingsPatch): Promise<AppSettings> => ipcRenderer.invoke('settings:update', patch),
+  updateSettings: (patch: SettingsPatch): Promise<AppSettings | null> => ipcRenderer.invoke('settings:update', patch),
   revealSettings: (): Promise<void> => ipcRenderer.invoke('settings:reveal'),
   openExternal: (url: string): void => {
     ipcRenderer.send('shell:openExternal', url)
