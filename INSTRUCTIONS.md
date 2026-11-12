@@ -37,7 +37,7 @@ To prepare native tools:
 
 - **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.0-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
-- **Linux:** use your distribution's package manager to install Python 3, `make`, a C++ compiler and its development tools; names and installation steps depend on the distribution. Then retry `npm ci` in the project folder.
+- **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 
 ### 2.2 Get and start Plancia Comandi
 
@@ -61,6 +61,35 @@ This guide does not assume that a verified installer already exists. If a releas
 After verifying the file for your OS and architecture, follow release notes: on macOS open the DMG and copy the app to Applications, or extract the app from the ZIP; on Windows run the installer and choose a folder, or use the portable executable; on Linux open the DEB with the package manager, or grant execution permission to the AppImage through file properties and launch it. These are the procedures expected for the configured targets, still awaiting verification with real packages.
 
 Distribution is expected to be unsigned. Gatekeeper and SmartScreen may display warnings. Verify origin and checksum before following the OS opening procedure; do not disable global protections. Signing, notarization and automatic updates are not configured.
+
+### 2.4 Build and run on Linux
+
+It has not been tested in person on Linux.
+
+1. Install **Git** and **Node.js 22.12** or newer, with npm, as in steps 1 and 2 of this chapter. Electron 45.2.3 does not install on an older Node.js. The checks described in these documents use Node.js 24.
+2. Install the tools that compile `node-pty`. The `node-pty` 1.1.0 README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`. The Python package to install is `python3`: node-gyp uses it for the rebuild that `npm ci` runs, because there is no Linux prebuild.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+On another distribution, install the equivalents of `build-essential` and `python3`.
+
+3. With an account authorized for the private repository, get the sources if you do not have them yet and, from the project folder, install, test, build and start:
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+If the checkout already exists, do not clone it again: run the last four commands in its folder. `npm test` does not open a window. `npm run build` checks TypeScript and generates `dist/` and `dist-electron/`. `npm run dev` opens the desktop window.
+
+4. The Linux package has the script `npm run dist:linux`. After the tests and the build it produces an AppImage and a DEB in `release/`, named `PlanciaComandi-linux-<version>-<arch>.AppImage` and `.deb`. It has not been tested in person on Linux.
 
 ## 3. First start
 
@@ -280,9 +309,9 @@ npm test
 npm run build
 ```
 
-`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands. The GitHub Actions `package-windows.yml` workflow is manual only: it uses Node.js 24, builds the specified application commit, tests the Windows package, portable executable and installed app, and retains artifacts with SHA-256 for seven days. It does not publish the release. `npm run preview` shows only the renderer and does not replace the desktop window.
+`npm test` runs Vitest against status logic without launching shells or Electron. `npm run build` runs TypeScript checking and generates `dist/` and `dist-electron/`. There are no dedicated lint, typecheck or e2e commands. The GitHub Actions `package-windows.yml` workflow is manual only and does not publish a release. It is set up to use Node.js 24, build the commit named by `source_sha`, and check the unpacked executable, the portable executable and the silent install on the runner. The packaging step runs `node ../tooling/scripts/package-windows.mjs`: the options stay a JavaScript object and PowerShell does not receive `-c.*` or `--config.*`. Run `43086813880` stopped because those arguments were split; run `43096382710` did not start (`startup_failure`). The Windows package is not yet verified, including on a real Windows machine. To package version 0.3.0, after the merge to `main`, start the workflow on `main` with `version` set to `0.3.0` and `source_sha` set to the 40-hex commit of that `main` whose `package.json` says `0.3.0`. The default for `version` is `0.3.0`; `source_sha` has no default. If the two values do not match, the check fails before packaging. `npm run preview` shows only the renderer and does not replace the desktop window.
 
-After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. Icons derive from `build/icon.png`.
+After verification, package on the intended OS using `npm run dist:mac`, `npm run dist:win` or `npm run dist:linux`; `npm run dist` selects the current platform. Files in `release/` start with `PlanciaComandi`. App identifier `it.plancia.comandi`, configured executable `plancia-comandi`. `node-pty` and `@xterm/headless` are unpacked from ASAR for runtime use. The Linux icon and the window icon are `build/icon.png`. Windows uses `build/icon.ico` and macOS uses `build/icon.icns`. It has not been tested in person on Linux.
 
 Before distributing, test the package outside the checkout, check that it contains no private data and generate SHA-256 for every artifact, for example `shasum -a 256 <artifact>` on macOS, `sha256sum <artifact>` on Linux or `Get-FileHash <artifact> -Algorithm SHA256` in PowerShell, replacing `<artifact>` with the actual path. Signing and notarization require an explicit process; these commands do not authorize them implicitly.
 

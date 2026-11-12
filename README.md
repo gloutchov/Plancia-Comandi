@@ -50,6 +50,31 @@ Il repository è privato: per il clone occorre un account autorizzato. `npm ci` 
 
 Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](ISTRUZIONI.md).
 
+#### Compilare ed eseguire su Linux
+
+Su Linux non è stata testata di persona.
+
+1. Installa Git e Node.js 22.12 o successivo, con npm. È il minimo di Electron 45.2.3. I controlli descritti in questi documenti usano Node.js 24.
+2. Installa gli strumenti per compilare `node-pty`. La versione 1.1.0 non ha una prebuild Linux e `npm ci` la ricompila per Electron con node-gyp. Il README di `node-pty` chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`; il pacchetto Python da installare è `python3`.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+Su un'altra distribuzione servono gli equivalenti di `build-essential` e `python3`.
+
+3. Dalla cartella del progetto esegui installazione, test, build e avvio:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+4. Il pacchetto Linux ha uno script: `npm run dist:linux`. Produce un AppImage e un DEB in `release/`, con nomi `PlanciaComandi-linux-<versione>-<arch>.AppImage` e `.deb`. Va eseguito dopo test e build, sul sistema Linux di destinazione. Su Linux non è stata testata di persona.
+
 ### 3. Impostazioni
 
 Apri **Impostazioni** per lingua, tema, corpo del terminale, avvisi e tempi del rilevamento. Le modifiche effettuate nell'interfaccia si applicano subito e restano sul computer in `settings.json`, nella cartella dati dell'app. **Apri il file di configurazione** mostra il file nel gestore dei file; dopo una modifica manuale riavvia l'app.
@@ -97,7 +122,7 @@ Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quel
 
 La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Gatekeeper e SmartScreen possono mostrare avvisi. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
-Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti. L’integrazione dei pacchetti macOS ARM64 e Windows x64 è registrata nel piano. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
+Prima di pubblicare una release occorrono approvazione del commit, verifiche sulla piattaforma reale, smoke fuori dal checkout e checksum SHA-256 degli artifact. La release `v0.2.0` esiste già con i sorgenti e con i pacchetti macOS ARM64. Il pacchetto Windows non è ancora verificato né pubblicato. La release `v0.3.0` non è stata creata. Su Linux non è stata testata di persona. Per i download disponibili fanno fede gli allegati e i checksum della release. Vedi [PLAN.md](PLAN.md).
 
 ### 7. Documentazione e licenza
 
@@ -163,6 +188,31 @@ This is a private repository: cloning requires an authorized account. `npm ci` d
 
 See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTRUCTIONS.md). To change the initial Italian interface, open **Impostazioni** and choose **English**.
 
+#### Build and run on Linux
+
+It has not been tested in person on Linux.
+
+1. Install Git and Node.js 22.12 or newer, with npm. That is the minimum for Electron 45.2.3. The checks described in these documents use Node.js 24.
+2. Install the tools that compile `node-pty`. Version 1.1.0 has no Linux prebuild, and `npm ci` rebuilds it for Electron with node-gyp. The `node-pty` README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`; the Python package to install is `python3`.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+On another distribution, install the equivalents of `build-essential` and `python3`.
+
+3. From the project folder, install, test, build and start:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+4. The Linux package has a script: `npm run dist:linux`. It produces an AppImage and a DEB in `release/`, named `PlanciaComandi-linux-<version>-<arch>.AppImage` and `.deb`. Run it after the tests and the build, on the target Linux system. It has not been tested in person on Linux.
+
 ### 3. Settings
 
 Open **Settings** for language, theme, terminal size, alerts and detection timings. Interface changes apply immediately and remain on this computer in `settings.json`, in the app's data directory. **Open the configuration file** reveals the file in the file manager; restart the app after editing it manually.
@@ -210,7 +260,7 @@ Run only the command for the intended platform. `npm run dist` uses the current 
 
 macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. Gatekeeper and SmartScreen may display warnings. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 
-Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The source-only `v0.2.0` release already exists. The plan records the addition of macOS ARM64 and Windows x64 packages. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
+Publishing a release requires commit approval, checks on the real platform, smoke outside the checkout and artifact SHA-256 checksums. The `v0.2.0` release already exists with the sources and the macOS ARM64 packages. The Windows package is not yet verified or published. Release `v0.3.0` has not been created. It has not been tested in person on Linux. Available downloads are identified by the release assets and checksums. See [PLAN.md](PLAN.md).
 
 ### 7. Documentation and license
 

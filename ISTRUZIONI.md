@@ -37,7 +37,7 @@ Per preparare gli strumenti nativi:
 
 - **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS e il portabile `PlanciaComandi-win-0.3.0-x64.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
-- **Linux:** usa il gestore pacchetti della tua distribuzione per installare Python 3, `make` e il compilatore C++ con i relativi strumenti di sviluppo; nomi e procedura dipendono dalla distribuzione. Poi ripeti `npm ci` dalla cartella del progetto.
+- **Linux:** `node-pty` 1.1.0 non ha una prebuild Linux. Su Debian e Ubuntu installa `build-essential` e `python3`, poi segui [Compilare ed eseguire su Linux](#24-compilare-ed-eseguire-su-linux). Su Linux non è stata testata di persona.
 
 ### 2.2 Ottenere e avviare Plancia Comandi
 
@@ -61,6 +61,35 @@ Questa guida non presuppone che esista già un installer verificato. Se viene pu
 Dopo avere verificato il file per il tuo sistema e la tua architettura, segui le note della release: su macOS apri il DMG e copia l'app in Applicazioni, oppure estrai l'app dallo ZIP; su Windows avvia l'installer e scegli la cartella oppure usa l'eseguibile portabile; su Linux apri il DEB con il gestore pacchetti o assegna all'AppImage il permesso di esecuzione tramite le proprietà del file e avvialo. Queste sono le procedure previste dai target configurati, ancora da verificare sui pacchetti reali.
 
 La distribuzione prevista è non firmata. Gatekeeper e SmartScreen possono mostrare avvisi. Verifica origine e checksum prima di seguire le procedure di apertura previste dal sistema; non disattivare le protezioni globali. Firma, notarizzazione e aggiornamenti automatici non sono configurati.
+
+### 2.4 Compilare ed eseguire su Linux
+
+Su Linux non è stata testata di persona.
+
+1. Installa **Git** e **Node.js 22.12** o successivo, con npm, come nei punti 1 e 2 di questo capitolo. Electron 45.2.3 non si installa con una versione di Node più vecchia. I controlli descritti in questi documenti usano Node.js 24.
+2. Installa gli strumenti che compilano `node-pty`. Il README di `node-pty` 1.1.0 chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`. Il pacchetto Python da installare è `python3`: node-gyp lo usa per la ricompilazione che `npm ci` esegue, perché non esiste una prebuild Linux.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+Su un'altra distribuzione installa l'equivalente di `build-essential` e `python3`.
+
+3. Con un account autorizzato al repository privato, ottieni i sorgenti se non li hai già e, dalla cartella del progetto, installa, prova, compila e avvia:
+
+```bash
+git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm test
+npm run build
+npm run dev
+```
+
+Se il checkout esiste già, non clonarlo di nuovo: esegui gli ultimi quattro comandi nella sua cartella. `npm test` non apre una finestra. `npm run build` controlla TypeScript e genera `dist/` e `dist-electron/`. `npm run dev` apre la finestra desktop.
+
+4. Per il pacchetto Linux esiste lo script `npm run dist:linux`. Dopo test e build produce in `release/` un AppImage e un DEB, con nomi `PlanciaComandi-linux-<versione>-<arch>.AppImage` e `.deb`. Su Linux non è stata testata di persona.
 
 ## 3. Primo avvio
 
@@ -280,9 +309,9 @@ npm test
 npm run build
 ```
 
-`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale: usa Node.js 24, costruisce il commit applicativo indicato, prova il pacchetto Windows, il portabile e l’app installata e conserva gli artifact con SHA-256 per sette giorni. Non pubblica la release. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
+`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale e non pubblica la release. È predisposto per usare Node.js 24, costruire il commit indicato da `source_sha` e controllare sul runner l’eseguibile estratto, il portabile e l’installazione silenziosa. Lo step di packaging esegue `node ../tooling/scripts/package-windows.mjs`: le opzioni restano un oggetto JavaScript e PowerShell non riceve `-c.*` né `--config.*`. La run `43086813880` si è fermata perché quegli argomenti venivano spezzati; la run `43096382710` non è partita (`startup_failure`). Il pacchetto Windows non è ancora verificato, neanche su un Windows reale. Per impacchettare la versione 0.3.0, dopo il merge su `main`, avviare il workflow su `main` con `version` uguale a `0.3.0` e `source_sha` uguale al commit di 40 caratteri esadecimali di quel `main` il cui `package.json` riporta `0.3.0`. Il valore predefinito di `version` è `0.3.0`; `source_sha` non ha un predefinito. Se i due valori non corrispondono, il controllo fallisce prima del packaging. `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
 
-Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. Le icone derivano da `build/icon.png`.
+Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. L'icona Linux e quella della finestra sono `build/icon.png`. Windows usa `build/icon.ico`, macOS `build/icon.icns`. Su Linux non è stata testata di persona.
 
 Prima di distribuire occorre provare il pacchetto fuori dal checkout, controllare che non includa dati privati e generare SHA-256 per ogni artifact, per esempio `shasum -a 256 <artifact>` su macOS, `sha256sum <artifact>` su Linux o `Get-FileHash <artifact> -Algorithm SHA256` in PowerShell, sostituendo `<artifact>` con il percorso reale. Firma e notarizzazione richiedono un processo esplicito, non sono un passo implicito di questi comandi.
 

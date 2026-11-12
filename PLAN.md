@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **M2** è la milestone in corso sul branch `milestone/2-security-paste-hardening`. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** è registrata sul branch `milestone/2-security-paste-hardening`. Merge, tag e release di C2 attendono la fase successiva. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -51,11 +51,11 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 - Audit: zero vulnerabilità note nelle dipendenze di produzione; il toolchain del tag riporta sette moderate e due critiche di sviluppo, incluse Vitest/tinypool. Le dipendenze del tag non vengono modificate da questa patch.
 - Documentazione: README, manuali IT/EN, modello di sicurezza, mappa, piano e regole operative aggiornati.
 - Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
-- Stato: strumenti approvati nel commit `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, uniti a `main` con `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). Pacchetti macOS e SHA-256 pubblicati e riscaricati con esito positivo. Il primo run Windows `43086813880` supera installazione e build ma fallisce sul parsing delle opzioni CLI di packaging. La correzione su `patch/0.2.0-windows-cli` genera una configurazione JSON temporanea con booleani e nomi degli artifact, verificata con il loader e lo schema di electron-builder, prima di passare un solo percorso alla CLI. Attende il controllo del nuovo commit prima di push e nuova esecuzione. Pubblicazione Windows e rimozione dei branch conclusi seguono le verifiche; M2 viene preservato.
+- Stato: strumenti approvati nel commit `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, uniti a `main` con `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). Pacchetti macOS e SHA-256 pubblicati e riscaricati con esito positivo. Il primo run Windows `43086813880` supera installazione e build ma fallisce perché PowerShell spezza `-c.nsis.runAfterFinish=false` e electron-builder apre quel resto come file di configurazione. La PR #5 è unita in `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` e sostituisce quegli argomenti con un JSON e `--config` più il solo percorso. La run `43096382710` su quel commit è `startup_failure` senza job, quindi quel comando non è stato eseguito. Il pacchetto Windows non è ancora verificato. C2 non duplica il JSON: lo step chiama `scripts/package-windows.mjs`. La PR #4 resta aperta. Pubblicazione Windows e rimozione dei branch conclusi seguono le verifiche.
 
 ### 2. Milestone corrente e proposte
 
-C1, già M1, è integrata e pubblicata con i sorgenti. M2 è la milestone in corso su questo branch e resta distinta dalla patch di packaging di C1. Le proposte sotto non diventano eseguibili da sole.
+C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura su questo branch e resta distinta dalla patch di packaging di C1. Merge, tag `milestone/C2` e `v0.3.0`, e la release non sono ancora stati eseguiti. Le proposte sotto non diventano eseguibili da sole.
 
 | Campo | C1 — Clipboard, trascinamento e viste |
 | --- | --- |
@@ -74,30 +74,38 @@ C1, già M1, è integrata e pubblicata con i sorgenti. M2 è la milestone in cor
 
 **Verifiche.** `npm test` 70/70; `npm run build` riuscito, con l'avviso del bundle renderer oltre 500 kB. Queste verifiche non sono una prova automatica su macOS o Windows.
 
-**Limiti residui.** macOS e Windows non verificati in modo automatico; installer non firmati. Punti rinviati a M2: CSP; verifica del mittente negli IPC precedenti a C1; tetto alle code FIFO dell'incolla; test sulla sequenza alternata e sul gesto orfano; riga sul rischio residuo in `SECURITY_MODEL.md`.
+**Limiti residui.** macOS e Windows non verificati in modo automatico; installer non firmati. Punti allora rinviati a M2 e poi registrati in C2: CSP; verifica del mittente negli IPC precedenti a C1; tetto alle code FIFO dell'incolla; test sulla sequenza alternata e sul gesto orfano; riga sul rischio residuo in `SECURITY_MODEL.md`.
 
 **Versione e tag.** Versione **0.2.0**. I tag `v0.2.0` e `milestone/C1` sono pubblicati sul commit di merge `4aabc9bc81a60b0c574221ce37578936341ae065`, verificati sul remoto. La release esistente viene integrata con i pacchetti verificati.
 
-| Campo | M2 — Confini del renderer e incolla |
+| Campo | C2 — Confini del renderer e incolla |
 | --- | --- |
-| Numero e titolo | M2 — Confini del renderer e incolla |
+| Numero e titolo | C2 — Confini del renderer e incolla |
 | Obiettivo | Impedire al renderer di caricare contenuti remoti o script non previsti, accettare gli IPC precedenti a M1 solo dalla finestra dell'app e con payload validi, limitare la lunghezza delle code FIFO dell'incolla, e permettere su Windows installazione e pacchetto senza compilatore e senza privilegi di amministratore. |
-| Branch | `milestone/2-security-paste-hardening`, creato dal commit `0b8fa43b91fe2236f2d31df2959948247348bfdf`. La pull request ha base `main` dopo il merge di C1 `4aabc9bc`. |
-| Tag di checkpoint previsto | `milestone/C2`. Non creato. Il tag di versione previsto è `v0.3.0`: va creato solo dopo le approvazioni. |
-| Tipo incremento versione | `+0.1.0`, da 0.2.0 a **0.3.0**. La build Windows non cambia la versione. |
-| Attività | CSP restrittiva in produzione e sul server Vite; niente `unsafe-eval`; `unsafe-inline` per gli script solo in sviluppo, per il preambolo di React Fast Refresh; `unsafe-inline` per gli stili anche in produzione perché il renderer DOM di xterm.js scrive tema e contrasto nella pagina; verifica del mittente e del payload su tutti i canali IPC precedenti a M1, sia `handle` sia `on`; tetto 64 alle code FIFO dell'incolla; test negativi isolati; su Windows uso delle prebuild N-API di `node-pty` 1.1.0, senza `node-gyp`, con `npmRebuild: false` e postinstall che ricompila solo se la prebuild Windows manca (`scripts/install-native.mjs`). |
+| Branch | `milestone/2-security-paste-hardening`, creato dal commit `0b8fa43b91fe2236f2d31df2959948247348bfdf`. La pull request ha base `main` dopo il merge di C1 `4aabc9bc` e, in questa chiusura, anche dopo il merge di `45f6575c`. |
+| Tag di checkpoint previsto | `milestone/C2`. Non creato. Il tag di versione previsto è `v0.3.0`. Nessuno dei due è stato creato: merge, tag e release attendono la fase successiva. |
+| Tipo incremento versione | `+0.1.0`, da 0.2.0 a **0.3.0**. |
+| Attività | CSP restrittiva in produzione e sul server Vite; niente `unsafe-eval`; `unsafe-inline` per gli script solo in sviluppo, per il preambolo di React Fast Refresh; `unsafe-inline` per gli stili anche in produzione perché il renderer DOM di xterm.js scrive tema e contrasto nella pagina; verifica del mittente e del payload su tutti i canali IPC precedenti a M1, sia `handle` sia `on`; tetto 64 alle code FIFO dell'incolla; test negativi isolati; su Windows uso delle prebuild N-API di `node-pty` 1.1.0, senza `node-gyp`, con `npmRebuild: false` e postinstall che ricompila solo se la prebuild Windows manca (`scripts/install-native.mjs`); icona dell'app in `build/`; packaging Windows tramite `scripts/package-windows.mjs`, senza argomenti `-c.*`. |
 | Criteri di accettazione | La policy di produzione non contiene `unsafe-eval`, host remoti né `unsafe-inline` negli script. Lo sviluppo parla solo con il loopback `127.0.0.1`. Un mittente diverso dalla finestra dell'app non riceve dati e non esegue l'azione. Un payload non valido non arriva al manager, al dialogo o alla shell. Le code di incolla non superano 64 metà. Terminali e temi restano funzionanti: l'eccezione di stile è documentata. Su Windows, senza compilatore, `npm ci`, `npm test`, `npm run build`, `npm run dev` e `npm run dist:win` non invocano `node-gyp`. Linux, che non ha una prebuild, continua a ricompilare. |
-| Test | `npm test` **124/124** e `npm run build` riuscito su questo branch, con l'avviso del bundle renderer oltre 500 kB. Non eseguiti, perché non sostituiscono uno smoke dell'app: DevTools senza violazioni CSP, terminali, temi e incolla su Linux, macOS e Windows; smoke Electron; packaging; checksum. La checklist manuale è nella pull request. |
-| Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. |
-| Stato | `M`. Glauco ha approvato l'aggiunta della build Windows senza compilatore. Merge, tag e release di M2 non sono autorizzati. La pull request ha base `main`. |
+| Test | `npm ci`, poi `npm test` **126/126** e `npm run build` riuscito sul branch dopo il merge di `main` `45f6575c`, con l'avviso del bundle renderer oltre 500 kB. Node.js del controllo: 22.23.4. Non eseguiti, perché non sostituiscono uno smoke dell'app: DevTools senza violazioni CSP, terminali, temi e incolla su Linux, macOS e Windows; smoke Electron; pacchetto Linux, macOS o Windows; checksum. La checklist manuale è nella pull request. Su Linux non è stata testata di persona. |
+| Documentazione | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. Non esiste un `CHANGELOG`. |
+| Stato | `C2`. Glauco ha approvato la chiusura di M2, compresi commit, push e aggiornamento della pull request. Merge, tag, release, avvio del workflow, chiusura della PR #4 e cancellazione dei branch restano alla fase successiva. |
+
+**Riepilogo.** CSP del renderer; mittente e payload sugli IPC precedenti a M1; tetto 64 delle code di incolla; prebuild Windows di `node-pty` senza `node-gyp`; icona PNG, ICO e ICNS; procedura Linux; packaging Windows dallo script Node. File generati: `build/icon.png` 1914419 byte, `build/icon.ico` 154378 byte, `build/icon.icns` 1700498 byte.
+
+**Verifiche.** `npm ci` riuscito su Linux e ha ricompilato `node-pty` per Electron. `npm test` 126/126. `npm run build` riuscito, con l'avviso del bundle renderer oltre 500 kB. Non è uno smoke della finestra né un pacchetto.
+
+**Limiti residui.** Su Linux non è stata testata di persona. Il pacchetto Windows non è ancora verificato. Le icone non sono state provate dentro un DMG, uno ZIP o un installer. Merge, tag `milestone/C2` e `v0.3.0`, e la release `v0.3.0` non sono stati eseguiti.
+
+**Versione e tag.** Versione **0.3.0**. Checkpoint previsto `milestone/C2`. Tag di versione previsto `v0.3.0`. Nessuno dei due è stato creato.
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
-| P1 — Confini di sicurezza | Resta da decidere ciò che M2 non copre: timeout delle regex, scrittura atomica delle impostazioni e redazione degli errori. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla sono M2. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
+| P1 — Confini di sicurezza | Resta da decidere ciò che C2 non copre: timeout delle regex, scrittura atomica delle impostazioni e redazione degli errori. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla sono C2. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
 | P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
 
-Versione, branch, checkpoint, attività e test dettagliati saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di M2. La landing page GitHub Pages non è stata richiesta e non è inclusa.
+Versione, branch, checkpoint, attività e test dettagliati saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages non è stata richiesta e non è inclusa.
 
 ### 3. Convenzioni delle milestone
 
@@ -133,11 +141,11 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. Una modifica esclusivamente documentale può lasciare invariata la versione e non richiede una release. Per milestone o patch applicative concluse pubblicare una release secondo le preferenze HOME; se l'app non è utilizzabile, indicarla come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
 
-Il solo workflow `package-windows.yml` si avvia manualmente per le verifiche native Windows non equivalenti in locale. Non parte su push o PR. Le verifiche macOS ARM64 sono locali; altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
+Il solo workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. Il pacchetto Windows non è ancora verificato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali; non esiste un workflow macOS. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **M2** is the milestone in progress on branch `milestone/2-security-paste-hardening`. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** is recorded on branch `milestone/2-security-paste-hardening`. C2's merge, tags and release wait for the next phase. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -186,11 +194,11 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 - Audit: zero known production-dependency vulnerabilities; the tag’s development toolchain reports seven moderate and two critical findings, including Vitest/tinypool. This patch does not change tag dependencies.
 - Documentation: README, IT/EN manuals, security model, map, plan and operating rules updated.
 - Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
-- Status: tooling approved at `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, merged into `main` as `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). macOS packages and SHA-256 published and successfully downloaded again. The first Windows run, `43086813880`, passes installation and build but fails while parsing packaging CLI options. The fix on `patch/0.2.0-windows-cli` generates a temporary JSON configuration containing booleans and artifact names, checked with electron-builder's loader and schema, then passes a single path to the CLI. It awaits new-commit review before push and another run. Windows publication and completed-branch removal follow verification; M2 is preserved.
+- Status: tooling approved at `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, merged into `main` as `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). macOS packages and SHA-256 published and successfully downloaded again. The first Windows run, `43086813880`, passes installation and build but fails because PowerShell splits `-c.nsis.runAfterFinish=false` and electron-builder opens that remainder as a configuration file. PR #5 is merged as `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` and replaces those arguments with a JSON file and `--config` plus only the path. Run `43096382710` on that commit is `startup_failure` with no jobs, so that command was not executed. The Windows package is not yet verified. C2 does not duplicate the JSON: the step calls `scripts/package-windows.mjs`. PR #4 stays open. Windows publication and removal of finished branches follow verification.
 
 ### 2. Current milestone and proposals
 
-C1, formerly M1, is merged and published as source. M2 is the milestone in progress on this branch and stays separate from the C1 packaging patch. The proposals below do not become executable on their own.
+C1, formerly M1, is merged and published as source. C2, formerly M2, is approved for closure on this branch and stays separate from the C1 packaging patch. The merge, tags `milestone/C2` and `v0.3.0`, and the release have not been performed. The proposals below do not become executable on their own.
 
 | Field | C1 — Clipboard, drag-and-drop and views |
 | --- | --- |
@@ -209,30 +217,38 @@ C1, formerly M1, is merged and published as source. M2 is the milestone in progr
 
 **Checks.** `npm test` 70/70; `npm run build` passed, with the renderer bundle warning above 500 kB. These checks are not an automatic macOS or Windows verification.
 
-**Residual limitations.** macOS and Windows were not verified automatically; installers are unsigned. Deferred to M2: CSP; sender checks on IPC channels that predate C1; a cap on the paste FIFO queues; a test of the alternating sequence and of the orphan gesture; a residual-risk line in `SECURITY_MODEL.md`.
+**Residual limitations.** macOS and Windows were not verified automatically; installers are unsigned. Items then deferred to M2 and later recorded in C2: CSP; sender checks on IPC channels that predate C1; a cap on the paste FIFO queues; a test of the alternating sequence and of the orphan gesture; a residual-risk line in `SECURITY_MODEL.md`.
 
 **Version and tags.** Version **0.2.0**. Tags `v0.2.0` and `milestone/C1` are published at merge commit `4aabc9bc81a60b0c574221ce37578936341ae065`, verified remotely. Verified packages are added to the existing release.
 
-| Field | M2 — Renderer boundaries and paste |
+| Field | C2 — Renderer boundaries and paste |
 | --- | --- |
-| Number and title | M2 — Renderer boundaries and paste |
+| Number and title | C2 — Renderer boundaries and paste |
 | Goal | Stop the renderer from loading remote content or unexpected scripts, accept IPC that predates M1 only from the app window and only with a valid payload, cap the length of the paste FIFO queues, and allow Windows installation and packaging without a compiler and without administrator privileges. |
-| Branch | `milestone/2-security-paste-hardening`, created from commit `0b8fa43b91fe2236f2d31df2959948247348bfdf`. The pull request is based on `main` after the C1 merge `4aabc9bc`. |
-| Planned checkpoint tag | `milestone/C2`. Not created. The planned version tag is `v0.3.0`: create it only after the approvals. |
-| Version increment | `+0.1.0`, from 0.2.0 to **0.3.0**. The Windows build does not change the version. |
-| Tasks | Restrictive CSP in production and on the Vite server; no `unsafe-eval`; `unsafe-inline` for scripts only in development, for the React Fast Refresh preamble; `unsafe-inline` for styles in production as well because xterm.js's DOM renderer writes the theme and contrast into the page; sender and payload checks on every IPC channel that predates M1, both `handle` and `on`; a cap of 64 on the paste FIFO queues; isolated negative tests; on Windows, use the N-API prebuilds in `node-pty` 1.1.0, without `node-gyp`, with `npmRebuild: false` and a postinstall that rebuilds only when the Windows prebuild is missing (`scripts/install-native.mjs`). |
+| Branch | `milestone/2-security-paste-hardening`, created from commit `0b8fa43b91fe2236f2d31df2959948247348bfdf`. The pull request is based on `main` after the C1 merge `4aabc9bc` and, in this closure, also after the merge of `45f6575c`. |
+| Planned checkpoint tag | `milestone/C2`. Not created. The planned version tag is `v0.3.0`. Neither has been created: merge, tags and release wait for the next phase. |
+| Version increment | `+0.1.0`, from 0.2.0 to **0.3.0**. |
+| Tasks | Restrictive CSP in production and on the Vite server; no `unsafe-eval`; `unsafe-inline` for scripts only in development, for the React Fast Refresh preamble; `unsafe-inline` for styles in production as well because xterm.js's DOM renderer writes the theme and contrast into the page; sender and payload checks on every IPC channel that predates M1, both `handle` and `on`; a cap of 64 on the paste FIFO queues; isolated negative tests; on Windows, use the N-API prebuilds in `node-pty` 1.1.0, without `node-gyp`, with `npmRebuild: false` and a postinstall that rebuilds only when the Windows prebuild is missing (`scripts/install-native.mjs`); the app icon in `build/`; Windows packaging through `scripts/package-windows.mjs`, with no `-c.*` arguments. |
 | Acceptance | The production policy contains no `unsafe-eval`, no remote hosts and no `unsafe-inline` for scripts. Development talks only to the `127.0.0.1` loopback. A sender other than the app window receives no data and runs no action. An invalid payload does not reach the manager, the dialog or the shell. Paste queues do not grow past 64 halves. Terminals and themes keep working: the style exception is documented. On Windows, without a compiler, `npm ci`, `npm test`, `npm run build`, `npm run dev` and `npm run dist:win` do not invoke `node-gyp`. Linux, which has no prebuild, still compiles. |
-| Tests | `npm test` **124/124** and `npm run build` passed on this branch, with the renderer bundle warning above 500 kB. Not run, because they do not replace an application smoke test: DevTools with no CSP violations, terminals, themes and paste on Linux, macOS and Windows; Electron smoke; packaging; checksums. The manual checklist is in the pull request. |
-| Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. |
-| Status | `M`. Glauco approved adding the Windows build without a compiler. Merge, tags and release of M2 are not authorized. The pull request is based on `main`. |
+| Tests | `npm ci`, then `npm test` **126/126** and `npm run build` passed on the branch after merging `main` `45f6575c`, with the renderer bundle warning above 500 kB. Node.js for that check: 22.23.4. Not run, because they do not replace an application smoke test: DevTools with no CSP violations, terminals, themes and paste on Linux, macOS and Windows; Electron smoke; a Linux, macOS or Windows package; checksums. The manual checklist is in the pull request. It has not been tested in person on Linux. |
+| Documentation | `README.md`, `ISTRUZIONI.md`, `INSTRUCTIONS.md`, `QUICK-START_Desktop.md`, `SECURITY_MODEL.md`, `MAP.md`, `PLAN.md`, `AGENTS.md`. There is no `CHANGELOG`. |
+| Status | `C2`. Glauco approved closing M2, including the commit, the push and the pull-request update. Merge, tags, release, starting the workflow, closing PR #4 and deleting branches wait for the next phase. |
+
+**Summary.** Renderer CSP; sender and payload checks on IPC that predates M1; a cap of 64 on the paste queues; Windows `node-pty` prebuilds without `node-gyp`; PNG, ICO and ICNS icons; the Linux procedure; Windows packaging from the Node script. Generated files: `build/icon.png` 1914419 bytes, `build/icon.ico` 154378 bytes, `build/icon.icns` 1700498 bytes.
+
+**Checks.** `npm ci` passed on Linux and rebuilt `node-pty` for Electron. `npm test` 126/126. `npm run build` passed, with the renderer bundle warning above 500 kB. This is not a window smoke test or a package.
+
+**Residual limitations.** It has not been tested in person on Linux. The Windows package is not yet verified. The icons have not been tried inside a DMG, a ZIP or an installer. The merge, tags `milestone/C2` and `v0.3.0`, and release `v0.3.0` have not been performed.
+
+**Version and tags.** Version **0.3.0**. Planned checkpoint `milestone/C2`. Planned version tag `v0.3.0`. Neither has been created.
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
-| P1 — Security boundaries | Still to be decided, for what M2 does not cover: regex timeouts, atomic settings writes and error redaction. CSP, sender checks on IPC that predates M1 and the paste-queue cap are M2. | Isolated negative tests and an updated security model; preserve shell operation. |
+| P1 — Security boundaries | Still to be decided, for what C2 does not cover: regex timeouts, atomic settings writes and error redaction. CSP, sender checks on IPC that predates M1 and the paste-queue cap are C2. | Isolated negative tests and an updated security model; preserve shell operation. |
 | P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
 
-Version, branch, checkpoint, detailed tasks and tests will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of M2. A GitHub Pages landing page was not requested and is not included.
+Version, branch, checkpoint, detailed tasks and tests will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. A GitHub Pages landing page was not requested and is not included.
 
 ### 3. Milestone conventions
 
@@ -268,4 +284,4 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 
 Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Documentation-only work may keep the version unchanged and does not require a release. For completed application milestones or patches, publish a release under HOME preferences; mark it as a prerelease if the app is not usable. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
 
-The only workflow, `package-windows.yml`, is manually triggered for native Windows checks that cannot be performed equivalently locally. It does not run on push or PR. macOS ARM64 checks run locally; additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.
+The only workflow, `package-windows.yml`, is manually triggered for a Windows build attempt that cannot be performed equivalently locally. It does not run on push or PR. The Windows package is not yet verified. The macOS ARM64 checks for release `v0.2.0` run locally; there is no macOS workflow. Additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.

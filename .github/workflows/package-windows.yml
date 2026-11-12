@@ -4,13 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Reviewed application commit to package
+        description: Full 40-hex commit to package. For 0.3.0, use the main commit whose package.json version is 0.3.0.
         required: true
-        default: 4aabc9bc81a60b0c574221ce37578936341ae065
       version:
-        description: Expected application version
+        description: Expected package.json version
         required: true
-        default: 0.2.0
+        default: "0.3.0"
 
 permissions:
   contents: read
@@ -23,6 +22,11 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 25
+    # A green run only builds on a GitHub-hosted runner. The Windows package
+    # stays unverified until that run succeeds and the artifact is tried on a
+    # real Windows machine. Do not pass -c.* or --config.* on this shell:
+    # PowerShell splits those tokens. Run 43086813880 failed that way. The
+    # packaging step calls scripts/package-windows.mjs instead.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -62,9 +66,8 @@ jobs:
       - name: Package installer and portable executable
         working-directory: app
         run: |
-          node -e "const fs=require('node:fs');const v=require('./package.json').version;fs.writeFileSync('release-windows.config.json',JSON.stringify({extends:'./electron-builder.json5',npmRebuild:false,nsis:{runAfterFinish:false,artifactName:'PlanciaComandi-win-'+v+'-x64-setup.exe'},portable:{artifactName:'PlanciaComandi-win-'+v+'-x64-portable.exe'}}))"
+          node ../tooling/scripts/package-windows.mjs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          npm exec electron-builder -- --win --x64 --publish never --config release-windows.config.json
       - name: Smoke unpacked Windows package
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
