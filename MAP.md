@@ -95,8 +95,8 @@ Plancia-Comandi/
 |       `-- status.test.ts           Test della logica pura
 |-- .github/
 |   `-- workflows/
-|       |-- package-macos.yml         Packaging macOS manuale, non firmato, non ancora eseguito
-|       `-- package-windows.yml      Packaging Windows manuale, non ancora verificato
+|       |-- package-macos.yml         Packaging macOS manuale, eseguito per v0.3.0
+|       `-- package-windows.yml      Packaging Windows manuale, eseguito per v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
 |   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
@@ -122,7 +122,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Esempio delle impostazioni
 ```
 
-`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum; il pacchetto Windows non è ancora verificato. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e costruisce DMG e ZIP ARM64 non firmati; non è ancora stato eseguito. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
+`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
 
@@ -254,8 +254,8 @@ Plancia-Comandi/
 |       `-- status.test.ts           Pure-logic tests
 |-- .github/
 |   `-- workflows/
-|       |-- package-macos.yml         Manual unsigned macOS packaging, not yet run
-|       `-- package-windows.yml      Manual Windows packaging, not yet verified
+|       |-- package-macos.yml         Manual macOS packaging, run for v0.3.0
+|       `-- package-windows.yml      Manual Windows packaging, run for v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
 |   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
@@ -281,7 +281,7 @@ Plancia-Comandi/
         `-- plancia-settings.png     Settings example
 ```
 
-`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums; the Windows package is not yet verified. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and builds unsigned ARM64 DMG and ZIP files; it has not been run. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
+`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
 
