@@ -102,14 +102,14 @@ npm run build
 
 Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. La run `43226304320` ha costruito i pacchetti Windows di 0.3.0, tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, e ha verificato l'eseguibile scompattato, il portable e l'app installata. Il workflow manuale `package-macos.yml` non parte su push o PR. La run `43257940568`, tooling `95500826ba986a4ef4addceda8840188595ee2c7`, ha costruito il DMG e lo ZIP Apple Silicon non firmati e ha eseguito smoke e ispezione solo sull'app scompattata. La release è [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). La build non verifica una shell reale o un installer.
 
-La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.1. È preparata localmente per M4: GitHub Pages non è ancora abilitato. Per controllarla dal checkout:
+La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.1. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
 
 ```bash
 npm run check:site
 npm run preview:site
 ```
 
-Apri `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C arresta l'anteprima. Il server serve solo la pagina statica, senza avviare Electron. Per la pubblicazione prevista si useranno `main` e `/docs`, con `.nojekyll`, dopo i due controlli del commit di M4; non è aggiunto un workflow al repository. GitHub esegue comunque il deploy Pages gestito, necessario per il sito richiesto. L'URL predefinito previsto è `https://gloutchov.github.io/Plancia-Comandi/`; un eventuale dominio dedicato richiede una scelta separata. Procedura: [sorgente di pubblicazione Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Apri `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C arresta l'anteprima. Il server serve solo la pagina statica, senza avviare Electron. La sorgente di pubblicazione prevista da C4 è `main` e `/docs`, con `.nojekyll` e i due controlli del commit prima del push; non è aggiunto un workflow al repository. GitHub esegue comunque il deploy Pages gestito, necessario per il sito richiesto. L'URL di pubblicazione è `https://gloutchov.github.io/Plancia-Comandi/`; un eventuale dominio dedicato richiede una scelta separata. Procedura: [sorgente di pubblicazione Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -146,7 +146,7 @@ Prima di pubblicare una release occorrono approvazione del commit, verifiche sul
 | [MAP.md](MAP.md) | Struttura e responsabilità del repository IT/EN. |
 | [PLAN.md](PLAN.md) | Piano, verifiche e procedura di chiusura IT/EN. |
 | [AGENTS.md](AGENTS.md) | Regole operative per agenti e maintainer. |
-| [docs/index.html](docs/index.html) | Sorgenti della landing IT/EN, in revisione prima della pubblicazione. |
+| [docs/index.html](docs/index.html) | Sorgenti della landing IT/EN di C4. |
 
 Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
@@ -252,14 +252,14 @@ npm run build
 
 Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. Run `43226304320` built the Windows packages for 0.3.0, tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, and checked the unpacked executable, the portable executable and the installed app. The manual `package-macos.yml` workflow does not run on push or PR. Run `43257940568`, tooling `95500826ba986a4ef4addceda8840188595ee2c7`, built the unsigned Apple Silicon DMG and ZIP and ran smoke tests and inspection only on the unpacked app. The release is [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Building does not verify a real shell or installer.
 
-The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.1 packages. It is prepared locally for M4: GitHub Pages is not enabled yet. To check it from the checkout:
+The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.1 packages. Milestone C4 records its checks and publication. To check it from the checkout:
 
 ```bash
 npm run check:site
 npm run preview:site
 ```
 
-Open `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C stops the preview. The server serves only the static page and does not launch Electron. The planned publishing source is `main` and `/docs`, with `.nojekyll`, after both M4 commit reviews; no repository workflow is added. GitHub still runs its managed Pages deployment, which is necessary for the requested site. The planned default URL is `https://gloutchov.github.io/Plancia-Comandi/`; a dedicated domain requires a separate choice. Procedure: [Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Open `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C stops the preview. The server serves only the static page and does not launch Electron. The planned publishing source is `main` and `/docs`, with `.nojekyll`, with both commit reviews before pushing; no repository workflow is added. GitHub still runs its managed Pages deployment, which is necessary for the requested site. The publication URL is `https://gloutchov.github.io/Plancia-Comandi/`; a dedicated domain requires a separate choice. Procedure: [Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 For a demo from a checkout with Bash on macOS/Linux:
 
@@ -296,6 +296,6 @@ Publishing a release requires commit approval, checks on the real platform, smok
 | [MAP.md](MAP.md) | IT/EN repository structure and responsibilities. |
 | [PLAN.md](PLAN.md) | IT/EN plan, checks and closure procedure. |
 | [AGENTS.md](AGENTS.md) | Operating rules for agents and maintainers. |
-| [docs/index.html](docs/index.html) | IT/EN landing source, under review before publication. |
+| [docs/index.html](docs/index.html) | C4 IT/EN landing source. |
 
 Licensed under the **Apache License 2.0**: see the full text in [LICENSE](LICENSE).
