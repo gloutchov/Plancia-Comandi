@@ -8,6 +8,8 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
 - [2. Milestone e proposte](#2-milestone-e-proposte)
+- [2.1 Milestone di sicurezza pianificate](#21-milestone-di-sicurezza-pianificate)
+- [2.2 Proposte e parti residue](#22-proposte-e-parti-residue)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -140,13 +142,80 @@ C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata
 | Documentazione | `README.md`, `PLAN.md`, `MAP.md`, `QUICK-START_Desktop.md`; `SECURITY_MODEL.md` per hosting, rete e storage delle preferenze del sito; manuali IT/EN e `AGENTS.md` se cambiano istruzioni o procedure operative. |
 | Stato | `C4`, già M4, chiusa e pubblicata. Prima approvazione ricevuta sul commit `fbcdc832bce9697c2276e5948e3751af0d9e7355`; seconda approvazione esplicita ricevuta il 13 novembre 2026 sul commit `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, prima di merge, push e tag. Main aggiornato con fast-forward e verificato sul remoto; tag annotato `milestone/C4` allo stesso commit. Landing statica IT/EN in `docs/`, con 78 chiavi equivalenti, tema automatico e manuale, galleria C3, nuova icona e firma centrata. Script classici differiti utilizzabili anche aprendo direttamente l’HTML. `npm test` 149/149 e controllo del sito riusciti; build desktop già riuscita prima delle correzioni statiche, con avviso renderer oltre 500 kB, non ripetuta per la chiusura documentale. Verificate 40 combinazioni Chromium isolate su HTTP/file, due lingue, due temi e cinque dimensioni. Pages `main:/docs` attivato senza CNAME, DNS o workflow aggiuntivi: [deploy gestito 43431582012](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43431582012) riuscito sul commit approvato; sito [HTTPS](https://gloutchov.github.io/Plancia-Comandi/) con HTTPS obbligatorio, 14 risorse pubbliche identiche ai sorgenti e 8 combinazioni UI pubbliche riuscite. Release del sito pubblicata con ZIP e SHA-256 controllati; latest desktop resta v0.3.1. Branch M4 locale rimosso dopo tutte le verifiche; nessun branch M4 remoto era stato pubblicato. Non verificati altri browser/piattaforme; nessuna nuova build desktop, firma o notarizzazione. Temporanei e copie locali degli allegati in `out/m4/` preservati in attesa della conferma separata di pulizia. |
 
+#### 2.1 Milestone di sicurezza pianificate
+
+Glauco ha richiesto questa pianificazione il 13 novembre 2026 dopo la revisione dei sorgenti 0.3.1: 149 test riusciti, audit completo con 9 pacchetti segnalati nella toolchain (2 critici, 7 moderati), audit di produzione senza segnalazioni e prova isolata di regex patologica oltre 250 ms. Dettaglio e limiti nel [modello di sicurezza](SECURITY_MODEL.md#7-verifiche-e-rischi-residui). La pianificazione non corregge le vulnerabilità.
+
+Eseguire M5 → M6 → M7 → M8 → M9, ciascuna da main dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. La progressione 0.3.2–0.3.6 è prevista in assenza di release intermedie: confermare versione e tag all'avvio. Per ogni chiusura applicare i due controlli HOME, release con artifact/SHA-256 e documentazione/landing allineate alla versione pubblicata. Preferire controlli locali; motivare prima eventuale CI necessaria, usando i workflow di packaging esistenti senza nuovi automatismi per questa pianificazione.
+
+**Vincolo comune:** firma Windows, firma macOS e notarizzazione sono escluse perché le credenziali non sono disponibili. I pacchetti non firmati e gli avvisi del sistema sono limiti dichiarati che non bloccano l'accettazione; restano necessari checksum e verifica della provenienza. Nessuna configurazione di firma, notarizzazione o auto-update è autorizzata da questo piano.
+
+Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` dopo verifica del checkpoint C4. Modifica solo documenti, mantiene la versione 0.3.1 e prevede il tag documentale annotato `docs/security-roadmap-2026-11-13` sul commit approvato; nessuna milestone è avviata e non è prevista una nuova release applicativa.
+
+| Campo | M5 — Runtime Electron aggiornato |
+| --- | --- |
+| Numero e obiettivo | M5 — Aggiornare il runtime distribuito mantenendo terminali, bridge e preferenze funzionanti nei pacchetti supportati. |
+| Dipendenza e branch previsto | Dopo C4 e questa patch documentale approvata; `milestone/5-electron-runtime`. |
+| Checkpoint e versione previsti | `milestone/C5`, `v0.3.2`; incremento `+0.0.1`. |
+| Attività | Valutare Electron 45.3.2, disponibile alla revisione, o una release mantenuta successiva; verificare note ufficiali e correzioni Chromium/Node/V8. Aggiornare package e lockfile, requisiti Node e compatibilità dei moduli nativi. |
+| Accettazione | Versione scelta motivata e fissata nel lockfile; isolamento, sandbox e CSP preservati. PTY, avvio, viste, IT/EN e temi funzionano nei pacchetti verificati. L'audit `--omit=dev` non sostituisce la valutazione del runtime incorporato. |
+| Test richiesti | Installazione riproducibile, suite e build; ispezione e smoke dei pacchetti Windows x64/macOS ARM64 fuori dal checkout con profilo e ambiente isolati, senza dati o shell personali. Nessuna nuova compatibilità dichiarata senza prova. |
+| Documentazione | README, manuali IT/EN, quick start, SECURITY_MODEL, MAP, AGENTS per la versione; PLAN e landing/download allineati alla release verificata. |
+| Stato | `M5`, solo pianificata; implementazione non avviata. |
+
+| Campo | M6 — Toolchain con dipendenze controllate |
+| --- | --- |
+| Numero e obiettivo | M6 — Ridurre i rischi degli strumenti di test e packaging, mantenendo riproducibili i comandi del progetto. |
+| Dipendenza e branch previsto | Dopo C5; `milestone/6-toolchain-security`. |
+| Checkpoint e versione previsti | `milestone/C6`, `v0.3.3`; incremento `+0.0.1`. |
+| Attività | Aggiornare Vitest e le dipendenze interessate, comprese Tinypool e mocker; affrontare minimatch nella catena electron-builder. Valutare avvisi, versioni mantenute e compatibilità; evitare `audit fix --force`, downgrade o override non verificati. |
+| Accettazione | Audit completo e di produzione confrontati prima/dopo; nessuna segnalazione critica/alta applicabile senza soluzione. Obiettivo zero segnalazioni; eventuali residui richiedono condizioni di sfruttamento, motivazione, mitigazione e decisione esplicita di Glauco. |
+| Test richiesti | `npm ci`, suite e build; verificare API usate dagli script, contenuti dei pacchetti e assenza di test runner/tool di build nell'app. Smoke degli artifact Windows x64/macOS ARM64 con dati isolati. |
+| Documentazione | Requisiti e lockfile; README, manuali, quick start, SECURITY_MODEL, MAP, PLAN, riferimenti di versione e landing coerenti con la release. |
+| Stato | `M6`, solo pianificata; implementazione non avviata. |
+
+| Campo | M7 — Rilevamento resistente alle regex patologiche |
+| --- | --- |
+| Numero e obiettivo | M7 — Impedire che una regex aggiuntiva blocchi il processo principale e la gestione dei terminali; attua la parte regex di P1. |
+| Dipendenza e branch previsto | Dopo C6; `milestone/7-regex-resilience`. |
+| Checkpoint e versione previsti | `milestone/C7`, `v0.3.4`; incremento `+0.0.1`. |
+| Attività | Separare il matching potenzialmente bloccante con budget di tempo effettivo, cancellazione e fallback, oppure adottare un motore con comportamento limitato. Conservare limiti di numero/lunghezza e validare eventuali nuovi parametri centrali. Un timer sullo stesso thread del matching non è un timeout efficace. |
+| Accettazione | Pattern invalidi, troppo costosi o fuori limite non bloccano l'app; fallback e messaggio IT/EN comprensibili. Rilevamento predefinito preservato, code/worker limitati e risorse rilasciate alla chiusura. Nessuna dipendenza aggiuntiva senza motivazione. |
+| Test richiesti | Caso patologico della revisione in esecuzione isolata e terminabile; input lunghi, molti pattern, cancellazione e riapertura; regressioni del rilevatore. Verificare reattività della finestra e del bridge con fixture nei due temi e lingue. |
+| Documentazione | Manuali IT/EN, configurazione pertinente, SECURITY_MODEL, MAP, PLAN e riferimenti alla versione; landing se cambia un comportamento presentato. |
+| Stato | `M7`, solo pianificata; implementazione non avviata. |
+
+| Campo | M8 — Preferenze robuste e diagnostica protetta |
+| --- | --- |
+| Numero e obiettivo | M8 — Ridurre perdita delle preferenze e divulgazione di dati tramite errori; attua la restante parte pianificata di P1. |
+| Dipendenza e branch previsto | Dopo C7; `milestone/8-settings-diagnostics`. |
+| Checkpoint e versione previsti | `milestone/C8`, `v0.3.5`; incremento `+0.0.1`. |
+| Attività | Scrivere settings.json in modo atomico con temporaneo e sostituzione nella stessa directory; limitare la dimensione prima della lettura JSON e gestire file corrotti/errori. Definire confini e permessi; normalizzare errori/log evitando percorsi privati, variabili sensibili e contenuti utente non necessari. |
+| Accettazione | Un errore di scrittura preserva l'ultima configurazione valida; file eccessivi/corrotti hanno fallback documentati. Errori utili e localizzati senza dettagli sensibili; nessuno storage di credenziali o invio di diagnostica a servizi esterni. |
+| Test richiesti | Filesystem temporaneo: dimensioni al limite, JSON invalido, permessi negati, scrittura/sostituzione interrotte e migrazione legacy. Dati sintetici verificano redazione su UI/log; regressioni di preferenze IT/EN e chiaro/scuro. |
+| Documentazione | Manuali, quick start per il recupero, SECURITY_MODEL, MAP, PLAN, riferimenti alla versione e landing se pertinente. |
+| Stato | `M8`, solo pianificata; implementazione non avviata. |
+
+| Campo | M9 — Confini IPC/CSP e pacchetti verificati |
+| --- | --- |
+| Numero e obiettivo | M9 — Rendere ripetibili i controlli di sicurezza sui pacchetti distribuiti e correggere le lacune circoscritte; recepisce la parte sicurezza/pacchetti di P3. |
+| Dipendenza e branch previsto | Dopo C8; `milestone/9-package-security`. |
+| Checkpoint e versione previsti | `milestone/C9`, `v0.3.6`; incremento `+0.0.1`. |
+| Attività | Provare IPC reale con mittenti, frame/origini e payload invalidi, rafforzando i controlli dove necessario. Verificare CSP applicata, blocco navigazioni/popup e permessi non necessari. Rafforzare ispezione/smoke di installer/portable Windows x64 e DMG/ZIP macOS ARM64, con HOME/appData/userData isolati e senza file privati/tool di sviluppo. |
+| Accettazione | Richieste rifiutate senza effetti privilegiati; protezioni del renderer effettive nei pacchetti e test isolati ripetibili. Artifact/SHA-256 corrispondono al commit approvato. Firma/notarizzazione escluse; Linux, macOS Intel e ulteriori casi funzionali restano P3 se non verificati esplicitamente, senza nuove promesse di compatibilità. |
+| Test richiesti | Matrice nativa Windows x64/macOS ARM64, formati distribuiti e smoke fuori dal checkout; negativi IPC/CSP e contenuti del pacchetto. Correggere i limiti noti degli script elencati nel modello di sicurezza; usare solo fixture/profili temporanei, senza credenziali o sessioni reali. |
+| Documentazione | SECURITY_MODEL con evidenze/limiti per piattaforma, MAP per script/test, manuali e quick start per installazione, README/PLAN e landing per i soli pacchetti verificati. |
+| Stato | `M9`, solo pianificata; implementazione non avviata. |
+
+#### 2.2 Proposte e parti residue
+
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
-| P1 — Confini di sicurezza | Resta da decidere ciò che C2 non copre: timeout delle regex, scrittura atomica delle impostazioni e redazione degli errori. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla sono C2. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
+| P1 — Confini di sicurezza, recepita in M7–M8 | Timeout delle regex in M7; preferenze atomiche e diagnostica in M8. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla restano C2. | Completamento da verificare attraverso C7/C8 con test negativi isolati e modello aggiornato; nessuna correzione già attribuita alla pianificazione. |
 | P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
-| P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
+| P3 — Distribuzione verificata, parte recepita in M9 | Sicurezza IPC/CSP e pacchetti Windows x64/macOS ARM64 in M9. Restano da pianificare ulteriori verifiche Linux/macOS Intel e casi funzionali non coperti di notifiche, scorciatoie, shell e PTY. Firma e notarizzazione escluse per indisponibilità delle credenziali. | Esiti distinti per piattaforma e formato, senza dichiarare compatibilità non verificata. Le parti residue richiedono una nuova decisione prima di diventare milestone. |
 
-Versione, branch, checkpoint, attività e test dettagliati delle proposte P1–P3 saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages è C4, già M4, pubblicata e verificata sul checkpoint remoto `milestone/C4`; la release del sito è distinta dai pacchetti desktop 0.3.1.
+Versione, branch, checkpoint, attività e test di P1 e della parte sicurezza/pacchetti di P3 sono definiti in M7–M9; P2 e le parti residue di P3 restano proposte. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages è C4, già M4, pubblicata e verificata sul checkpoint remoto `milestone/C4`; la release del sito è distinta dai pacchetti desktop 0.3.1.
 
 ### 3. Convenzioni delle milestone
 
@@ -221,6 +290,8 @@ This plan records the existing Plancia Comandi baseline and future work. Applica
 
 - [1. Baseline and current work](#1-baseline-and-current-work)
 - [2. Milestones and proposals](#2-milestones-and-proposals)
+- [2.1 Planned security milestones](#21-planned-security-milestones)
+- [2.2 Proposals and remaining work](#22-proposals-and-remaining-work)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -353,13 +424,80 @@ C1, formerly M1, is merged and published as source. C2, formerly M2, is approved
 | Documentation | `README.md`, `PLAN.md`, `MAP.md`, `QUICK-START_Desktop.md`; `SECURITY_MODEL.md` for hosting, network and site-preference storage; IT/EN manuals and `AGENTS.md` if instructions or operating procedures change. |
 | Status | `C4`, formerly M4, closed and published. First approval received for `fbcdc832bce9697c2276e5948e3751af0d9e7355`; second explicit approval received on 13 November 2026 for `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, before merge, push or tags. Main fast-forwarded and verified remotely; annotated `milestone/C4` tag at the same commit. Static IT/EN landing in `docs/`, with 78 matching keys, automatic and manual theme, C3 gallery, updated icon and centered credit. Deferred classic scripts also work when opening the HTML directly. `npm test` 149/149 and site checks passed; desktop build had passed before static corrections, with the renderer warning above 500 kB, and was not repeated for documentation closure. Forty isolated Chromium HTTP/file combinations checked across both languages/themes and five sizes. Pages `main:/docs` enabled without CNAME, DNS changes or additional workflows: [managed deployment 43431582012](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43431582012) passed at the approved commit; [HTTPS site](https://gloutchov.github.io/Plancia-Comandi/) with HTTPS enforced, 14 public assets identical to source and 8 public UI combinations passed. Site release published with verified ZIP and SHA-256; latest desktop remains v0.3.1. Local M4 branch removed after all checks; no remote M4 branch had been published. Other browsers/platforms unverified; no new desktop build, signing or notarization. Temporary files and local asset copies in `out/m4/` retained pending separate cleanup confirmation. |
 
+#### 2.1 Planned security milestones
+
+Glauco requested this plan on 13 November 2026 following the 0.3.1 source review: 149 tests passed, full audit with 9 affected toolchain packages (2 critical, 7 moderate), production audit with no findings and an isolated pathological-regex test exceeding 250 ms. Details and limitations are in the [security model](SECURITY_MODEL.md#7-checks-and-residual-risks). Planning does not fix the vulnerabilities.
+
+Execute M5 → M6 → M7 → M8 → M9, each from main after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.2–0.3.6 assume no intervening releases: confirm version and tags at start. Each closure follows both HOME reviews, release with assets/SHA-256 and documentation/landing aligned with the published version. Prefer local checks; justify any necessary CI beforehand, using existing packaging workflows without new automation for this plan.
+
+**Shared constraint:** Windows signing, macOS signing and notarization are excluded because credentials are unavailable. Unsigned packages and system warnings are disclosed limitations that do not block acceptance; checksums and origin verification remain necessary. This plan authorizes no signing, notarization or automatic-update configuration.
+
+This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` after verifying the C4 checkpoint. It changes documents only, retains version 0.3.1 and plans annotated documentation tag `docs/security-roadmap-2026-11-13` at the approved commit; no milestone is started and no new application release is planned.
+
+| Field | M5 — Updated Electron runtime |
+| --- | --- |
+| Number and goal | M5 — Update the shipped runtime while preserving terminals, bridge and preferences in supported packages. |
+| Dependency and planned branch | After C4 and this approved documentation patch; `milestone/5-electron-runtime`. |
+| Planned checkpoint and version | `milestone/C5`, `v0.3.2`; increment `+0.0.1`. |
+| Tasks | Assess Electron 45.3.2, available at review time, or a newer maintained release; inspect official notes and Chromium/Node/V8 fixes. Update package and lockfile, Node requirements and native-module compatibility. |
+| Acceptance | Chosen version justified and pinned in the lockfile; isolation, sandbox and CSP preserved. PTY, startup, layouts, IT/EN and themes work in verified packages. The `--omit=dev` audit does not replace assessment of the embedded runtime. |
+| Required tests | Reproducible installation, suite and build; inspect and smoke-test Windows x64/macOS ARM64 packages outside the checkout with isolated profiles and environments, without personal data or shells. No additional compatibility claims without evidence. |
+| Documentation | README, IT/EN manuals, quick start, SECURITY_MODEL, MAP, AGENTS version references; PLAN and landing/downloads aligned with the verified release. |
+| Status | `M5`, planned only; implementation not started. |
+
+| Field | M6 — Toolchain dependency security |
+| --- | --- |
+| Number and goal | M6 — Reduce test and packaging tool risks while keeping project commands reproducible. |
+| Dependency and planned branch | After C5; `milestone/6-toolchain-security`. |
+| Planned checkpoint and version | `milestone/C6`, `v0.3.3`; increment `+0.0.1`. |
+| Tasks | Update Vitest and affected dependencies, including Tinypool and mocker; address minimatch in the electron-builder chain. Assess advisories, maintained versions and compatibility; avoid unverified `audit fix --force`, downgrades or overrides. |
+| Acceptance | Compare full and production audits before/after; no applicable critical/high finding left unaddressed. Target zero findings; any residual requires exploit conditions, rationale, mitigation and Glauco's explicit decision. |
+| Required tests | `npm ci`, suite and build; check script APIs, package contents and absence of test runners/build tools from the app. Smoke-test Windows x64/macOS ARM64 assets with isolated data. |
+| Documentation | Requirements and lockfile; README, manuals, quick start, SECURITY_MODEL, MAP, PLAN, version references and landing consistent with the release. |
+| Status | `M6`, planned only; implementation not started. |
+
+| Field | M7 — Detection resilient to pathological regexes |
+| --- | --- |
+| Number and goal | M7 — Prevent an additional regex from blocking main and terminal management; implement the regex portion of P1. |
+| Dependency and planned branch | After C6; `milestone/7-regex-resilience`. |
+| Planned checkpoint and version | `milestone/C7`, `v0.3.4`; increment `+0.0.1`. |
+| Tasks | Isolate potentially blocking matching with an effective time budget, cancellation and fallback, or adopt a bounded engine. Preserve count/length limits and validate any new central parameters. A timer on the matching thread is not an effective timeout. |
+| Acceptance | Invalid, expensive or oversized patterns do not freeze the app; understandable fallback and IT/EN message. Default detection preserved, queues/workers bounded and resources released on close. No additional dependency without justification. |
+| Required tests | Review's pathological case in isolated, terminable execution; long input, many patterns, cancellation and reopening; detector regressions. Check window and bridge responsiveness with fixtures in both themes/languages. |
+| Documentation | IT/EN manuals, relevant configuration, SECURITY_MODEL, MAP, PLAN and version references; landing if a presented behavior changes. |
+| Status | `M7`, planned only; implementation not started. |
+
+| Field | M8 — Robust preferences and protected diagnostics |
+| --- | --- |
+| Number and goal | M8 — Reduce preference loss and data disclosure through errors; implement the remaining planned portion of P1. |
+| Dependency and planned branch | After C7; `milestone/8-settings-diagnostics`. |
+| Planned checkpoint and version | `milestone/C8`, `v0.3.5`; increment `+0.0.1`. |
+| Tasks | Write settings.json atomically with a temporary file and replacement in the same directory; bound size before JSON reading and handle corrupt files/errors. Define boundaries and permissions; normalize errors/logs to avoid private paths, sensitive variables and unnecessary user content. |
+| Acceptance | A write failure preserves the last valid configuration; oversized/corrupt files have documented fallbacks. Useful localized errors without sensitive details; no credential storage or diagnostic upload to external services. |
+| Required tests | Temporary filesystem: size boundaries, invalid JSON, denied permissions, interrupted writes/replacements and legacy migration. Synthetic data checks UI/log redaction; IT/EN and light/dark preference regressions. |
+| Documentation | Manuals, recovery quick start, SECURITY_MODEL, MAP, PLAN, version references and landing where relevant. |
+| Status | `M8`, planned only; implementation not started. |
+
+| Field | M9 — Verified IPC/CSP boundaries and packages |
+| --- | --- |
+| Number and goal | M9 — Make security checks on distributed packages repeatable and fix scoped gaps; incorporate the security/package portion of P3. |
+| Dependency and planned branch | After C8; `milestone/9-package-security`. |
+| Planned checkpoint and version | `milestone/C9`, `v0.3.6`; increment `+0.0.1`. |
+| Tasks | Test live IPC with invalid senders, frames/origins and payloads, strengthening checks where needed. Verify enforced CSP, navigation/popup blocking and unnecessary permissions. Strengthen Windows x64 installer/portable and macOS ARM64 DMG/ZIP inspection/smoke, with isolated HOME/appData/userData and no private files/development tools. |
+| Acceptance | Rejected requests have no privileged effects; renderer protections work in packages and isolated tests are repeatable. Assets/SHA-256 match the approved commit. Signing/notarization excluded; Linux, Intel macOS and further functional cases remain P3 unless explicitly verified, with no new compatibility promises. |
+| Required tests | Native Windows x64/macOS ARM64 matrix, distributed formats and smoke outside the checkout; negative IPC/CSP and package-content cases. Address known script limitations listed in the security model; use only fixtures/temporary profiles, without credentials or real sessions. |
+| Documentation | SECURITY_MODEL with platform evidence/limitations, MAP scripts/tests, installation manuals/quick start, README/PLAN and landing for verified packages only. |
+| Status | `M9`, planned only; implementation not started. |
+
+#### 2.2 Proposals and remaining work
+
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
-| P1 — Security boundaries | Still to be decided, for what C2 does not cover: regex timeouts, atomic settings writes and error redaction. CSP, sender checks on IPC that predates M1 and the paste-queue cap are C2. | Isolated negative tests and an updated security model; preserve shell operation. |
+| P1 — Security boundaries, incorporated into M7–M8 | Regex timeouts in M7; atomic preferences and diagnostics in M8. CSP, sender checks on IPC that predates M1 and the paste-queue cap remain C2. | Completion to be verified through C7/C8 with isolated negative tests and an updated model; no fixes attributed to planning. |
 | P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
-| P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
+| P3 — Verified distribution, partly incorporated into M9 | IPC/CSP security and Windows x64/macOS ARM64 packages in M9. Further Linux/Intel macOS verification and uncovered notification, shortcut, shell and PTY cases still require planning. Signing and notarization excluded because credentials are unavailable. | Results separated by platform and format, without unverified compatibility claims. Remaining portions require a new decision before becoming milestones. |
 
-Version, branch, checkpoint, detailed tasks and tests for proposals P1–P3 will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. The GitHub Pages landing page is C4, formerly M4, published and verified at remote checkpoint `milestone/C4`; the site release is separate from the 0.3.1 desktop packages.
+Version, branch, checkpoint, tasks and tests for P1 and the security/package portion of P3 are defined in M7–M9; P2 and remaining P3 portions stay proposals. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. The GitHub Pages landing page is C4, formerly M4, published and verified at remote checkpoint `milestone/C4`; the site release is separate from the 0.3.1 desktop packages.
 
 ### 3. Milestone conventions
 
