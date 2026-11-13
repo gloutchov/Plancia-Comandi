@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa dei sorgenti: **0.3.1**, in revisione. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; il nuovo commit C3 attende la seconda approvazione prima della pubblicazione; **M4** (landing page GitHub Pages) resta pianificata e non avviata. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.1**, pubblicata il 13 novembre 2026. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; la seconda approvazione del commit `1155fc248acefe25ac7cc2068ca750d93150a46e` è stata ricevuta nella stessa sessione. Main, tag `milestone/C3` e `v0.3.1`, release e rimozione del branch M3 sono verificati; **M4** (landing page GitHub Pages) resta pianificata e non avviata. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -55,7 +55,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 
 ### 2. Milestone e proposte
 
-C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura e resta distinta dalla patch di packaging di C1. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) e i tag `milestone/C2` e `v0.3.0` sono pubblicati. C3 ha ricevuto la prima approvazione; M4 seguirà la sua chiusura e userà l'icona e gli screenshot aggiornati da C3. Le proposte sotto non diventano eseguibili da sole.
+C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura e resta distinta dalla patch di packaging di C1. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) e i tag `milestone/C2` e `v0.3.0` sono pubblicati. C3 è chiusa e pubblicata; M4 resta pianificata e userà l'icona e gli screenshot aggiornati da C3. Le proposte sotto non diventano eseguibili da sole.
 
 | Campo | C1 — Clipboard, trascinamento e viste |
 | --- | --- |
@@ -116,13 +116,13 @@ C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata
 | Numero e titolo | C3 — Icona nella UI e screenshot aggiornati |
 | Obiettivo | Allineare l'icona visibile nell'app a quella introdotta nella release 0.3.0 e aggiornare le immagini del README che mostrano ancora la vecchia icona. |
 | Branch previsto | `milestone/3-ui-icon-screenshots`, creato da `main` al commit `e9fb4fa273913db688f846751f05e1de8a5fc888`. Verificati sul remoto `main` e il checkpoint annotato `milestone/C2`, che risolve a `94ff1e44106f08fdcf961cab74171668112ad780`. |
-| Tag di checkpoint previsto | `milestone/C3`; tag di versione `v0.3.1`, dopo le approvazioni e le verifiche di chiusura. |
-| Tipo incremento versione | `+0.0.1`, da 0.3.0 a **0.3.1**, per la correzione visiva dell'app. Versione sincronizzata nei sorgenti e nei documenti; release 0.3.1 non pubblicata. |
+| Tag di checkpoint previsto | `milestone/C3` e `v0.3.1`, annotati e pubblicati sul commit `1155fc248acefe25ac7cc2068ca750d93150a46e`, verificato anche su main remoto. |
+| Tipo incremento versione | `+0.0.1`, da 0.3.0 a **0.3.1**, per la correzione visiva dell'app. Versione sincronizzata nei sorgenti e nei documenti; release [v0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) pubblicata. |
 | Attività | Sostituito il vecchio SVG della sidebar con `public/icon.png`, copia identica di `build/icon.png`, a 36×36 senza deformazioni, decorativo e non trascinabile. Sei nuove catture reali del renderer di produzione: scura, chiara e impostazioni, in IT e in EN. README collegato alle immagini della rispettiva lingua; provenienza, dimensioni e SHA-256 in `docs/screenshots/capture.json`. Corretto un test preesistente che assumeva separatori Unix, per eseguire la suite su Windows. |
 | Criteri di accettazione | La UI mostra la stessa icona dei pacchetti 0.3.0, senza deformazioni o tagli e con leggibilità nei due temi. Tutti gli screenshot del README rappresentano la UI aggiornata; nessuno mostra il vecchio marchio o dati privati. Collegamenti e immagini funzionano in entrambe le sezioni linguistiche. |
 | Test richiesti | `npm ci` riuscito con Node.js 24.18.1 e npm 12.2.1; prebuild Windows di node-pty. Runtime Electron 45.2.3 installato con il suo script, perché non presente dopo npm ci. `npm test` **136/136**; `npm run build` riuscito con avviso renderer oltre 500 kB. Electron Windows x64: icona caricata, proporzioni, testi alternativi, due temi, IT/EN, impostazioni e viewport 1440×900, 1280×820, 860×560 (12 combinazioni); nomi lunghi, focus del dialogo Nuova sessione e attributi dei tooltip. HOME, appData e userData isolati prima del main, ambiente filtrato e PTY con eseguibile dimostrativo generato; nessuna shell o credenziale reale. |
 | Documentazione | README con immagini IT/EN e stato dei sorgenti distinto dalla release; manuali, quick start, mappa, modello di sicurezza e AGENTS allineati a 0.3.1; manifest delle catture. La cronologia di C1/C2 e le proposte P1–P3 restano preservate. |
-| Stato | `C3`. Glauco ha provato il commit `cc037278633d6b43e279eb66539c05d50d4364e8` su Windows con un profilo separato dalla 0.3.0 in uso e il 13 novembre 2026 ha confermato «perfetto. Funziona.», autorizzando commit, merge, tag, push, release e rimozione del branch. Prima approvazione registrata; il nuovo commit con il passaggio M3 → C3 attende il secondo controllo esplicito previsto da AGENTS.md. Le operazioni finali sono autorizzate dopo tale controllo e le verifiche dovute. Non eseguiti: prove personali su macOS/Linux, CLI AI reale, aspetto dei tooltip nativi e nuovi pacchetti/smoke di distribuzione/SHA-256 di release. L'installazione segnala 9 vulnerabilità (7 moderate e 2 critiche) nelle dipendenze esistenti; nessun aggiornamento incluso. Temporanei propri conservati in `out/m3/`. |
+| Stato | `C3`. Glauco ha provato il commit `cc037278633d6b43e279eb66539c05d50d4364e8` su Windows con un profilo separato dalla 0.3.0 in uso e il 13 novembre 2026 ha confermato «perfetto. Funziona.», autorizzando commit, merge, tag, push, release e rimozione del branch. Seconda approvazione ricevuta sul commit `1155fc248acefe25ac7cc2068ca750d93150a46e`; merge fast-forward e push su main verificati. Tag e release 0.3.1 pubblicati; branch M3 locale rimosso, senza branch M3 remoto da eliminare. Workflow Windows `43407182864` e macOS ARM64 `43407014450` riusciti sul commit approvato. Quattro pacchetti e due manifest SHA-256 scaricati dai workflow e controllati prima della pubblicazione; digest dei sei allegati GitHub verificati. Portable provato anche su Windows locale fuori dal checkout, con profilo e PTY dimostrativi; nessuna installazione locale. Non eseguiti: prove personali su macOS/Linux, CLI AI reale e aspetto dei tooltip nativi; lo smoke macOS copre l’app scompattata, non l’avvio dal DMG/ZIP. L'installazione segnala 9 vulnerabilità (7 moderate e 2 critiche) nelle dipendenze esistenti; nessun aggiornamento incluso. Pulizia dei temporanei locali (`out/m3/` e directory di prova portable) subordinata a conferma separata. |
 
 | Campo | M4 — Landing page GitHub Pages |
 | --- | --- |
@@ -185,11 +185,12 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 - [x] Commit M3 `cc037278633d6b43e279eb66539c05d50d4364e8` e diff presentati; prova personale Windows di Glauco riuscita con profilo separato.
 - [x] Prima approvazione esplicita di Glauco il 13 novembre 2026; autorizzati merge, tag, push, release 0.3.1 e rimozione del branch dopo le verifiche.
 - [x] Passaggio M3 → C3 registrato in IT/EN per il nuovo commit locale.
-- [ ] Nuovo hash e diff presentati; seconda approvazione esplicita del commit C3 prima di pubblicare.
-- [ ] Push/merge e verifica remota; eventuale CI di packaging solo se necessaria e autorizzata.
-- [ ] Pacchetti della release 0.3.1, smoke sul commit finale e SHA-256 verificati prima dei tag.
-- [ ] Tag milestone/C3 e v0.3.1, release e verifica sul remoto.
-- [ ] Rimozione branch approvata e conferma separata per pulizia: `out/m3/` è conservata.
+- [x] Nuovo hash `1155fc248acefe25ac7cc2068ca750d93150a46e` e diff presentati; seconda approvazione esplicita ricevuta prima di pubblicare.
+- [x] Merge fast-forward e push di main verificati. Workflow macOS necessario per questa macchina Windows; workflow Windows necessario per provare l’installer in ambiente pulito, preservando la 0.3.0 locale in uso. Entrambe le run riuscite.
+- [x] Installer/portable Windows x64 e DMG/ZIP macOS ARM64, smoke e SHA-256 verificati prima dei tag. Portable provato anche su Windows locale; entrambi gli EXE risultano NotSigned. ZIP macOS integro e contenuti verificati dopo il download; nel confronto con Windows, due file di testo differiscono solo nei terminatori di riga.
+- [x] Tag annotati milestone/C3 e v0.3.1 verificati sul commit finale; release latest [v0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) pubblicata con sei allegati e digest remoti corrispondenti ai file locali.
+- [x] Branch M3 rimosso dopo le verifiche; gli altri branch preesistenti sono preservati.
+- [x] Percorsi di `out/m3/` e delle due directory temporanee della prova portable presentati per conferma separata della pulizia; cancellazione subordinata alla risposta esplicita, distinta dall’approvazione della rimozione del branch.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -199,7 +200,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Source application version: **0.3.1**, under review. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; the new C3 commit awaits second approval before publication; **M4** (GitHub Pages landing page) remains planned and not started. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.1**, published on 13 November 2026. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; second approval of commit `1155fc248acefe25ac7cc2068ca750d93150a46e` was received in the same session. Main, tags `milestone/C3` and `v0.3.1`, release and M3 branch removal are verified; **M4** (GitHub Pages landing page) remains planned and not started. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -252,7 +253,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 
 ### 2. Milestones and proposals
 
-C1, formerly M1, is merged and published as source. C2, formerly M2, is approved for closure and stays separate from the C1 packaging patch. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0), tags `milestone/C2` and `v0.3.0`, are published. C3 has received its first approval; M4 will follow its closure and use the icon and screenshots updated in C3. The proposals below do not become executable on their own.
+C1, formerly M1, is merged and published as source. C2, formerly M2, is approved for closure and stays separate from the C1 packaging patch. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0), tags `milestone/C2` and `v0.3.0`, are published. C3 is closed and published; M4 remains planned and will use the icon and screenshots updated in C3. The proposals below do not become executable on their own.
 
 | Field | C1 — Clipboard, drag-and-drop and views |
 | --- | --- |
@@ -313,13 +314,13 @@ C1, formerly M1, is merged and published as source. C2, formerly M2, is approved
 | Number and title | C3 — UI icon and updated screenshots |
 | Goal | Align the icon displayed in the app with the one introduced in release 0.3.0 and update the README images that still show the old icon. |
 | Planned branch | `milestone/3-ui-icon-screenshots`, created from `main` at `e9fb4fa273913db688f846751f05e1de8a5fc888`. Remotely verified `main` and annotated checkpoint `milestone/C2`, which resolves to `94ff1e44106f08fdcf961cab74171668112ad780`. |
-| Planned checkpoint tag | `milestone/C3`; version tag `v0.3.1`, after approvals and closure checks. |
-| Version increment | `+0.0.1`, from 0.3.0 to **0.3.1**, for the app's visual correction. Version synchronized in source and documentation; release 0.3.1 is not published. |
+| Planned checkpoint tag | `milestone/C3` and `v0.3.1`, annotated and published at commit `1155fc248acefe25ac7cc2068ca750d93150a46e`, also verified on remote main. |
+| Version increment | `+0.0.1`, from 0.3.0 to **0.3.1**, for the app's visual correction. Version synchronized in source and documentation; release [v0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) is published. |
 | Tasks | Replaced the old sidebar SVG with `public/icon.png`, an identical copy of `build/icon.png`, at 36×36 without distortion, decorative and not draggable. Six new unmodified production-renderer captures: dark, light and settings, in IT and EN. README links to images in the corresponding language; provenance, dimensions and SHA-256 in `docs/screenshots/capture.json`. Corrected an existing test that assumed Unix separators so the suite runs on Windows. |
 | Acceptance | The UI displays the same icon as the 0.3.0 packages, without distortion or clipping and with legibility in both themes. All README screenshots represent the updated UI; none shows the old branding or private data. Links and images work in both language sections. |
 | Required tests | `npm ci` passed with Node.js 24.18.1 and npm 12.2.1; Windows node-pty prebuild. Electron 45.2.3 runtime installed through its own script because it was absent after npm ci. `npm test` **136/136**; `npm run build` passed with the renderer warning above 500 kB. Electron Windows x64: image loading, proportions, alternative text, both themes, IT/EN, settings and 1440×900, 1280×820, 860×560 viewports (12 combinations); long names, New session dialog focus and tooltip attributes. HOME, appData and userData isolated before main, filtered environment and PTY with a generated demonstration executable; no real user shell or credentials. |
 | Documentation | README with IT/EN images and source status distinguished from the release; manuals, quick start, map, security model and AGENTS synchronized to 0.3.1; capture manifest. C1/C2 history and proposals P1–P3 are preserved. |
-| Status | `C3`. Glauco tested commit `cc037278633d6b43e279eb66539c05d50d4364e8` on Windows with a profile separate from the running 0.3.0 instance and on 13 November 2026 confirmed “perfetto. Funziona.”, authorizing commit, merge, tags, push, release and branch removal. First approval recorded; the new commit with the M3 → C3 transition awaits the second explicit review required by AGENTS.md. Final operations are authorized after that review and the required checks. Not run: personal macOS/Linux checks, a real AI CLI, native-tooltip appearance and new distribution packages/smoke tests/release SHA-256. Installation reports 9 vulnerabilities (7 moderate and 2 critical) in existing dependencies; no dependency updates included. Own temporary files retained in `out/m3/`. |
+| Status | `C3`. Glauco tested commit `cc037278633d6b43e279eb66539c05d50d4364e8` on Windows with a profile separate from the running 0.3.0 instance and on 13 November 2026 confirmed “perfetto. Funziona.”, authorizing commit, merge, tags, push, release and branch removal. Second approval received for commit `1155fc248acefe25ac7cc2068ca750d93150a46e`; fast-forward merge and push to main verified. Tags and release 0.3.1 published; local M3 branch removed, with no remote M3 branch to delete. Windows workflow `43407182864` and macOS ARM64 workflow `43407014450` passed at the approved commit. Four packages and two SHA-256 manifests downloaded and checked; all six GitHub asset digests verified. Portable also tested on local Windows outside the checkout with isolated preferences and a fixture PTY; no local installation. Not run: personal macOS/Linux checks, a real AI CLI and native-tooltip appearance; macOS smoke covers the unpacked app, not launching from the DMG/ZIP. Installation reports 9 vulnerabilities (7 moderate and 2 critical) in existing dependencies; no dependency updates included. Cleanup of local temporary files (`out/m3/` and portable-test directories) requires separate confirmation. |
 
 | Field | M4 — GitHub Pages landing page |
 | --- | --- |
@@ -382,11 +383,12 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 - [x] M3 commit `cc037278633d6b43e279eb66539c05d50d4364e8` and diff presented; Glauco's personal Windows test passed with a separate profile.
 - [x] Glauco's first explicit approval on 13 November 2026; merge, tags, push, release 0.3.1 and branch removal authorized after checks.
 - [x] M3 → C3 transition recorded in IT/EN for the new local commit.
-- [ ] New hash and diff presented; second explicit approval of the C3 commit before publication.
-- [ ] Push/merge and remote verification; packaging CI only if necessary and authorized.
-- [ ] Release 0.3.1 packages, smoke tests on the final commit and SHA-256 verified before tagging.
-- [ ] Tags milestone/C3 and v0.3.1, release and remote verification.
-- [ ] Approved branch removal and separate cleanup confirmation: `out/m3/` is retained.
+- [x] New hash `1155fc248acefe25ac7cc2068ca750d93150a46e` and diff presented; second explicit approval received before publication.
+- [x] Fast-forward merge and main push verified. macOS workflow needed on this Windows machine; Windows workflow needed for a clean installer test, preserving the running local 0.3.0. Both runs passed.
+- [x] Windows x64 installer/portable and macOS ARM64 DMG/ZIP, smoke tests and SHA-256 verified before tagging. Portable also tested on local Windows; both EXEs report NotSigned. macOS ZIP integrity and contents checked after download; two text files differ from Windows only in line endings.
+- [x] Annotated tags milestone/C3 and v0.3.1 verified at the final commit; latest release [v0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) published with six assets and remote digests matching local files.
+- [x] M3 branch removed after verification; other pre-existing branches preserved.
+- [x] Paths of `out/m3/` and the two portable-test temporary directories presented for separate cleanup confirmation; deletion requires an explicit answer distinct from branch-removal approval.
 
 ### 5. Versions, CI and distribution
 

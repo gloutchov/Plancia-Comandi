@@ -8,7 +8,7 @@ Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavo
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release scaricabile resta la 0.3.0 finché la 0.3.1 non è approvata e pubblicata.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -148,7 +148,7 @@ Plancia Comandi brings several real terminals into one desktop window. Work with
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). The downloadable release remains 0.3.0 until 0.3.1 is approved and published.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.1](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
