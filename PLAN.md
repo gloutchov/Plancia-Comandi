@@ -197,7 +197,7 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Dipendenza e branch previsto | Dopo C7; `milestone/8-settings-diagnostics`. |
 | Checkpoint e versione previsti | `milestone/C8`, `v0.3.5`; incremento `+0.0.1`. |
 | Attività | Scrivere settings.json in modo atomico con temporaneo e sostituzione nella stessa directory; prima del ripiego sui default, conservare una copia `.bak` del file corrotto. Limitare la dimensione prima della lettura JSON e gestire file corrotti/errori. Definire confini e permessi; normalizzare errori/log evitando percorsi privati, variabili sensibili e contenuti utente non necessari. Per PC-13, il renderer riceve un codice d'errore; il dettaglio resta nel log locale. |
-| Accettazione | Un errore di scrittura preserva l'ultima configurazione valida; file eccessivi/corrotti hanno fallback documentati. Errori utili e localizzati senza dettagli sensibili; nessuno storage di credenziali o invio di diagnostica a servizi esterni. |
+| Accettazione | Un errore di scrittura preserva l'ultima configurazione valida; file eccessivi/corrotti hanno fallback documentati. Prima del ripiego sui default si conserva una copia `.bak` del file corrotto. Per lo spawn di node-pty il renderer riceve un codice d'errore; il messaggio grezzo resta nel log locale. Errori utili e localizzati senza dettagli sensibili; nessuno storage di credenziali o invio di diagnostica a servizi esterni. |
 | Test richiesti | Filesystem temporaneo: dimensioni al limite, JSON invalido, permessi negati, scrittura/sostituzione interrotte e migrazione legacy. Dati sintetici verificano redazione su UI/log; regressioni di preferenze IT/EN e chiaro/scuro. |
 | Documentazione | Manuali, quick start per il recupero, SECURITY_MODEL, MAP, PLAN, riferimenti alla versione e landing se pertinente. |
 | Stato | `M8`, solo pianificata; implementazione non avviata. |
@@ -278,9 +278,9 @@ PC-03, PC-04, PC-05, PC-08, PC-13 e PC-11 restano dentro M5, M6, M7, M8 e M9. PC
 6. Polling adattivo di PC-06 (M15), con prova su AppLocker o Constrained Language Mode se un PC aziendale è disponibile.
 8. `npm audit` e lettura del lockfile in un ambiente isolato, dentro M6, con approvazione di Glauco.
 
-I numeri 4 e 7 non compaiono nell'elenco incollato.
+I punti 4 e 7 della sezione 3 di Vesta riguardano solo ContaMì.
 
-Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release intermedie. M17 usa l'incremento `+0.1.0` perché cambia un comportamento visibile; il numero concreto si conferma all'avvio, così da non spostare da solo la serie di patch. M16, M21, M22, M23 e M25 lasciano invariata la versione applicativa e hanno comunque il checkpoint `milestone/C<n>`.
+Le versioni `v0.3.10`–`v0.3.17` sono indicative, in assenza di release intermedie, e per le milestone che incrementano la versione restano consecutive nella serie 0.3.x. M17 è `+0.0.1`, `v0.3.13`: allinea la lingua iniziale allo standard. M16, M21, M22, M23 e M25 lasciano invariata la versione applicativa e hanno comunque il checkpoint `milestone/C<n>`.
 
 **Segnalazioni già coperte**
 
@@ -300,14 +300,14 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | M14 — Quotatura fish | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.11`, `+0.0.1` |
 | M15 — Polling dei processi figli su Windows | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
 | M16 — Avvisi e configurazione del repository | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | versione applicativa invariata |
-| M17 — Lingua iniziale di sistema | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `+0.1.0`, numero da confermare all'avvio |
-| M18 — DevTools e demo solo fuori dal pacchetto | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.13`, `+0.0.1` |
-| M19 — Conferma dell'incolla e del trascinamento multilinea | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.14`, `+0.0.1` |
-| M20 — Limiti di sessione nel file centrale | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.15`, `+0.0.1` |
+| M17 — Lingua iniziale di sistema | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `v0.3.13`, `+0.0.1` |
+| M18 — DevTools e demo solo fuori dal pacchetto | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.14`, `+0.0.1` |
+| M19 — Conferma dell'incolla e del trascinamento multilinea | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.15`, `+0.0.1` |
+| M20 — Limiti di sessione nel file centrale | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.16`, `+0.0.1` |
 | M21 — CNAME, canonical e piano | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | versione applicativa invariata |
 | M22 — Default e immagini dei workflow di packaging | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | versione applicativa invariata |
 | M23 — Esclusioni Git di ambienti e chiavi | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | versione applicativa invariata |
-| M24 — Prebuild di node-pty su macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.16`, `+0.0.1` |
+| M24 — Prebuild di node-pty su macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
 | M25 — Tag documentali e copia dello standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | versione applicativa invariata |
 
 | Campo | M13 — Quotatura PowerShell |
@@ -358,7 +358,7 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | --- | --- |
 | Numero e obiettivo | M17 — PC-09, gravità bassa, verificata e già indicata in P2. Rilevare la lingua di sistema al primo avvio, con ripiego sull'inglese. P2 resta una proposta: questa voce ne attua solo la parte lingua. |
 | Dipendenza e branch previsto | Dopo C16; `milestone/17-system-locale`. |
-| Checkpoint e versione previsti | `milestone/C17`; incremento `+0.1.0`. Il numero di versione si conferma all'avvio. |
+| Checkpoint e versione previsti | `milestone/C17`, `v0.3.13`; incremento `+0.0.1`. |
 | Attività | `electron/settings.ts:14` assegna `locale: 'it'` in `defaultSettings`. Lo standard chiede il rilevamento della lingua di sistema. Usare `app.getLocale()`, con ripiego `en` quando la lingua non è tra quelle tradotte. L'override già salvato resta quello scelto dall'utente. |
 | Criteri di accettazione | Un profilo nuovo con locale di sistema italiano apre l'interfaccia in italiano; un locale diverso da `it` apre l'inglese. Una preferenza già scritta non viene sovrascritta. La schermata di avvio, mostrata prima del caricamento delle preferenze, resta documentata con il dizionario italiano di default. |
 | Test richiesti | Test di `defaultSettings` o dell'adattatore di locale con locale finto, compresi `it`, `en`, un locale sconosciuto e un file di preferenze già presente. Suite e build. Controllo manuale IT/EN e chiaro/scuro sul primo avvio con profilo isolato. |
@@ -369,7 +369,7 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | --- | --- |
 | Numero e obiettivo | M18 — PC-10, gravità bassa, verificata. Limitare DevTools, demo e screenshot alle esecuzioni non pacchettizzate. |
 | Dipendenza e branch previsto | Dopo C17; `milestone/18-packaged-devtools`. |
-| Checkpoint e versione previsti | `milestone/C18`, `v0.3.13`; incremento `+0.0.1`. |
+| Checkpoint e versione previsti | `milestone/C18`, `v0.3.14`; incremento `+0.0.1`. |
 | Attività | `electron/main.ts:281` apre DevTools se è impostata `PLANCIA_DEVTOOLS`. `electron/main.ts:35` e `198-236` attivano `PLANCIA_DEMO`, lo script di demo e gli screenshot. Chi controlla l'ambiente del pacchetto può così aprire DevTools, con accesso all'API del preload. La gravità è bassa perché serve lo stesso utente. Condizionare queste strade a `!app.isPackaged`. |
 | Criteri di accettazione | Nel pacchetto le variabili non aprono DevTools, non avviano la demo e non scrivono screenshot. In sviluppo, con le stesse variabili, demo e DevTools restano disponibili. |
 | Test richiesti | Test della condizione sul flag di pacchetto, con le variabili impostate e assenti. Suite e build. Smoke del pacchetto Windows o macOS con le variabili impostate e profilo isolato, per la release della milestone. |
@@ -380,7 +380,7 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | --- | --- |
 | Numero e obiettivo | M19 — PC-12, gravità bassa, verificata. È il rischio residuo dell'incolla senza bracketed paste: chiedere conferma quando il testo contiene un a capo e la shell non ha attivato il bracketed paste. |
 | Dipendenza e branch previsto | Dopo C18; `milestone/19-multiline-paste-confirm`. |
-| Checkpoint e versione previsti | `milestone/C19`, `v0.3.14`; incremento `+0.0.1`. |
+| Checkpoint e versione previsti | `milestone/C19`, `v0.3.15`; incremento `+0.0.1`. |
 | Attività | `src/terminalEdit.ts:156-160` incolla il testo degli appunti e `173-190` incolla il testo trascinato. Senza bracketed paste le righe partono una dopo l'altra. Chiedere conferma, in italiano e in inglese, quando il testo contiene un a capo e la shell non ha attivato il bracketed paste. Un testo di una sola riga e un incolla con bracketed paste attivo restano immediati. |
 | Criteri di accettazione | La conferma compare solo nel caso multilinea senza bracketed paste. Annullare lascia il terminale invariato. Confermare invia il testo entro i limiti già validati. I temi, il focus e i testi lunghi della conferma sono verificati. |
 | Test richiesti | Test della decisione (una riga, più righe, bracketed paste attivo, annullamento, conferma). Suite e build. Controllo manuale IT/EN, chiaro/scuro, tastiera e dimensioni desktop supportate. |
@@ -391,9 +391,9 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | --- | --- |
 | Numero e obiettivo | M20 — PC-14, gravità bassa, verificata e già indicata in parte in P2. Spostare in `config/app.config.json` i limiti e gli intervalli ancora cablati, con clamp ai default documentati. P2 resta una proposta: questa voce ne attua solo questa parte. |
 | Dipendenza e branch previsto | Dopo C19; `milestone/20-session-limits-config`. |
-| Checkpoint e versione previsti | `milestone/C20`, `v0.3.15`; incremento `+0.0.1`. |
-| Attività | `electron/sessions.ts:32-33` definisce `MAX_SESSIONS` e `MAX_BACKLOG`. `electron/sessions.ts:114-115` fissa gli intervalli a 400 ms e 2500 ms. I timeout di `electron/children.ts` restano nel modulo. Spostarli nel file centrale, validarli all'avvio e tornare ai default documentati quando un valore è fuori intervallo. |
-| Criteri di accettazione | Un file valido applica i nuovi limiti. Un valore assente, di tipo errato o fuori intervallo torna al default documentato e l'app si avvia. I parametri già introdotti da C1 restano validati come oggi. |
+| Checkpoint e versione previsti | `milestone/C20`, `v0.3.16`; incremento `+0.0.1`. |
+| Attività | `electron/sessions.ts:32-33` definisce `MAX_SESSIONS` e `MAX_BACKLOG`. `electron/sessions.ts:114-115` fissa gli intervalli a 400 ms e 2500 ms. I timeout di `electron/children.ts` sono 4000 ms per `ps` (riga 22) e 8000 ms per PowerShell (riga 44). Spostare limiti, intervalli e questi timeout in `config/app.config.json`, validarli all'avvio e applicare il clamp ai default documentati quando un valore è fuori intervallo. |
+| Criteri di accettazione | Un file valido applica i nuovi limiti, gli intervalli e i timeout di `electron/children.ts`. Un valore assente, di tipo errato o fuori intervallo torna al default documentato con clamp, e l'app si avvia. I parametri già introdotti da C1 restano validati come oggi. |
 | Test richiesti | Test di clamp per ogni nuovo parametro, compresi assente, tipo errato, minimo, massimo e valore interno. Suite e build. |
 | Documentazione | README, manuali IT/EN, quick start, `SECURITY_MODEL.md`, MAP, PLAN e l'esempio JSON del file centrale. |
 | Stato | `M20`, solo pianificata; implementazione non avviata. |
@@ -435,7 +435,7 @@ Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release interme
 | --- | --- |
 | Numero e obiettivo | M24 — PC-18, gravità bassa, sospetta. Usare una prebuild di `node-pty` su macOS quando è compatibile con l'ABI di Electron, e ricompilare solo come ripiego. |
 | Dipendenza e branch previsto | Dopo C23; `milestone/24-macos-pty-prebuild`. |
-| Checkpoint e versione previsti | `milestone/C24`, `v0.3.16`; incremento `+0.0.1`. |
+| Checkpoint e versione previsti | `milestone/C24`, `v0.3.17`; incremento `+0.0.1`. |
 | Attività | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` restituisce falso solo su Windows quando le tre prebuild ci sono; su Darwin restituisce sempre vero. La ricompilazione chiede i Command Line Tools di Xcode, che di solito richiedono un amministratore. Se una prebuild pubblicata è compatibile con l'ABI di Electron, usarla; la ricompilazione resta il ripiego quando la prebuild manca o non coincide. |
 | Criteri di accettazione | Su Darwin, con prebuild compatibile, lo script non lancia la ricompilazione. Senza prebuild compatibile, la ricompilazione resta il percorso documentato. Windows conserva il comportamento attuale delle tre prebuild. Il workflow macOS continua a produrre `plancia-comandi.app` senza identità di firma. |
 | Test richiesti | Test dello script con prebuild presente, assente e di ABI diversa. Suite e build. Smoke del pacchetto macOS ARM64 fuori dal checkout quando la milestone pubblica una release; in assenza di un Mac locale, registrare il limite e usare il workflow solo se Glauco lo chiede. |
@@ -715,7 +715,7 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Dependency and planned branch | After C7; `milestone/8-settings-diagnostics`. |
 | Planned checkpoint and version | `milestone/C8`, `v0.3.5`; increment `+0.0.1`. |
 | Tasks | Write settings.json atomically with a temporary file and replacement in the same directory; before falling back to the defaults, keep a `.bak` copy of the corrupt file. Bound size before JSON reading and handle corrupt files/errors. Define boundaries and permissions; normalize errors/logs to avoid private paths, sensitive variables and unnecessary user content. For PC-13, the renderer receives an error code; the detail stays in the local log. |
-| Acceptance | A write failure preserves the last valid configuration; oversized/corrupt files have documented fallbacks. Useful localized errors without sensitive details; no credential storage or diagnostic upload to external services. |
+| Acceptance | A write failure preserves the last valid configuration; oversized/corrupt files have documented fallbacks. Before falling back to the defaults, a `.bak` copy of the corrupt file is kept. For a node-pty spawn failure the renderer receives an error code; the raw message stays in the local log. Useful localized errors without sensitive details; no credential storage or diagnostic upload to external services. |
 | Required tests | Temporary filesystem: size boundaries, invalid JSON, denied permissions, interrupted writes/replacements and legacy migration. Synthetic data checks UI/log redaction; IT/EN and light/dark preference regressions. |
 | Documentation | Manuals, recovery quick start, SECURITY_MODEL, MAP, PLAN, version references and landing where relevant. |
 | Status | `M8`, planned only; implementation not started. |
@@ -796,9 +796,9 @@ PC-03, PC-04, PC-05, PC-08, PC-13 and PC-11 stay inside M5, M6, M7, M8 and M9. P
 6. Adaptive polling for PC-06 (M15), with an AppLocker or Constrained Language Mode check if a corporate PC is available.
 8. `npm audit` and a lockfile reading in an isolated environment, inside M6, with Glauco's approval.
 
-Numbers 4 and 7 do not appear in the pasted list.
+Points 4 and 7 of Vesta's section 3 concern ContaMì only.
 
-Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases. M17 uses increment `+0.1.0` because it changes visible behavior; the concrete number is confirmed at start, so it does not by itself shift the patch series. M16, M21, M22, M23 and M25 leave the application version unchanged and still have checkpoint `milestone/C<n>`.
+Versions `v0.3.10`–`v0.3.17` are indicative, assuming no intermediate releases, and stay consecutive in the 0.3.x series for the milestones that increment the version. M17 is `+0.0.1`, `v0.3.13`: it aligns the initial language with the standard. M16, M21, M22, M23 and M25 leave the application version unchanged and still have checkpoint `milestone/C<n>`.
 
 **Findings already covered**
 
@@ -818,14 +818,14 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | M14 — fish quoting | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.11`, `+0.0.1` |
 | M15 — Windows child-process polling | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
 | M16 — Repository alerts and configuration | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | application version unchanged |
-| M17 — Initial system language | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `+0.1.0`, number confirmed at start |
-| M18 — DevTools and demo only outside the package | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.13`, `+0.0.1` |
-| M19 — Confirm multiline paste and drop | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.14`, `+0.0.1` |
-| M20 — Session limits in the central file | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.15`, `+0.0.1` |
+| M17 — Initial system language | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `v0.3.13`, `+0.0.1` |
+| M18 — DevTools and demo only outside the package | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.14`, `+0.0.1` |
+| M19 — Confirm multiline paste and drop | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.15`, `+0.0.1` |
+| M20 — Session limits in the central file | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.16`, `+0.0.1` |
 | M21 — CNAME, canonical URLs and plan | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | application version unchanged |
 | M22 — Packaging workflow defaults and images | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | application version unchanged |
 | M23 — Git exclusions for env files and keys | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | application version unchanged |
-| M24 — node-pty prebuild on macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.16`, `+0.0.1` |
+| M24 — node-pty prebuild on macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
 | M25 — Documentation tags and the committed standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | application version unchanged |
 
 | Field | M13 — PowerShell quoting |
@@ -876,7 +876,7 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | --- | --- |
 | Number and goal | M17 — PC-09, low severity, verified and already listed under P2. Detect the system language on first launch, with English as the fallback. P2 stays a proposal: this entry carries out only the language part. |
 | Dependency and planned branch | After C16; `milestone/17-system-locale`. |
-| Planned checkpoint and version | `milestone/C17`; increment `+0.1.0`. The version number is confirmed at start. |
+| Planned checkpoint and version | `milestone/C17`, `v0.3.13`; increment `+0.0.1`. |
 | Tasks | `electron/settings.ts:14` sets `locale: 'it'` in `defaultSettings`. The standard asks for system-language detection. Use `app.getLocale()`, with fallback `en` when the language is not one of the translated ones. An override already saved stays the user's choice. |
 | Acceptance | A new profile whose system locale is Italian opens the interface in Italian; a locale other than `it` opens English. A preference already written is left as stored. The startup screen, shown before preferences load, stays documented on the default Italian dictionary. |
 | Required tests | Tests of `defaultSettings` or of the locale adapter with a fake locale, including `it`, `en`, an unknown locale and an existing preferences file. Suite and build. Manual IT/EN and light/dark check of first launch with an isolated profile. |
@@ -887,7 +887,7 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | --- | --- |
 | Number and goal | M18 — PC-10, low severity, verified. Limit DevTools, the demo and screenshots to unpackaged runs. |
 | Dependency and planned branch | After C17; `milestone/18-packaged-devtools`. |
-| Planned checkpoint and version | `milestone/C18`, `v0.3.13`; increment `+0.0.1`. |
+| Planned checkpoint and version | `milestone/C18`, `v0.3.14`; increment `+0.0.1`. |
 | Tasks | `electron/main.ts:281` opens DevTools when `PLANCIA_DEVTOOLS` is set. `electron/main.ts:35` and `198-236` enable `PLANCIA_DEMO`, the demo script and screenshots. Whoever controls the packaged environment can open DevTools, with access to the preload API. Severity is low because it requires the same user. Gate these paths on `!app.isPackaged`. |
 | Acceptance | In the package, the variables do not open DevTools, do not start the demo and do not write screenshots. In development, with the same variables, the demo and DevTools stay available. |
 | Required tests | Tests of the packaged flag, with the variables set and unset. Suite and build. Smoke of the Windows or macOS package with the variables set and an isolated profile, for the milestone release. |
@@ -898,7 +898,7 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | --- | --- |
 | Number and goal | M19 — PC-12, low severity, verified. This is the residual risk of paste without bracketed paste: ask for confirmation when the text contains a newline and the shell has not enabled bracketed paste. |
 | Dependency and planned branch | After C18; `milestone/19-multiline-paste-confirm`. |
-| Planned checkpoint and version | `milestone/C19`, `v0.3.14`; increment `+0.0.1`. |
+| Planned checkpoint and version | `milestone/C19`, `v0.3.15`; increment `+0.0.1`. |
 | Tasks | `src/terminalEdit.ts:156-160` pastes clipboard text and `173-190` pastes dropped text. Without bracketed paste the lines run one after another. Ask for confirmation, in Italian and English, when the text contains a newline and the shell has not enabled bracketed paste. A single-line text and a paste with bracketed paste already enabled stay immediate. |
 | Acceptance | The confirmation appears only for multiline text without bracketed paste. Cancelling leaves the terminal unchanged. Confirming sends the text within the limits already validated. Themes, focus and long confirmation text are checked. |
 | Required tests | Tests of the decision (one line, several lines, bracketed paste enabled, cancel, confirm). Suite and build. Manual check in IT/EN, light/dark, keyboard and supported desktop sizes. |
@@ -909,9 +909,9 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | --- | --- |
 | Number and goal | M20 — PC-14, low severity, verified and already partly listed under P2. Move the limits and intervals that are still hard-coded into `config/app.config.json`, clamped to the documented defaults. P2 stays a proposal: this entry carries out only this part. |
 | Dependency and planned branch | After C19; `milestone/20-session-limits-config`. |
-| Planned checkpoint and version | `milestone/C20`, `v0.3.15`; increment `+0.0.1`. |
-| Tasks | `electron/sessions.ts:32-33` defines `MAX_SESSIONS` and `MAX_BACKLOG`. `electron/sessions.ts:114-115` fixes the intervals at 400 ms and 2500 ms. Timeouts in `electron/children.ts` stay in the module. Move them into the central file, validate them at startup and return to the documented defaults when a value is out of range. |
-| Acceptance | A valid file applies the new limits. A missing value, a value of the wrong type or a value out of range returns to the documented default and the app starts. Parameters already introduced by C1 stay validated as they are today. |
+| Planned checkpoint and version | `milestone/C20`, `v0.3.16`; increment `+0.0.1`. |
+| Tasks | `electron/sessions.ts:32-33` defines `MAX_SESSIONS` and `MAX_BACKLOG`. `electron/sessions.ts:114-115` fixes the intervals at 400 ms and 2500 ms. The timeouts in `electron/children.ts` are 4000 ms for `ps` (line 22) and 8000 ms for PowerShell (line 44). Move the limits, the intervals and these timeouts into `config/app.config.json`, validate them at startup and clamp them to the documented defaults when a value is out of range. |
+| Acceptance | A valid file applies the new limits, the intervals and the `electron/children.ts` timeouts. A missing value, a value of the wrong type or a value out of range returns to the documented default by clamping, and the app starts. Parameters already introduced by C1 stay validated as they are today. |
 | Required tests | Clamp tests for each new parameter, including missing, wrong type, minimum, maximum and an in-range value. Suite and build. |
 | Documentation | README, IT/EN manuals, quick start, `SECURITY_MODEL.md`, MAP, PLAN and the JSON example of the central file. |
 | Status | `M20`, planned only; implementation not started. |
@@ -953,7 +953,7 @@ Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases
 | --- | --- |
 | Number and goal | M24 — PC-18, low severity, suspected. Use a `node-pty` prebuild on macOS when it matches Electron's ABI, and rebuild only as the fallback. |
 | Dependency and planned branch | After C23; `milestone/24-macos-pty-prebuild`. |
-| Planned checkpoint and version | `milestone/C24`, `v0.3.16`; increment `+0.0.1`. |
+| Planned checkpoint and version | `milestone/C24`, `v0.3.17`; increment `+0.0.1`. |
 | Tasks | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` returns false only on Windows when all three prebuilds are present; on Darwin it always returns true. The rebuild needs the Xcode Command Line Tools, which usually require an administrator. When a published prebuild matches Electron's ABI, use it; the rebuild stays the fallback when the prebuild is missing or does not match. |
 | Acceptance | On Darwin, with a compatible prebuild, the script does not start a rebuild. Without a compatible prebuild, the rebuild stays the documented path. Windows keeps the current three-prebuild behavior. The macOS workflow still produces `plancia-comandi.app` with no signing identity. |
 | Required tests | Script tests with a prebuild present, absent and of a different ABI. Suite and build. macOS ARM64 package smoke outside the checkout when the milestone publishes a release; without a local Mac, record the limit and use the workflow only if Glauco asks for it. |
