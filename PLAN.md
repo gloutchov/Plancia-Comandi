@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.1**, pubblicata il 13 novembre 2026. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; la seconda approvazione del commit `1155fc248acefe25ac7cc2068ca750d93150a46e` è stata ricevuta nella stessa sessione. Main, tag `milestone/C3` e `v0.3.1`, release e rimozione del branch M3 sono verificati; **C4** (landing page GitHub Pages), già M4, è pubblicata sul commit approvato `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, con sito HTTPS, checkpoint `milestone/C4`, release del sito e rimozione del branch verificati; versione desktop invariata a 0.3.1. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.1**, pubblicata il 13 novembre 2026. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; la seconda approvazione del commit `1155fc248acefe25ac7cc2068ca750d93150a46e` è stata ricevuta nella stessa sessione. Main, tag `milestone/C3` e `v0.3.1`, release e rimozione del branch M3 sono verificati; **C4** (landing page GitHub Pages), già M4, è pubblicata sul commit approvato `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, con sito HTTPS, checkpoint `milestone/C4`, release del sito e rimozione del branch verificati; versione desktop invariata a 0.3.1. La baseline di Vesta del 13 novembre 2026, analizzata su `e967d92` e ricontrollata su `d200abe`, è pianificata nella sezione 2.4 e non è avviata. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -11,6 +11,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [2.1 Milestone di sicurezza pianificate](#21-milestone-di-sicurezza-pianificate)
 - [2.2 Correzioni desktop pianificate](#22-correzioni-desktop-pianificate)
 - [2.3 Proposte e parti residue](#23-proposte-e-parti-residue)
+- [2.4 Baseline Vesta del 13 novembre 2026](#24-baseline-vesta-del-13-novembre-2026)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -147,7 +148,7 @@ C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata
 
 Glauco ha richiesto questa pianificazione il 13 novembre 2026 dopo la revisione dei sorgenti 0.3.1: 149 test riusciti, audit completo con 9 pacchetti segnalati nella toolchain (2 critici, 7 moderati), audit di produzione senza segnalazioni e prova isolata di regex patologica oltre 250 ms. Dettaglio e limiti nel [modello di sicurezza](SECURITY_MODEL.md#7-verifiche-e-rischi-residui). La pianificazione non corregge le vulnerabilità.
 
-Eseguire M5 → M6 → M7 → M8 → M9, ciascuna da main dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. La progressione 0.3.2–0.3.6 è prevista in assenza di release intermedie: confermare versione e tag all'avvio. Per ogni chiusura applicare i due controlli HOME, release con artifact/SHA-256 e documentazione/landing allineate alla versione pubblicata. Preferire controlli locali; motivare prima eventuale CI necessaria, usando i workflow di packaging esistenti senza nuovi automatismi per questa pianificazione.
+PC-03, PC-04, PC-05, PC-08, PC-11 e PC-13 della baseline Vesta sono integrate in M5–M9; le altre segnalazioni sono le milestone M13–M25 della sezione 2.4 e non rientrano in questa sequenza. Eseguire M5 → M6 → M7 → M8 → M9, ciascuna da main dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. La progressione 0.3.2–0.3.6 è prevista in assenza di release intermedie: confermare versione e tag all'avvio. Per ogni chiusura applicare i due controlli HOME, release con artifact/SHA-256 e documentazione/landing allineate alla versione pubblicata. Preferire controlli locali; motivare prima eventuale CI necessaria, usando i workflow di packaging esistenti senza nuovi automatismi per questa pianificazione.
 
 **Vincolo comune:** firma Windows, firma macOS e notarizzazione sono escluse perché le credenziali non sono disponibili. I pacchetti non firmati e gli avvisi del sistema sono limiti dichiarati che non bloccano l'accettazione; restano necessari checksum e verifica della provenienza. Nessuna configurazione di firma, notarizzazione o auto-update è autorizzata da questo piano.
 
@@ -156,9 +157,10 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Campo | M5 — Runtime Electron aggiornato |
 | --- | --- |
 | Numero e obiettivo | M5 — Aggiornare il runtime distribuito mantenendo terminali, bridge e preferenze funzionanti nei pacchetti supportati. |
+| Segnalazione Vesta | PC-03, gravità media, verificata e già tracciata qui. Su `d200abe`, come su `e967d92`, `package.json:42` è `"electron": "45.2.3"`. Non è una seconda milestone. |
 | Dipendenza e branch previsto | Dopo C4 e questa patch documentale approvata; `milestone/5-electron-runtime`. |
 | Checkpoint e versione previsti | `milestone/C5`, `v0.3.2`; incremento `+0.0.1`. |
-| Attività | Valutare Electron 45.3.2, disponibile alla revisione, o una release mantenuta successiva; verificare note ufficiali e correzioni Chromium/Node/V8. Aggiornare package e lockfile, requisiti Node e compatibilità dei moduli nativi. |
+| Attività | Valutare Electron 45.3.2, disponibile alla revisione, o una release mantenuta successiva; verificare note ufficiali e correzioni Chromium/Node/V8. Vesta segnala backport di sicurezza Chromium/V8 e un fix del loop di redirect di `webRequest` in 45.3.0, e il blocco dei certificati eMudhra revocati in 45.3.1. La gravità resta media perché il renderer non carica contenuti remoti. Aggiornare package e lockfile, requisiti Node e compatibilità dei moduli nativi, poi rifare i pacchetti. |
 | Accettazione | Versione scelta motivata e fissata nel lockfile; isolamento, sandbox e CSP preservati. PTY, avvio, viste, IT/EN e temi funzionano nei pacchetti verificati. L'audit `--omit=dev` non sostituisce la valutazione del runtime incorporato. |
 | Test richiesti | Installazione riproducibile, suite e build; ispezione e smoke dei pacchetti Windows x64/macOS ARM64 fuori dal checkout con profilo e ambiente isolati, senza dati o shell personali. Nessuna nuova compatibilità dichiarata senza prova. |
 | Documentazione | README, manuali IT/EN, quick start, SECURITY_MODEL, MAP, AGENTS per la versione; PLAN e landing/download allineati alla release verificata. |
@@ -167,6 +169,7 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Campo | M6 — Toolchain con dipendenze controllate |
 | --- | --- |
 | Numero e obiettivo | M6 — Ridurre i rischi degli strumenti di test e packaging, mantenendo riproducibili i comandi del progetto. |
+| Segnalazione Vesta | PC-04, gravità media, già tracciata e non verificata da Vesta: non ha eseguito `npm audit`. Riguarda le `devDependencies` di `package.json`. Il piano e il modello contano 9 segnalazioni di sviluppo, 2 critiche e 7 moderate, fra cui Vitest, tinypool e minimatch (GHSA-5xrq-8626-4rwp, GHSA-85c8-ppgw-ccpr). Non è una seconda milestone. |
 | Dipendenza e branch previsto | Dopo C5; `milestone/6-toolchain-security`. |
 | Checkpoint e versione previsti | `milestone/C6`, `v0.3.3`; incremento `+0.0.1`. |
 | Attività | Aggiornare Vitest e le dipendenze interessate, comprese Tinypool e mocker; affrontare minimatch nella catena electron-builder. Valutare avvisi, versioni mantenute e compatibilità; evitare `audit fix --force`, downgrade o override non verificati. |
@@ -178,9 +181,10 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Campo | M7 — Rilevamento resistente alle regex patologiche |
 | --- | --- |
 | Numero e obiettivo | M7 — Impedire che una regex aggiuntiva blocchi il processo principale e la gestione dei terminali; attua la parte regex di P1. |
+| Segnalazione Vesta | PC-05, gravità media, verificata e già tracciata qui. `src/shared/status.ts:164-178`: `compilePatterns` e `matchesAny` girano nel main sull'output del terminale. Le righe sono invariate fra `e967d92` e `d200abe`. Non è una seconda milestone. |
 | Dipendenza e branch previsto | Dopo C6; `milestone/7-regex-resilience`. |
 | Checkpoint e versione previsti | `milestone/C7`, `v0.3.4`; incremento `+0.0.1`. |
-| Attività | Separare il matching potenzialmente bloccante con budget di tempo effettivo, cancellazione e fallback, oppure adottare un motore con comportamento limitato. Conservare limiti di numero/lunghezza e validare eventuali nuovi parametri centrali. Un timer sullo stesso thread del matching non è un timeout efficace. |
+| Attività | Separare il matching potenzialmente bloccante con budget di tempo effettivo, cancellazione e fallback, oppure adottare un motore con comportamento limitato. Conservare limiti di numero/lunghezza e validare eventuali nuovi parametri centrali. Un timer sullo stesso thread del matching non è un timeout efficace. In aggiunta, senza sostituire questa impostazione: valutare all'avvio lunghezza e quantificatori annidati, o un motore limitato come RE2, e limitare la lunghezza del testo valutato. |
 | Accettazione | Pattern invalidi, troppo costosi o fuori limite non bloccano l'app; fallback e messaggio IT/EN comprensibili. Rilevamento predefinito preservato, code/worker limitati e risorse rilasciate alla chiusura. Nessuna dipendenza aggiuntiva senza motivazione. |
 | Test richiesti | Caso patologico della revisione in esecuzione isolata e terminabile; input lunghi, molti pattern, cancellazione e riapertura; regressioni del rilevatore. Verificare reattività della finestra e del bridge con fixture nei due temi e lingue. |
 | Documentazione | Manuali IT/EN, configurazione pertinente, SECURITY_MODEL, MAP, PLAN e riferimenti alla versione; landing se cambia un comportamento presentato. |
@@ -189,9 +193,10 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Campo | M8 — Preferenze robuste e diagnostica protetta |
 | --- | --- |
 | Numero e obiettivo | M8 — Ridurre perdita delle preferenze e divulgazione di dati tramite errori; attua la restante parte pianificata di P1. |
+| Segnalazione Vesta | PC-08, gravità bassa, verificata e già tracciata qui: `electron/settings.ts:96-103` (lettura in errore che torna ai default) e `118-126` (`writeFileSync` diretto). PC-13, gravità bassa, verificata, è solo in parte questa voce: `electron/sessions.ts:208-211` manda al renderer il messaggio grezzo dello spawn, che può contenere percorsi. Entrambe restano in M8; non si apre una milestone separata. Le righe sono invariate fra `e967d92` e `d200abe`. |
 | Dipendenza e branch previsto | Dopo C7; `milestone/8-settings-diagnostics`. |
 | Checkpoint e versione previsti | `milestone/C8`, `v0.3.5`; incremento `+0.0.1`. |
-| Attività | Scrivere settings.json in modo atomico con temporaneo e sostituzione nella stessa directory; limitare la dimensione prima della lettura JSON e gestire file corrotti/errori. Definire confini e permessi; normalizzare errori/log evitando percorsi privati, variabili sensibili e contenuti utente non necessari. |
+| Attività | Scrivere settings.json in modo atomico con temporaneo e sostituzione nella stessa directory; prima del ripiego sui default, conservare una copia `.bak` del file corrotto. Limitare la dimensione prima della lettura JSON e gestire file corrotti/errori. Definire confini e permessi; normalizzare errori/log evitando percorsi privati, variabili sensibili e contenuti utente non necessari. Per PC-13, il renderer riceve un codice d'errore; il dettaglio resta nel log locale. |
 | Accettazione | Un errore di scrittura preserva l'ultima configurazione valida; file eccessivi/corrotti hanno fallback documentati. Errori utili e localizzati senza dettagli sensibili; nessuno storage di credenziali o invio di diagnostica a servizi esterni. |
 | Test richiesti | Filesystem temporaneo: dimensioni al limite, JSON invalido, permessi negati, scrittura/sostituzione interrotte e migrazione legacy. Dati sintetici verificano redazione su UI/log; regressioni di preferenze IT/EN e chiaro/scuro. |
 | Documentazione | Manuali, quick start per il recupero, SECURITY_MODEL, MAP, PLAN, riferimenti alla versione e landing se pertinente. |
@@ -200,9 +205,10 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Campo | M9 — Confini IPC/CSP e pacchetti verificati |
 | --- | --- |
 | Numero e obiettivo | M9 — Rendere ripetibili i controlli di sicurezza sui pacchetti distribuiti e correggere le lacune circoscritte; recepisce la parte sicurezza/pacchetti di P3. |
+| Segnalazione Vesta | PC-11, gravità bassa, verificata. `electron/main.ts` non chiama `setPermissionRequestHandler` né `setPermissionCheckHandler`. È già l'attività «permessi non necessari» di M9: negare di default. Non è una seconda milestone. Il file, su `d200abe`, non ha una riga nuova rispetto a `e967d92`. |
 | Dipendenza e branch previsto | Dopo C8; `milestone/9-package-security`. |
 | Checkpoint e versione previsti | `milestone/C9`, `v0.3.6`; incremento `+0.0.1`. |
-| Attività | Provare IPC reale con mittenti, frame/origini e payload invalidi, rafforzando i controlli dove necessario. Verificare CSP applicata, blocco navigazioni/popup e permessi non necessari. Rafforzare ispezione/smoke di installer/portable Windows x64 e DMG/ZIP macOS ARM64, con HOME/appData/userData isolati e senza file privati/tool di sviluppo. |
+| Attività | Provare IPC reale con mittenti, frame/origini e payload invalidi, rafforzando i controlli dove necessario. Verificare CSP applicata, blocco navigazioni/popup e permessi non necessari: per PC-11, negare di default richieste e controlli dei permessi. Rafforzare ispezione/smoke di installer/portable Windows x64 e DMG/ZIP macOS ARM64, con HOME/appData/userData isolati e senza file privati/tool di sviluppo. |
 | Accettazione | Richieste rifiutate senza effetti privilegiati; protezioni del renderer effettive nei pacchetti e test isolati ripetibili. Artifact/SHA-256 corrispondono al commit approvato. Firma/notarizzazione escluse; Linux, macOS Intel e ulteriori casi funzionali restano P3 se non verificati esplicitamente, senza nuove promesse di compatibilità. |
 | Test richiesti | Matrice nativa Windows x64/macOS ARM64, formati distribuiti e smoke fuori dal checkout; negativi IPC/CSP e contenuti del pacchetto. Correggere i limiti noti degli script elencati nel modello di sicurezza; usare solo fixture/profili temporanei, senza credenziali o sessioni reali. |
 | Documentazione | SECURITY_MODEL con evidenze/limiti per piattaforma, MAP per script/test, manuali e quick start per installazione, README/PLAN e landing per i soli pacchetti verificati. |
@@ -252,10 +258,200 @@ Eseguire M10 → M11 → M12 dopo C9, ciascuna su branch dedicato, dopo verifica
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
 | P1 — Confini di sicurezza, recepita in M7–M8 | Timeout delle regex in M7; preferenze atomiche e diagnostica in M8. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla restano C2. | Completamento da verificare attraverso C7/C8 con test negativi isolati e modello aggiornato; nessuna correzione già attribuita alla pianificazione. |
-| P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
+| P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. PC-09 e PC-14 hanno le milestone dedicate M17 e M20, non avviate: restano un riferimento a P2 e non la sostituiscono. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata, parte recepita in M9 | Sicurezza IPC/CSP e pacchetti Windows x64/macOS ARM64 in M9. Restano da pianificare ulteriori verifiche Linux/macOS Intel e casi funzionali non coperti di notifiche, scorciatoie, shell e PTY. Firma e notarizzazione escluse per indisponibilità delle credenziali. | Esiti distinti per piattaforma e formato, senza dichiarare compatibilità non verificata. Le parti residue richiedono una nuova decisione prima di diventare milestone. |
 
-Versione, branch, checkpoint, attività e test di P1 e della parte sicurezza/pacchetti di P3 sono definiti in M7–M9; P2 e le parti residue di P3 restano proposte. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages è C4, già M4, pubblicata e verificata sul checkpoint remoto `milestone/C4`; la release del sito è distinta dai pacchetti desktop 0.3.1.
+Versione, branch, checkpoint, attività e test di P1 e della parte sicurezza/pacchetti di P3 sono definiti in M7–M9. P2 resta una proposta: M17 e M20 ne pianificano solo PC-09 e PC-14. Le parti residue di P3 restano proposte. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages è C4, già M4, pubblicata e verificata sul checkpoint remoto `milestone/C4`; la release del sito è distinta dai pacchetti desktop 0.3.1.
+
+#### 2.4 Baseline Vesta del 13 novembre 2026
+
+Vesta ha analizzato `main` al commit `e967d92` il 13 novembre 2026, senza eseguire build, test né `npm audit`. Il DNS del CNAME non è stato verificato. La sfruttabilità di PC-01 e PC-02 è dedotta, non provata. Le righe sono state ricontrollate su `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` sui file citati è vuoto, quindi gli intervalli restano quelli indicati da Vesta. Due precisazioni di contenuto, sullo stesso testo: in `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`; in `.github/workflows/package-macos.yml` il runner è già `macos-15` (riga 24). `package-windows.yml` usa ancora `windows-latest` (riga 23). Il default `"0.3.0"` è alla riga 12 di entrambi i workflow e la descrizione di `package-macos.yml` (riga 7) cita ancora lo SHA della 0.3.0.
+
+Questa patch usa `patch/0.3.1-plan-vesta-baseline`, da quel commit di main. Modifica solo `PLAN.md`, mantiene la versione applicativa 0.3.1 e, dopo approvazione, prevede il tag documentale annotato `docs/plan-vesta-baseline-2026-11-13`. Il tag non viene creato da questa pianificazione. Nessuna milestone sotto è avviata.
+
+PC-03, PC-04, PC-05, PC-08, PC-13 e PC-11 restano dentro M5, M6, M7, M8 e M9. PC-11 è la parte di M9 sui permessi: `electron/main.ts` non registra `setPermissionRequestHandler` né `setPermissionCheckHandler`, e il lavoro previsto è negare di default. Le altre tredici segnalazioni sono M13–M25, una voce ciascuna. L'ordine di esecuzione previsto è M13 → M25, dopo C12, ciascuna da main dopo la verifica del checkpoint remoto precedente e una richiesta di avvio separata. L'ordine consigliato da Vesta, qui sotto, non riordina M5–M12 e non autorizza l'avvio.
+
+1. Subito, a basso rischio: PC-01 (M13), PC-02 (M14) e PC-10 (M18), con test; PC-10 condizionato a `!app.isPackaged`.
+2. Electron 45.3.2 insieme a M5 e M6.
+3. Impostazioni GitHub di PC-07 (M16), solo dopo la decisione di Glauco.
+5. Allineamento di CNAME, canonical e piano (M21) e aggiornamento della quotatura in `SECURITY_MODEL.md`, che fa parte di M13 e M14.
+6. Polling adattivo di PC-06 (M15), con prova su AppLocker o Constrained Language Mode se un PC aziendale è disponibile.
+8. `npm audit` e lettura del lockfile in un ambiente isolato, dentro M6, con approvazione di Glauco.
+
+I numeri 4 e 7 non compaiono nell'elenco incollato.
+
+Le versioni `v0.3.10`–`v0.3.16` sono indicative, in assenza di release intermedie. M17 usa l'incremento `+0.1.0` perché cambia un comportamento visibile; il numero concreto si conferma all'avvio, così da non spostare da solo la serie di patch. M16, M21, M22, M23 e M25 lasciano invariata la versione applicativa e hanno comunque il checkpoint `milestone/C<n>`.
+
+**Segnalazioni già coperte**
+
+| Segnalazione | Milestone | Checkpoint |
+| --- | --- | --- |
+| PC-03 | M5 | `milestone/C5` |
+| PC-04 | M6 | `milestone/C6` |
+| PC-05 | M7 | `milestone/C7` |
+| PC-08, PC-13 | M8 | `milestone/C8` |
+| PC-11 | M9 | `milestone/C9` |
+
+**Milestone nuove**
+
+| Voce | ID Vesta | Branch previsto | Checkpoint | Versione prevista |
+| --- | --- | --- | --- | --- |
+| M13 — Quotatura PowerShell | PC-01 | `milestone/13-powershell-quotes` | `milestone/C13` | `v0.3.10`, `+0.0.1` |
+| M14 — Quotatura fish | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.11`, `+0.0.1` |
+| M15 — Polling dei processi figli su Windows | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
+| M16 — Avvisi e configurazione del repository | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | versione applicativa invariata |
+| M17 — Lingua iniziale di sistema | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `+0.1.0`, numero da confermare all'avvio |
+| M18 — DevTools e demo solo fuori dal pacchetto | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.13`, `+0.0.1` |
+| M19 — Conferma dell'incolla e del trascinamento multilinea | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.14`, `+0.0.1` |
+| M20 — Limiti di sessione nel file centrale | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.15`, `+0.0.1` |
+| M21 — CNAME, canonical e piano | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | versione applicativa invariata |
+| M22 — Default e immagini dei workflow di packaging | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | versione applicativa invariata |
+| M23 — Esclusioni Git di ambienti e chiavi | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | versione applicativa invariata |
+| M24 — Prebuild di node-pty su macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.16`, `+0.0.1` |
+| M25 — Tag documentali e copia dello standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | versione applicativa invariata |
+
+| Campo | M13 — Quotatura PowerShell |
+| --- | --- |
+| Numero e obiettivo | M13 — PC-01, gravità media, verificata; la sfruttabilità è sospetta e non è stata provata. Fare in modo che la quotatura PowerShell tratti come apice singolo anche U+2018, U+2019, U+201A e U+201B. |
+| Dipendenza e branch previsto | Dopo C12; `milestone/13-powershell-quotes`. |
+| Checkpoint e versione previsti | `milestone/C13`, `v0.3.10`; incremento `+0.0.1`. |
+| Attività | `quotePowerShell` in `src/shared/shellQuote.ts:17-19` raddoppia solo l'apostrofo ASCII. PowerShell tratta come apici singoli anche U+2018–U+201B. Un file trascinato il cui nome esce dalla stringa, il percorso di un'immagine incollata (`src/terminalEdit.ts:145-151`) e un nome utente come O’Brien possono chiudere la stringa. Allineare la sostituzione a EscapeSingleQuotedStringContent, raddoppiando anche quei quattro caratteri. I test in `src/shared/shellQuote.test.ts` oggi non li coprono. |
+| Criteri di accettazione | Un valore con apostrofo tipografico resta un unico argomento quotato in PowerShell e pwsh. I casi già coperti di apice ASCII, POSIX e cmd restano verdi. `SECURITY_MODEL.md` descrive la quotatura PowerShell in modo coerente con il codice verificato. |
+| Test richiesti | Test unitari sui quattro caratteri, su un nome con apostrofo tipografico e su un percorso che mescola apice ASCII e tipografico. Suite e build. Smoke del trascinamento e dell'immagine incollata sul pacchetto Windows, con profilo isolato, se la release della milestone lo include. |
+| Documentazione | `SECURITY_MODEL.md`, manuali IT/EN se il comportamento visibile dell'incolla cambia, MAP se cambiano i test, PLAN e riferimenti di versione. |
+| Stato | `M13`, solo pianificata; implementazione non avviata. |
+
+| Campo | M14 — Quotatura fish |
+| --- | --- |
+| Numero e obiettivo | M14 — PC-02, gravità media, sospetta. Quotare fish dentro gli apici singoli secondo le sue sequenze di escape. |
+| Dipendenza e branch previsto | Dopo C13; `milestone/14-fish-quoting`. |
+| Checkpoint e versione previsti | `milestone/C14`, `v0.3.11`; incremento `+0.0.1`. |
+| Attività | `shellQuoteKind` (`src/shared/shellQuote.ts:6-15`) manda fish su POSIX; `src/shared/shellQuote.test.ts:11` si aspetta questo risultato. Il rilevamento è in `electron/shells.ts:29-32`. Dentro gli apici singoli fish interpreta `\'` e `\\` come escape: un percorso con backslash finale, o con `\'`, può chiudere la stringa. Aggiungere il tipo `fish`, che dentro gli apici trasforma `\` in `\\` e `'` in `\'`. |
+| Criteri di accettazione | Un percorso fish con backslash, apice e spazio resta un unico argomento. PowerShell, cmd e POSIX restano invariati. `SECURITY_MODEL.md` cita fish. |
+| Test richiesti | Test unitari del tipo `fish`, del backslash finale e di `\'`. Suite e build. Prova manuale su macOS solo se fish è installato nell'ambiente di verifica, con dati sintetici. |
+| Documentazione | `SECURITY_MODEL.md`, MAP per il test, manuali se l'elenco delle shell quotate cambia, PLAN e versione. |
+| Stato | `M14`, solo pianificata; implementazione non avviata. |
+
+| Campo | M15 — Polling dei processi figli su Windows |
+| --- | --- |
+| Numero e obiettivo | M15 — PC-06, gravità media, verificata; l'impatto operativo è sospetto. Ridurre il costo del rilevamento dei processi figli e rendere visibile il caso in cui Windows lo blocca. |
+| Dipendenza e branch previsto | Dopo C14; `milestone/15-windows-child-poll`. |
+| Checkpoint e versione previsti | `milestone/C15`, `v0.3.12`; incremento `+0.0.1`. |
+| Attività | `electron/children.ts:35-52` avvia `powershell.exe -NoProfile -NonInteractive -Command Get-CimInstance Win32_Process` a ogni giro, con timeout di 8 secondi. `electron/sessions.ts:115` programma il giro ogni 2,5 secondi. Il costo può essere di centinaia di millisecondi di CPU. Su un PC aziendale, AppLocker o Constrained Language Mode possono bloccare il comando e il rilevamento si degrada senza un avviso in interfaccia. Eseguire il polling solo con sessioni attive o visibili e con backoff, oppure tenere un unico PowerShell persistente. Mostrare in interfaccia che il rilevamento non è disponibile. |
+| Criteri di accettazione | Senza sessioni attive il comando non parte a ogni intervallo. Un fallimento ripetuto diventa uno stato visibile, in italiano e in inglese, e il resto della plancia continua a funzionare. Il rilevamento sui percorsi già verificati resta disponibile quando il comando riesce. |
+| Test richiesti | Test dell'intervallo, del backoff e del messaggio di indisponibilità con un comando finto. Suite e build. Prova su un PC con AppLocker o Constrained Language Mode solo se quell'ambiente è disponibile; in assenza, registrare il limite. Smoke Windows x64 sul pacchetto della release, profilo isolato. |
+| Documentazione | Manuali IT/EN, `SECURITY_MODEL.md`, MAP, PLAN, versione e landing se il comportamento pubblicato cambia. |
+| Stato | `M15`, solo pianificata; implementazione non avviata. |
+
+| Campo | M16 — Avvisi e configurazione del repository |
+| --- | --- |
+| Numero e obiettivo | M16 — PC-07, gravità media, verificata. Registrare la decisione di Glauco su Dependabot, secret scanning, push protection e protezione di `main`. L'unica attività su file è `.github/dependabot.yml`, e solo se quella decisione la include. |
+| Dipendenza e branch previsto | Dopo C15 e dopo la decisione esplicita di Glauco; `milestone/16-dependabot-config`. |
+| Checkpoint e versione previsti | `milestone/C16`; versione applicativa invariata. |
+| Attività | Alla data della baseline gli alert Dependabot e il secret scanning risultano disattivati, manca `dependabot.yml`, manca il code scanning e `main` non è protetto. Le impostazioni del repository sono una decisione di Glauco: alert Dependabot, secret scanning, push protection e protezione di `main` (niente force-push né cancellazione) si attivano solo dopo quella decisione e restano azioni sull'account. Se la decisione include il file, aggiungere `.github/dependabot.yml` per npm e per github-actions. |
+| Criteri di accettazione | Il piano riporta la decisione. Nessuna impostazione del repository cambia prima di essa. Se il file entra nel commit, copre npm e github-actions e i workflow di packaging restano `workflow_dispatch`. |
+| Test richiesti | Controllo statico del YAML, se presente. Nessun `workflow_dispatch` di prova. Nessun test applicativo aggiuntivo per le sole impostazioni. |
+| Documentazione | `PLAN.md` e `SECURITY_MODEL.md` con l'esito della decisione e i limiti che restano sull'account. |
+| Stato | `M16`, solo pianificata; implementazione non avviata. Decisione di Glauco ancora aperta. |
+
+| Campo | M17 — Lingua iniziale di sistema |
+| --- | --- |
+| Numero e obiettivo | M17 — PC-09, gravità bassa, verificata e già indicata in P2. Rilevare la lingua di sistema al primo avvio, con ripiego sull'inglese. P2 resta una proposta: questa voce ne attua solo la parte lingua. |
+| Dipendenza e branch previsto | Dopo C16; `milestone/17-system-locale`. |
+| Checkpoint e versione previsti | `milestone/C17`; incremento `+0.1.0`. Il numero di versione si conferma all'avvio. |
+| Attività | `electron/settings.ts:14` assegna `locale: 'it'` in `defaultSettings`. Lo standard chiede il rilevamento della lingua di sistema. Usare `app.getLocale()`, con ripiego `en` quando la lingua non è tra quelle tradotte. L'override già salvato resta quello scelto dall'utente. |
+| Criteri di accettazione | Un profilo nuovo con locale di sistema italiano apre l'interfaccia in italiano; un locale diverso da `it` apre l'inglese. Una preferenza già scritta non viene sovrascritta. La schermata di avvio, mostrata prima del caricamento delle preferenze, resta documentata con il dizionario italiano di default. |
+| Test richiesti | Test di `defaultSettings` o dell'adattatore di locale con locale finto, compresi `it`, `en`, un locale sconosciuto e un file di preferenze già presente. Suite e build. Controllo manuale IT/EN e chiaro/scuro sul primo avvio con profilo isolato. |
+| Documentazione | Manuali IT/EN, README, quick start, `SECURITY_MODEL.md` se cambia il dato letto dal sistema, MAP, PLAN e versione. |
+| Stato | `M17`, solo pianificata; implementazione non avviata. |
+
+| Campo | M18 — DevTools e demo solo fuori dal pacchetto |
+| --- | --- |
+| Numero e obiettivo | M18 — PC-10, gravità bassa, verificata. Limitare DevTools, demo e screenshot alle esecuzioni non pacchettizzate. |
+| Dipendenza e branch previsto | Dopo C17; `milestone/18-packaged-devtools`. |
+| Checkpoint e versione previsti | `milestone/C18`, `v0.3.13`; incremento `+0.0.1`. |
+| Attività | `electron/main.ts:281` apre DevTools se è impostata `PLANCIA_DEVTOOLS`. `electron/main.ts:35` e `198-236` attivano `PLANCIA_DEMO`, lo script di demo e gli screenshot. Chi controlla l'ambiente del pacchetto può così aprire DevTools, con accesso all'API del preload. La gravità è bassa perché serve lo stesso utente. Condizionare queste strade a `!app.isPackaged`. |
+| Criteri di accettazione | Nel pacchetto le variabili non aprono DevTools, non avviano la demo e non scrivono screenshot. In sviluppo, con le stesse variabili, demo e DevTools restano disponibili. |
+| Test richiesti | Test della condizione sul flag di pacchetto, con le variabili impostate e assenti. Suite e build. Smoke del pacchetto Windows o macOS con le variabili impostate e profilo isolato, per la release della milestone. |
+| Documentazione | `SECURITY_MODEL.md`, manuali e README per il limite sul pacchetto, MAP, PLAN e versione. |
+| Stato | `M18`, solo pianificata; implementazione non avviata. |
+
+| Campo | M19 — Conferma dell'incolla e del trascinamento multilinea |
+| --- | --- |
+| Numero e obiettivo | M19 — PC-12, gravità bassa, verificata. È il rischio residuo dell'incolla senza bracketed paste: chiedere conferma quando il testo contiene un a capo e la shell non ha attivato il bracketed paste. |
+| Dipendenza e branch previsto | Dopo C18; `milestone/19-multiline-paste-confirm`. |
+| Checkpoint e versione previsti | `milestone/C19`, `v0.3.14`; incremento `+0.0.1`. |
+| Attività | `src/terminalEdit.ts:156-160` incolla il testo degli appunti e `173-190` incolla il testo trascinato. Senza bracketed paste le righe partono una dopo l'altra. Chiedere conferma, in italiano e in inglese, quando il testo contiene un a capo e la shell non ha attivato il bracketed paste. Un testo di una sola riga e un incolla con bracketed paste attivo restano immediati. |
+| Criteri di accettazione | La conferma compare solo nel caso multilinea senza bracketed paste. Annullare lascia il terminale invariato. Confermare invia il testo entro i limiti già validati. I temi, il focus e i testi lunghi della conferma sono verificati. |
+| Test richiesti | Test della decisione (una riga, più righe, bracketed paste attivo, annullamento, conferma). Suite e build. Controllo manuale IT/EN, chiaro/scuro, tastiera e dimensioni desktop supportate. |
+| Documentazione | Manuali IT/EN con i nomi reali dei controlli, `SECURITY_MODEL.md`, MAP, PLAN e versione. |
+| Stato | `M19`, solo pianificata; implementazione non avviata. |
+
+| Campo | M20 — Limiti di sessione nel file centrale |
+| --- | --- |
+| Numero e obiettivo | M20 — PC-14, gravità bassa, verificata e già indicata in parte in P2. Spostare in `config/app.config.json` i limiti e gli intervalli ancora cablati, con clamp ai default documentati. P2 resta una proposta: questa voce ne attua solo questa parte. |
+| Dipendenza e branch previsto | Dopo C19; `milestone/20-session-limits-config`. |
+| Checkpoint e versione previsti | `milestone/C20`, `v0.3.15`; incremento `+0.0.1`. |
+| Attività | `electron/sessions.ts:32-33` definisce `MAX_SESSIONS` e `MAX_BACKLOG`. `electron/sessions.ts:114-115` fissa gli intervalli a 400 ms e 2500 ms. I timeout di `electron/children.ts` restano nel modulo. Spostarli nel file centrale, validarli all'avvio e tornare ai default documentati quando un valore è fuori intervallo. |
+| Criteri di accettazione | Un file valido applica i nuovi limiti. Un valore assente, di tipo errato o fuori intervallo torna al default documentato e l'app si avvia. I parametri già introdotti da C1 restano validati come oggi. |
+| Test richiesti | Test di clamp per ogni nuovo parametro, compresi assente, tipo errato, minimo, massimo e valore interno. Suite e build. |
+| Documentazione | README, manuali IT/EN, quick start, `SECURITY_MODEL.md`, MAP, PLAN e l'esempio JSON del file centrale. |
+| Stato | `M20`, solo pianificata; implementazione non avviata. |
+
+| Campo | M21 — CNAME, canonical e piano |
+| --- | --- |
+| Numero e obiettivo | M21 — PC-15, gravità bassa, verificata. Allineare CNAME, canonical e piano dopo la scelta del dominio, che è di Glauco. |
+| Dipendenza e branch previsto | Dopo C20 e dopo la scelta esplicita del dominio; `milestone/21-pages-cname`. |
+| Checkpoint e versione previsti | `milestone/C21`; versione applicativa invariata. |
+| Attività | `docs/CNAME` contiene `planciacomandi.glaucosilvestri.it`, dal commit `e967d92` («Create CNAME») eseguito dall'interfaccia web direttamente su main. In `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`: puntano a `gloutchov.github.io/Plancia-Comandi/`. La voce C4 di questo piano dice che Pages `main:/docs` è stato attivato senza CNAME. Il DNS non è verificato. Glauco sceglie: verificare DNS e HTTPS su Pages e poi allineare canonical, Open Graph, `hreflang` e questa voce di piano, oppure rimuovere il CNAME e lasciare gli URL `github.io`. |
+| Criteri di accettazione | Canonical, Open Graph, `hreflang`, `docs/CNAME` e la voce C4 descrivono lo stesso host. Se il dominio proprio resta, DNS e HTTPS sono verificati prima dell'allineamento. La versione desktop resta quella già pubblicata. |
+| Test richiesti | Controllo di link, anchor e coerenza IT/EN del piano e della pagina. Dopo l'approvazione del deploy, controllo HTTPS dell'host scelto. Nessuna cattura di dati privati. |
+| Documentazione | `PLAN.md`, `docs/index.html`, `docs/CNAME`, README e `SECURITY_MODEL.md` per l'host della landing. |
+| Stato | `M21`, solo pianificata; implementazione non avviata. Scelta del dominio ancora aperta. |
+
+| Campo | M22 — Default e immagini dei workflow di packaging |
+| --- | --- |
+| Numero e obiettivo | M22 — PC-16, gravità bassa, verificata. Aggiornare i default di versione e fissare l'immagine Windows. L'immagine macOS è già `macos-15`. |
+| Dipendenza e branch previsto | Dopo C21; `milestone/22-packaging-defaults`. |
+| Checkpoint e versione previsti | `milestone/C22`; versione applicativa invariata. |
+| Attività | `package-windows.yml:12` e `package-macos.yml:12` hanno `default: "0.3.0"`. `package-macos.yml:7` descrive ancora lo SHA della 0.3.0. `package-windows.yml:23` usa `windows-latest`. `package-macos.yml:24` usa già `macos-15`, con il commento che è l'immagine Apple Silicon. Aggiornare o togliere il default di versione, aggiornare la descrizione e fissare l'immagine Windows a una versione esplicita. Lasciare `macos-15` finché un aggiornamento dell'immagine non è deciso a parte. I workflow restano `workflow_dispatch`, con `contents: read`. |
+| Criteri di accettazione | Nessun default punta ancora a 0.3.0. La descrizione non cita uno SHA di una release precedente come valore operativo. L'immagine Windows è un'etichetta fissa. Un push o una pull request non avviano i workflow. |
+| Test richiesti | Lettura statica dei due YAML. Nessun `workflow_dispatch` di prova. |
+| Documentazione | `PLAN.md`, MAP e `SECURITY_MODEL.md` se cambia il perimetro dei workflow. |
+| Stato | `M22`, solo pianificata; implementazione non avviata. |
+
+| Campo | M23 — Esclusioni Git di ambienti e chiavi |
+| --- | --- |
+| Numero e obiettivo | M23 — PC-17, gravità bassa, verificata. Ignorare file di ambiente e chiavi private che oggi `.gitignore` non elenca. |
+| Dipendenza e branch previsto | Dopo C22; `milestone/23-gitignore-secrets`. |
+| Checkpoint e versione previsti | `milestone/C23`; versione applicativa invariata. |
+| Attività | Su `d200abe`, `.gitignore` non contiene `.env`, `*.pem`, `*.key` né `*.p12`. Aggiungerli. Non trattare `.gitignore` come unico filtro dei segreti e non rimuovere dalla storia eventuali segreti già committati senza una decisione separata: in questo albero, alla data della baseline, quei nomi non risultano tracciati. |
+| Criteri di accettazione | I quattro schemi sono presenti. Un file di esempio documentato, se il repository ne ha uno, resta tracciabile. I file già voluti nel pacchetto o nei documenti restano tracciati. |
+| Test richiesti | Controllo statico di `.gitignore` e di `git check-ignore` su percorsi finti, fuori dal contenuto reale del repository. |
+| Documentazione | `SECURITY_MODEL.md` e MAP, con il limite che `.gitignore` non è un filtro dei segreti già presenti nella storia. |
+| Stato | `M23`, solo pianificata; implementazione non avviata. |
+
+| Campo | M24 — Prebuild di node-pty su macOS |
+| --- | --- |
+| Numero e obiettivo | M24 — PC-18, gravità bassa, sospetta. Usare una prebuild di `node-pty` su macOS quando è compatibile con l'ABI di Electron, e ricompilare solo come ripiego. |
+| Dipendenza e branch previsto | Dopo C23; `milestone/24-macos-pty-prebuild`. |
+| Checkpoint e versione previsti | `milestone/C24`, `v0.3.16`; incremento `+0.0.1`. |
+| Attività | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` restituisce falso solo su Windows quando le tre prebuild ci sono; su Darwin restituisce sempre vero. La ricompilazione chiede i Command Line Tools di Xcode, che di solito richiedono un amministratore. Se una prebuild pubblicata è compatibile con l'ABI di Electron, usarla; la ricompilazione resta il ripiego quando la prebuild manca o non coincide. |
+| Criteri di accettazione | Su Darwin, con prebuild compatibile, lo script non lancia la ricompilazione. Senza prebuild compatibile, la ricompilazione resta il percorso documentato. Windows conserva il comportamento attuale delle tre prebuild. Il workflow macOS continua a produrre `plancia-comandi.app` senza identità di firma. |
+| Test richiesti | Test dello script con prebuild presente, assente e di ABI diversa. Suite e build. Smoke del pacchetto macOS ARM64 fuori dal checkout quando la milestone pubblica una release; in assenza di un Mac locale, registrare il limite e usare il workflow solo se Glauco lo chiede. |
+| Documentazione | README, manuali IT/EN, quick start, MAP, `SECURITY_MODEL.md`, PLAN e versione. |
+| Stato | `M24`, solo pianificata; implementazione non avviata. |
+
+| Campo | M25 — Tag documentali e copia dello standard |
+| --- | --- |
+| Numero e obiettivo | M25 — PC-19, gravità bassa, verificata. Documentare l'eccezione dei tag `docs/*` oppure citare lo standard per versione, al posto della copia committata. |
+| Dipendenza e branch previsto | Dopo C24; `milestone/25-doc-tag-policy`. |
+| Checkpoint e versione previsti | `milestone/C25`; versione applicativa invariata. |
+| Attività | Sul remoto ci sono i tag annotati `docs/2026-11-10` (oggetto `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (oggetto `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) e `docs/desktop-fixes-plan-2026-11-13` (oggetto `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). Non seguono `vX.Y.Z` né `milestone/C<n>`. Il repository contiene anche `STARTUP_PREFERENCES_HOME.md`, 38056 byte, che può divergere dall'originale. Scegliere una delle due strade, con approvazione di Glauco: documentare l'eccezione per i tag documentali `docs/*`, lasciando invariati i tag già pubblicati, oppure sostituire la copia con un riferimento allo standard per versione. Il tag proposto per questa patch di piano, `docs/plan-vesta-baseline-2026-11-13`, segue la pratica già usata e si crea solo dopo approvazione. |
+| Criteri di accettazione | Il piano e `AGENTS.md` descrivono la regola scelta. I tag `vX.Y.Z` e `milestone/C<n>` già pubblicati restano al loro commit. Nessun tag pubblicato viene spostato. |
+| Test richiesti | `git diff --check` e controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
+| Documentazione | `PLAN.md`, `AGENTS.md` e, se si toglie la copia, i punti che oggi rimandano a `STARTUP_PREFERENCES_HOME.md`. |
+| Stato | `M25`, solo pianificata; implementazione non avviata. |
 
 ### 3. Convenzioni delle milestone
 
@@ -324,7 +520,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.1**, published on 13 November 2026. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; second approval of commit `1155fc248acefe25ac7cc2068ca750d93150a46e` was received in the same session. Main, tags `milestone/C3` and `v0.3.1`, release and M3 branch removal are verified; **C4** (GitHub Pages landing page), formerly M4, is published at approved commit `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, with HTTPS site, `milestone/C4` checkpoint, site release and branch removal verified; desktop version remains 0.3.1. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.1**, published on 13 November 2026. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; second approval of commit `1155fc248acefe25ac7cc2068ca750d93150a46e` was received in the same session. Main, tags `milestone/C3` and `v0.3.1`, release and M3 branch removal are verified; **C4** (GitHub Pages landing page), formerly M4, is published at approved commit `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, with HTTPS site, `milestone/C4` checkpoint, site release and branch removal verified; desktop version remains 0.3.1. Vesta's baseline of 13 November 2026, analyzed on `e967d92` and rechecked on `d200abe`, is planned in section 2.4 and has not been started. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -333,6 +529,7 @@ This plan records the existing Plancia Comandi baseline and future work. Applica
 - [2.1 Planned security milestones](#21-planned-security-milestones)
 - [2.2 Planned desktop fixes](#22-planned-desktop-fixes)
 - [2.3 Proposals and remaining work](#23-proposals-and-remaining-work)
+- [2.4 Vesta baseline of 13 November 2026](#24-vesta-baseline-of-13-november-2026)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -469,7 +666,7 @@ C1, formerly M1, is merged and published as source. C2, formerly M2, is approved
 
 Glauco requested this plan on 13 November 2026 following the 0.3.1 source review: 149 tests passed, full audit with 9 affected toolchain packages (2 critical, 7 moderate), production audit with no findings and an isolated pathological-regex test exceeding 250 ms. Details and limitations are in the [security model](SECURITY_MODEL.md#7-checks-and-residual-risks). Planning does not fix the vulnerabilities.
 
-Execute M5 → M6 → M7 → M8 → M9, each from main after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.2–0.3.6 assume no intervening releases: confirm version and tags at start. Each closure follows both HOME reviews, release with assets/SHA-256 and documentation/landing aligned with the published version. Prefer local checks; justify any necessary CI beforehand, using existing packaging workflows without new automation for this plan.
+PC-03, PC-04, PC-05, PC-08, PC-11 and PC-13 from the Vesta baseline are integrated into M5–M9; the other findings are milestones M13–M25 in section 2.4 and are not part of this sequence. Execute M5 → M6 → M7 → M8 → M9, each from main after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.2–0.3.6 assume no intervening releases: confirm version and tags at start. Each closure follows both HOME reviews, release with assets/SHA-256 and documentation/landing aligned with the published version. Prefer local checks; justify any necessary CI beforehand, using existing packaging workflows without new automation for this plan.
 
 **Shared constraint:** Windows signing, macOS signing and notarization are excluded because credentials are unavailable. Unsigned packages and system warnings are disclosed limitations that do not block acceptance; checksums and origin verification remain necessary. This plan authorizes no signing, notarization or automatic-update configuration.
 
@@ -478,9 +675,10 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Field | M5 — Updated Electron runtime |
 | --- | --- |
 | Number and goal | M5 — Update the shipped runtime while preserving terminals, bridge and preferences in supported packages. |
+| Vesta finding | PC-03, medium severity, verified and already tracked here. On `d200abe`, as on `e967d92`, `package.json:42` is `"electron": "45.2.3"`. This is not a second milestone. |
 | Dependency and planned branch | After C4 and this approved documentation patch; `milestone/5-electron-runtime`. |
 | Planned checkpoint and version | `milestone/C5`, `v0.3.2`; increment `+0.0.1`. |
-| Tasks | Assess Electron 45.3.2, available at review time, or a newer maintained release; inspect official notes and Chromium/Node/V8 fixes. Update package and lockfile, Node requirements and native-module compatibility. |
+| Tasks | Assess Electron 45.3.2, available at review time, or a newer maintained release; inspect official notes and Chromium/Node/V8 fixes. Vesta notes Chromium/V8 security backports and a `webRequest` redirect-loop fix in 45.3.0, and blocking of revoked eMudhra certificates in 45.3.1. Severity stays medium because the renderer does not load remote content. Update package and lockfile, Node requirements and native-module compatibility, then rebuild the packages. |
 | Acceptance | Chosen version justified and pinned in the lockfile; isolation, sandbox and CSP preserved. PTY, startup, layouts, IT/EN and themes work in verified packages. The `--omit=dev` audit does not replace assessment of the embedded runtime. |
 | Required tests | Reproducible installation, suite and build; inspect and smoke-test Windows x64/macOS ARM64 packages outside the checkout with isolated profiles and environments, without personal data or shells. No additional compatibility claims without evidence. |
 | Documentation | README, IT/EN manuals, quick start, SECURITY_MODEL, MAP, AGENTS version references; PLAN and landing/downloads aligned with the verified release. |
@@ -489,6 +687,7 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Field | M6 — Toolchain dependency security |
 | --- | --- |
 | Number and goal | M6 — Reduce test and packaging tool risks while keeping project commands reproducible. |
+| Vesta finding | PC-04, medium severity, already tracked and not verified by Vesta: Vesta did not run `npm audit`. It concerns `package.json` devDependencies. The plan and the security model count 9 development findings, 2 critical and 7 moderate, including Vitest, tinypool and minimatch (GHSA-5xrq-8626-4rwp, GHSA-85c8-ppgw-ccpr). This is not a second milestone. |
 | Dependency and planned branch | After C5; `milestone/6-toolchain-security`. |
 | Planned checkpoint and version | `milestone/C6`, `v0.3.3`; increment `+0.0.1`. |
 | Tasks | Update Vitest and affected dependencies, including Tinypool and mocker; address minimatch in the electron-builder chain. Assess advisories, maintained versions and compatibility; avoid unverified `audit fix --force`, downgrades or overrides. |
@@ -500,9 +699,10 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Field | M7 — Detection resilient to pathological regexes |
 | --- | --- |
 | Number and goal | M7 — Prevent an additional regex from blocking main and terminal management; implement the regex portion of P1. |
+| Vesta finding | PC-05, medium severity, verified and already tracked here. `src/shared/status.ts:164-178`: `compilePatterns` and `matchesAny` run in main on terminal output. Those lines are unchanged from `e967d92` to `d200abe`. This is not a second milestone. |
 | Dependency and planned branch | After C6; `milestone/7-regex-resilience`. |
 | Planned checkpoint and version | `milestone/C7`, `v0.3.4`; increment `+0.0.1`. |
-| Tasks | Isolate potentially blocking matching with an effective time budget, cancellation and fallback, or adopt a bounded engine. Preserve count/length limits and validate any new central parameters. A timer on the matching thread is not an effective timeout. |
+| Tasks | Isolate potentially blocking matching with an effective time budget, cancellation and fallback, or adopt a bounded engine. Preserve count/length limits and validate any new central parameters. A timer on the matching thread is not an effective timeout. In addition, without replacing this approach: consider validating length and nested quantifiers at startup, or a bounded engine such as RE2, and limit the length of text that is evaluated. |
 | Acceptance | Invalid, expensive or oversized patterns do not freeze the app; understandable fallback and IT/EN message. Default detection preserved, queues/workers bounded and resources released on close. No additional dependency without justification. |
 | Required tests | Review's pathological case in isolated, terminable execution; long input, many patterns, cancellation and reopening; detector regressions. Check window and bridge responsiveness with fixtures in both themes/languages. |
 | Documentation | IT/EN manuals, relevant configuration, SECURITY_MODEL, MAP, PLAN and version references; landing if a presented behavior changes. |
@@ -511,9 +711,10 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Field | M8 — Robust preferences and protected diagnostics |
 | --- | --- |
 | Number and goal | M8 — Reduce preference loss and data disclosure through errors; implement the remaining planned portion of P1. |
+| Vesta finding | PC-08, low severity, verified and already tracked here: `electron/settings.ts:96-103` (a read error returns the defaults) and `118-126` (direct `writeFileSync`). PC-13, low severity, verified, is only partly this entry: `electron/sessions.ts:208-211` sends the raw node-pty spawn message to the renderer, and that message can contain paths. Both stay in M8; there is no separate milestone. The lines are unchanged from `e967d92` to `d200abe`. |
 | Dependency and planned branch | After C7; `milestone/8-settings-diagnostics`. |
 | Planned checkpoint and version | `milestone/C8`, `v0.3.5`; increment `+0.0.1`. |
-| Tasks | Write settings.json atomically with a temporary file and replacement in the same directory; bound size before JSON reading and handle corrupt files/errors. Define boundaries and permissions; normalize errors/logs to avoid private paths, sensitive variables and unnecessary user content. |
+| Tasks | Write settings.json atomically with a temporary file and replacement in the same directory; before falling back to the defaults, keep a `.bak` copy of the corrupt file. Bound size before JSON reading and handle corrupt files/errors. Define boundaries and permissions; normalize errors/logs to avoid private paths, sensitive variables and unnecessary user content. For PC-13, the renderer receives an error code; the detail stays in the local log. |
 | Acceptance | A write failure preserves the last valid configuration; oversized/corrupt files have documented fallbacks. Useful localized errors without sensitive details; no credential storage or diagnostic upload to external services. |
 | Required tests | Temporary filesystem: size boundaries, invalid JSON, denied permissions, interrupted writes/replacements and legacy migration. Synthetic data checks UI/log redaction; IT/EN and light/dark preference regressions. |
 | Documentation | Manuals, recovery quick start, SECURITY_MODEL, MAP, PLAN, version references and landing where relevant. |
@@ -522,9 +723,10 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Field | M9 — Verified IPC/CSP boundaries and packages |
 | --- | --- |
 | Number and goal | M9 — Make security checks on distributed packages repeatable and fix scoped gaps; incorporate the security/package portion of P3. |
+| Vesta finding | PC-11, low severity, verified. `electron/main.ts` does not call `setPermissionRequestHandler` or `setPermissionCheckHandler`. That is already M9's "unnecessary permissions" task: deny by default. This is not a second milestone. On `d200abe` the file has no new line for this compared with `e967d92`. |
 | Dependency and planned branch | After C8; `milestone/9-package-security`. |
 | Planned checkpoint and version | `milestone/C9`, `v0.3.6`; increment `+0.0.1`. |
-| Tasks | Test live IPC with invalid senders, frames/origins and payloads, strengthening checks where needed. Verify enforced CSP, navigation/popup blocking and unnecessary permissions. Strengthen Windows x64 installer/portable and macOS ARM64 DMG/ZIP inspection/smoke, with isolated HOME/appData/userData and no private files/development tools. |
+| Tasks | Test live IPC with invalid senders, frames/origins and payloads, strengthening checks where needed. Verify enforced CSP, navigation/popup blocking and unnecessary permissions: for PC-11, deny permission requests and checks by default. Strengthen Windows x64 installer/portable and macOS ARM64 DMG/ZIP inspection/smoke, with isolated HOME/appData/userData and no private files/development tools. |
 | Acceptance | Rejected requests have no privileged effects; renderer protections work in packages and isolated tests are repeatable. Assets/SHA-256 match the approved commit. Signing/notarization excluded; Linux, Intel macOS and further functional cases remain P3 unless explicitly verified, with no new compatibility promises. |
 | Required tests | Native Windows x64/macOS ARM64 matrix, distributed formats and smoke outside the checkout; negative IPC/CSP and package-content cases. Address known script limitations listed in the security model; use only fixtures/temporary profiles, without credentials or real sessions. |
 | Documentation | SECURITY_MODEL with platform evidence/limitations, MAP scripts/tests, installation manuals/quick start, README/PLAN and landing for verified packages only. |
@@ -574,10 +776,200 @@ Execute M10 → M11 → M12 after C9, each on a dedicated branch after verifying
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
 | P1 — Security boundaries, incorporated into M7–M8 | Regex timeouts in M7; atomic preferences and diagnostics in M8. CSP, sender checks on IPC that predates M1 and the paste-queue cap remain C2. | Completion to be verified through C7/C8 with isolated negative tests and an updated model; no fixes attributed to planning. |
-| P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
+| P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. PC-09 and PC-14 have dedicated milestones M17 and M20, not started: they still refer to P2 and do not replace it. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution, partly incorporated into M9 | IPC/CSP security and Windows x64/macOS ARM64 packages in M9. Further Linux/Intel macOS verification and uncovered notification, shortcut, shell and PTY cases still require planning. Signing and notarization excluded because credentials are unavailable. | Results separated by platform and format, without unverified compatibility claims. Remaining portions require a new decision before becoming milestones. |
 
-Version, branch, checkpoint, tasks and tests for P1 and the security/package portion of P3 are defined in M7–M9; P2 and remaining P3 portions stay proposals. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. The GitHub Pages landing page is C4, formerly M4, published and verified at remote checkpoint `milestone/C4`; the site release is separate from the 0.3.1 desktop packages.
+Version, branch, checkpoint, tasks and tests for P1 and the security/package portion of P3 are defined in M7–M9. P2 stays a proposal: M17 and M20 plan only PC-09 and PC-14. The remaining portions of P3 stay proposals. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. The GitHub Pages landing page is C4, formerly M4, published and verified at remote checkpoint `milestone/C4`; the site release is separate from the 0.3.1 desktop packages.
+
+#### 2.4 Vesta baseline of 13 November 2026
+
+Vesta analyzed `main` at `e967d92` on 13 November 2026 and did not run a build, the test suite, or `npm audit`. CNAME DNS was not verified. Exploitability of PC-01 and PC-02 is inferred, not demonstrated. The cited lines were rechecked on `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` for those files is empty, so the ranges stay as Vesta cited them. Two content notes on that same text: in `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links; in `.github/workflows/package-macos.yml` the runner is already `macos-15` (line 24). `package-windows.yml` still uses `windows-latest` (line 23). The `"0.3.0"` default is line 12 of both workflows, and the `package-macos.yml` description (line 7) still cites the 0.3.0 SHA.
+
+This patch uses `patch/0.3.1-plan-vesta-baseline`, from that main commit. It changes only `PLAN.md`, keeps application version 0.3.1 and, after approval, plans the annotated documentation tag `docs/plan-vesta-baseline-2026-11-13`. This planning step does not create the tag. None of the milestones below is started.
+
+PC-03, PC-04, PC-05, PC-08, PC-13 and PC-11 stay inside M5, M6, M7, M8 and M9. PC-11 is the M9 permissions part: `electron/main.ts` does not register `setPermissionRequestHandler` or `setPermissionCheckHandler`, and the planned work is to deny by default. The other thirteen findings are M13–M25, one entry each. The planned execution order is M13 → M25, after C12, each from main after verifying the preceding remote checkpoint and a separate start request. Vesta's recommended order, below, does not reorder M5–M12 and does not authorize a start.
+
+1. Soon, low risk: PC-01 (M13), PC-02 (M14) and PC-10 (M18), with tests; PC-10 gated on `!app.isPackaged`.
+2. Electron 45.3.2 together with M5 and M6.
+3. GitHub settings for PC-07 (M16), only after Glauco's decision.
+5. Alignment of CNAME, canonical URLs and this plan (M21), and the quoting update in `SECURITY_MODEL.md`, which belongs to M13 and M14.
+6. Adaptive polling for PC-06 (M15), with an AppLocker or Constrained Language Mode check if a corporate PC is available.
+8. `npm audit` and a lockfile reading in an isolated environment, inside M6, with Glauco's approval.
+
+Numbers 4 and 7 do not appear in the pasted list.
+
+Versions `v0.3.10`–`v0.3.16` are indicative, assuming no intermediate releases. M17 uses increment `+0.1.0` because it changes visible behavior; the concrete number is confirmed at start, so it does not by itself shift the patch series. M16, M21, M22, M23 and M25 leave the application version unchanged and still have checkpoint `milestone/C<n>`.
+
+**Findings already covered**
+
+| Finding | Milestone | Checkpoint |
+| --- | --- | --- |
+| PC-03 | M5 | `milestone/C5` |
+| PC-04 | M6 | `milestone/C6` |
+| PC-05 | M7 | `milestone/C7` |
+| PC-08, PC-13 | M8 | `milestone/C8` |
+| PC-11 | M9 | `milestone/C9` |
+
+**New milestones**
+
+| Entry | Vesta ID | Planned branch | Checkpoint | Planned version |
+| --- | --- | --- | --- | --- |
+| M13 — PowerShell quoting | PC-01 | `milestone/13-powershell-quotes` | `milestone/C13` | `v0.3.10`, `+0.0.1` |
+| M14 — fish quoting | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.11`, `+0.0.1` |
+| M15 — Windows child-process polling | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
+| M16 — Repository alerts and configuration | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | application version unchanged |
+| M17 — Initial system language | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `+0.1.0`, number confirmed at start |
+| M18 — DevTools and demo only outside the package | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.13`, `+0.0.1` |
+| M19 — Confirm multiline paste and drop | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.14`, `+0.0.1` |
+| M20 — Session limits in the central file | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.15`, `+0.0.1` |
+| M21 — CNAME, canonical URLs and plan | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | application version unchanged |
+| M22 — Packaging workflow defaults and images | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | application version unchanged |
+| M23 — Git exclusions for env files and keys | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | application version unchanged |
+| M24 — node-pty prebuild on macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.16`, `+0.0.1` |
+| M25 — Documentation tags and the committed standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | application version unchanged |
+
+| Field | M13 — PowerShell quoting |
+| --- | --- |
+| Number and goal | M13 — PC-01, medium severity, verified; exploitability is suspected and was not demonstrated. Make PowerShell quoting treat U+2018, U+2019, U+201A and U+201B as single quotes as well. |
+| Dependency and planned branch | After C12; `milestone/13-powershell-quotes`. |
+| Planned checkpoint and version | `milestone/C13`, `v0.3.10`; increment `+0.0.1`. |
+| Tasks | `quotePowerShell` in `src/shared/shellQuote.ts:17-19` doubles only the ASCII apostrophe. PowerShell also treats U+2018–U+201B as single quotes. A dragged file whose name breaks out of the string, a pasted image path (`src/terminalEdit.ts:145-151`) and a user name such as O’Brien can close the string. Align the replacement with EscapeSingleQuotedStringContent, doubling those four characters as well. Tests in `src/shared/shellQuote.test.ts` do not cover them today. |
+| Acceptance | A value that contains a typographic apostrophe stays one quoted argument in PowerShell and pwsh. Existing ASCII-apostrophe, POSIX and cmd cases stay green. `SECURITY_MODEL.md` describes PowerShell quoting consistently with the verified code. |
+| Required tests | Unit tests for the four characters, for a name with a typographic apostrophe and for a path that mixes ASCII and typographic apostrophes. Suite and build. Smoke of drag-and-drop and of a pasted image on the Windows package, with an isolated profile, when the milestone release includes that package. |
+| Documentation | `SECURITY_MODEL.md`, IT/EN manuals if visible paste behavior changes, MAP if tests change, PLAN and version references. |
+| Status | `M13`, planned only; implementation not started. |
+
+| Field | M14 — fish quoting |
+| --- | --- |
+| Number and goal | M14 — PC-02, medium severity, suspected. Quote fish inside single quotes according to its escape sequences. |
+| Dependency and planned branch | After C13; `milestone/14-fish-quoting`. |
+| Planned checkpoint and version | `milestone/C14`, `v0.3.11`; increment `+0.0.1`. |
+| Tasks | `shellQuoteKind` (`src/shared/shellQuote.ts:6-15`) maps fish to POSIX; `src/shared/shellQuote.test.ts:11` expects that result. Detection is in `electron/shells.ts:29-32`. Inside single quotes fish treats `\'` and `\\` as escapes: a path with a trailing backslash, or with `\'`, can close the string. Add a `fish` kind that, inside quotes, turns `\` into `\\` and `'` into `\'`. |
+| Acceptance | A fish path with a backslash, an apostrophe and a space stays one argument. PowerShell, cmd and POSIX stay unchanged. `SECURITY_MODEL.md` mentions fish. |
+| Required tests | Unit tests for the `fish` kind, a trailing backslash and `\'`. Suite and build. A manual check on macOS only when fish is installed in the verification environment, with synthetic data. |
+| Documentation | `SECURITY_MODEL.md`, MAP for the test, manuals if the list of quoted shells changes, PLAN and version. |
+| Status | `M14`, planned only; implementation not started. |
+
+| Field | M15 — Windows child-process polling |
+| --- | --- |
+| Number and goal | M15 — PC-06, medium severity, verified; the operational impact is suspected. Lower the cost of child-process detection and make it visible when Windows blocks that detection. |
+| Dependency and planned branch | After C14; `milestone/15-windows-child-poll`. |
+| Planned checkpoint and version | `milestone/C15`, `v0.3.12`; increment `+0.0.1`. |
+| Tasks | `electron/children.ts:35-52` starts `powershell.exe -NoProfile -NonInteractive -Command Get-CimInstance Win32_Process` on every pass, with an 8-second timeout. `electron/sessions.ts:115` schedules the pass every 2.5 seconds. The cost can be hundreds of milliseconds of CPU. On a corporate PC, AppLocker or Constrained Language Mode can block the command and detection degrades without an interface notice. Poll only while sessions are active or visible, with backoff, or keep a single persistent PowerShell. Show in the interface that detection is unavailable. |
+| Acceptance | With no active sessions the command does not start on every interval. A repeated failure becomes a visible state, in Italian and English, and the rest of the dashboard keeps working. Detection on paths already verified stays available when the command succeeds. |
+| Required tests | Tests of the interval, the backoff and the unavailable message with a fake command. Suite and build. A check on a PC with AppLocker or Constrained Language Mode only when that environment is available; otherwise record the limit. Windows x64 smoke on the milestone release package, isolated profile. |
+| Documentation | IT/EN manuals, `SECURITY_MODEL.md`, MAP, PLAN, version and the landing page if published behavior changes. |
+| Status | `M15`, planned only; implementation not started. |
+
+| Field | M16 — Repository alerts and configuration |
+| --- | --- |
+| Number and goal | M16 — PC-07, medium severity, verified. Record Glauco's decision on Dependabot, secret scanning, push protection and protection of `main`. The only file activity is `.github/dependabot.yml`, and only when that decision includes it. |
+| Dependency and planned branch | After C15 and after Glauco's explicit decision; `milestone/16-dependabot-config`. |
+| Planned checkpoint and version | `milestone/C16`; application version unchanged. |
+| Tasks | At the baseline date, Dependabot alerts and secret scanning are off, `dependabot.yml` is absent, code scanning is absent and `main` is unprotected. Repository settings are Glauco's decision: Dependabot alerts, secret scanning, push protection and protection of `main` (no force-push and no deletion) are enabled only after that decision and stay account actions. If the decision includes the file, add `.github/dependabot.yml` for npm and for github-actions. |
+| Acceptance | The plan records the decision. No repository setting changes before it. If the file is part of the commit, it covers npm and github-actions and the packaging workflows stay `workflow_dispatch`. |
+| Required tests | Static check of the YAML, when present. No trial `workflow_dispatch`. No extra application test for settings alone. |
+| Documentation | `PLAN.md` and `SECURITY_MODEL.md` with the decision outcome and the limits that remain on the account. |
+| Status | `M16`, planned only; implementation not started. Glauco's decision is still open. |
+
+| Field | M17 — Initial system language |
+| --- | --- |
+| Number and goal | M17 — PC-09, low severity, verified and already listed under P2. Detect the system language on first launch, with English as the fallback. P2 stays a proposal: this entry carries out only the language part. |
+| Dependency and planned branch | After C16; `milestone/17-system-locale`. |
+| Planned checkpoint and version | `milestone/C17`; increment `+0.1.0`. The version number is confirmed at start. |
+| Tasks | `electron/settings.ts:14` sets `locale: 'it'` in `defaultSettings`. The standard asks for system-language detection. Use `app.getLocale()`, with fallback `en` when the language is not one of the translated ones. An override already saved stays the user's choice. |
+| Acceptance | A new profile whose system locale is Italian opens the interface in Italian; a locale other than `it` opens English. A preference already written is left as stored. The startup screen, shown before preferences load, stays documented on the default Italian dictionary. |
+| Required tests | Tests of `defaultSettings` or of the locale adapter with a fake locale, including `it`, `en`, an unknown locale and an existing preferences file. Suite and build. Manual IT/EN and light/dark check of first launch with an isolated profile. |
+| Documentation | IT/EN manuals, README, quick start, `SECURITY_MODEL.md` if the data read from the system changes, MAP, PLAN and version. |
+| Status | `M17`, planned only; implementation not started. |
+
+| Field | M18 — DevTools and demo only outside the package |
+| --- | --- |
+| Number and goal | M18 — PC-10, low severity, verified. Limit DevTools, the demo and screenshots to unpackaged runs. |
+| Dependency and planned branch | After C17; `milestone/18-packaged-devtools`. |
+| Planned checkpoint and version | `milestone/C18`, `v0.3.13`; increment `+0.0.1`. |
+| Tasks | `electron/main.ts:281` opens DevTools when `PLANCIA_DEVTOOLS` is set. `electron/main.ts:35` and `198-236` enable `PLANCIA_DEMO`, the demo script and screenshots. Whoever controls the packaged environment can open DevTools, with access to the preload API. Severity is low because it requires the same user. Gate these paths on `!app.isPackaged`. |
+| Acceptance | In the package, the variables do not open DevTools, do not start the demo and do not write screenshots. In development, with the same variables, the demo and DevTools stay available. |
+| Required tests | Tests of the packaged flag, with the variables set and unset. Suite and build. Smoke of the Windows or macOS package with the variables set and an isolated profile, for the milestone release. |
+| Documentation | `SECURITY_MODEL.md`, manuals and README for the packaged limit, MAP, PLAN and version. |
+| Status | `M18`, planned only; implementation not started. |
+
+| Field | M19 — Confirm multiline paste and drop |
+| --- | --- |
+| Number and goal | M19 — PC-12, low severity, verified. This is the residual risk of paste without bracketed paste: ask for confirmation when the text contains a newline and the shell has not enabled bracketed paste. |
+| Dependency and planned branch | After C18; `milestone/19-multiline-paste-confirm`. |
+| Planned checkpoint and version | `milestone/C19`, `v0.3.14`; increment `+0.0.1`. |
+| Tasks | `src/terminalEdit.ts:156-160` pastes clipboard text and `173-190` pastes dropped text. Without bracketed paste the lines run one after another. Ask for confirmation, in Italian and English, when the text contains a newline and the shell has not enabled bracketed paste. A single-line text and a paste with bracketed paste already enabled stay immediate. |
+| Acceptance | The confirmation appears only for multiline text without bracketed paste. Cancelling leaves the terminal unchanged. Confirming sends the text within the limits already validated. Themes, focus and long confirmation text are checked. |
+| Required tests | Tests of the decision (one line, several lines, bracketed paste enabled, cancel, confirm). Suite and build. Manual check in IT/EN, light/dark, keyboard and supported desktop sizes. |
+| Documentation | IT/EN manuals with the real control names, `SECURITY_MODEL.md`, MAP, PLAN and version. |
+| Status | `M19`, planned only; implementation not started. |
+
+| Field | M20 — Session limits in the central file |
+| --- | --- |
+| Number and goal | M20 — PC-14, low severity, verified and already partly listed under P2. Move the limits and intervals that are still hard-coded into `config/app.config.json`, clamped to the documented defaults. P2 stays a proposal: this entry carries out only this part. |
+| Dependency and planned branch | After C19; `milestone/20-session-limits-config`. |
+| Planned checkpoint and version | `milestone/C20`, `v0.3.15`; increment `+0.0.1`. |
+| Tasks | `electron/sessions.ts:32-33` defines `MAX_SESSIONS` and `MAX_BACKLOG`. `electron/sessions.ts:114-115` fixes the intervals at 400 ms and 2500 ms. Timeouts in `electron/children.ts` stay in the module. Move them into the central file, validate them at startup and return to the documented defaults when a value is out of range. |
+| Acceptance | A valid file applies the new limits. A missing value, a value of the wrong type or a value out of range returns to the documented default and the app starts. Parameters already introduced by C1 stay validated as they are today. |
+| Required tests | Clamp tests for each new parameter, including missing, wrong type, minimum, maximum and an in-range value. Suite and build. |
+| Documentation | README, IT/EN manuals, quick start, `SECURITY_MODEL.md`, MAP, PLAN and the JSON example of the central file. |
+| Status | `M20`, planned only; implementation not started. |
+
+| Field | M21 — CNAME, canonical URLs and plan |
+| --- | --- |
+| Number and goal | M21 — PC-15, low severity, verified. Align CNAME, canonical URLs and this plan after the domain choice, which is Glauco's. |
+| Dependency and planned branch | After C20 and after the explicit domain choice; `milestone/21-pages-cname`. |
+| Planned checkpoint and version | `milestone/C21`; application version unchanged. |
+| Tasks | `docs/CNAME` contains `planciacomandi.glaucosilvestri.it`, from commit `e967d92` ("Create CNAME") made through the web UI directly on main. In `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links: they point at `gloutchov.github.io/Plancia-Comandi/`. The C4 entry in this plan says Pages `main:/docs` was enabled without a CNAME. DNS was not verified. Glauco chooses: verify DNS and HTTPS on Pages and then align canonical, Open Graph, `hreflang` and this plan entry, or remove the CNAME and keep the `github.io` URLs. |
+| Acceptance | Canonical, Open Graph, `hreflang`, `docs/CNAME` and the C4 entry describe the same host. If the custom domain stays, DNS and HTTPS are verified before alignment. The desktop version stays the one already published. |
+| Required tests | Check of links, anchors and IT/EN equivalence of the plan and the page. After deploy approval, an HTTPS check of the chosen host. No private-data captures. |
+| Documentation | `PLAN.md`, `docs/index.html`, `docs/CNAME`, README and `SECURITY_MODEL.md` for the landing host. |
+| Status | `M21`, planned only; implementation not started. The domain choice is still open. |
+
+| Field | M22 — Packaging workflow defaults and images |
+| --- | --- |
+| Number and goal | M22 — PC-16, low severity, verified. Update the version defaults and pin the Windows image. The macOS image is already `macos-15`. |
+| Dependency and planned branch | After C21; `milestone/22-packaging-defaults`. |
+| Planned checkpoint and version | `milestone/C22`; application version unchanged. |
+| Tasks | `package-windows.yml:12` and `package-macos.yml:12` have `default: "0.3.0"`. `package-macos.yml:7` still describes the 0.3.0 SHA. `package-windows.yml:23` uses `windows-latest`. `package-macos.yml:24` already uses `macos-15`, with the comment that it is the Apple Silicon image. Update or remove the version default, update the description and pin the Windows image to an explicit label. Leave `macos-15` until an image update is decided separately. The workflows stay `workflow_dispatch`, with `contents: read`. |
+| Acceptance | No default still points at 0.3.0. The description does not cite a previous release SHA as an operational value. The Windows image is a fixed label. A push or a pull request does not start the workflows. |
+| Required tests | Static reading of both YAML files. No trial `workflow_dispatch`. |
+| Documentation | `PLAN.md`, MAP and `SECURITY_MODEL.md` if the workflow perimeter changes. |
+| Status | `M22`, planned only; implementation not started. |
+
+| Field | M23 — Git exclusions for env files and keys |
+| --- | --- |
+| Number and goal | M23 — PC-17, low severity, verified. Ignore environment files and private keys that `.gitignore` does not list today. |
+| Dependency and planned branch | After C22; `milestone/23-gitignore-secrets`. |
+| Planned checkpoint and version | `milestone/C23`; application version unchanged. |
+| Tasks | On `d200abe`, `.gitignore` does not contain `.env`, `*.pem`, `*.key` or `*.p12`. Add them. `.gitignore` stays short of a filter for secrets, and secrets already committed are not removed from history without a separate decision: in this tree, at the baseline date, those names are not tracked. |
+| Acceptance | The four patterns are present. A documented example file, if the repository has one, stays trackable. Files already intended for the package or the documents stay tracked. |
+| Required tests | Static check of `.gitignore` and `git check-ignore` on fake paths, outside the repository's real content. |
+| Documentation | `SECURITY_MODEL.md` and MAP, with the limit that `.gitignore` is not a filter for secrets already in history. |
+| Status | `M23`, planned only; implementation not started. |
+
+| Field | M24 — node-pty prebuild on macOS |
+| --- | --- |
+| Number and goal | M24 — PC-18, low severity, suspected. Use a `node-pty` prebuild on macOS when it matches Electron's ABI, and rebuild only as the fallback. |
+| Dependency and planned branch | After C23; `milestone/24-macos-pty-prebuild`. |
+| Planned checkpoint and version | `milestone/C24`, `v0.3.16`; increment `+0.0.1`. |
+| Tasks | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` returns false only on Windows when all three prebuilds are present; on Darwin it always returns true. The rebuild needs the Xcode Command Line Tools, which usually require an administrator. When a published prebuild matches Electron's ABI, use it; the rebuild stays the fallback when the prebuild is missing or does not match. |
+| Acceptance | On Darwin, with a compatible prebuild, the script does not start a rebuild. Without a compatible prebuild, the rebuild stays the documented path. Windows keeps the current three-prebuild behavior. The macOS workflow still produces `plancia-comandi.app` with no signing identity. |
+| Required tests | Script tests with a prebuild present, absent and of a different ABI. Suite and build. macOS ARM64 package smoke outside the checkout when the milestone publishes a release; without a local Mac, record the limit and use the workflow only if Glauco asks for it. |
+| Documentation | README, IT/EN manuals, quick start, MAP, `SECURITY_MODEL.md`, PLAN and version. |
+| Status | `M24`, planned only; implementation not started. |
+
+| Field | M25 — Documentation tags and the committed standard |
+| --- | --- |
+| Number and goal | M25 — PC-19, low severity, verified. Document the exception for `docs/*` tags, or cite the standard by version instead of the committed copy. |
+| Dependency and planned branch | After C24; `milestone/25-doc-tag-policy`. |
+| Planned checkpoint and version | `milestone/C25`; application version unchanged. |
+| Tasks | The remote has annotated tags `docs/2026-11-10` (object `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (object `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) and `docs/desktop-fixes-plan-2026-11-13` (object `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). They follow neither `vX.Y.Z` nor `milestone/C<n>`. The repository also contains `STARTUP_PREFERENCES_HOME.md`, 38056 bytes, which can drift from the original. Choose one of the two paths, with Glauco's approval: document the exception for documentary `docs/*` tags, leaving published tags where they are, or replace the copy with a reference to the standard by version. The tag proposed for this plan patch, `docs/plan-vesta-baseline-2026-11-13`, follows the practice already in use and is created only after approval. |
+| Acceptance | The plan and `AGENTS.md` describe the chosen rule. Published `vX.Y.Z` and `milestone/C<n>` tags stay on their commit. No published tag is moved. |
+| Required tests | `git diff --check` and a check of the required documents, links and IT/EN equivalence. No application test. |
+| Documentation | `PLAN.md`, `AGENTS.md` and, if the copy is removed, the places that currently point at `STARTUP_PREFERENCES_HOME.md`. |
+| Status | `M25`, planned only; implementation not started. |
 
 ### 3. Milestone conventions
 
