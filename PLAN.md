@@ -9,7 +9,8 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
 - [2. Milestone e proposte](#2-milestone-e-proposte)
 - [2.1 Milestone di sicurezza pianificate](#21-milestone-di-sicurezza-pianificate)
-- [2.2 Proposte e parti residue](#22-proposte-e-parti-residue)
+- [2.2 Correzioni desktop pianificate](#22-correzioni-desktop-pianificate)
+- [2.3 Proposte e parti residue](#23-proposte-e-parti-residue)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -207,7 +208,46 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Documentazione | SECURITY_MODEL con evidenze/limiti per piattaforma, MAP per script/test, manuali e quick start per installazione, README/PLAN e landing per i soli pacchetti verificati. |
 | Stato | `M9`, solo pianificata; implementazione non avviata. |
 
-#### 2.2 Proposte e parti residue
+#### 2.2 Correzioni desktop pianificate
+
+Glauco ha richiesto queste aggiunte al piano il 13 novembre 2026: su Windows l'app in esecuzione mostra ancora l'icona Electron; le app installate su Windows e macOS si chiamano `plancia-comandi`; su macOS la finestra della versione 0.3.1 resta al centro dello schermo e non si riesce a trascinare. Sono segnalazioni dell'utente da riprodurre sui pacchetti, non cause già dimostrate né problemi già risolti.
+
+Eseguire M10 → M11 → M12 dopo C9, ciascuna su branch dedicato, dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. Le versioni 0.3.7–0.3.9 sono indicative, in continuità con M5–M9 e in assenza di release intermedie: confermarle all'avvio. Se una milestone precedente risolve già un problema, verificarlo sul pacchetto e registrare le evidenze senza introdurre modifiche superflue. Applicare la procedura HOME di revisione e pubblicazione; ogni release applicativa richiede pacchetti verificati e SHA-256. Firma e notarizzazione restano escluse per indisponibilità delle credenziali. Questa aggiunta modifica solo il piano sul branch `patch/0.3.1-desktop-fixes-plan`, con versione applicativa invariata a 0.3.1; non avvia le tre implementazioni e non pubblica una release.
+
+| Campo | M10 — Icona corretta nell'app Windows in esecuzione |
+| --- | --- |
+| Numero e obiettivo | M10 — Mostrare l'icona di Plancia Comandi anche mentre l'app Windows è aperta, eliminando l'icona Electron segnalata dall'utente. |
+| Dipendenza e branch previsto | Dopo C9; `milestone/10-windows-runtime-icon`. |
+| Checkpoint e versione previsti | `milestone/C10`, `v0.3.7`; incremento `+0.0.1`. |
+| Attività | Riprodurre il problema su Windows x64 distinguendo finestra, barra delle applicazioni, Alt+Tab e collegamenti. Verificare l'icona incorporata nell'EXE, l'asset fornito a BrowserWindow e la sua presenza nel pacchetto, oltre alla coerenza dell'AppUserModelID. Correggere percorsi, formato o risorse dove necessario; verificare eventuali collegamenti già fissati e cache senza cancellare dati o modificare globalmente il sistema. |
+| Criteri di accettazione | Installer e portable mostrano l'icona corretta durante l'esecuzione, nella barra delle applicazioni e in Alt+Tab; nessuna icona Electron nella finestra quando il sistema la visualizza. Installazione pulita verificata e comportamento dei collegamenti preesistenti documentato. Nessuna regressione dell'icona macOS, dei terminali o dei controlli della finestra. |
+| Test richiesti | Suite e build; controlli automatici proporzionati su selezione/percorso delle risorse e contenuto dei pacchetti. Prova visiva nativa di installer e portable Windows fuori dal checkout, IT/EN e chiaro/scuro, con profilo e ambiente isolati; controllo della barra delle applicazioni e Alt+Tab, non solo della sidebar. Smoke macOS ARM64 per la release multipiattaforma; SHA-256 degli artifact. |
+| Documentazione | README, manuali IT/EN, quick start e PLAN per esiti e limiti; MAP se cambiano risorse/script/test; SECURITY_MODEL per modifiche alla distribuzione; versione, AGENTS e landing/download allineati alla release. |
+| Stato | `M10`, solo pianificata; implementazione non avviata. |
+
+| Campo | M11 — Nome delle app installate Windows e macOS |
+| --- | --- |
+| Numero e obiettivo | M11 — Chiamare le app installate **Plancia Comandi** su Windows e macOS. **PlanciaComandi** è il ripiego richiesto dall'utente solo se il nome con spazio presenta un vincolo tecnico dimostrato. |
+| Dipendenza e branch previsto | Dopo C10; `milestone/11-installed-app-name`. |
+| Checkpoint e versione previsti | `milestone/C11`, `v0.3.8`; incremento `+0.0.1`. |
+| Attività | Verificare productName, executableName e metadati generati: nome EXE, collegamenti e voce di disinstallazione Windows; nome del bundle .app, CFBundleName/CFBundleDisplayName ed eseguibile macOS. Allineare il nome visibile e aggiornare gli script di packaging/ispezione/smoke e i test che assumono `plancia-comandi` o `plancia-comandi.app`. Provare percorsi con spazi; preservare appId, accesso alle preferenze esistenti e aggiornamento/rimozione senza cancellazioni non confermate. |
+| Criteri di accettazione | Dopo installazione, avvio e riavvio, il nome visibile è **Plancia Comandi** in entrambe le piattaforme: bundle in Applicazioni, Dock/menu macOS, eseguibile/collegamenti, barra delle applicazioni e voce di disinstallazione Windows dove applicabili. Portable Windows coerente. Un eventuale ripiego a **PlanciaComandi** richiede motivazione e prova del limite; non applicarlo per comodità. Preferenze conservate e assenza di installazioni duplicate non gestite nel percorso di aggiornamento documentato. |
+| Test richiesti | Suite e build; test mirati di nomi e percorsi con spazi, ispezione dei metadati e ricerca delle assunzioni negli script. Installazione pulita e aggiornamento da 0.3.1 con copie di profili sintetici, avvio fuori dal checkout, collegamenti e rimozione su Windows x64/macOS ARM64; smoke di installer/portable e DMG/ZIP, verifica dell'icona M10 e SHA-256. Nessun uso o modifica delle installazioni e preferenze personali per i test automatici. |
+| Documentazione | README, manuali IT/EN e quick start per nuovi nomi, percorsi e aggiornamento/rimozione; MAP per script/test; SECURITY_MODEL per distribuzione e gestione delle preferenze; PLAN, versione, AGENTS e landing/download coerenti. |
+| Stato | `M11`, solo pianificata; implementazione non avviata. |
+
+| Campo | M12 — Finestra macOS trascinabile |
+| --- | --- |
+| Numero e obiettivo | M12 — Permettere di spostare normalmente la finestra macOS, correggendo il blocco al centro dello schermo segnalato nella versione 0.3.1. |
+| Dipendenza e branch previsto | Dopo C11; `milestone/12-macos-window-drag`. |
+| Checkpoint e versione previsti | `milestone/C12`, `v0.3.9`; incremento `+0.0.1`. |
+| Attività | Riprodurre il difetto con il pacchetto 0.3.1 e confrontarlo con il runtime aggiornato in M5. Verificare la barra titolo hiddenInset, le regioni drag/no-drag, le sovrapposizioni e l'interazione tra sidebar, icona e controlli della finestra. Rendere disponibile un'area di trascinamento riconoscibile; limitare le modifiche alla gestione della finestra e ai relativi stili. |
+| Criteri di accettazione | La finestra si sposta dall'area di trascinamento, conserva la posizione durante l'uso e non ritorna forzatamente al centro. Verificare finestra normale e ripristino da minimizzata/massimizzata/schermo intero, senza confondere lo schermo intero nativo con una finestra trascinabile. Pulsanti macOS, click, selezione del testo nel terminale, copia/incolla e trascinamento di file continuano a funzionare; le aree interattive non spostano la finestra. Nessuna regressione Windows. |
+| Test richiesti | Suite e build; test proporzionati su eventuale logica nuova e verifica manuale nativa del movimento reale della finestra macOS ARM64, con mouse/trackpad e, quando disponibile, monitor esterno. Pacchetti DMG/ZIP fuori dal checkout, profilo/ambiente isolati, IT/EN, chiaro/scuro e dimensioni desktop supportate; regressioni dei controlli e del drag-and-drop, smoke Windows x64 e SHA-256. Un test del solo DOM non dimostra lo spostamento della finestra. |
+| Documentazione | Manuali IT/EN, quick start, README e PLAN per comportamento e limiti; MAP per eventuali moduli/test; SECURITY_MODEL se cambiano confini della finestra o distribuzione; versione, AGENTS, screenshot e landing se interessati dalla correzione. |
+| Stato | `M12`, solo pianificata; implementazione non avviata. |
+
+#### 2.3 Proposte e parti residue
 
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
@@ -291,7 +331,8 @@ This plan records the existing Plancia Comandi baseline and future work. Applica
 - [1. Baseline and current work](#1-baseline-and-current-work)
 - [2. Milestones and proposals](#2-milestones-and-proposals)
 - [2.1 Planned security milestones](#21-planned-security-milestones)
-- [2.2 Proposals and remaining work](#22-proposals-and-remaining-work)
+- [2.2 Planned desktop fixes](#22-planned-desktop-fixes)
+- [2.3 Proposals and remaining work](#23-proposals-and-remaining-work)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -489,7 +530,46 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Documentation | SECURITY_MODEL with platform evidence/limitations, MAP scripts/tests, installation manuals/quick start, README/PLAN and landing for verified packages only. |
 | Status | `M9`, planned only; implementation not started. |
 
-#### 2.2 Proposals and remaining work
+#### 2.2 Planned desktop fixes
+
+Glauco requested these additions to the plan on 13 November 2026: on Windows the running app still shows the Electron icon; installed Windows and macOS apps are named `plancia-comandi`; on macOS the 0.3.1 window stays at the center of the screen and cannot be dragged. These are user reports to reproduce against the packages, not proven causes or resolved issues.
+
+Execute M10 → M11 → M12 after C9, each on a dedicated branch after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.7–0.3.9 are tentative, following M5–M9 with no intervening releases: confirm them at start. If an earlier milestone already resolves an issue, verify it in the package and record the evidence without unnecessary changes. Follow HOME review and publication; each application release requires verified packages and SHA-256. Signing and notarization remain excluded because credentials are unavailable. This addition changes only the plan on `patch/0.3.1-desktop-fixes-plan`, retaining application version 0.3.1; it does not start the three implementations or publish a release.
+
+| Field | M10 — Correct icon in the running Windows app |
+| --- | --- |
+| Number and goal | M10 — Show the Plancia Comandi icon while the Windows app is running, replacing the Electron icon reported by the user. |
+| Dependency and planned branch | After C9; `milestone/10-windows-runtime-icon`. |
+| Planned checkpoint and version | `milestone/C10`, `v0.3.7`; increment `+0.0.1`. |
+| Tasks | Reproduce on Windows x64, distinguishing the window, taskbar, Alt+Tab and shortcuts. Check the icon embedded in the EXE, the asset supplied to BrowserWindow and its inclusion in the package, plus AppUserModelID consistency. Correct paths, format or resources as necessary; check existing pinned shortcuts and caching without deleting data or making global system changes. |
+| Acceptance | Installer and portable show the correct icon while running, in the taskbar and Alt+Tab; no Electron icon in the window where the system displays one. Clean installation verified and existing-shortcut behavior documented. No regression in the macOS icon, terminals or window controls. |
+| Required tests | Suite and build; proportionate automatic checks of resource selection/paths and package contents. Native visual checks of the Windows installer and portable outside the checkout, IT/EN and light/dark, with isolated profile/environment; check taskbar and Alt+Tab, beyond the sidebar alone. macOS ARM64 smoke for the cross-platform release; artifact SHA-256. |
+| Documentation | README, IT/EN manuals, quick start and PLAN for results/limitations; MAP if resources/scripts/tests change; SECURITY_MODEL for distribution changes; version, AGENTS and landing/downloads aligned with the release. |
+| Status | `M10`, planned only; implementation not started. |
+
+| Field | M11 — Installed Windows and macOS app names |
+| --- | --- |
+| Number and goal | M11 — Name installed apps **Plancia Comandi** on Windows and macOS. **PlanciaComandi** is the user's requested fallback only if the spaced name has a demonstrated technical limitation. |
+| Dependency and planned branch | After C10; `milestone/11-installed-app-name`. |
+| Planned checkpoint and version | `milestone/C11`, `v0.3.8`; increment `+0.0.1`. |
+| Tasks | Check productName, executableName and generated metadata: EXE name, shortcuts and Windows uninstall entry; .app bundle name, CFBundleName/CFBundleDisplayName and macOS executable. Align the visible name and update packaging/inspection/smoke scripts and tests assuming `plancia-comandi` or `plancia-comandi.app`. Test paths with spaces; preserve appId, access to existing preferences and upgrade/removal without unconfirmed deletion. |
+| Acceptance | After installation, launch and relaunch, the visible name is **Plancia Comandi** on both platforms: Applications bundle, macOS Dock/menu, Windows executable/shortcuts, taskbar and uninstall entry where applicable. Windows portable is consistent. Any fallback to **PlanciaComandi** requires a reason and evidence of the limitation; do not use it for convenience. Preferences retained and no unmanaged duplicate installations in the documented upgrade path. |
+| Required tests | Suite and build; targeted name/path-with-spaces tests, metadata inspection and a search for assumptions in scripts. Clean install and upgrade from 0.3.1 using copies of synthetic profiles, launch outside checkout, shortcuts and removal on Windows x64/macOS ARM64; installer/portable and DMG/ZIP smoke, M10 icon check and SHA-256. Automatic tests must not use or modify personal installations or preferences. |
+| Documentation | README, IT/EN manuals and quick start for new names, paths and upgrade/removal; MAP for scripts/tests; SECURITY_MODEL for distribution and preference handling; consistent PLAN, version, AGENTS and landing/downloads. |
+| Status | `M11`, planned only; implementation not started. |
+
+| Field | M12 — Draggable macOS window |
+| --- | --- |
+| Number and goal | M12 — Allow normal movement of the macOS window, correcting the fixed-at-center behavior reported in version 0.3.1. |
+| Dependency and planned branch | After C11; `milestone/12-macos-window-drag`. |
+| Planned checkpoint and version | `milestone/C12`, `v0.3.9`; increment `+0.0.1`. |
+| Tasks | Reproduce the defect using the 0.3.1 package and compare against the runtime updated in M5. Check the hiddenInset title bar, drag/no-drag regions, overlays and interactions between sidebar, icon and window controls. Provide a recognizable drag area; limit changes to window management and related styles. |
+| Acceptance | The window moves using the drag area, retains its position during use and does not forcibly return to the center. Check normal mode and restoration from minimized/maximized/full-screen states, distinguishing native full-screen mode from a draggable window. macOS buttons, clicks, terminal text selection, copy/paste and file drag-and-drop continue to work; interactive areas do not move the window. No Windows regression. |
+| Required tests | Suite and build; proportionate tests for any new logic and native manual checks of actual macOS ARM64 window movement, with mouse/trackpad and an external display when available. DMG/ZIP packages outside checkout, isolated profile/environment, IT/EN, light/dark and supported desktop sizes; window-control and drag-and-drop regressions, Windows x64 smoke and SHA-256. A DOM-only test does not establish window movement. |
+| Documentation | IT/EN manuals, quick start, README and PLAN for behavior/limitations; MAP for any modules/tests; SECURITY_MODEL if window boundaries or distribution change; version, AGENTS, screenshots and landing if affected. |
+| Status | `M12`, planned only; implementation not started. |
+
+#### 2.3 Proposals and remaining work
 
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
