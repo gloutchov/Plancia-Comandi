@@ -17,7 +17,8 @@
     <link rel="icon" type="image/x-icon" href="./assets/icon.ico" />
     <script src="./preferences.js"></script>
     <link rel="stylesheet" href="./site.css" />
-    <script type="module" src="./site.js"></script>
+    <script defer src="./i18n.js"></script>
+    <script defer src="./site.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main" data-copy="skip">Vai al contenuto</a>
@@ -93,7 +94,6 @@
               <button id="tab-light" type="button" role="tab" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-view="light" data-copy="gallery.light">Tema chiaro</button>
               <button id="tab-settings" type="button" role="tab" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-view="settings" data-copy="gallery.settings">Impostazioni</button>
             </div>
-            <a class="text-link" id="gallery-original" href="./screenshots/plancia-dark.png" target="_blank" rel="noopener noreferrer"><span data-copy="gallery.open">Apri l’immagine</span><span aria-hidden="true">↗</span></a>
           </div>
           <figure class="gallery-panel" id="gallery-panel" role="tabpanel" aria-labelledby="tab-dark" tabindex="0">
             <img id="gallery-image" src="./screenshots/plancia-dark.png" alt="Due terminali affiancati nel tema scuro" width="1440" height="900" loading="lazy" decoding="async" />
@@ -130,8 +130,9 @@ npm run dev</code></pre><p data-copy="source.separate">Le CLI che vuoi usare nei
       </section>
     </main>
     <footer class="site-footer wrap">
-      <div><a class="brand" href="#top"><img src="./assets/icon.png" alt="" width="32" height="32" /><span>Plancia Comandi</span></a><p data-copy="footer.project">Un progetto di Glauco Silvestri. Apache-2.0.</p></div>
-      <div class="footer-links"><a href="https://github.com/gloutchov/Plancia-Comandi">GitHub ↗</a><a class="manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md" data-copy="footer.manual">Manuale ↗</a><a href="https://github.com/gloutchov/Plancia-Comandi/blob/main/LICENSE" data-copy="footer.license">Licenza ↗</a><button id="system-theme" type="button" data-copy="footer.system">Segui il tema di sistema</button><span class="preference-status" id="preference-status" aria-live="polite"></span></div>
+      <a class="brand" href="#top"><img src="./assets/icon.png" alt="" width="32" height="32" /><span>Plancia Comandi</span></a>
+      <p class="footer-project" data-copy="footer.project">Un progetto di Glauco Silvestri. Apache-2.0.</p>
+      <div class="footer-links"><a href="https://github.com/gloutchov/Plancia-Comandi">GitHub ↗</a><a class="manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md" data-copy="footer.manual">Manuale ↗</a><a href="https://github.com/gloutchov/Plancia-Comandi/blob/main/LICENSE" data-copy="footer.license">Licenza ↗</a></div>
     </footer>
     <noscript><p class="noscript-note">Questa pagina è disponibile in italiano anche senza JavaScript. Per il cambio lingua, il tema manuale e la galleria interattiva è necessario abilitarlo. / This page remains available in Italian without JavaScript. Enable it for language, theme and gallery controls.</p></noscript>
   </body>

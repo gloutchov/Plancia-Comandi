@@ -143,7 +143,7 @@ Plancia-Comandi/
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
 
-La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; `site.js` usa `i18n.js` per testi, attributi e galleria. Le due chiavi di localStorage appartengono al sito e non a `settings.json`.
+La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; gli script classici differiti caricano `i18n.js` prima di `site.js` per testi, attributi e galleria, anche nell'apertura diretta dell'HTML. Le due chiavi di localStorage appartengono al sito e non a `settings.json`. Il controllo strutturale verifica anche sintassi e riferimenti agli elementi della UI.
 
 La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
@@ -321,7 +321,7 @@ Plancia-Comandi/
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
 
-The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; `site.js` uses `i18n.js` for text, attributes and the gallery. Its two localStorage keys belong to the site rather than `settings.json`.
+The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; deferred classic scripts load `i18n.js` before `site.js` for text, attributes and the gallery, including when opening the HTML directly. Its two localStorage keys belong to the site rather than `settings.json`. The structural check also validates syntax and references to UI elements.
 
 UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 

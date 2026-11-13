@@ -2,11 +2,14 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { translations } from '../docs/i18n.js'
+import vm from 'node:vm'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const site = path.join(root, 'docs')
 const html = fs.readFileSync(path.join(site, 'index.html'), 'utf8')
+const context = vm.createContext({ window: {} })
+vm.runInContext(fs.readFileSync(path.join(site, 'i18n.js'), 'utf8'), context)
+const translations = context.window.planciaSiteTranslations
 const keys = Object.keys(translations.it).sort()
 assert.deepEqual(Object.keys(translations.en).sort(), keys, 'IT/EN keys differ')
 for (const locale of ['it', 'en']) for (const key of keys) assert(translations[locale][key]?.trim(), `${locale}: ${key} is empty`)
@@ -27,9 +30,11 @@ for (const [, value] of html.matchAll(/\b(?:src|href)="([^"]+)"/g)) {
 }
 for (const name of ['site.js', 'preferences.js', 'i18n.js']) {
   const source = fs.readFileSync(path.join(site, name), 'utf8')
+  new vm.Script(source, { filename: name })
   assert(!/\b(?:eval|fetch)\s*\(|\binnerHTML\b/.test(source), `${name}: unexpected remote or HTML execution`)
-  for (const [, value] of source.matchAll(/from ['"]([^'"]+)['"]/g)) assert(fs.statSync(path.resolve(site, value)).isFile())
+  for (const [, id] of source.matchAll(/document\.querySelector\(['"]#([^'"]+)['"]\)/g)) assert(ids.includes(id), `${name}: missing UI element #${id}`)
 }
+assert.match(html, /<script defer src="\.\/i18n\.js"><\/script>\s*<script defer src="\.\/site\.js"><\/script>/, 'Load dictionaries before controls, including file previews')
 assert(!/\bon\w+\s*=|<script\b(?![^>]*\bsrc=)/i.test(html), 'Unexpected inline script or handler')
 assert(html.includes("connect-src 'none'"))
 assert(html.includes("script-src 'self'"))
@@ -45,4 +50,4 @@ for (const url of downloads) assert(url.includes(`/v${release}/`), 'Release URL 
 assert.equal(downloads.filter(url => url.endsWith('.exe')).length, 2)
 assert.equal(downloads.filter(url => url.endsWith('.dmg') || url.endsWith('.zip')).length, 2)
 assert.equal(downloads.filter(url => /SHA256SUMS-.*\.txt$/.test(url)).length, 2)
-console.log(JSON.stringify({ site: 'passed', release, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'local scripts/styles', 'CSP', 'no inline handlers', 'canonical icons', 'IT/EN parity'] }))
+console.log(JSON.stringify({ site: 'passed', release, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'classic script syntax and order', 'UI element references', 'local scripts/styles', 'CSP', 'no inline handlers', 'canonical icons', 'IT/EN parity'] }))
