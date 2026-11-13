@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.0** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.1** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -58,6 +58,8 @@ Non inserire segreti in JSON, esempi, log o repository. Per una futura integrazi
 Il salvataggio delle preferenze usa una scrittura diretta, senza sostituzione atomica, backup integrato o permessi restrittivi impostati esplicitamente. Si applicano i permessi ordinari del sistema/umask. La lettura invalida ripiega sui default; un successivo salvataggio può sovrascrivere un file corrotto. Non è imposto un limite di dimensione prima della lettura JSON.
 
 Non è configurato un servizio di invio crash report nei sorgenti. Questo non esclude cache o diagnostica ordinaria di Electron/sistema operativo. Prima di condividere log, schermate o configurazioni controllare manualmente contenuti, nomi e percorsi.
+
+Le catture documentali di M3 usano HOME, appData e userData temporanei impostati da un lanciatore di prova prima del caricamento del main, ambiente filtrato e un terminale dimostrativo generato su PTY nativa. Non avviano shell utente, CLI AI né letture degli appunti. I PNG sono catture reali del renderer di produzione, senza ritocchi; provenienza e SHA-256 sono in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron e IPC
 
@@ -139,7 +141,7 @@ La proposta **P1** resta aperta per il timeout delle regex, la scrittura atomica
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.0** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.1** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -195,6 +197,8 @@ Do not place secrets in JSON, examples, logs or the repository. A future AI inte
 Preferences use a direct write without atomic replacement, integrated backup or explicitly restrictive permissions. Ordinary OS/umask permissions apply. Invalid reads fall back to defaults; a later save may overwrite a corrupt file. No size limit is imposed before reading JSON.
 
 No crash-report upload service is configured in the source. This does not exclude ordinary Electron/OS caches or diagnostics. Manually check content, names and paths before sharing logs, screenshots or settings.
+
+M3 documentation captures use temporary HOME, appData and userData paths set by a test launcher before loading main, a filtered environment and a generated demonstration terminal over a native PTY. They do not launch user shells or AI CLIs, or read the clipboard. The PNGs are unmodified captures of the production renderer; provenance and SHA-256 are in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron and IPC
 

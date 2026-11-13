@@ -2,12 +2,12 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.0**. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa dei sorgenti: **0.3.1**, in revisione. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **M3** (icona nella UI e screenshot) è avviata su richiesta di Glauco del 13 novembre 2026 e preparata per la prima revisione; **M4** (landing page GitHub Pages) resta pianificata e non avviata. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
-- [2. Milestone corrente e proposte](#2-milestone-corrente-e-proposte)
+- [2. Milestone e proposte](#2-milestone-e-proposte)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -53,9 +53,9 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 - Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
 - Stato: strumenti approvati nel commit `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, uniti a `main` con `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). Pacchetti macOS e SHA-256 pubblicati e riscaricati con esito positivo. Il primo run Windows `43086813880` supera installazione e build ma fallisce perché PowerShell spezza `-c.nsis.runAfterFinish=false` e electron-builder apre quel resto come file di configurazione. La PR #5 è unita in `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` e sostituisce quegli argomenti con un JSON e `--config` più il solo percorso. La run `43096382710` su quel commit è `startup_failure` senza job, quindi quel comando non è stato eseguito. Il pacchetto Windows di 0.2.0 non è stato pubblicato. Per 0.3.0 la run `43226304320`, con tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, è riuscita e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). C2 non duplica il JSON: lo step chiama `scripts/package-windows.mjs`. La PR #4 è stata chiusa senza merge il 12 novembre 2026. I branch di lavoro sono stati cancellati.
 
-### 2. Milestone corrente e proposte
+### 2. Milestone e proposte
 
-C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura e resta distinta dalla patch di packaging di C1. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) e i tag `milestone/C2` e `v0.3.0` sono pubblicati. Le proposte sotto non diventano eseguibili da sole.
+C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura e resta distinta dalla patch di packaging di C1. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) e i tag `milestone/C2` e `v0.3.0` sono pubblicati. L'ordine pianificato è M3, poi M4: la landing page userà l'icona e gli screenshot aggiornati da M3. Le proposte sotto non diventano eseguibili da sole.
 
 | Campo | C1 — Clipboard, trascinamento e viste |
 | --- | --- |
@@ -111,13 +111,41 @@ C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata
 
 **Versione e tag.** Versione **0.3.0**. I tag `milestone/C2` e `v0.3.0` sono pubblicati sul commit `94ff1e44106f08fdcf961cab74171668112ad780`. La release è [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0).
 
+| Campo | M3 — Icona nella UI e screenshot aggiornati |
+| --- | --- |
+| Numero e titolo | M3 — Icona nella UI e screenshot aggiornati |
+| Obiettivo | Allineare l'icona visibile nell'app a quella introdotta nella release 0.3.0 e aggiornare le immagini del README che mostrano ancora la vecchia icona. |
+| Branch previsto | `milestone/3-ui-icon-screenshots`, creato da `main` al commit `e9fb4fa273913db688f846751f05e1de8a5fc888`. Verificati sul remoto `main` e il checkpoint annotato `milestone/C2`, che risolve a `94ff1e44106f08fdcf961cab74171668112ad780`. |
+| Tag di checkpoint previsto | `milestone/C3`; tag di versione `v0.3.1`, dopo le approvazioni e le verifiche di chiusura. |
+| Tipo incremento versione | `+0.0.1`, da 0.3.0 a **0.3.1**, per la correzione visiva dell'app. Versione sincronizzata nei sorgenti e nei documenti; release 0.3.1 non pubblicata. |
+| Attività | Sostituito il vecchio SVG della sidebar con `public/icon.png`, copia identica di `build/icon.png`, a 36×36 senza deformazioni, decorativo e non trascinabile. Sei nuove catture reali del renderer di produzione: scura, chiara e impostazioni, in IT e in EN. README collegato alle immagini della rispettiva lingua; provenienza, dimensioni e SHA-256 in `docs/screenshots/capture.json`. Corretto un test preesistente che assumeva separatori Unix, per eseguire la suite su Windows. |
+| Criteri di accettazione | La UI mostra la stessa icona dei pacchetti 0.3.0, senza deformazioni o tagli e con leggibilità nei due temi. Tutti gli screenshot del README rappresentano la UI aggiornata; nessuno mostra il vecchio marchio o dati privati. Collegamenti e immagini funzionano in entrambe le sezioni linguistiche. |
+| Test richiesti | `npm ci` riuscito con Node.js 24.18.1 e npm 12.2.1; prebuild Windows di node-pty. Runtime Electron 45.2.3 installato con il suo script, perché non presente dopo npm ci. `npm test` **136/136**; `npm run build` riuscito con avviso renderer oltre 500 kB. Electron Windows x64: icona caricata, proporzioni, testi alternativi, due temi, IT/EN, impostazioni e viewport 1440×900, 1280×820, 860×560 (12 combinazioni); nomi lunghi, focus del dialogo Nuova sessione e attributi dei tooltip. HOME, appData e userData isolati prima del main, ambiente filtrato e PTY con eseguibile dimostrativo generato; nessuna shell o credenziale reale. |
+| Documentazione | README con immagini IT/EN e stato dei sorgenti distinto dalla release; manuali, quick start, mappa, modello di sicurezza e AGENTS allineati a 0.3.1; manifest delle catture. La cronologia di C1/C2 e le proposte P1–P3 restano preservate. |
+| Stato | `M3`, implementata e preparata per il primo controllo del commit locale, senza passaggio a C3. Push, merge, tag e release pendenti. Non eseguiti: prove personali su macOS/Linux, CLI AI reale, aspetto dei tooltip nativi e nuovi pacchetti/smoke di distribuzione/SHA-256 di release. L'installazione segnala 9 vulnerabilità (7 moderate e 2 critiche) nelle dipendenze esistenti; nessun aggiornamento incluso. Temporanei propri conservati in `out/m3/`. |
+
+| Campo | M4 — Landing page GitHub Pages |
+| --- | --- |
+| Numero e titolo | M4 — Landing page GitHub Pages |
+| Obiettivo | Presentare Plancia Comandi con una landing page pubblicabile su GitHub Pages, coerente con lo stile degli altri progetti di Glauco e con riferimento a [theNovelist](https://thenovelist.glaucosilvestri.it/). |
+| Dipendenza e branch previsto | Dopo la chiusura di M3 e la verifica remota di `milestone/C3`, creare `milestone/4-github-pages-landing` da `main` e riutilizzare icona e screenshot aggiornati. |
+| Tag di checkpoint previsto | `milestone/C4`, dopo le approvazioni e la verifica della pubblicazione. Nessun nuovo tag di versione desktop per la sola landing page. |
+| Tipo incremento versione | Nessun incremento applicativo per sito e documentazione: resta la versione risultante da M3, prevista **0.3.1**. Nessuna nuova release desktop per questa sola milestone documentale. |
+| Attività | Esaminare visivamente theNovelist e riprenderne impostazione, tipografia, spaziature e controlli adattandoli a Plancia Comandi. Preparare una pagina statica con presentazione, funzioni, screenshot con didascalie, avvio rapido, download e limiti reali. Prevedere contenuti completi IT/EN, rilevamento della lingua del browser (italiano per IT, inglese negli altri casi), selettore `IT/EN`, tema di sistema e override persistenti. Nell'header: comando sole/luna e collegamento a `https://glaucosilvestri.it` con icona casa ed etichetta accessibile; favicon PNG e ICO coerenti con l'app. |
+| Collegamenti e contenuti | Collegare repository, release disponibile e manuale della lingua selezionata (`ISTRUZIONI.md` o `INSTRUCTIONS.md`). Descrivere solo funzioni implementate, distinguendo piattaforme, architetture, stato firma e limiti verificati. Controllare l'accessibilità pubblica delle destinazioni: repository e release sono documentati come privati, senza promettere download pubblici non verificati. |
+| Hosting e pubblicazione | Definire la cartella del sito e verificare la disponibilità di GitHub Pages con la visibilità e il piano attuali del repository, senza presumere di renderlo pubblico. Usare URL e percorsi compatibili con Pages; eventuali dominio dedicato, `CNAME` e DNS restano da definire con Glauco. Scegliere il metodo di pubblicazione minimo necessario; motivare un eventuale workflow Pages prima di introdurlo. Pubblicare solo dopo il controllo e l'approvazione del commit finale e verificare HTTPS, risorse e collegamenti sul sito effettivo. |
+| Criteri di accettazione | Stile confrontato con il riferimento; pagina leggibile e senza overflow su desktop e mobile, nei due temi e nelle due lingue. Selettori persistenti, navigazione da tastiera, focus visibile e testi alternativi funzionanti. Screenshot provenienti da M3 e nessuna vecchia icona. La pagina pubblicata carica tutte le risorse e presenta correttamente i link e gli eventuali vincoli di accesso ai download. |
+| Test richiesti | Anteprima locale e verifica visiva desktop/mobile IT/EN e chiaro/scuro; controlli di lingua e tema automatici e manuali, persistenza, tastiera, link, anchor, immagini e favicon. Controllare percorsi sotto il prefisso Pages e, dopo l'approvazione del deploy, HTTPS e assenza di risorse mancanti sul sito pubblico. Nessuna cattura di dati privati e nessun caricamento delle preferenze o dei terminali reali. |
+| Documentazione | `README.md`, `PLAN.md`, `MAP.md`, `QUICK-START_Desktop.md`; `SECURITY_MODEL.md` per hosting, rete e storage delle preferenze del sito; manuali IT/EN e `AGENTS.md` se cambiano istruzioni o procedure operative. |
+| Stato | `M4`, pianificata e non avviata; segue M3. Il riferimento theNovelist è indicato da Glauco: l'ispezione visiva resta da effettuare all'avvio perché non disponibile nella sessione di pianificazione. Nessun sito, workflow Pages, dominio o deploy creato con questa modifica. |
+
 | Voce | Obiettivo da discutere | Accettazione proposta |
 | --- | --- | --- |
 | P1 — Confini di sicurezza | Resta da decidere ciò che C2 non copre: timeout delle regex, scrittura atomica delle impostazioni e redazione degli errori. CSP, mittente degli IPC precedenti a M1 e tetto delle code di incolla sono C2. | Test negativi isolati e modello di sicurezza aggiornato; preservare il funzionamento delle shell. |
 | P2 — Preferenze iniziali | Allineare lingua automatica e portare nel file centrale i limiti ancora nei moduli. C1 mette nel file centrale solo i parametri nuovi di appunti, trascinamento e dimensione dell'input. | Italiano per sistemi italiani, inglese negli altri casi, override persistente e configurazione validata con test. |
 | P3 — Distribuzione verificata | Validare macOS, Windows e Linux, notifiche, scorciatoie, shell, PTY e pacchetti reali. | Smoke fuori dal checkout, piattaforme e architetture dichiarate, artifact e SHA-256 verificati; documentazione aggiornata. |
 
-Versione, branch, checkpoint, attività e test dettagliati saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages non è stata richiesta e non è inclusa.
+Versione, branch, checkpoint, attività e test dettagliati delle proposte P1–P3 saranno decisi quando una proposta sarà riclassificata come `M`. Queste righe non dichiarano controlli o piattaforme già verificati. Punto aperto, solo per la dimensione del pacchetto: non escludere le prebuild di `node-pty` delle altre piattaforme né i file `.pdb`. È un'ottimizzazione futura, non parte di C2. La landing page GitHub Pages è richiesta e pianificata in M4; non è ancora implementata o pubblicata.
 
 ### 3. Convenzioni delle milestone
 
@@ -149,6 +177,19 @@ Applicare la procedura completa in [AGENTS.md](AGENTS.md). Per ogni futura miles
 
 Per una patch senza voce `M`, non inventare una milestone: si applicano congelamento, controllo del commit finale e approvazione, ma non il passaggio `M` → `C`, il secondo controllo dovuto a quel passaggio o il checkpoint di milestone. Ogni modifica successiva al controllo richiede nuova approvazione.
 
+#### 4.1 Esiti M3 — 13 novembre 2026
+
+- [x] Identità Git/GitHub privata, base main e checkpoint C2 remoto verificati; modifica al piano preservata nel branch M3.
+- [x] Icona, sei screenshot IT/EN, versione 0.3.1 e documentazione completati; manifesto delle catture controllato.
+- [x] Installazione, 136 test, build e verifiche Electron isolate completati; omissioni e vulnerabilità segnalate nella voce M3.
+- [x] Branch preparato per la prima revisione con voce ancora M3; commit e diff da presentare a Glauco.
+- [ ] Prima approvazione esplicita del commit locale.
+- [ ] Passaggio M3 → C3, nuovo commit e seconda approvazione.
+- [ ] Push/merge e verifica remota; eventuale CI di packaging solo se necessaria e autorizzata.
+- [ ] Pacchetti della release 0.3.1, smoke sul commit finale e SHA-256 verificati prima dei tag.
+- [ ] Tag milestone/C3 e v0.3.1, release e verifica sul remoto.
+- [ ] Rimozione branch approvata e conferma separata per pulizia: `out/m3/` è conservata.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. Una modifica esclusivamente documentale può lasciare invariata la versione e non richiede una release. Per milestone o patch applicative concluse pubblicare una release secondo le preferenze HOME; se l'app non è utilizzabile, indicarla come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -157,12 +198,12 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.0**. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Source application version: **0.3.1**, under review. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **M3** (UI icon and screenshots) was started at Glauco's request of 13 November 2026 and is prepared for first review; **M4** (GitHub Pages landing page) remains planned and not started. Proposals do not authorize any other code changes.
 
 **Contents**
 
 - [1. Baseline and current work](#1-baseline-and-current-work)
-- [2. Current milestone and proposals](#2-current-milestone-and-proposals)
+- [2. Milestones and proposals](#2-milestones-and-proposals)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -208,9 +249,9 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 - Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
 - Status: tooling approved at `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, merged into `main` as `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). macOS packages and SHA-256 published and successfully downloaded again. The first Windows run, `43086813880`, passes installation and build but fails because PowerShell splits `-c.nsis.runAfterFinish=false` and electron-builder opens that remainder as a configuration file. PR #5 is merged as `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` and replaces those arguments with a JSON file and `--config` plus only the path. Run `43096382710` on that commit is `startup_failure` with no jobs, so that command was not executed. The Windows package for 0.2.0 was not published. For 0.3.0, run `43226304320`, with tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, succeeded and its artifacts are in release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). C2 does not duplicate the JSON: the step calls `scripts/package-windows.mjs`. PR #4 was closed without merging on 12 November 2026. The work branches were deleted.
 
-### 2. Current milestone and proposals
+### 2. Milestones and proposals
 
-C1, formerly M1, is merged and published as source. C2, formerly M2, is approved for closure and stays separate from the C1 packaging patch. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0), tags `milestone/C2` and `v0.3.0`, are published. The proposals below do not become executable on their own.
+C1, formerly M1, is merged and published as source. C2, formerly M2, is approved for closure and stays separate from the C1 packaging patch. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0), tags `milestone/C2` and `v0.3.0`, are published. The planned order is M3, then M4: the landing page will use the icon and screenshots updated in M3. The proposals below do not become executable on their own.
 
 | Field | C1 — Clipboard, drag-and-drop and views |
 | --- | --- |
@@ -266,13 +307,41 @@ C1, formerly M1, is merged and published as source. C2, formerly M2, is approved
 
 **Version and tags.** Version **0.3.0**. Tags `milestone/C2` and `v0.3.0` are published at commit `94ff1e44106f08fdcf961cab74171668112ad780`. The release is [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0).
 
+| Field | M3 — UI icon and updated screenshots |
+| --- | --- |
+| Number and title | M3 — UI icon and updated screenshots |
+| Goal | Align the icon displayed in the app with the one introduced in release 0.3.0 and update the README images that still show the old icon. |
+| Planned branch | `milestone/3-ui-icon-screenshots`, created from `main` at `e9fb4fa273913db688f846751f05e1de8a5fc888`. Remotely verified `main` and annotated checkpoint `milestone/C2`, which resolves to `94ff1e44106f08fdcf961cab74171668112ad780`. |
+| Planned checkpoint tag | `milestone/C3`; version tag `v0.3.1`, after approvals and closure checks. |
+| Version increment | `+0.0.1`, from 0.3.0 to **0.3.1**, for the app's visual correction. Version synchronized in source and documentation; release 0.3.1 is not published. |
+| Tasks | Replaced the old sidebar SVG with `public/icon.png`, an identical copy of `build/icon.png`, at 36×36 without distortion, decorative and not draggable. Six new unmodified production-renderer captures: dark, light and settings, in IT and EN. README links to images in the corresponding language; provenance, dimensions and SHA-256 in `docs/screenshots/capture.json`. Corrected an existing test that assumed Unix separators so the suite runs on Windows. |
+| Acceptance | The UI displays the same icon as the 0.3.0 packages, without distortion or clipping and with legibility in both themes. All README screenshots represent the updated UI; none shows the old branding or private data. Links and images work in both language sections. |
+| Required tests | `npm ci` passed with Node.js 24.18.1 and npm 12.2.1; Windows node-pty prebuild. Electron 45.2.3 runtime installed through its own script because it was absent after npm ci. `npm test` **136/136**; `npm run build` passed with the renderer warning above 500 kB. Electron Windows x64: image loading, proportions, alternative text, both themes, IT/EN, settings and 1440×900, 1280×820, 860×560 viewports (12 combinations); long names, New session dialog focus and tooltip attributes. HOME, appData and userData isolated before main, filtered environment and PTY with a generated demonstration executable; no real user shell or credentials. |
+| Documentation | README with IT/EN images and source status distinguished from the release; manuals, quick start, map, security model and AGENTS synchronized to 0.3.1; capture manifest. C1/C2 history and proposals P1–P3 are preserved. |
+| Status | `M3`, implemented and prepared for the first local-commit review, without promotion to C3. Push, merge, tags and release pending. Not run: personal macOS/Linux checks, a real AI CLI, native-tooltip appearance and new distribution packages/smoke tests/release SHA-256. Installation reports 9 vulnerabilities (7 moderate and 2 critical) in existing dependencies; no dependency updates included. Own temporary files retained in `out/m3/`. |
+
+| Field | M4 — GitHub Pages landing page |
+| --- | --- |
+| Number and title | M4 — GitHub Pages landing page |
+| Goal | Present Plancia Comandi through a landing page publishable on GitHub Pages, consistent with Glauco's other projects and using [theNovelist](https://thenovelist.glaucosilvestri.it/) as a reference. |
+| Dependency and planned branch | After closing M3 and remotely verifying `milestone/C3`, create `milestone/4-github-pages-landing` from `main` and reuse the updated icon and screenshots. |
+| Planned checkpoint tag | `milestone/C4`, after approvals and publication verification. No new desktop version tag for the landing page alone. |
+| Version increment | No application increment for the site and documentation: retain the version resulting from M3, expected to be **0.3.1**. No new desktop release for this documentation-only milestone. |
+| Tasks | Visually inspect theNovelist and adapt its layout, typography, spacing and controls to Plancia Comandi. Prepare a static page with an introduction, features, captioned screenshots, quick start, downloads and actual limitations. Provide complete IT/EN content, browser-language detection (Italian for IT, English otherwise), an `IT/EN` selector, system theme and persistent overrides. In the header: a sun/moon control and a home-icon link to `https://glaucosilvestri.it` with an accessible label; PNG and ICO favicons consistent with the app. |
+| Links and content | Link the repository, available release and the manual for the selected language (`ISTRUZIONI.md` or `INSTRUCTIONS.md`). Describe only implemented features, distinguishing platforms, architectures, signing status and verified limitations. Check public access to the destinations: the repository and releases are documented as private, without promising unverified public downloads. |
+| Hosting and publication | Define the site directory and verify GitHub Pages availability under the repository's current visibility and account plan, without assuming it will become public. Use Pages-compatible URLs and paths; any dedicated domain, `CNAME` and DNS remain to be defined with Glauco. Choose the minimum necessary publication method; justify any Pages workflow before introducing it. Publish only after final-commit review and approval, and verify HTTPS, assets and links on the actual site. |
+| Acceptance | Style compared with the reference; readable page without overflow on desktop and mobile, in both themes and languages. Persistent selectors, keyboard navigation, visible focus and alternative text work. Screenshots come from M3 and no old icon remains. The published page loads all assets and correctly presents links and any download-access restrictions. |
+| Required tests | Local preview and desktop/mobile visual checks in IT/EN and light/dark; automatic and manual language and theme controls, persistence, keyboard, links, anchors, images and favicons. Check paths under the Pages prefix and, after deployment approval, HTTPS and missing resources on the public site. No private-data captures or loading of real preferences or terminals. |
+| Documentation | `README.md`, `PLAN.md`, `MAP.md`, `QUICK-START_Desktop.md`; `SECURITY_MODEL.md` for hosting, network and site-preference storage; IT/EN manuals and `AGENTS.md` if instructions or operating procedures change. |
+| Status | `M4`, planned and not started; follows M3. Glauco supplied theNovelist as the reference: visual inspection remains for the start of the milestone because it was unavailable during planning. No site, Pages workflow, domain or deployment is created by this change. |
+
 | Item | Goal for discussion | Proposed acceptance |
 | --- | --- | --- |
 | P1 — Security boundaries | Still to be decided, for what C2 does not cover: regex timeouts, atomic settings writes and error redaction. CSP, sender checks on IPC that predates M1 and the paste-queue cap are C2. | Isolated negative tests and an updated security model; preserve shell operation. |
 | P2 — Initial preferences | Align automatic language selection and move limits that are still in modules into the central file. C1 puts only the new clipboard, drop and input-size parameters in that file. | Italian on Italian systems, English otherwise, persistent override and validated configuration with tests. |
 | P3 — Verified distribution | Validate macOS, Windows and Linux, notifications, shortcuts, shells, PTYs and real packages. | Smoke outside the checkout, declared platforms and architectures, verified artifacts and SHA-256; updated documentation. |
 
-Version, branch, checkpoint, detailed tasks and tests will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. A GitHub Pages landing page was not requested and is not included.
+Version, branch, checkpoint, detailed tasks and tests for proposals P1–P3 will be decided when a proposal becomes an `M`. These entries do not claim that controls or platforms have already been verified. Open point, package size only: do not exclude `node-pty` prebuilds for other platforms or the `.pdb` files. That is a future optimization, not part of C2. The GitHub Pages landing page is requested and planned in M4; it is not yet implemented or published.
 
 ### 3. Milestone conventions
 
@@ -303,6 +372,19 @@ Follow the complete procedure in [AGENTS.md](AGENTS.md). Copy and complete this 
 - [ ] Temporary paths presented for separate confirmation before cleanup; final worktree checked.
 
 For a patch without an `M` entry, do not invent a milestone: freezing, final-commit review and approval apply, but the `M` → `C` transition, the second review caused by that transition and the milestone checkpoint do not. Any change after review requires new approval.
+
+#### 4.1 M3 results — 13 November 2026
+
+- [x] Private Git/GitHub identity, main baseline and remote C2 checkpoint verified; planning edit preserved on the M3 branch.
+- [x] Icon, six IT/EN screenshots, version 0.3.1 and documentation completed; capture manifest checked.
+- [x] Installation, 136 tests, build and isolated Electron checks completed; omissions and dependency findings recorded in M3.
+- [x] Branch prepared for first review with the entry still M3; commit and diff to be presented to Glauco.
+- [ ] First explicit approval of the local commit.
+- [ ] M3 → C3 transition, new commit and second approval.
+- [ ] Push/merge and remote verification; packaging CI only if necessary and authorized.
+- [ ] Release 0.3.1 packages, smoke tests on the final commit and SHA-256 verified before tagging.
+- [ ] Tags milestone/C3 and v0.3.1, release and remote verification.
+- [ ] Approved branch removal and separate cleanup confirmation: `out/m3/` is retained.
 
 ### 5. Versions, CI and distribution
 

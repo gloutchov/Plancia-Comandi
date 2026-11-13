@@ -127,9 +127,10 @@ button {
 }
 
 .mark {
-  width: 28px;
-  height: 28px;
-  fill: var(--accent);
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
   flex: none;
 }
 

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.0**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.1**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -114,12 +114,16 @@ Plancia-Comandi/
 |   |-- icon.ico                     Icona Windows, 16, 24, 32, 48, 64, 128 e 256
 |   `-- icon.icns                    Icona macOS, contenuto 824 su tela 1024
 |-- public/
-|   `-- icon.png                     Asset statico del renderer
+|   `-- icon.png                     Copia identica di build/icon.png, usata dalla sidebar
 `-- docs/
     `-- screenshots/
         |-- plancia-dark.png         Esempio della vista scura
         |-- plancia-light.png        Esempio della vista chiara
-        `-- plancia-settings.png     Esempio delle impostazioni
+        |-- plancia-settings.png     Impostazioni in italiano
+        |-- plancia-dark-en.png      Vista scura in inglese
+        |-- plancia-light-en.png     Vista chiara in inglese
+        |-- plancia-settings-en.png  Impostazioni in inglese
+        `-- capture.json            Versione, ambiente, isolamento e SHA-256 delle catture
 ```
 
 `.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
@@ -161,7 +165,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.0** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.1** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -273,12 +277,16 @@ Plancia-Comandi/
 |   |-- icon.ico                     Windows icon, 16, 24, 32, 48, 64, 128 and 256
 |   `-- icon.icns                    macOS icon, 824 content on a 1024 canvas
 |-- public/
-|   `-- icon.png                     Static renderer asset
+|   `-- icon.png                     Identical copy of build/icon.png, used by the sidebar
 `-- docs/
     `-- screenshots/
         |-- plancia-dark.png         Dark-view example
         |-- plancia-light.png        Light-view example
-        `-- plancia-settings.png     Settings example
+        |-- plancia-settings.png     Italian settings
+        |-- plancia-dark-en.png      English dark view
+        |-- plancia-light-en.png     English light view
+        |-- plancia-settings-en.png  English settings
+        `-- capture.json            Capture version, environment, isolation and SHA-256
 ```
 
 `.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.

@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.0**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.1**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 **Contents**
 
@@ -35,7 +35,7 @@ Running source requires Git, Node.js with npm and authorized access to the priva
 
 To prepare native tools:
 
-- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.0-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.1-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
 - **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 

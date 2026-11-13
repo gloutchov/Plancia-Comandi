@@ -22,7 +22,7 @@ describe('clipboard image files', () => {
     expect(clipboardImageDirectory('/data/user', '..')).toBeNull()
     expect(clipboardImageDirectory('/data/user', 'nested/name')).toBeNull()
     expect(clipboardImageDirectory('/data/user', '/tmp')).toBeNull()
-    expect(clipboardImageDirectory('/data/user', 'clipboard-images')).toBe('/data/user/clipboard-images')
+    expect(clipboardImageDirectory('/data/user', 'clipboard-images')).toBe(path.resolve('/data/user/clipboard-images'))
   })
 
   it('writes a generated PNG inside the configured directory and restricts permissions', () => {

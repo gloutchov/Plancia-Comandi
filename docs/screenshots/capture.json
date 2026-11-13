@@ -1,0 +1,67 @@
+{
+  "appVersion": "0.3.1",
+  "capturedOn": "2026-11-13",
+  "platform": "Windows x64",
+  "electronVersion": "45.2.3",
+  "source": "Production renderer and main bundles from npm run build; unmodified PNG captures via Electron Chromium debugging on loopback.",
+  "isolation": "Temporary HOME, appData and userData explicitly set before importing main; filtered environment; generated terminal fixture over native node-pty. No user shell, real CLI, clipboard or private content.",
+  "sampleContent": "Terminal output is explicitly labelled demonstration data. User-created content is not translated when the UI language changes.",
+  "iconSource": "build/icon.png",
+  "iconSha256": "1139ac6a6768f1cb7af7301a206797ee8f25c9e260c9050be743dbf5dc22b89c",
+  "images": [
+    {
+      "file": "plancia-dark.png",
+      "locale": "it",
+      "theme": "dark",
+      "view": "workspace",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d43ef855f03a1f9c7076d192aea7ca00b64f61ebb9473f9974dc030fff57e330"
+    },
+    {
+      "file": "plancia-light.png",
+      "locale": "it",
+      "theme": "light",
+      "view": "workspace",
+      "width": 1440,
+      "height": 900,
+      "sha256": "80f9b5622cb6493a1f408514ba92a4cde2cff666eb5bc8a8780f397aaf6e61ad"
+    },
+    {
+      "file": "plancia-settings.png",
+      "locale": "it",
+      "theme": "light",
+      "view": "settings",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cd71352c24874095424b4a62565731207e526f5216c51fc13d453ec7f82b955d"
+    },
+    {
+      "file": "plancia-dark-en.png",
+      "locale": "en",
+      "theme": "dark",
+      "view": "workspace",
+      "width": 1440,
+      "height": 900,
+      "sha256": "dcb77039ca227b8d383760b1e9d2e888e575b0454fd3a4d9291f673b2a06a559"
+    },
+    {
+      "file": "plancia-light-en.png",
+      "locale": "en",
+      "theme": "light",
+      "view": "workspace",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b2f3765560cadefbe2fbd5447df31eff8371b0cadc50e0c8441fce3f42ea78e6"
+    },
+    {
+      "file": "plancia-settings-en.png",
+      "locale": "en",
+      "theme": "light",
+      "view": "settings",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b2fd9390f4e636da246644c3bafe0580673dc0a037d29f7769bd7f3aee32e82d"
+    }
+  ]
+}

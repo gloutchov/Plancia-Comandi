@@ -4,9 +4,11 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.3.0 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.1 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
-![Terminali affiancati e stati delle sessioni nel tema scuro](docs/screenshots/plancia-dark.png)
+![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
+
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release scaricabile resta la 0.3.0 finché la 0.3.1 non è approvata e pubblicata.
 
 **Sommario**
 
@@ -142,9 +144,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.3.0 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.1 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
-![Tiled terminals and session status in the dark theme](docs/screenshots/plancia-dark.png)
+![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
+
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). The downloadable release remains 0.3.0 until 0.3.1 is approved and published.
 
 **Contents**
 
@@ -167,7 +171,7 @@ Plancia Comandi brings several real terminals into one desktop window. Work with
 
 Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
 
-![Side-by-side view in the light theme](docs/screenshots/plancia-light.png)
+![Side-by-side view in the light theme](docs/screenshots/plancia-light-en.png)
 
 ### 2. Installation and first use
 
@@ -219,7 +223,7 @@ Open **Settings** for language, theme, terminal size, alerts and detection timin
 
 The default theme follows the system. Settings do not store credentials or restore sessions. Missing or invalid values receive defaults or are clamped to their allowed range. Clipboard, drag-and-drop and input-length limits live in [`config/app.config.json`](config/app.config.json); restart the app after editing that file. See the [full configuration](INSTRUCTIONS.md#6-configuration).
 
-![Appearance, alert and detection settings](docs/screenshots/plancia-settings.png)
+![Appearance, alert and detection settings](docs/screenshots/plancia-settings-en.png)
 
 ### 4. Security and privacy
 

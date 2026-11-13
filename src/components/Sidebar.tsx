@@ -4,17 +4,6 @@ import { shortenPath } from '../shared/paths'
 import type { Locale, SessionInfo } from '../shared/types'
 import { cx } from '../cx'
 
-function Mark() {
-  return (
-    <svg className="mark" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="2" y="14" width="3.2" height="7" rx="1" />
-      <rect x="10.4" y="14" width="3.2" height="7" rx="1" />
-      <rect x="18.8" y="14" width="3.2" height="7" rx="1" />
-      <rect x="1" y="10.5" width="22" height="3.4" rx="1.2" />
-    </svg>
-  )
-}
-
 export function Sidebar({
   locale,
   home,
@@ -54,7 +43,7 @@ export function Sidebar({
   return (
     <aside className={cx('sidebar', darwin && 'is-darwin')}>
       <div className="brand">
-        <Mark />
+        <img className="mark" src="./icon.png" alt="" width={36} height={36} draggable={false} />
         <div>
           <strong>{t('appName')}</strong>
           <span>{t('tagline')}</span>
