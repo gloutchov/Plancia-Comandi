@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="it" data-release="0.3.1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'self'; object-src 'none'; frame-src 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'" />
+    <title>Plancia Comandi — I tuoi terminali, insieme</title>
+    <meta name="description" content="Riunisci shell e CLI in una finestra desktop. Sessioni affiancate, stati a colpo d'occhio, temi chiaro e scuro. Open source per Windows e macOS Apple Silicon." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Plancia Comandi" />
+    <meta property="og:description" content="I tuoi terminali, insieme. Una plancia desktop open source per shell e CLI." />
+    <meta property="og:image" content="https://gloutchov.github.io/Plancia-Comandi/screenshots/plancia-dark-en.png" />
+    <link rel="canonical" href="https://gloutchov.github.io/Plancia-Comandi/" />
+    <link rel="alternate" hreflang="it" href="https://gloutchov.github.io/Plancia-Comandi/?lang=it" />
+    <link rel="alternate" hreflang="en" href="https://gloutchov.github.io/Plancia-Comandi/?lang=en" />
+    <link rel="icon" type="image/png" href="./assets/icon.png" />
+    <link rel="icon" type="image/x-icon" href="./assets/icon.ico" />
+    <script src="./preferences.js"></script>
+    <link rel="stylesheet" href="./site.css" />
+    <script type="module" src="./site.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-copy="skip">Vai al contenuto</a>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Plancia Comandi">
+        <img src="./assets/icon.png" alt="" width="36" height="36" />
+        <span>Plancia Comandi</span>
+      </a>
+      <nav aria-label="Navigazione principale" data-label="nav.label">
+        <a href="#features" data-copy="nav.features">Funzioni</a>
+        <a href="#gallery" data-copy="nav.gallery">Immagini</a>
+        <a href="#privacy" data-copy="nav.privacy">Privacy</a>
+        <a href="#download" data-copy="nav.download">Download</a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button" href="https://glaucosilvestri.it/" aria-label="Sito di Glauco Silvestri" data-label="home" data-title="home">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>
+        </a>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Passa al tema scuro">
+          <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A9 9 0 0 1 9.5 3.5a9 9 0 1 0 11 11Z" /></svg>
+          <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></svg>
+        </button>
+        <div class="language-switcher" role="group" aria-label="Lingua" data-label="language">
+          <button type="button" data-language="it" aria-pressed="true" lang="it" title="Italiano">IT</button>
+          <button type="button" data-language="en" aria-pressed="false" lang="en" title="English">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-inner wrap">
+          <div class="hero-content">
+            <img class="hero-icon" src="./assets/icon.png" alt="" width="80" height="80" />
+            <p class="eyebrow" data-copy="hero.eyebrow">Terminali desktop · open source</p>
+            <h1 id="hero-title">Plancia Comandi</h1>
+            <p class="hero-lead" data-copy="hero.lead">I tuoi terminali, insieme.</p>
+            <p class="hero-copy" data-copy="hero.copy">Shell e CLI in una sola finestra. Affianca le sessioni e riconosci a colpo d’occhio quelle che richiedono la tua attenzione.</p>
+            <div class="hero-actions">
+              <a class="button primary" href="#download"><span data-copy="hero.download">Scarica</span><span data-version>0.3.1</span><span aria-hidden="true">↓</span></a>
+              <a class="button secondary" href="https://github.com/gloutchov/Plancia-Comandi" data-copy="hero.source">Codice su GitHub</a>
+            </div>
+            <dl class="release-strip">
+              <div><dt data-copy="facts.platforms">Pacchetti</dt><dd>Windows x64 · macOS ARM64</dd></div>
+              <div><dt data-copy="facts.license">Licenza</dt><dd>Apache-2.0</dd></div>
+            </dl>
+          </div>
+          <figure class="hero-visual">
+            <div class="hero-screen"><img id="hero-screen" src="./screenshots/plancia-dark.png" alt="Due terminali affiancati in Plancia Comandi" width="1440" height="900" fetchpriority="high" /></div>
+            <figcaption><span class="status-dot" aria-hidden="true"></span><span data-copy="hero.caption">Due sessioni, una sola finestra.</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section wrap" id="features" aria-labelledby="features-title">
+        <div class="section-heading split-heading">
+          <div><p class="eyebrow" data-copy="features.eyebrow">Una plancia per il tuo lavoro</p><h2 id="features-title" data-copy="features.title">Meno finestre da inseguire.</h2></div>
+          <p data-copy="features.intro">Apri fino a 12 sessioni con la shell e la cartella che ti servono. Le CLI si installano separatamente: qui ritrovi i tuoi strumenti, nello stesso spazio.</p>
+        </div>
+        <div class="steps">
+          <article><span class="step-number" aria-hidden="true">01</span><h3 data-copy="features.open.title">Apri e organizza</h3><p data-copy="features.open.body">Scegli shell e cartella iniziale, assegna un nome e passa da una sessione all’altra dalla barra laterale.</p><span class="feature-note" data-copy="features.open.note">Fino a 12 sessioni</span></article>
+          <article><span class="step-number" aria-hidden="true">02</span><h3 data-copy="features.tile.title">Affianca ciò che serve</h3><p data-copy="features.tile.body">Una, Affiancate, Incolonnate o Griglia: scegli la vista adatta alle sessioni aperte, senza spostare finestre sul desktop.</p><span class="feature-note" data-copy="features.tile.note">Quattro viste</span></article>
+          <article><span class="step-number" aria-hidden="true">03</span><h3 data-copy="features.follow.title">Segui l’attività</h3><p data-copy="features.follow.body">Stati, pallini e notifiche aiutano a trovare una sessione in attesa. Il rilevamento è euristico: controlla sempre il terminale.</p><span class="feature-note" data-copy="features.follow.note">Al lavoro · In attesa · Azione</span></article>
+        </div>
+      </section>
+
+      <section class="gallery-section section" id="gallery" aria-labelledby="gallery-title">
+        <div class="wrap">
+          <div class="section-heading"><p class="eyebrow" data-copy="gallery.eyebrow">Dentro l’app</p><h2 id="gallery-title" data-copy="gallery.title">Il tuo lavoro, nel tema che preferisci.</h2><p data-copy="gallery.intro">Interfaccia italiana o inglese, tema di sistema o scelta manuale. Guarda la finestra e le impostazioni della versione 0.3.1.</p></div>
+          <div class="gallery-toolbar">
+            <div class="gallery-tabs" role="tablist" aria-label="Schermate dell’app" data-label="gallery.tabs">
+              <button id="tab-dark" type="button" role="tab" aria-controls="gallery-panel" aria-selected="true" data-view="dark" data-copy="gallery.dark">Tema scuro</button>
+              <button id="tab-light" type="button" role="tab" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-view="light" data-copy="gallery.light">Tema chiaro</button>
+              <button id="tab-settings" type="button" role="tab" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-view="settings" data-copy="gallery.settings">Impostazioni</button>
+            </div>
+            <a class="text-link" id="gallery-original" href="./screenshots/plancia-dark.png" target="_blank" rel="noopener noreferrer"><span data-copy="gallery.open">Apri l’immagine</span><span aria-hidden="true">↗</span></a>
+          </div>
+          <figure class="gallery-panel" id="gallery-panel" role="tabpanel" aria-labelledby="tab-dark" tabindex="0">
+            <img id="gallery-image" src="./screenshots/plancia-dark.png" alt="Due terminali affiancati nel tema scuro" width="1440" height="900" loading="lazy" decoding="async" />
+            <figcaption id="gallery-caption" data-copy="gallery.caption.dark">Sessioni affiancate nel tema scuro. I terminali mostrano dati dimostrativi.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section wrap privacy-section" id="privacy" aria-labelledby="privacy-title">
+        <div class="section-heading"><p class="eyebrow" data-copy="privacy.eyebrow">Sul tuo computer</p><h2 id="privacy-title" data-copy="privacy.title">I tuoi strumenti. I tuoi permessi.</h2><p data-copy="privacy.intro">Plancia Comandi è un terminale desktop locale. Non integra un provider AI e non invia autonomamente l’output a un modello.</p></div>
+        <div class="privacy-details">
+          <article><h3 data-copy="privacy.permissions.title">Una shell reale</h3><p data-copy="privacy.permissions.body">I comandi hanno i tuoi permessi e possono leggere file, modificarli e usare la rete. La finestra non limita i permessi delle shell.</p></article>
+          <article><h3 data-copy="privacy.tools.title">Le CLI restano indipendenti</h3><p data-copy="privacy.tools.body">Autenticazione, API e invio dei dati dipendono dai programmi che avvii. Scegli cartelle e contenuti con attenzione.</p></article>
+          <article><h3 data-copy="privacy.local.title">Preferenze locali</h3><p data-copy="privacy.local.body">Lingua, tema e vista restano sul computer. Le sessioni non vengono ripristinate all’uscita; l’output in memoria non è un archivio.</p></article>
+          <a class="text-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/SECURITY_MODEL.md"><span data-copy="privacy.more">Leggi il modello di sicurezza</span><span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="download-section section" id="download" aria-labelledby="download-title">
+        <div class="wrap">
+          <div class="section-heading"><p class="eyebrow"><span data-copy="download.eyebrow">Pronto a iniziare</span> · <span data-version>0.3.1</span></p><h2 id="download-title" data-copy="download.title">Scegli il tuo pacchetto.</h2><p data-copy="download.intro">Progetto in sviluppo iniziale. Scarica la versione adatta al tuo computer e consulta il manuale per il primo avvio.</p></div>
+          <div class="download-grid">
+            <article class="download-card"><p class="platform-label">WINDOWS</p><h3 data-copy="download.windows.title">Il tuo desktop, x64.</h3><p data-copy="download.windows.body">Installer NSIS oppure versione portabile. Entrambi i pacchetti sono per Windows x64.</p><div class="download-actions"><a class="button primary" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/PlanciaComandi-win-0.3.1-x64-setup.exe" data-copy="download.windows.setup">Installer x64 ↓</a><a class="button outline" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/PlanciaComandi-win-0.3.1-x64-portable.exe" data-copy="download.windows.portable">Portable x64 ↓</a></div><a class="checksum-link" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/SHA256SUMS-Windows.txt" data-copy="download.checksum">Checksum SHA-256 ↗</a></article>
+            <article class="download-card"><p class="platform-label">MACOS</p><h3>Apple Silicon, arm64.</h3><p data-copy="download.mac.body">DMG e ZIP per i Mac con chip Apple Silicon. Non è disponibile un pacchetto verificato per Intel.</p><div class="download-actions"><a class="button primary" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/PlanciaComandi-mac-0.3.1-arm64.dmg">DMG arm64 ↓</a><a class="button outline" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/PlanciaComandi-mac-0.3.1-arm64.zip">ZIP arm64 ↓</a></div><a class="checksum-link" href="https://github.com/gloutchov/Plancia-Comandi/releases/download/v0.3.1/SHA256SUMS-macOS.txt" data-copy="download.checksum">Checksum SHA-256 ↗</a></article>
+          </div>
+          <p class="download-notice" data-copy="download.notice">Pacchetti non firmati; macOS senza notarizzazione. SmartScreen e Gatekeeper possono mostrare avvisi. Verifica i checksum e consulta le istruzioni prima di aprire un download.</p>
+          <div class="getting-started"><h3 data-copy="start.title">Dalla prima apertura al primo terminale.</h3><ol><li data-copy="start.one">Scarica il pacchetto adatto e apri l’app seguendo il manuale.</li><li data-copy="start.two">Premi Nuova sessione, scegli shell e cartella, poi Apri.</li><li data-copy="start.three">Con almeno due sessioni scegli Affiancate o Incolonnate; da tre è disponibile la Griglia.</li></ol><a class="text-link manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md"><span data-copy="start.manual">Apri il manuale italiano</span><span aria-hidden="true">↗</span></a></div>
+          <details class="source-details"><summary data-copy="source.title">Linux e avvio dai sorgenti</summary><div><p data-copy="source.body">Per Linux non è pubblicato un pacchetto 0.3.1 e non è registrata una prova personale. I sorgenti richiedono Git e Node.js 22.12 o successivo; su macOS e Linux servono anche gli strumenti di compilazione di node-pty. Su Windows si usano le prebuild.</p><pre><code>git clone https://github.com/gloutchov/Plancia-Comandi.git
+cd Plancia-Comandi
+npm ci
+npm run dev</code></pre><p data-copy="source.separate">Le CLI che vuoi usare nei terminali si installano e autenticano separatamente.</p><a class="text-link manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md" data-copy="source.manual">Requisiti e installazione nel manuale ↗</a></div></details>
+          <a class="release-link" href="https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.1" data-copy="download.notes">Note della release, verifiche e limiti noti ↗</a>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <div><a class="brand" href="#top"><img src="./assets/icon.png" alt="" width="32" height="32" /><span>Plancia Comandi</span></a><p data-copy="footer.project">Un progetto di Glauco Silvestri. Apache-2.0.</p></div>
+      <div class="footer-links"><a href="https://github.com/gloutchov/Plancia-Comandi">GitHub ↗</a><a class="manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md" data-copy="footer.manual">Manuale ↗</a><a href="https://github.com/gloutchov/Plancia-Comandi/blob/main/LICENSE" data-copy="footer.license">Licenza ↗</a><button id="system-theme" type="button" data-copy="footer.system">Segui il tema di sistema</button><span class="preference-status" id="preference-status" aria-live="polite"></span></div>
+    </footer>
+    <noscript><p class="noscript-note">Questa pagina è disponibile in italiano anche senza JavaScript. Per il cambio lingua, il tema manuale e la galleria interattiva è necessario abilitarlo. / This page remains available in Italian without JavaScript. Enable it for language, theme and gallery controls.</p></noscript>
+  </body>
+</html>

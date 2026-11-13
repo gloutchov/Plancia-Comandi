@@ -19,6 +19,8 @@ npm ci
 npm run dev
 ```
 
+La landing statica in `docs/` presenta funzioni, download e manuali; è in revisione per GitHub Pages. Non crea terminali nel browser.
+
 Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone del terminale. Il primo avvio usa l'italiano e il tema del sistema.
 
 ### 2. Aprire e affiancare terminali
@@ -56,6 +58,8 @@ In the repository folder, with Git, Node.js/npm and native build tools installed
 npm ci
 npm run dev
 ```
+
+The static landing page in `docs/` presents features, downloads and manuals; it is under review for GitHub Pages. It does not create browser terminals.
 
 Use the desktop window that opens. The development website in a browser has no terminal access. The first start uses Italian and the system theme; open **Impostazioni** and choose **English** to switch language.
 

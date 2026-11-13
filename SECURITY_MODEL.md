@@ -41,6 +41,8 @@ File di riferimento: [main](electron/main.ts), [preload](electron/preload.ts), [
 
 Non inserire segreti in JSON, esempi, log o repository. Per una futura integrazione AI serviranno storage protetto, consenso esplicito per contenuti utente e consenso separato per memoria o contenuti di progetto, provider configurabili, timeout, cancellazione e redazione, con test dedicati. Questi controlli non sono implementati perché tale integrazione non esiste.
 
+La landing M4 in `docs/` è una pagina statica separata dall'app. Carica script, fogli di stile, icona e screenshot dalla propria origine; non usa analytics, font esterni, API remote o accesso a PTY e filesystem. I collegamenti a GitHub, download e sito dell'autore sono navigazioni deliberate. La CSP nel meta blocca connessioni script (`connect-src 'none'`), frame e oggetti, e ammette script, stili e immagini solo dalla stessa origine; non costituisce un header `frame-ancestors` né un controllo sulle shell. La pubblicazione su GitHub Pages è ancora da approvare; il normale hosting HTTPS tratta i metadati delle richieste secondo le policy di GitHub.
+
 ### 3. Persistenza, logging e privacy
 
 | Dato / superficie | Comportamento attuale |
@@ -54,6 +56,8 @@ Non inserire segreti in JSON, esempi, log o repository. Per una futura integrazi
 | Clipboard | Copia e incolla passano dal modulo `clipboard` del processo main. Il testo non è redatto né mostrato in anteprima. Un'immagine accettata viene scritta come PNG sotto la cartella dati utente e nel terminale viene incollato solo il percorso quotato. |
 | Immagini temporanee | Directory e prefisso arrivano da `config/app.config.json`, validati come un solo tratto di percorso. Il nome del file è generato nel main. Scrittura su file temporaneo e poi rinomina. Su Unix la cartella è `0700` e il file `0600`; su Windows valgono i permessi della cartella dati, perché i bit POSIX non sono un confine affidabile. Età e numero massimo eliminano i file generati che corrispondono al prefisso. Gli altri file nella cartella non vengono toccati. |
 | Schermate demo | `PLANCIA_SHOT_DIR`/alias legacy scrive PNG della finestra nel percorso indicato. La cattura può includere dati visibili e modifica il tema persistente. |
+
+Le preferenze del sito sono due valori di `localStorage`, `plancia-site.locale` e `plancia-site.theme`, limitati a IT/EN e sistema/chiaro/scuro. Non contengono credenziali o contenuti dei terminali e non cambiano `settings.json`. Valori non ammessi sono ignorati; lo storage bloccato mantiene i comandi funzionanti senza persistenza. `?lang=it|en` seleziona la lingua della visita. I testi del dizionario sono inseriti con `textContent`, senza HTML da input esterni.
 
 Il salvataggio delle preferenze usa una scrittura diretta, senza sostituzione atomica, backup integrato o permessi restrittivi impostati esplicitamente. Si applicano i permessi ordinari del sistema/umask. La lettura invalida ripiega sui default; un successivo salvataggio può sovrascrivere un file corrotto. Non è imposto un limite di dimensione prima della lettura JSON.
 
@@ -180,6 +184,8 @@ Source references: [main](electron/main.ts), [preload](electron/preload.ts), [se
 
 Do not place secrets in JSON, examples, logs or the repository. A future AI integration would require protected storage, explicit consent for user content and separate consent for memory or project content, configurable providers, timeouts, cancellation and redaction, with dedicated tests. These controls are not implemented because that integration does not exist.
 
+The M4 landing in `docs/` is a static page separate from the app. It loads scripts, stylesheets, the icon and screenshots from its own origin; it uses no analytics, external fonts, remote APIs or PTY/filesystem access. Links to GitHub, downloads and the author's website are deliberate navigations. The meta CSP blocks script connections (`connect-src 'none'`), frames and objects, and permits scripts, styles and images only from the same origin; it is not a `frame-ancestors` header or a restriction on shells. GitHub Pages publication still requires approval; normal HTTPS hosting processes request metadata under GitHub's policies.
+
 ### 3. Persistence, logging and privacy
 
 | Data / surface | Current behavior |
@@ -193,6 +199,8 @@ Do not place secrets in JSON, examples, logs or the repository. A future AI inte
 | Clipboard | Copy and paste go through the main-process `clipboard` module. Text is not redacted or previewed. An accepted image is written as a PNG under the user-data directory and only its quoted path is pasted into the terminal. |
 | Temporary images | Directory and prefix come from `config/app.config.json` and are validated as a single path segment. The file name is generated in main. The write uses a temporary file and then a rename. On Unix the directory is `0700` and the file `0600`; on Windows the user-data directory ACL is the boundary, because POSIX mode bits are not a reliable boundary there. Age and maximum count delete generated files that match the prefix. Other files in the folder are left untouched. |
 | Demo screenshots | `PLANCIA_SHOT_DIR`/legacy alias writes window PNGs to the specified path. Capture can include visible data and changes the persistent theme. |
+
+Site preferences are two `localStorage` values, `plancia-site.locale` and `plancia-site.theme`, restricted to IT/EN and system/light/dark. They contain no credentials or terminal content and do not change `settings.json`. Unsupported values are ignored; blocked storage keeps controls working without persistence. `?lang=it|en` selects the visit's language. Dictionary text is inserted with `textContent`, with no HTML from external input.
 
 Preferences use a direct write without atomic replacement, integrated backup or explicitly restrictive permissions. Ordinary OS/umask permissions apply. Invalid reads fall back to defaults; a later save may overwrite a corrupt file. No size limit is imposed before reading JSON.
 

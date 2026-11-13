@@ -21,7 +21,7 @@ Questo manuale descrive Plancia Comandi **0.3.1**, un'app desktop per usare più
 
 Serve un computer desktop con macOS, Windows o Linux e una shell utilizzabile. La finestra ha dimensione minima 860 × 560. Queste sono piattaforme target, non una certificazione di compatibilità per ogni versione del sistema. I pacchetti configurati sono DMG/ZIP per macOS, NSIS/portabile x64 per Windows e AppImage/DEB per Linux; le verifiche reali di distribuzione sono ancora da completare.
 
-Per eseguire i sorgenti servono Git, Node.js con npm e accesso autorizzato al repository privato. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.2.3 richiede Node.js 22.12 o successivo: è il minimo per installare le dipendenze. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
+Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pubblico. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.2.3 richiede Node.js 22.12 o successivo: è il minimo per installare le dipendenze. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
 
 ## 2. Installazione
 
@@ -76,7 +76,7 @@ sudo apt-get install -y build-essential python3
 
 Su un'altra distribuzione installa l'equivalente di `build-essential` e `python3`.
 
-3. Con un account autorizzato al repository privato, ottieni i sorgenti se non li hai già e, dalla cartella del progetto, installa, prova, compila e avvia:
+3. Ottieni i sorgenti dal repository pubblico se non li hai già e, dalla cartella del progetto, installa, prova, compila e avvia:
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -249,6 +249,12 @@ Se negli appunti c'è un'immagine e incolli, l'app la salva come PNG in una cart
 
 Esc chiude i dialoghi; negli altri casi passa al terminale. Le scorciatoie di sessione non si applicano mentre un dialogo è aperto. I collegamenti HTTP/HTTPS cliccati nel terminale vengono aperti nel browser esterno; gli altri protocolli vengono ignorati.
 
+### 7.1 Pagina di presentazione
+
+La pagina statica in `docs/`, preparata per GitHub Pages, presenta l'app e collega i pacchetti e i manuali; non esegue terminali nel browser. Nella prima apertura usa italiano per una lingua preferita del browser italiana, inglese negli altri casi. **IT** e **EN** cambiano la lingua e la ricordano nel browser; un link con `?lang=it` o `?lang=en` ha precedenza sulla scelta salvata per quella visita. La lingua del sito è indipendente da quella dell'app desktop.
+
+Il tema iniziale segue il sistema. Il comando con luna/sole passa al tema opposto e ricorda la scelta; **Segui il tema di sistema**, nel piè di pagina, ripristina l'automatismo. Se lo storage del browser non è disponibile, i comandi funzionano per la visita corrente. Nella galleria, **Tema scuro**, **Tema chiaro** e **Impostazioni** cambiano l'immagine; le frecce, Home ed End funzionano quando un controllo della galleria ha il focus. **Apri l'immagine** mostra il PNG originale in una nuova scheda. **Scarica** porta ai pacchetti Windows x64 e macOS Apple Silicon arm64; confronta i file SHA-256 e leggi gli avvisi sui pacchetti non firmati. L'icona casa porta a `https://glaucosilvestri.it`. Senza JavaScript la pagina resta leggibile in italiano, con i link statici, ma i selettori non funzionano. La pubblicazione è ancora soggetta alle approvazioni di M4; per l'anteprima locale vedi il capitolo 12.
+
 ## 8. Esempi pratici
 
 **Due attività:** apri una sessione chiamata “Progetto” nella cartella del tuo codice e una “Controlli” nella stessa cartella. Seleziona la prima e premi l'icona **Affiancate**. Usa la prima per una CLI già installata e la seconda per i comandi di verifica del progetto. Clicca ogni volta nella tessera a cui vuoi inviare i tasti. Per mettere un'immagine in una CLI che accetta un percorso, copiala e incollala nel terminale, oppure trascinala: compare il percorso del file.
@@ -318,3 +324,5 @@ Prima di distribuire occorre provare il pacchetto fuori dal checkout, controllar
 Variabili riservate allo sviluppo: `PLANCIA_DEVTOOLS=1` apre DevTools; in modalità demo `PLANCIA_SHOT_DIR` abilita la scrittura di screenshot e `PLANCIA_SHOT_EXIT=1` esce dopo la cattura. Esistono gli alias storici `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT`. Gli screenshot includono ciò che è visibile e il percorso di output non è confinato: usare solo cartelle di test autorizzate e terminali senza dati privati. La cattura cambia anche il tema salvato.
 
 Per controllare una build già generata, usa `node scripts/inspect-package.mjs <directory-resources> <checkout-compilato> <versione>` e, con Node.js 24, `node scripts/smoke-package.mjs <eseguibile> <versione>`. Lo smoke va eseguito sul sistema di destinazione: crea preferenze e shell temporanee, verifica bridge, PTY, viste, lingue e temi e termina i processi di prova. Non usa una CLI AI o gli appunti reali. I temporanei locali sono conservati fino alla conferma di pulizia. Non configura firma o notarizzazione. Regole di revisione e distribuzione in [AGENTS.md](AGENTS.md); struttura in [MAP.md](MAP.md); licenza in [LICENSE](LICENSE).
+
+Anteprima della landing dal checkout: `npm run check:site`, poi `npm run preview:site` e apri `http://127.0.0.1:4174/Plancia-Comandi/`. Arresta il server con Ctrl+C. Non è necessario avviare Electron.

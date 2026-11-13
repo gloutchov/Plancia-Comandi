@@ -99,6 +99,8 @@ Plancia-Comandi/
 |       `-- package-windows.yml      Packaging Windows manuale, eseguito per v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
+|   |-- check-site.mjs                Controllo landing, dizionari, risorse, CSP e link
+|   |-- site-preferences.test.ts      Test di lingua, tema, storage bloccato e valori invalidi
 |   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
 |   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
@@ -116,6 +118,15 @@ Plancia-Comandi/
 |-- public/
 |   `-- icon.png                     Copia identica di build/icon.png, usata dalla sidebar
 `-- docs/
+    |-- index.html                   Landing statica IT/EN, entry point Pages
+    |-- site.css                     Layout responsive, temi e controlli accessibili
+    |-- preferences.js               Lingua e tema prima del primo rendering
+    |-- i18n.js                      Dizionari della landing IT/EN
+    |-- site.js                      Galleria, traduzioni, link al manuale e comandi
+    |-- .nojekyll                    Pubblicazione statica senza trasformazioni Jekyll
+    |-- assets/
+    |   |-- icon.png                 Copia identica dell’icona PNG in build/
+    |   `-- icon.ico                 Copia identica della favicon ICO in build/
     `-- screenshots/
         |-- plancia-dark.png         Esempio della vista scura
         |-- plancia-light.png        Esempio della vista chiara
@@ -126,11 +137,13 @@ Plancia-Comandi/
         `-- capture.json            Versione, ambiente, isolamento e SHA-256 delle catture
 ```
 
-`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. Non sono configurati workflow GitHub Pages. Non esiste una landing page separata. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
+`.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. La landing M4 è in `docs/`, con pubblicazione prevista da `main:/docs`; Pages non è ancora abilitato. Non è aggiunto un workflow al repository: il deploy Pages gestito da GitHub sarà necessario dopo le approvazioni. `.nojekyll` conserva i file statici; le risorse usano percorsi relativi. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
+
+La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; `site.js` usa `i18n.js` per testi, attributi e galleria. Le due chiavi di localStorage appartengono al sito e non a `settings.json`.
 
 La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
@@ -143,6 +156,8 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 | `npm test` / `npm run test:watch` | Test Vitest una volta / in osservazione. |
 | `npm run build` | `tsc --noEmit` e bundle Vite. |
 | `npm run preview` | Anteprima web del renderer; nessun accesso PTY standalone. |
+| `npm run check:site` | Verifica landing, risorse relative, icone, CSP, URL di release e dizionari IT/EN. |
+| `npm run preview:site` | Serve `docs/` su loopback 4174, sotto `/Plancia-Comandi/`, senza avviare Electron. |
 | `npm run rebuild` | Ricompilazione delle dipendenze applicative per Electron. |
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
@@ -262,6 +277,8 @@ Plancia-Comandi/
 |       `-- package-windows.yml      Manual Windows packaging, run for v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
+|   |-- check-site.mjs                Landing, dictionary, resource, CSP and link checks
+|   |-- site-preferences.test.ts      Language, theme, blocked storage and invalid-value tests
 |   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
 |   |-- install-native.d.mts        Types for the script, used by the tests
 |   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
@@ -279,6 +296,15 @@ Plancia-Comandi/
 |-- public/
 |   `-- icon.png                     Identical copy of build/icon.png, used by the sidebar
 `-- docs/
+    |-- index.html                   IT/EN static landing, Pages entry point
+    |-- site.css                     Responsive layout, themes and accessible controls
+    |-- preferences.js               Language and theme before first paint
+    |-- i18n.js                      IT/EN landing dictionaries
+    |-- site.js                      Gallery, translations, manual links and controls
+    |-- .nojekyll                    Static publication without Jekyll transformation
+    |-- assets/
+    |   |-- icon.png                 Identical copy of the build/ PNG icon
+    |   `-- icon.ico                 Identical copy of the build/ ICO favicon
     `-- screenshots/
         |-- plancia-dark.png         Dark-view example
         |-- plancia-light.png        Light-view example
@@ -289,11 +315,13 @@ Plancia-Comandi/
         `-- capture.json            Capture version, environment, isolation and SHA-256
 ```
 
-`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. GitHub Pages workflows are not configured. There is no separate landing page. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
+`.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. The M4 landing is in `docs/`, with planned publication from `main:/docs`; Pages is not enabled yet. No repository workflow is added: GitHub’s managed Pages deployment will be necessary after approvals. `.nojekyll` preserves static files; assets use relative paths. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
+
+The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; `site.js` uses `i18n.js` for text, attributes and the gallery. Its two localStorage keys belong to the site rather than `settings.json`.
 
 UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
@@ -306,6 +334,8 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm test` / `npm run test:watch` | Run Vitest once / in watch mode. |
 | `npm run build` | `tsc --noEmit` and Vite bundles. |
 | `npm run preview` | Renderer web preview; no standalone PTY access. |
+| `npm run check:site` | Checks landing, relative assets, icons, CSP, release URLs and IT/EN dictionaries. |
+| `npm run preview:site` | Serves `docs/` on loopback 4174 under `/Plancia-Comandi/`, without launching Electron. |
 | `npm run rebuild` | Rebuild application dependencies for Electron. |
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |

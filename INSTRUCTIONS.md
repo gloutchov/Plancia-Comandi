@@ -21,7 +21,7 @@ This manual describes Plancia Comandi **0.3.1**, a desktop app for using multipl
 
 You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
 
-Running source requires Git, Node.js with npm and authorized access to the private repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.2.3 requires Node.js 22.12 or newer: that is the minimum for installing the dependencies. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+Running source requires Git, Node.js with npm and access to the public repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.2.3 requires Node.js 22.12 or newer: that is the minimum for installing the dependencies. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
 
 ## 2. Installation
 
@@ -76,7 +76,7 @@ sudo apt-get install -y build-essential python3
 
 On another distribution, install the equivalents of `build-essential` and `python3`.
 
-3. With an account authorized for the private repository, get the sources if you do not have them yet and, from the project folder, install, test, build and start:
+3. Get the sources from the public repository if you do not have them yet and, from the project folder, install, test, build and start:
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -249,6 +249,12 @@ If the clipboard holds an image and you paste, the app saves it as a PNG in its 
 
 Esc closes dialogs; otherwise it passes through to the terminal. Session shortcuts do not apply while a dialog is open. Clicked HTTP and HTTPS links in the terminal open in the external browser; other protocols are ignored.
 
+### 7.1 Presentation page
+
+The static page in `docs/`, prepared for GitHub Pages, presents the app and links packages and manuals; it does not run terminals in the browser. On first opening it uses Italian for an Italian preferred browser language and English otherwise. **IT** and **EN** change the language and remember it in the browser; a link with `?lang=it` or `?lang=en` overrides the saved choice for that visit. Site language is independent of the desktop app language.
+
+The initial theme follows the system. The moon/sun control switches to the opposite theme and remembers the choice; **Follow system theme** in the footer restores automatic behavior. If browser storage is unavailable, controls work for the current visit. In the gallery, **Dark theme**, **Light theme** and **Settings** change the image; arrow keys, Home and End work when a gallery control has focus. **Open image** shows the original PNG in a new tab. **Download** leads to Windows x64 and Apple Silicon arm64 macOS packages; compare the SHA-256 files and read the unsigned-package notices. The home icon links to `https://glaucosilvestri.it`. Without JavaScript the page remains readable in Italian with static links, but selectors do not work. Publication still requires M4 approvals; see chapter 12 for local preview.
+
 ## 8. Practical examples
 
 **Two tasks:** open a session named “Project” in your code folder and a “Checks” session in the same folder. Select the first and click the **Side by side** icon. Use the first for an already installed CLI and the second for the project's validation commands. Click the intended tile before typing. To give an image to a CLI that accepts a path, copy and paste it into the terminal, or drag it in: the file path appears.
@@ -318,3 +324,5 @@ Before distributing, test the package outside the checkout, check that it contai
 Development-only variables: `PLANCIA_DEVTOOLS=1` opens DevTools; in demo mode `PLANCIA_SHOT_DIR` enables screenshot writes and `PLANCIA_SHOT_EXIT=1` quits after capture. Legacy aliases `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT` also exist. Screenshots include visible content and the output path is not confined: use only authorized test directories and terminals without private data. Capture also changes the saved theme.
 
 To check an existing build, use `node scripts/inspect-package.mjs <resources-directory> <built-checkout> <version>` and, with Node.js 24, `node scripts/smoke-package.mjs <executable> <version>`. Run the smoke test on the target OS: it creates temporary preferences and shells, checks the bridge, PTY, views, languages and themes, and terminates its test processes. It does not use a real AI CLI or the existing clipboard. Local temporary files remain until cleanup is approved. It does not configure signing or notarization. Review and distribution rules are in [AGENTS.md](AGENTS.md); structure in [MAP.md](MAP.md); license in [LICENSE](LICENSE).
+
+Preview the landing from the checkout: `npm run check:site`, then `npm run preview:site` and open `http://127.0.0.1:4174/Plancia-Comandi/`. Stop the server with Ctrl+C. Electron does not need to be launched.
