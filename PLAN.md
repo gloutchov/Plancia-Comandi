@@ -155,9 +155,9 @@ PC-03, PC-04, PC-05, PC-08, PC-11 e PC-13 della baseline Vesta sono integrate in
 
 Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` dopo verifica del checkpoint C4. Modifica solo documenti, mantiene la versione 0.3.1 e ha il tag documentale annotato `docs/security-roadmap-2026-11-13` sul commit approvato. Quel tag `docs/*` è storico e non è il formato dei tag successivi. Nessuna milestone è avviata e non è prevista una nuova release applicativa.
 
-| Campo | M5 — Runtime Electron aggiornato |
+| Campo | C5 — Runtime Electron aggiornato |
 | --- | --- |
-| Numero e obiettivo | M5 — Aggiornare il runtime distribuito mantenendo terminali, bridge e preferenze funzionanti nei pacchetti supportati. |
+| Numero e obiettivo | C5 — Aggiornare il runtime distribuito mantenendo terminali, bridge e preferenze funzionanti nei pacchetti supportati. |
 | Segnalazione Vesta | PC-03, gravità media, verificata e già tracciata qui. Su `d200abe`, come su `e967d92`, `package.json:42` è `"electron": "45.2.3"`. Non è una seconda milestone. |
 | Dipendenza e branch previsto | Dopo C26; `milestone/5-electron-runtime`. |
 | Checkpoint e versione previsti | `milestone/C5`, `v0.3.2`; incremento `+0.0.1`. |
@@ -165,7 +165,10 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 | Accettazione | Versione scelta motivata e fissata nel lockfile; isolamento, sandbox e CSP preservati. PTY, avvio, viste, IT/EN e temi funzionano nei pacchetti verificati. L'audit `--omit=dev` non sostituisce la valutazione del runtime incorporato. |
 | Test richiesti | Installazione riproducibile, suite e build; ispezione e smoke dei pacchetti Windows x64/macOS ARM64 fuori dal checkout con profilo e ambiente isolati, senza dati o shell personali. Nessuna nuova compatibilità dichiarata senza prova. |
 | Documentazione | README, manuali IT/EN, quick start, SECURITY_MODEL, MAP, AGENTS per la versione; PLAN e landing/download allineati alla release verificata. |
-| Stato | `M5`, avviata da Glauco il 14 novembre 2026. Implementazione locale su `milestone/5-electron-runtime`, worktree isolato da main `523083293c35a5bb454f41393e343cb9c55b7154`, dopo verifica remota di C26. Electron 45.3.2 e versione 0.3.2 fissati; verifiche locali completate e branch pronto per il primo controllo. Verifica Windows pendente; chiusura operativa non completata. Nessun push, merge, tag o release. |
+| Riepilogo approvato | Electron aggiornato da 45.2.3 a 45.3.2 e fissato nel manifest/lockfile; versione sorgenti 0.3.2, altre dipendenze invariate. Requisito npm Node.js >=22.12 confermato; documenti IT/EN sincronizzati. Checkpoint previsto milestone/C5 e tag v0.3.2 non ancora creati. |
+| Verifiche eseguite | Installazione riproducibile con Node.js 24.18.1/npm 11.16.0, rebuild node-pty, 149 test, build e controllo sito riusciti. DMG e ZIP macOS ARM64 ispezionati e provati fuori dal checkout con percorsi e ambiente isolati; SHA-256 verificati. Dettagli nella checklist 4.3. |
+| Limiti e operazioni residue | Windows x64 installer/portable ancora da costruire, ispezionare e provare nel workflow esistente dopo la seconda approvazione e prima del merge. Artifact definitivi da rigenerare sul commit finale di main. Bundle renderer oltre 500 kB; nessuna nuova verifica di Linux, macOS Intel o Gatekeeper sui download in quarantena. Firma/notarizzazione escluse. Landing/download restano alla release pubblicata 0.3.1 fino alla release verificata. |
+| Stato | `C5`, già M5. Prima approvazione di Glauco ricevuta il 14 novembre 2026 sul commit `c3d336d8e288c92cac2b205c2b9db4a932c3dd26`, dopo la conferma «ok, funziona correttamente»; autorizzati commit, merge, tag, push e rimozione del branch nel rispetto delle verifiche. Passaggio M5 → C5 registrato in questo nuovo commit locale. Secondo controllo del nuovo hash ancora richiesto prima della pubblicazione; verifica Windows e chiusura operativa pendenti. |
 
 | Campo | M6 — Toolchain con dipendenze controllate |
 | --- | --- |
@@ -530,15 +533,17 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 - [x] Branch M4 locale rimosso dopo le verifiche e l’approvazione; nessun branch M4 remoto da rimuovere.
 - [x] Percorso temporaneo `out/m4/` presentato per conferma separata di pulizia; contenuti preservati, compresi ZIP e checksum locali già pubblicati su GitHub.
 
-#### 4.3 Preparazione M5 — 14 novembre 2026
+#### 4.3 Approvazione C5, già M5 — 14 novembre 2026
 
 - [x] Avvio richiesto da Glauco; identità privata, main e checkpoint remoto C26 verificati su `523083293c35a5bb454f41393e343cb9c55b7154`. Branch `milestone/5-electron-runtime` in worktree isolato; manifest utente del checkout principale preservati e verificati con SHA-256.
 - [x] Electron 45.3.2 fissato e versione sorgenti 0.3.2; requisito npm Node.js >=22.12 confermato. Altre dipendenze invariate rispetto a main, senza anticipare M6. Documenti IT/EN aggiornati; landing, download e screenshot C3 restano sulla release pubblicata 0.3.1.
 - [x] Node.js 24.18.1/npm 11.16.0: `npm ci` con rebuild node-pty, 149/149 test, build e `npm run check:site` riusciti. Avviso noto: bundle renderer oltre 500 kB. Manifest, JSON di esempio, link/anchor, capitoli e `git diff --check` controllati. Nessuna nuova attestazione sull'audit della toolchain.
 - [x] DMG/ZIP macOS ARM64 non firmati generati; ZIP estratto e DMG montato in sola lettura, ispezionati e avviati fuori dal checkout. Sette bundle confrontati per formato, ASAR identici e SHA-256 verificati. Artifact di prova locale: da rigenerare sul commit finale di main per la release.
 - [x] Smoke con HOME/appData/userData/sessionData temporanei impostati prima del main e ambiente filtrato: preferenze, preload, PTY native, tre sessioni, quattro viste, chiusura, quattro combinazioni IT/EN e chiaro/scuro. Catture locali esaminate. Runtime osservato: Electron 45.3.2, Chromium 156.0.8078.100, Node 24.22.2, V8 15.6.75.57-electron.0; contextIsolation=true, nodeIntegration=false, sandbox=true e nessun accesso Node nel renderer.
-- [ ] Primo controllo personale del commit e prima approvazione; voce ancora M5. Poi passaggio a C5, nuovo commit, secondo controllo e approvazione prima di push, merge e tag.
-- [ ] Windows x64 installer/portable: build, ispezione e smoke nativi col workflow esistente, necessario perché manca Windows locale. Nessun workflow avviato prima del controllo. Non verificati Linux, macOS Intel, CLI AI personali, keychain o Gatekeeper su un download in quarantena.
+- [x] Primo controllo personale del commit `c3d336d8e288c92cac2b205c2b9db4a932c3dd26` completato; Glauco il 14 novembre 2026 ha confermato il funzionamento e approvato commit, merge, tag, push e rimozione del branch.
+- [x] Passaggio da M5 a C5 e riepilogo approvato registrati in un nuovo commit locale, senza modifiche applicative aggiuntive.
+- [ ] Nuovo hash e diff da sottoporre al secondo controllo personale e alla seconda approvazione esplicita prima di push, merge o tag.
+- [ ] Windows x64 installer/portable: build, ispezione e smoke nativi col workflow esistente, necessario perché manca Windows locale. Workflow previsto dopo la seconda approvazione e prima del merge; non ancora avviato. Non verificati Linux, macOS Intel, CLI AI personali, keychain o Gatekeeper su un download in quarantena.
 - [ ] Main remoto, artifact definitivi, SHA-256, tag milestone/C5 e v0.3.2, release e rimozione branch solo dopo approvazioni e verifiche. M13 attende il checkpoint C5 remoto.
 - [ ] Temporanei conservati: `/private/tmp/plancia-m5-20261114` (worktree, `out/m5/` e artifact), `/private/tmp/plancia-m5-verification-20261114` e directory `plancia-package-smoke-*` delle prove. Cancellazione solo dopo conferma separata.
 
@@ -703,9 +708,9 @@ PC-03, PC-04, PC-05, PC-08, PC-11 and PC-13 from the Vesta baseline are integrat
 
 This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` after verifying the C4 checkpoint. It changes documents only, retains version 0.3.1 and has the annotated documentation tag `docs/security-roadmap-2026-11-13` at the approved commit. That `docs/*` tag is historical and is not the format of later tags. No milestone is started and no new application release is planned.
 
-| Field | M5 — Updated Electron runtime |
+| Field | C5 — Updated Electron runtime |
 | --- | --- |
-| Number and goal | M5 — Update the shipped runtime while preserving terminals, bridge and preferences in supported packages. |
+| Number and goal | C5 — Update the shipped runtime while preserving terminals, bridge and preferences in supported packages. |
 | Vesta finding | PC-03, medium severity, verified and already tracked here. On `d200abe`, as on `e967d92`, `package.json:42` is `"electron": "45.2.3"`. This is not a second milestone. |
 | Dependency and planned branch | After C26; `milestone/5-electron-runtime`. |
 | Planned checkpoint and version | `milestone/C5`, `v0.3.2`; increment `+0.0.1`. |
@@ -713,7 +718,10 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 | Acceptance | Chosen version justified and pinned in the lockfile; isolation, sandbox and CSP preserved. PTY, startup, layouts, IT/EN and themes work in verified packages. The `--omit=dev` audit does not replace assessment of the embedded runtime. |
 | Required tests | Reproducible installation, suite and build; inspect and smoke-test Windows x64/macOS ARM64 packages outside the checkout with isolated profiles and environments, without personal data or shells. No additional compatibility claims without evidence. |
 | Documentation | README, IT/EN manuals, quick start, SECURITY_MODEL, MAP, AGENTS version references; PLAN and landing/downloads aligned with the verified release. |
-| Status | `M5`, started by Glauco on 14 November 2026. Local implementation on `milestone/5-electron-runtime`, in a worktree isolated from main `523083293c35a5bb454f41393e343cb9c55b7154`, after checking remote C26. Electron 45.3.2 and version 0.3.2 pinned; local checks completed and branch ready for first review. Windows verification pending; operational closure incomplete. No push, merge, tag or release. |
+| Approved summary | Electron updated from 45.2.3 to 45.3.2 and pinned in manifest/lockfile; source version 0.3.2, other dependencies unchanged. npm Node.js >=22.12 requirement confirmed; IT/EN documents synchronized. Planned milestone/C5 checkpoint and v0.3.2 tag not yet created. |
+| Completed checks | Reproducible installation with Node.js 24.18.1/npm 11.16.0, node-pty rebuild, 149 tests, build and site checks passed. macOS ARM64 DMG and ZIP inspected and tested outside the checkout with isolated paths and environment; SHA-256 verified. Details in checklist 4.3. |
+| Limitations and remaining operations | Windows x64 installer/portable still require build, inspection and smoke through the existing workflow after second approval and before merge. Final artifacts must be rebuilt at final main. Renderer bundle over 500 kB; no new Linux, Intel macOS or Gatekeeper checks for quarantined downloads. Signing/notarization excluded. Landing/downloads remain on published release 0.3.1 until the verified release. |
+| Status | `C5`, formerly M5. Glauco's first approval received on 14 November 2026 for commit `c3d336d8e288c92cac2b205c2b9db4a932c3dd26`, after confirming “ok, funziona correttamente”; commit, merge, tags, push and branch removal authorized subject to the required checks. M5 → C5 transition recorded in this new local commit. Second review of the new hash still required before publication; Windows verification and operational closure pending. |
 
 | Field | M6 — Toolchain dependency security |
 | --- | --- |
@@ -1078,15 +1086,17 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 - [x] Local M4 branch removed after checks and approval; no remote M4 branch to remove.
 - [x] Temporary path `out/m4/` presented for separate cleanup confirmation; contents retained, including local ZIP and checksum copies already published on GitHub.
 
-#### 4.3 M5 preparation — 14 November 2026
+#### 4.3 C5 approval, formerly M5 — 14 November 2026
 
 - [x] Start requested by Glauco; private identity, main and remote C26 checked at `523083293c35a5bb454f41393e343cb9c55b7154`. Branch `milestone/5-electron-runtime` in an isolated worktree; the main checkout's user manifests preserved and checked with SHA-256.
 - [x] Electron 45.3.2 pinned and source version 0.3.2; npm Node.js >=22.12 requirement confirmed. Other dependencies unchanged from main, without bringing M6 forward. IT/EN documents updated; landing, downloads and C3 screenshots remain on published release 0.3.1.
 - [x] Node.js 24.18.1/npm 11.16.0: `npm ci` with node-pty rebuild, 149/149 tests, build and `npm run check:site` passed. Known warning: renderer bundle over 500 kB. Manifest, JSON examples, links/anchors, chapters and `git diff --check` checked. No new toolchain audit assessment.
 - [x] Unsigned macOS ARM64 DMG/ZIP built; extracted ZIP and read-only mounted DMG inspected and launched outside the checkout. Seven bundles compared per format, identical ASARs and SHA-256 verified. Local test artifacts: rebuild at final main for release.
 - [x] Smoke with temporary HOME/appData/userData/sessionData set before main and a filtered environment: settings, preload, native PTY, three sessions, four layouts, close, all four IT/EN and light/dark combinations. Local captures inspected. Observed runtime: Electron 45.3.2, Chromium 156.0.8078.100, Node 24.22.2, V8 15.6.75.57-electron.0; contextIsolation=true, nodeIntegration=false, sandbox=true and no Node access in the renderer.
-- [ ] First personal commit review and first approval; entry remains M5. Then transition to C5, new commit, second review and approval before push, merge or tags.
-- [ ] Windows x64 installer/portable: native build, inspection and smoke through the existing workflow, necessary because no local Windows environment is available. No workflow started before review. Linux, Intel macOS, personal AI CLIs, keychain and Gatekeeper on a quarantined download unverified.
+- [x] First personal review of commit `c3d336d8e288c92cac2b205c2b9db4a932c3dd26` completed; on 14 November 2026 Glauco confirmed it works and approved commit, merge, tags, push and branch removal.
+- [x] Transition from M5 to C5 and approved summary recorded in a new local commit, without additional application changes.
+- [ ] New hash and diff to receive second personal review and second explicit approval before push, merge or tags.
+- [ ] Windows x64 installer/portable: native build, inspection and smoke through the existing workflow, necessary because no local Windows environment is available. Workflow planned after second approval and before merge; not started yet. Linux, Intel macOS, personal AI CLIs, keychain and Gatekeeper on a quarantined download unverified.
 - [ ] Remote main, final artifacts, SHA-256, milestone/C5 and v0.3.2 tags, release and branch removal only after approvals and checks. M13 awaits the remote C5 checkpoint.
 - [ ] Temporary files retained: `/private/tmp/plancia-m5-20261114` (worktree, `out/m5/` and artifacts), `/private/tmp/plancia-m5-verification-20261114` and test `plancia-package-smoke-*` directories. Deletion requires separate confirmation.
 
