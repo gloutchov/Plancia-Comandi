@@ -77,7 +77,7 @@ Plancia-Comandi/
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, PowerShell Unicode e cmd
-|       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7, condizionato alla piattaforma
+|       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7 con JSON UTF-8 temporanei e diagnosi della fase, condizionato alla piattaforma
 |       |-- drop.ts                  Scelta tra percorsi e testo trascinati
 |       |-- drop.test.ts             Test del trascinamento
 |       |-- layout.ts                Abilitazione viste e sessioni visibili
@@ -259,7 +259,7 @@ Plancia-Comandi/
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, PowerShell and cmd tests
-|       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip, platform conditional
+|       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip with temporary UTF-8 JSON and stage diagnostics, platform conditional
 |       |-- drop.ts                  Choice between dropped paths and text
 |       |-- drop.test.ts             Drag-and-drop tests
 |       |-- layout.ts                View availability and visible sessions

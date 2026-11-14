@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -29,21 +29,28 @@ const engines = [
 ]
 
 // Only synthetic code produced by the quoting functions is evaluated here.
-// JSON travels as UTF-8/base64 over stdin, so Windows console encodings cannot
-// normalize curly quotes. The command line contains only this fixed launcher.
+// JSON travels through temporary UTF-8 files, without a redirected-stdin read
+// or console encoding. The command line contains only this fixed launcher.
 const launcher = `
 $ErrorActionPreference = 'Stop'
+[IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'started')
 $env:PSModulePath = Join-Path $PSHOME 'Modules'
-$cases = ConvertFrom-Json -InputObject ([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String([Console]::In.ReadToEnd())))
+$cases = ConvertFrom-Json -InputObject ([IO.File]::ReadAllText($env:PLANCIA_QUOTE_INPUT, [Text.Encoding]::UTF8))
+[IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'loaded')
 function Get-CapturedArgs { [pscustomobject]@{ count = $args.Count; values = @($args) } }
+$index = 0
 $results = foreach ($case in $cases) {
+  [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, ('case:' + $index))
   $reference = @($case.values | ForEach-Object { "'" + [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent([string]$_) + "'" }) -join ' '
   $captured = @(& ([scriptblock]::Create('Get-CapturedArgs ' + [string]$case.code)))
   [pscustomobject]@{ name = $case.name; reference = $reference; captured = $captured }
+  $index++
 }
+[IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'report')
 $report = [pscustomobject]@{ version = $PSVersionTable.PSVersion.ToString(); edition = $PSVersionTable.PSEdition; results = @($results) }
 $json = ConvertTo-Json -InputObject $report -Depth 8 -Compress
-[Console]::Out.Write([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)))
+[IO.File]::WriteAllText($env:PLANCIA_QUOTE_REPORT, $json, [Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'complete')
 `
 
 for (const engine of engines) {
@@ -65,6 +72,12 @@ for (const engine of engines) {
 
       const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-powershell-quote-'))
       for (const dir of ['home', 'app-data', 'local-app-data', 'config', 'data']) mkdirSync(path.join(root, dir))
+      const inputFile = path.join(root, 'cases.json')
+      const reportFile = path.join(root, 'report.json')
+      const progressFile = path.join(root, 'progress.txt')
+      writeFileSync(inputFile, JSON.stringify(cases), { encoding: 'utf8', mode: 0o600 })
+      writeFileSync(reportFile, '', { mode: 0o600 })
+      writeFileSync(progressFile, 'not-started', { mode: 0o600 })
       const env: NodeJS.ProcessEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
         /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR)$/i.test(key)))
       Object.assign(env, {
@@ -74,11 +87,22 @@ for (const engine of engines) {
         DOTNET_CLI_HOME: root, DOTNET_CLI_TELEMETRY_OPTOUT: '1',
         POWERSHELL_TELEMETRY_OPTOUT: '1', POWERSHELL_UPDATECHECK: 'Off', POWERSHELL_DIAGNOSTICS_OPTOUT: '1',
         PLANCIA_QUOTE_SENTINEL: 'EXPANDED',
+        PLANCIA_QUOTE_INPUT: inputFile, PLANCIA_QUOTE_REPORT: reportFile, PLANCIA_QUOTE_PROGRESS: progressFile,
       })
-      const output = execFileSync(engine.executable,
-        ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(launcher, 'utf16le').toString('base64')],
-        { cwd: root, env, input: Buffer.from(JSON.stringify(cases), 'utf8').toString('base64'), encoding: 'utf8', timeout: 20000, maxBuffer: 1024 * 1024 })
-      const report = JSON.parse(Buffer.from(output.trim(), 'base64').toString('utf8')) as NativeReport
+      let output: string
+      try {
+        output = execFileSync(engine.executable,
+          ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(launcher, 'utf16le').toString('base64')],
+          { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 20000, maxBuffer: 1024 * 1024 })
+      } catch (error) {
+        const failure = error as NodeJS.ErrnoException
+        const value = readFileSync(progressFile, 'utf8').trim()
+        const stage = /^(not-started|started|loaded|case:\d+|report|complete)$/.test(value) ? value : 'unknown'
+        throw new Error(`${engine.name} fixture runner failed (${failure.code ?? failure.name}); stage=${stage}; temporaryRoot=${root}`)
+      }
+      expect(output).toBe('')
+      expect(readFileSync(progressFile, 'utf8').trim()).toBe('complete')
+      const report = JSON.parse(readFileSync(reportFile, 'utf8')) as NativeReport
       expect(report.version).toMatch(engine.version)
       expect(report.edition).toBe(engine.shellId === 'powershell' ? 'Desktop' : 'Core')
       expect(report.results).toHaveLength(cases.length)
