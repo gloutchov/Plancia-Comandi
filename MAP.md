@@ -59,7 +59,9 @@ Plancia-Comandi/
 |   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
 |   |-- terminalEdit.powershell.test.ts Test dei percorsi Unicode in drop e immagini incollate
 |   |-- test/
-|   |   `-- powershellQuoting.ts     Casi sintetici e bridge appunti finto per i test PowerShell
+|   |   |-- powershellQuoting.ts     Casi sintetici e bridge appunti finto per i test PowerShell
+|   |   |-- powershellNativeTransport.ts Protocollo base64 UTF-8 e validazione dei report nativi
+|   |   `-- powershellNativeTransport.test.ts Test di Unicode, separatori e report non validi
 |   |-- cx.ts                        Helper per nomi di classi CSS
 |   |-- components/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
@@ -77,7 +79,7 @@ Plancia-Comandi/
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, PowerShell Unicode e cmd
-|       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7 con JSON UTF-8 temporanei e diagnosi della fase, condizionato alla piattaforma
+|       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7 senza autoload di moduli, file UTF-8/base64 e diagnosi della fase, condizionato alla piattaforma
 |       |-- drop.ts                  Scelta tra percorsi e testo trascinati
 |       |-- drop.test.ts             Test del trascinamento
 |       |-- layout.ts                Abilitazione viste e sessioni visibili
@@ -241,7 +243,9 @@ Plancia-Comandi/
 |   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
 |   |-- terminalEdit.powershell.test.ts Unicode drop and pasted-image path tests
 |   |-- test/
-|   |   `-- powershellQuoting.ts     Synthetic cases and clipboard bridge stub for PowerShell tests
+|   |   |-- powershellQuoting.ts     Synthetic cases and clipboard bridge stub for PowerShell tests
+|   |   |-- powershellNativeTransport.ts UTF-8/base64 protocol and native report validation
+|   |   `-- powershellNativeTransport.test.ts Unicode, delimiter and invalid report tests
 |   |-- cx.ts                        CSS class-name helper
 |   |-- components/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
@@ -259,7 +263,7 @@ Plancia-Comandi/
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, PowerShell and cmd tests
-|       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip with temporary UTF-8 JSON and stage diagnostics, platform conditional
+|       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip without module autoload, UTF-8/base64 files and stage diagnostics, platform conditional
 |       |-- drop.ts                  Choice between dropped paths and text
 |       |-- drop.test.ts             Drag-and-drop tests
 |       |-- layout.ts                View availability and visible sessions

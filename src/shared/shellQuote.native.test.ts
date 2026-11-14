@@ -5,10 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { formatDroppedPaths, quoteShellArg } from './shellQuote'
 import { capturePowerShellImagePaste, powerShellQuotingCases } from '../test/powershellQuoting'
-
-interface NativeCase { name: string; values: string[]; code: string }
-interface NativeResult { name: string; reference: string; captured: Array<{ count: number; values: string[] }> }
-interface NativeReport { version: string; edition: string; results: NativeResult[] }
+import { decodeNativeReport, encodeNativeCases, type NativeCase } from '../test/powershellNativeTransport'
 
 const windows = process.platform === 'win32'
 const engines = [
@@ -28,27 +25,42 @@ const engines = [
   },
 ]
 
-// Only synthetic code produced by the quoting functions is evaluated here.
-// JSON travels through temporary UTF-8 files, without a redirected-stdin read
-// or console encoding. The command line contains only this fixed launcher.
+// All data fields are UTF-8/base64, with a fixed ASCII wire format. No cmdlets
+// are needed: PowerShell 5.1 must not autoload modules before checking quoting.
 const launcher = `
 $ErrorActionPreference = 'Stop'
+$PSModuleAutoLoadingPreference = 'None'
 [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'started')
-$env:PSModulePath = Join-Path $PSHOME 'Modules'
-$cases = ConvertFrom-Json -InputObject ([IO.File]::ReadAllText($env:PLANCIA_QUOTE_INPUT, [Text.Encoding]::UTF8))
+$env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
+$rows = [IO.File]::ReadAllLines($env:PLANCIA_QUOTE_INPUT, [Text.Encoding]::UTF8)
 [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'loaded')
+function Get-Decoded([string]$value) { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($value)) }
+function Get-Encoded([string]$value) { [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($value)) }
 function Get-CapturedArgs { [pscustomobject]@{ count = $args.Count; values = @($args) } }
+$results = [Collections.Generic.List[string]]::new()
 $index = 0
-$results = foreach ($case in $cases) {
+foreach ($row in $rows) {
   [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, ('case:' + $index))
-  $reference = @($case.values | ForEach-Object { "'" + [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent([string]$_) + "'" }) -join ' '
-  $captured = @(& ([scriptblock]::Create('Get-CapturedArgs ' + [string]$case.code)))
-  [pscustomobject]@{ name = $case.name; reference = $reference; captured = $captured }
+  $fields = $row.Split([char]9)
+  $name = Get-Decoded ($fields[0])
+  $code = Get-Decoded ($fields[1])
+  $values = @(for ($j = 2; $j -lt $fields.Length; $j++) { Get-Decoded ($fields[$j]) })
+  $reference = @(foreach ($value in $values) { "'" + [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent([string]$value) + "'" }) -join ' '
+  $captured = @(& ([scriptblock]::Create('Get-CapturedArgs ' + $code)))
+  $records = [Collections.Generic.List[string]]::new()
+  foreach ($item in $captured) {
+    if ($item -isnot [pscustomobject] -or -not $item.PSObject.Properties['values'] -or -not $item.PSObject.Properties['count']) {
+      $records.Add('{"unexpectedOutput":true}')
+    } else {
+      $encodedValues = @(foreach ($value in $item.values) { '"' + (Get-Encoded ([string]$value)) + '"' })
+      $records.Add('{"count":' + [int]$item.count + ',"values":[' + ($encodedValues -join ',') + ']}')
+    }
+  }
+  $results.Add('{"name":"' + (Get-Encoded $name) + '","reference":"' + (Get-Encoded $reference) + '","captured":[' + ($records -join ',') + ']}')
   $index++
 }
 [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'report')
-$report = [pscustomobject]@{ version = $PSVersionTable.PSVersion.ToString(); edition = $PSVersionTable.PSEdition; results = @($results) }
-$json = ConvertTo-Json -InputObject $report -Depth 8 -Compress
+$json = '{"version":"' + $PSVersionTable.PSVersion.ToString() + '","edition":"' + $PSVersionTable.PSEdition + '","results":[' + ($results -join ',') + ']}'
 [IO.File]::WriteAllText($env:PLANCIA_QUOTE_REPORT, $json, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText($env:PLANCIA_QUOTE_PROGRESS, 'complete')
 `
@@ -72,10 +84,10 @@ for (const engine of engines) {
 
       const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-powershell-quote-'))
       for (const dir of ['home', 'app-data', 'local-app-data', 'config', 'data']) mkdirSync(path.join(root, dir))
-      const inputFile = path.join(root, 'cases.json')
+      const inputFile = path.join(root, 'cases.tsv')
       const reportFile = path.join(root, 'report.json')
       const progressFile = path.join(root, 'progress.txt')
-      writeFileSync(inputFile, JSON.stringify(cases), { encoding: 'utf8', mode: 0o600 })
+      writeFileSync(inputFile, encodeNativeCases(cases), { encoding: 'utf8', mode: 0o600 })
       writeFileSync(reportFile, '', { mode: 0o600 })
       writeFileSync(progressFile, 'not-started', { mode: 0o600 })
       const env: NodeJS.ProcessEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
@@ -102,7 +114,7 @@ for (const engine of engines) {
       }
       expect(output).toBe('')
       expect(readFileSync(progressFile, 'utf8').trim()).toBe('complete')
-      const report = JSON.parse(readFileSync(reportFile, 'utf8')) as NativeReport
+      const report = decodeNativeReport(readFileSync(reportFile, 'utf8'))
       expect(report.version).toMatch(engine.version)
       expect(report.edition).toBe(engine.shellId === 'powershell' ? 'Desktop' : 'Core')
       expect(report.results).toHaveLength(cases.length)
