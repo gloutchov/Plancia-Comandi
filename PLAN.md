@@ -312,6 +312,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | M23 — Esclusioni Git di ambienti e chiavi | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | versione applicativa invariata; nessuna release |
 | M24 — Prebuild di node-pty su macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
 | M25 — Tag documentali e copia dello standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | versione applicativa invariata; nessuna release |
+| M26 — Regola unica sulle release | — | `patch/0.3.1-regola-unica-release` | `milestone/C26` | versione invariata **0.3.1**; nessuna release; nessun tag `vX.Y.Z` |
 
 | Campo | M13 — Quotatura PowerShell |
 | --- | --- |
@@ -456,14 +457,25 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | Documentazione | `PLAN.md`, `AGENTS.md` e i rimandi a `STARTUP_PREFERENCES_HOME.md`. La copia resta nel repository. |
 | Stato | `M25`, solo pianificata; implementazione non avviata. |
 
+| Campo | M26 — Regola unica sulle release |
+| --- | --- |
+| Numero e obiettivo | M26 — Allineare il repository alla regola unica della sezione Release dello standard, dal 14 novembre 2026. È una decisione di Glauco di sola documentazione. |
+| Dipendenza e branch previsto | Prima di M5–M25, pur con un numero più alto, per decisione di Glauco del 14 novembre 2026. Branch attuale: `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. |
+| Checkpoint e versione previsti | `milestone/C26`; versione applicativa invariata **0.3.1**; incremento nessuno. Nessuna release e nessun tag `vX.Y.Z`. Il tag di checkpoint non è creato prima dell'approvazione. |
+| Attività | Sostituire le regole di progetto sulla release obbligatoria e sull'eccezione dei tag `docs/*` con il rimando alla sezione Release dello standard. M16, M21, M22, M23 e M25 restano senza release e a versione invariata. Le altre milestone pianificate mantengono la release. I tag `docs/*` già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13`, restano al loro commit e sono storici. |
+| Criteri di accettazione | `AGENTS.md`, `PLAN.md` e la sezione Release di `STARTUP_PREFERENCES_HOME.md` descrivono la stessa regola, in italiano e in inglese dove il file le prevede. La versione applicativa resta 0.3.1. Nessun tag pubblicato è spostato o cancellato. |
+| Test richiesti | `git diff --check`; controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
+| Documentazione | `PLAN.md`, `AGENTS.md` e `STARTUP_PREFERENCES_HOME.md`. |
+| Stato | `M26`. La documentazione è su questo branch. Il passaggio a C segue solo la prima approvazione esplicita di Glauco. |
+
 #### 2.5 Regola unica sulle release, 14 novembre 2026
 
-Il 14 novembre 2026 Glauco ha autorizzato l'allineamento alla regola unica della sezione Release dello standard. La correzione è `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Non aggiunge una voce M: non ha tag di checkpoint, non ha tag `vX.Y.Z` e non ha release. M25 resta pianificata e la copia dello standard resta nel repository.
+Il 14 novembre 2026 Glauco ha deciso di chiudere l'allineamento come voce M con tag di checkpoint `milestone/C26`, non come patch senza tag. La voce è M26, nella sezione sopra, sul branch `patch/0.3.1-regola-unica-release`. Viene eseguita prima di M5–M25. Resta `M26` finché Glauco non dà la prima approvazione esplicita. Il tag non è creato. M25 resta pianificata e la copia dello standard resta nel repository.
 
 ### 3. Convenzioni delle milestone
 
 - `P<n>`: proposta facoltativa, non eseguibile senza decisione esplicita del progettista.
-- `M<n>`: milestone approvata per il piano corrente, eseguita in ordine numerico su `milestone/<n>-<slug>` da `main`, dopo la verifica del precedente checkpoint remoto. Eccezione: M13 e M14 vengono subito dopo C5, prima di M6.
+- `M<n>`: milestone approvata per il piano corrente, eseguita in ordine numerico su `milestone/<n>-<slug>` da `main`, dopo la verifica del precedente checkpoint remoto. Eccezione: M13 e M14 vengono subito dopo C5, prima di M6. M26, pur con numero più alto, viene eseguita prima di M5–M25 per decisione di Glauco del 14 novembre 2026.
 - `C<n>`: lavoro approvato dal progettista, con lo stesso numero della relativa `M`; pubblicazione e chiusura operativa possono essere ancora pendenti.
 
 Le numerazioni `P` e `M` sono indipendenti. Ogni futura `M` deve specificare obiettivo funzionale, branch, checkpoint `milestone/C<n>`, incremento di versione, attività, criteri di accettazione, test, documenti e stato. Non iniziare la milestone successiva finché `main` e il checkpoint della precedente non sono verificati sul remoto.
@@ -837,6 +849,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | M23 — Git exclusions for env files and keys | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | application version unchanged; no GitHub release |
 | M24 — node-pty prebuild on macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
 | M25 — Documentation tags and the committed standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | application version unchanged; no GitHub release |
+| M26 — Single release rule | — | `patch/0.3.1-regola-unica-release` | `milestone/C26` | version unchanged **0.3.1**; no release; no `vX.Y.Z` tag |
 
 | Field | M13 — PowerShell quoting |
 | --- | --- |
@@ -981,14 +994,25 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | Documentation | `PLAN.md`, `AGENTS.md` and the references to `STARTUP_PREFERENCES_HOME.md`. The copy stays in the repository. |
 | Status | `M25`, planned only; implementation not started. |
 
+| Field | M26 — Single release rule |
+| --- | --- |
+| Number and goal | M26 — Align the repository with the single rule in the Release section of the standard, from 14 November 2026. This is Glauco's documentation-only decision. |
+| Dependency and planned branch | Before M5–M25, despite the higher number, by Glauco's decision of 14 November 2026. Current branch: `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. |
+| Planned checkpoint and version | `milestone/C26`; application version unchanged at **0.3.1**; no increment. No release and no `vX.Y.Z` tag. The checkpoint tag is not created before approval. |
+| Tasks | Replace the project rules that required a release even with an unchanged version, and the `docs/*` tag exception, with a reference to the Release section of the standard. M16, M21, M22, M23 and M25 stay without a release and with the version unchanged. The other planned milestones keep the release. Published `docs/*` tags, including `docs/plan-vesta-baseline-2026-11-13`, stay on their commits and are historical. |
+| Acceptance | `AGENTS.md`, `PLAN.md` and the Release section of `STARTUP_PREFERENCES_HOME.md` describe the same rule, in Italian and English where the file has both. The application version stays 0.3.1. No published tag is moved or deleted. |
+| Required tests | `git diff --check`; check of the required documents, links and IT/EN equivalence. No application test. |
+| Documentation | `PLAN.md`, `AGENTS.md` and `STARTUP_PREFERENCES_HOME.md`. |
+| Status | `M26`. The documentation is on this branch. The move to C follows only Glauco's first explicit approval. |
+
 #### 2.5 Single release rule, 14 November 2026
 
-On 14 November 2026 Glauco authorized alignment with the single rule in the Release section of the standard. The correction is `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. It adds no M entry: it has no checkpoint tag, no `vX.Y.Z` tag and no release. M25 stays planned and the copy of the standard stays in the repository.
+On 14 November 2026 Glauco decided to close the alignment as an M entry with checkpoint tag `milestone/C26`, not as a patch without a tag. The entry is M26, in the section above, on branch `patch/0.3.1-regola-unica-release`. It is executed before M5–M25. It stays `M26` until Glauco gives the first explicit approval. The tag is not created. M25 stays planned and the copy of the standard stays in the repository.
 
 ### 3. Milestone conventions
 
 - `P<n>`: optional proposal, not executable without an explicit designer decision.
-- `M<n>`: milestone authorized for the current plan, executed in numeric order on `milestone/<n>-<slug>` from `main`, after verifying the preceding remote checkpoint. Exception: M13 and M14 come immediately after C5, before M6.
+- `M<n>`: milestone authorized for the current plan, executed in numeric order on `milestone/<n>-<slug>` from `main`, after verifying the preceding remote checkpoint. Exception: M13 and M14 come immediately after C5, before M6. M26, despite its higher number, is executed before M5–M25 by Glauco's decision of 14 November 2026.
 - `C<n>`: work approved by the designer, retaining its `M` number; publication and operational closure may still be pending.
 
 `P` and `M` numbering is independent. Each future `M` must specify a functional goal, branch, `milestone/C<n>` checkpoint, version increment, tasks, acceptance criteria, tests, documentation and status. Do not start the next milestone until the preceding `main` and checkpoint are verified on the remote.
