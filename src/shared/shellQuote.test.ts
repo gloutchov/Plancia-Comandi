@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { formatDroppedPaths, quoteShellArg, shellQuoteKind } from './shellQuote'
+import { powerShellQuotingCases } from '../test/powershellQuoting'
 
 describe('shellQuoteKind', () => {
   it('maps Windows shells and treats the others as POSIX', () => {
@@ -24,6 +25,11 @@ describe('quoteShellArg', () => {
     expect(quoteShellArg('C:\\Program Files\\a', 'powershell')).toBe("'C:\\Program Files\\a'")
     expect(quoteShellArg("o'brien", 'powershell')).toBe("'o''brien'")
     expect(quoteShellArg('$env:PATH', 'powershell')).toBe("'$env:PATH'")
+  })
+
+  it.each(powerShellQuotingCases)('preserves $name in PowerShell arguments and dropped paths', ({ value, quoted }) => {
+    expect(quoteShellArg(value, 'powershell')).toBe(quoted)
+    expect(formatDroppedPaths([value], 'powershell', 2000)).toBe(`${quoted} `)
   })
 
   it('quotes cmd paths and neutralizes quotes and percents', () => {
@@ -52,5 +58,10 @@ describe('formatDroppedPaths', () => {
     expect(formatDroppedPaths(['/ok', 'bad\npath', '/also'], 'posix', 200)).toBe("'/ok' '/also' ")
     expect(formatDroppedPaths(['/tmp/one', '/tmp/two'], 'posix', 12)).toBe("'/tmp/one' ")
     expect(formatDroppedPaths(['bad\n'], 'cmd', 200)).toBeNull()
+  })
+
+  it('does not truncate a Unicode-escaped PowerShell path to fit the limit', () => {
+    expect(formatDroppedPaths(['a\u2019b'], 'powershell', 7)).toBe("'a\u2019\u2019b' ")
+    expect(formatDroppedPaths(['a\u2019b'], 'powershell', 6)).toBeNull()
   })
 })

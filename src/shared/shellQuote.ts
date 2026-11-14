@@ -15,7 +15,8 @@ function quotePosix(value: string): string {
 }
 
 function quotePowerShell(value: string): string {
-  return `'${value.replace(/'/g, `''`)}'`
+  // Match PowerShell's EscapeSingleQuotedStringContent without normalizing glyphs.
+  return `'${value.replace(/['\u2018-\u201b]/g, '$&$&')}'`
 }
 
 /**

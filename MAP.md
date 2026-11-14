@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.2**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.3**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -57,6 +57,9 @@ Plancia-Comandi/
 |   |-- shortcuts.test.ts            Test di copia, incolla e Ctrl+C
 |   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
 |   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
+|   |-- terminalEdit.powershell.test.ts Test dei percorsi Unicode in drop e immagini incollate
+|   |-- test/
+|   |   `-- powershellQuoting.ts     Casi sintetici e bridge appunti finto per i test PowerShell
 |   |-- cx.ts                        Helper per nomi di classi CSS
 |   |-- components/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
@@ -73,7 +76,8 @@ Plancia-Comandi/
 |       |-- appConfig.ts             Validazione della configurazione centrale
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
-|       |-- shellQuote.test.ts       Test POSIX, PowerShell e cmd
+|       |-- shellQuote.test.ts       Test POSIX, PowerShell Unicode e cmd
+|       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7, condizionato alla piattaforma
 |       |-- drop.ts                  Scelta tra percorsi e testo trascinati
 |       |-- drop.test.ts             Test del trascinamento
 |       |-- layout.ts                Abilitazione viste e sessioni visibili
@@ -180,7 +184,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.2** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.3** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -235,6 +239,9 @@ Plancia-Comandi/
 |   |-- shortcuts.test.ts            Copy, paste and Ctrl+C tests
 |   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
 |   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
+|   |-- terminalEdit.powershell.test.ts Unicode drop and pasted-image path tests
+|   |-- test/
+|   |   `-- powershellQuoting.ts     Synthetic cases and clipboard bridge stub for PowerShell tests
 |   |-- cx.ts                        CSS class-name helper
 |   |-- components/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
@@ -252,6 +259,7 @@ Plancia-Comandi/
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, PowerShell and cmd tests
+|       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip, platform conditional
 |       |-- drop.ts                  Choice between dropped paths and text
 |       |-- drop.test.ts             Drag-and-drop tests
 |       |-- layout.ts                View availability and visible sessions

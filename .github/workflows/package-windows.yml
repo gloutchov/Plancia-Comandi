@@ -60,6 +60,9 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node node_modules/node-pty/scripts/post-install.js
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify quoting in Windows PowerShell 5.1 and PowerShell 7
+        working-directory: app
+        run: npm test -- src/shared/shellQuote.native.test.ts
       - name: TypeScript and production build
         working-directory: app
         run: npm run build
