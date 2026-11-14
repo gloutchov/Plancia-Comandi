@@ -458,7 +458,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 
 #### 2.5 Regola unica sulle release, 14 novembre 2026
 
-Il 14 novembre 2026 Glauco ha autorizzato l'allineamento alla regola unica della sezione Release dello standard. La correzione è `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Non aggiunge una voce M: non ha tag di checkpoint, non ha tag `vX.Y.Z` e non ha release. M25 resta pianificata; la scelta se tenere la copia dello standard è di Glauco.
+Il 14 novembre 2026 Glauco ha autorizzato l'allineamento alla regola unica della sezione Release dello standard. La correzione è `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Non aggiunge una voce M: non ha tag di checkpoint, non ha tag `vX.Y.Z` e non ha release. M25 resta pianificata e la copia dello standard resta nel repository.
 
 ### 3. Convenzioni delle milestone
 
@@ -983,7 +983,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 
 #### 2.5 Single release rule, 14 November 2026
 
-On 14 November 2026 Glauco authorized alignment with the single rule in the Release section of the standard. The correction is `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. It adds no M entry: it has no checkpoint tag, no `vX.Y.Z` tag and no release. M25 stays planned; whether to keep the copy of the standard is Glauco's choice.
+On 14 November 2026 Glauco authorized alignment with the single rule in the Release section of the standard. The correction is `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. It adds no M entry: it has no checkpoint tag, no `vX.Y.Z` tag and no release. M25 stays planned and the copy of the standard stays in the repository.
 
 ### 3. Milestone conventions
 
