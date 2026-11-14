@@ -2,7 +2,7 @@
 
 This manual describes Plancia Comandi **0.3.2**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
-M5 source version with Electron 45.3.2, under verification before publication. Verified downloads remain those of release 0.3.1; the update does not change app controls or preferences.
+Release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. The update does not change app controls or preferences.
 
 **Contents**
 
@@ -311,6 +311,8 @@ The window loads only the app's own pages. Production scripts come from the app'
 Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for the controls that are present and for the limits that are still open, and [PLAN.md](PLAN.md) for future proposals.
 
 ## 12. Development and distribution
+
+C5, 14 November 2026: 149 tests, build and documentation checks passed. [Windows run 43590402389](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43590402389) checked the unpacked, portable and installed app; final macOS packages were inspected and tested from the extracted ZIP and read-only mounted DMG, outside the checkout with isolated settings. All six release assets were downloaded again and checked with SHA-256. Windows checks ran on the GitHub runner; they do not establish a personal Windows PC test or Gatekeeper behavior for quarantined downloads.
 
 ```bash
 npm test

@@ -2,7 +2,7 @@
 
 Questo manuale descrive Plancia Comandi **0.3.2**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
-Versione sorgenti M5 con Electron 45.3.2, in verifica prima della pubblicazione. I download verificati restano quelli della release 0.3.1; l’aggiornamento non cambia i comandi o le preferenze dell’app.
+La release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. L’aggiornamento non cambia i comandi o le preferenze dell’app.
 
 **Sommario**
 
@@ -311,6 +311,8 @@ La finestra carica solo le pagine dell'app. Gli script di produzione arrivano da
 La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
+
+C5, 14 novembre 2026: 149 test, build e controlli documentali riusciti. La [run Windows 43590402389](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43590402389) ha verificato cartella scompattata, portable e app installata; i pacchetti macOS definitivi sono stati ispezionati e provati da ZIP estratto e DMG montato in sola lettura, fuori dal checkout e con preferenze isolate. I sei allegati della release sono stati riscaricati e verificati tramite SHA-256. La verifica Windows è sul runner GitHub; non attesta una prova personale su PC Windows o Gatekeeper su download in quarantena.
 
 ```bash
 npm test
