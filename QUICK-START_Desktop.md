@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.1**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.2**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -42,7 +42,7 @@ Per errori del modulo terminale, su macOS e Linux esegui `npm run rebuild` e ria
 
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.1**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.2**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 

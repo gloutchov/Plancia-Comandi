@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.1 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.2 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** M5 aggiorna Electron a 45.3.2; questa versione è in verifica e non ancora pubblicata. La release disponibile e i download della landing restano 0.3.1 fino alle verifiche e alle approvazioni. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -35,7 +35,7 @@ Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: 
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git e Node.js 22.12 o successivo con npm: è il minimo richiesto da Electron 45.2.3. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12 o successivo con npm: è il minimo richiesto da Electron 45.3.2. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -56,7 +56,7 @@ Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](IS
 
 Su Linux non è stata testata di persona.
 
-1. Installa Git e Node.js 22.12 o successivo, con npm. È il minimo di Electron 45.2.3. I controlli descritti in questi documenti usano Node.js 24.
+1. Installa Git e Node.js 22.12 o successivo, con npm. È il minimo di Electron 45.3.2. I controlli descritti in questi documenti usano Node.js 24.
 2. Installa gli strumenti per compilare `node-pty`. La versione 1.1.0 non ha una prebuild Linux e `npm ci` la ricompila per Electron con node-gyp. Il README di `node-pty` chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`; il pacchetto Python da installare è `python3`.
 
 ```bash
@@ -156,7 +156,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.1 · early development · macOS, Windows and Linux targets · Apache-2.0.** Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.2 · early development · macOS, Windows and Linux targets · Apache-2.0.** M5 updates Electron to 45.3.2; this version is under verification and is not published yet. The available release and landing downloads remain 0.3.1 until checks and approvals are complete. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -187,7 +187,7 @@ Detection is heuristic and mainly designed around Codex CLI screens: it does not
 
 ### 2. Installation and first use
 
-Running from source requires Git and Node.js 22.12 or newer with npm: that is the minimum required by Electron 45.2.3. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
+Running from source requires Git and Node.js 22.12 or newer with npm: that is the minimum required by Electron 45.3.2. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -208,7 +208,7 @@ See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTR
 
 It has not been tested in person on Linux.
 
-1. Install Git and Node.js 22.12 or newer, with npm. That is the minimum for Electron 45.2.3. The checks described in these documents use Node.js 24.
+1. Install Git and Node.js 22.12 or newer, with npm. That is the minimum for Electron 45.3.2. The checks described in these documents use Node.js 24.
 2. Install the tools that compile `node-pty`. Version 1.1.0 has no Linux prebuild, and `npm ci` rebuilds it for Electron with node-gyp. The `node-pty` README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`; the Python package to install is `python3`.
 
 ```bash

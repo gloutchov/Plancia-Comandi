@@ -1,6 +1,8 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.1**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.2**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+
+M5 source version with Electron 45.3.2, under verification before publication. Verified downloads remain those of release 0.3.1; the update does not change app controls or preferences.
 
 **Contents**
 
@@ -21,21 +23,21 @@ This manual describes Plancia Comandi **0.3.1**, a desktop app for using multipl
 
 You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
 
-Running source requires Git, Node.js with npm and access to the public repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.2.3 requires Node.js 22.12 or newer: that is the minimum for installing the dependencies. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+Running source requires Git, Node.js with npm and access to the public repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.3.2 requires Node.js 22.12 or newer: that is the minimum for installing the dependencies. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
 
 ## 2. Installation
 
 ### 2.1 Install the required software
 
 1. Install **Git** from its [official website](https://git-scm.com/downloads), choosing your OS and following the installer. On Windows you can also install Git Bash. Open a new terminal and check `git --version`.
-2. Install **Node.js 22.12** or newer, with npm, from its [official website](https://nodejs.org/en/download), choosing the OS and architecture. That is the minimum required by Electron 45.2.3. Local checks use Node.js 24. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
+2. Install **Node.js 22.12** or newer, with npm, from its [official website](https://nodejs.org/en/download), choosing the OS and architecture. That is the minimum required by Electron 45.3.2. Local checks use Node.js 24. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
 3. Prepare native tools only where compilation is still required. On Windows x64 or arm64, compiling is not required and administrator rights are not required: do not install Python or the C++ Build Tools, and `npm ci` does not rebuild `node-pty`. macOS needs the Xcode development tools. Linux needs Python, `make` and a C++ compiler, because `node-pty` 1.1.0 does not include a Linux prebuild. A compiler is not required to use an already built package.
 4. If you want an optional shell, install it with its own installer and restart Plancia Comandi. Windows detection looks for PowerShell 7 in `PATH` and Git Bash in standard Git directories. Windows PowerShell is the initial choice; macOS/Linux use the login shell.
 5. To use an AI CLI, first complete its installation and sign-in in your normal system terminal. Plancia Comandi does not include the CLI, configure its account or manage its credentials.
 
 To prepare native tools:
 
-- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer and the portable `PlanciaComandi-win-0.3.1-x64.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer `PlanciaComandi-win-0.3.2-x64-setup.exe` and the portable `PlanciaComandi-win-0.3.2-x64-portable.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
 - **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 
@@ -66,7 +68,7 @@ Distribution is expected to be unsigned. Gatekeeper and SmartScreen may display 
 
 It has not been tested in person on Linux.
 
-1. Install **Git** and **Node.js 22.12** or newer, with npm, as in steps 1 and 2 of this chapter. Electron 45.2.3 does not install on an older Node.js. The checks described in these documents use Node.js 24.
+1. Install **Git** and **Node.js 22.12** or newer, with npm, as in steps 1 and 2 of this chapter. Electron 45.3.2 does not install on an older Node.js. The checks described in these documents use Node.js 24.
 2. Install the tools that compile `node-pty`. The `node-pty` 1.1.0 README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`. The Python package to install is `python3`: node-gyp uses it for the rebuild that `npm ci` runs, because there is no Linux prebuild.
 
 ```bash
