@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.1**, pubblicata il 13 novembre 2026. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; la seconda approvazione del commit `1155fc248acefe25ac7cc2068ca750d93150a46e` è stata ricevuta nella stessa sessione. Main, tag `milestone/C3` e `v0.3.1`, release e rimozione del branch M3 sono verificati; **C4** (landing page GitHub Pages), già M4, è pubblicata sul commit approvato `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, con sito HTTPS, checkpoint `milestone/C4`, release del sito e rimozione del branch verificati; versione desktop invariata a 0.3.1. La baseline di Vesta del 13 novembre 2026, analizzata su `e967d92` e ricontrollata su `d200abe`, è pianificata nella sezione 2.4 e non è avviata. M13 e M14 sono anticipate subito dopo C5, restano milestone separate e non sono avviate. M18 segue l'ordine numerico. Le proposte non autorizzano altri interventi sul codice.
+Questo piano registra la base esistente di Plancia Comandi e le attività future. Versione applicativa: **0.3.1**, pubblicata il 13 novembre 2026. La milestone **C1** è stata unita a `main` sul commit `4aabc9bc81a60b0c574221ce37578936341ae065`; i tag `milestone/C1` e `v0.2.0` e la release con i sorgenti sono presenti sul remoto. **C2** resta la voce decisa da Glauco, senza una nuova promozione. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) è pubblicata il 12 novembre 2026 sul commit `94ff1e44106f08fdcf961cab74171668112ad780`; i tag `v0.3.0` e `milestone/C2` puntano a quel commit. **C3** (icona nella UI e screenshot), già M3, ha ricevuto la prima approvazione di Glauco il 13 novembre 2026 sul commit `cc037278633d6b43e279eb66539c05d50d4364e8`; la seconda approvazione del commit `1155fc248acefe25ac7cc2068ca750d93150a46e` è stata ricevuta nella stessa sessione. Main, tag `milestone/C3` e `v0.3.1`, release e rimozione del branch M3 sono verificati; **C4** (landing page GitHub Pages), già M4, è pubblicata sul commit approvato `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, con sito HTTPS, checkpoint `milestone/C4`, release del sito e rimozione del branch verificati; versione desktop invariata a 0.3.1. La release storica `milestone/C4` («C4 — Landing page») resta com'è, come dato storico. La baseline di Vesta del 13 novembre 2026, analizzata su `e967d92` e ricontrollata su `d200abe`, è pianificata nella sezione 2.4 e non è avviata. M13 e M14 sono anticipate subito dopo C5, restano milestone separate e non sono avviate. M18 segue l'ordine numerico. Le proposte non autorizzano altri interventi sul codice.
 
 **Sommario**
 
@@ -12,6 +12,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [2.2 Correzioni desktop pianificate](#22-correzioni-desktop-pianificate)
 - [2.3 Proposte e parti residue](#23-proposte-e-parti-residue)
 - [2.4 Baseline Vesta del 13 novembre 2026](#24-baseline-vesta-del-13-novembre-2026)
+- [2.5 Regola unica sulle release, 14 novembre 2026](#25-regola-unica-sulle-release-14-novembre-2026)
 - [3. Convenzioni delle milestone](#3-convenzioni-delle-milestone)
 - [4. Checklist di chiusura](#4-checklist-di-chiusura)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
@@ -148,17 +149,17 @@ C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata
 
 Glauco ha richiesto questa pianificazione il 13 novembre 2026 dopo la revisione dei sorgenti 0.3.1: 149 test riusciti, audit completo con 9 pacchetti segnalati nella toolchain (2 critici, 7 moderati), audit di produzione senza segnalazioni e prova isolata di regex patologica oltre 250 ms. Dettaglio e limiti nel [modello di sicurezza](SECURITY_MODEL.md#7-verifiche-e-rischi-residui). La pianificazione non corregge le vulnerabilità.
 
-PC-03, PC-04, PC-05, PC-08, PC-11 e PC-13 della baseline Vesta sono integrate in M5–M9. M13 e M14 sono anticipate subito dopo C5 e restano milestone separate; M15–M25 restano nella sezione 2.4 e M18 segue l'ordine numerico. Eseguire M5, poi M13 e M14, poi M6 → M7 → M8 → M9, ciascuna da main dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. La progressione 0.3.2–0.3.8 è prevista in assenza di release intermedie: confermare versione e tag all'avvio. Per ogni chiusura applicare i due controlli HOME, release con artifact/SHA-256 e documentazione/landing allineate alla versione pubblicata. Preferire controlli locali; motivare prima eventuale CI necessaria, usando i workflow di packaging esistenti senza nuovi automatismi per questa pianificazione.
+PC-03, PC-04, PC-05, PC-08, PC-11 e PC-13 della baseline Vesta sono integrate in M5–M9. M13 e M14 sono anticipate subito dopo C5 e restano milestone separate; M15–M25 restano nella sezione 2.4 e M18 segue l'ordine numerico. Eseguire M26, poi M5, poi M13 e M14, poi M6 → M7 → M8 → M9, ciascuna da main dopo verifica del checkpoint remoto precedente e richiesta di avvio separata. La progressione 0.3.2–0.3.8 è prevista in assenza di release intermedie: confermare versione e tag all'avvio. Per ogni chiusura applicare i due controlli HOME, release con artifact/SHA-256 e documentazione/landing allineate alla versione pubblicata. Preferire controlli locali; motivare prima eventuale CI necessaria, usando i workflow di packaging esistenti senza nuovi automatismi per questa pianificazione.
 
 **Vincolo comune:** firma Windows, firma macOS e notarizzazione sono escluse perché le credenziali non sono disponibili. I pacchetti non firmati e gli avvisi del sistema sono limiti dichiarati che non bloccano l'accettazione; restano necessari checksum e verifica della provenienza. Nessuna configurazione di firma, notarizzazione o auto-update è autorizzata da questo piano.
 
-Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` dopo verifica del checkpoint C4. Modifica solo documenti, mantiene la versione 0.3.1 e prevede il tag documentale annotato `docs/security-roadmap-2026-11-13` sul commit approvato; nessuna milestone è avviata e non è prevista una nuova release applicativa.
+Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` dopo verifica del checkpoint C4. Modifica solo documenti, mantiene la versione 0.3.1 e ha il tag documentale annotato `docs/security-roadmap-2026-11-13` sul commit approvato. Quel tag `docs/*` è storico e non è il formato dei tag successivi. Nessuna milestone è avviata e non è prevista una nuova release applicativa.
 
 | Campo | M5 — Runtime Electron aggiornato |
 | --- | --- |
 | Numero e obiettivo | M5 — Aggiornare il runtime distribuito mantenendo terminali, bridge e preferenze funzionanti nei pacchetti supportati. |
 | Segnalazione Vesta | PC-03, gravità media, verificata e già tracciata qui. Su `d200abe`, come su `e967d92`, `package.json:42` è `"electron": "45.2.3"`. Non è una seconda milestone. |
-| Dipendenza e branch previsto | Dopo C4 e questa patch documentale approvata; `milestone/5-electron-runtime`. |
+| Dipendenza e branch previsto | Dopo C26; `milestone/5-electron-runtime`. |
 | Checkpoint e versione previsti | `milestone/C5`, `v0.3.2`; incremento `+0.0.1`. |
 | Attività | Valutare Electron 45.3.2, disponibile alla revisione, o una release mantenuta successiva; verificare note ufficiali e correzioni Chromium/Node/V8. Vesta segnala backport di sicurezza Chromium/V8 e un fix del loop di redirect di `webRequest` in 45.3.0, e il blocco dei certificati eMudhra revocati in 45.3.1. La gravità resta media perché il renderer non carica contenuti remoti. Aggiornare package e lockfile, requisiti Node e compatibilità dei moduli nativi, poi rifare i pacchetti. |
 | Accettazione | Versione scelta motivata e fissata nel lockfile; isolamento, sandbox e CSP preservati. PTY, avvio, viste, IT/EN e temi funzionano nei pacchetti verificati. L'audit `--omit=dev` non sostituisce la valutazione del runtime incorporato. |
@@ -267,9 +268,9 @@ Versione, branch, checkpoint, attività e test di P1 e della parte sicurezza/pac
 
 Vesta ha analizzato `main` al commit `e967d92` il 13 novembre 2026, senza eseguire build, test né `npm audit`. Il DNS del CNAME non è stato verificato. La sfruttabilità di PC-01 e PC-02 è dedotta, non provata. Le righe sono state ricontrollate su `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` sui file citati è vuoto, quindi gli intervalli restano quelli indicati da Vesta. Due precisazioni di contenuto, sullo stesso testo: in `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`; in `.github/workflows/package-macos.yml` il runner è già `macos-15` (riga 24). `package-windows.yml` usa ancora `windows-latest` (riga 23). Il default `"0.3.0"` è alla riga 12 di entrambi i workflow e la descrizione di `package-macos.yml` (riga 7) cita ancora lo SHA della 0.3.0.
 
-Questa patch usa `patch/0.3.1-plan-vesta-baseline`, da quel commit di main. Modifica solo `PLAN.md` e mantiene la versione applicativa 0.3.1. Il 13 novembre 2026 Glauco ha concesso l'eccezione per i tag `docs/*`, compreso il tag documentale annotato `docs/plan-vesta-baseline-2026-11-13` chiesto per questo commit. Nessuna milestone sotto è avviata.
+Questa patch usa `patch/0.3.1-plan-vesta-baseline`, da quel commit di main. Modifica solo `PLAN.md` e mantiene la versione applicativa 0.3.1. Il 13 novembre 2026 Glauco ha concesso l'eccezione per i tag `docs/*` e ha chiesto il tag `docs/plan-vesta-baseline-2026-11-13`, pubblicato sul merge `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Il 14 novembre 2026 la regola unica della sezione Release dello standard supera quell'eccezione. Il tag resta al suo commit ed è storico: non si sposta e non si cancella. Nessuna milestone sotto è avviata.
 
-PC-03, PC-04, PC-05, PC-08, PC-13 e PC-11 restano dentro M5, M6, M7, M8 e M9. PC-11 è la parte di M9 sui permessi: `electron/main.ts` non registra `setPermissionRequestHandler` né `setPermissionCheckHandler`, e il lavoro previsto è negare di default, con un test che la negazione avvenga. Le altre tredici segnalazioni restano M13–M25, una voce ciascuna: M22, M23 e M25 non si uniscono. L'ordine di esecuzione è M5, poi M13 e M14 subito dopo C5, ciascuna milestone separata, poi M6 → M12, poi M15 → M25. M18 resta dopo C17. Ogni voce parte da main dopo la verifica del checkpoint remoto precedente e una richiesta di avvio separata. Questo ordine non autorizza l'avvio.
+PC-03, PC-04, PC-05, PC-08, PC-13 e PC-11 restano dentro M5, M6, M7, M8 e M9. PC-11 è la parte di M9 sui permessi: `electron/main.ts` non registra `setPermissionRequestHandler` né `setPermissionCheckHandler`, e il lavoro previsto è negare di default, con un test che la negazione avvenga. Le altre tredici segnalazioni restano M13–M25, una voce ciascuna: M22, M23 e M25 non si uniscono. L'ordine di esecuzione è M26, poi M5, poi M13 e M14 subito dopo C5, ciascuna milestone separata, poi M6 → M12, poi M15 → M25. M18 resta dopo C17. Ogni voce parte da main dopo la verifica del checkpoint remoto precedente e una richiesta di avvio separata. Questo ordine non autorizza l'avvio.
 
 1. M13 e M14, ancora milestone separate, subito dopo C5. M18 segue l'ordine numerico, dopo C17, con DevTools e demo condizionati a `!app.isPackaged`.
 2. Electron 45.3.2 insieme a M5 e M6.
@@ -280,9 +281,9 @@ PC-03, PC-04, PC-05, PC-08, PC-13 e PC-11 restano dentro M5, M6, M7, M8 e M9. PC
 
 I punti 4 e 7 della sezione 3 di Vesta riguardano solo ContaMì.
 
-Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` a `v0.3.17`, e sono indicative in assenza di release intermedie. M17 è `+0.0.1`, `v0.3.13`, confermato da Glauco il 13 novembre 2026: allinea la lingua iniziale allo standard. M16, M21, M22, M23 e M25 lasciano invariata la versione applicativa e hanno comunque il checkpoint `milestone/C<n>`.
+Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` a `v0.3.17`, e sono indicative in assenza di release intermedie. M17 è `+0.0.1`, `v0.3.13`, confermato da Glauco il 13 novembre 2026: allinea la lingua iniziale allo standard. M16, M21, M22, M23, M25 e M26 lasciano invariata la versione applicativa e hanno comunque il checkpoint `milestone/C<n>`.
 
-**Decisione di Glauco, 13 novembre 2026.** Le voci a versione invariata richiedono comunque una GitHub release: M16, M21, M22, M23, M25 e ogni altra voce con incremento nessuno. La versione applicativa resta invariata.
+**Regola unica, 14 novembre 2026.** La sezione Release dello standard supera la decisione del 13 novembre 2026 che chiedeva una GitHub release anche a versione invariata. M16, M21, M22, M23, M25 e M26 non hanno release: sono documentazione, CI o configurazione del repository, e mantengono la versione. Le altre milestone pianificate mantengono la release perché toccano comportamento, bug, hardening, sicurezza o dipendenze di runtime. Il tipo si conferma alla chiusura.
 
 **Segnalazioni già coperte**
 
@@ -301,16 +302,16 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | M13 — Quotatura PowerShell | PC-01 | `milestone/13-powershell-quotes` | `milestone/C13` | `v0.3.3`, `+0.0.1` |
 | M14 — Quotatura fish | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.4`, `+0.0.1` |
 | M15 — Polling dei processi figli su Windows | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
-| M16 — Avvisi e configurazione del repository | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | versione applicativa invariata; release GitHub richiesta |
+| M16 — Avvisi e configurazione del repository | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | versione applicativa invariata; nessuna release |
 | M17 — Lingua iniziale di sistema | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `v0.3.13`, `+0.0.1` |
 | M18 — DevTools e demo solo fuori dal pacchetto | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.14`, `+0.0.1` |
 | M19 — Conferma dell'incolla e del trascinamento multilinea | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.15`, `+0.0.1` |
 | M20 — Limiti di sessione nel file centrale | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.16`, `+0.0.1` |
-| M21 — CNAME, canonical e piano | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | versione applicativa invariata; release GitHub richiesta |
-| M22 — Default e immagini dei workflow di packaging | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | versione applicativa invariata; release GitHub richiesta |
-| M23 — Esclusioni Git di ambienti e chiavi | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | versione applicativa invariata; release GitHub richiesta |
+| M21 — CNAME, canonical e piano | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | versione applicativa invariata; nessuna release |
+| M22 — Default e immagini dei workflow di packaging | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | versione applicativa invariata; nessuna release |
+| M23 — Esclusioni Git di ambienti e chiavi | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | versione applicativa invariata; nessuna release |
 | M24 — Prebuild di node-pty su macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
-| M25 — Tag documentali e copia dello standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | versione applicativa invariata; release GitHub richiesta |
+| M25 — Tag documentali e copia dello standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | versione applicativa invariata; nessuna release |
 
 | Campo | M13 — Quotatura PowerShell |
 | --- | --- |
@@ -349,7 +350,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | --- | --- |
 | Numero e obiettivo | M16 — PC-07, gravità media, verificata. Registrare la decisione di Glauco su Dependabot, secret scanning, push protection e protezione di `main`. L'unica attività su file è `.github/dependabot.yml`, e solo se quella decisione la include. |
 | Dipendenza e branch previsto | Le impostazioni dell'account non aspettano C15: Glauco può cambiarle in qualsiasi momento. Il branch del file, se la decisione lo include, è `milestone/16-dependabot-config`, dopo C15. |
-| Checkpoint e versione previsti | `milestone/C16`; versione applicativa invariata; release GitHub richiesta. |
+| Checkpoint e versione previsti | `milestone/C16`; versione applicativa invariata; nessuna release. |
 | Attività | Alla data della baseline gli alert Dependabot e il secret scanning risultano disattivati, manca `dependabot.yml`, manca il code scanning e `main` non è protetto. Glauco può cambiare le impostazioni dell'account in qualsiasi momento, senza aspettare C15. Alert Dependabot, secret scanning, push protection e protezione di `main` (niente force-push né cancellazione) restano azioni sull'account e seguono la sua decisione. Se la decisione include il file, aggiungere `.github/dependabot.yml` per npm e per github-actions. |
 | Criteri di accettazione | Il piano riporta la decisione. Nessuna impostazione del repository cambia prima di essa. Se il file entra nel commit, copre npm e github-actions e i workflow di packaging restano `workflow_dispatch`. |
 | Test richiesti | Controllo statico del YAML, se presente. Nessun `workflow_dispatch` di prova. Nessun test applicativo aggiuntivo per le sole impostazioni. |
@@ -404,7 +405,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | --- | --- |
 | Numero e obiettivo | M21 — PC-15, gravità bassa, verificata. Allineare CNAME, canonical e piano dopo la scelta del dominio, che è di Glauco. |
 | Dipendenza e branch previsto | Dopo C20 e dopo la scelta esplicita del dominio; `milestone/21-pages-cname`. |
-| Checkpoint e versione previsti | `milestone/C21`; versione applicativa invariata; release GitHub richiesta. |
+| Checkpoint e versione previsti | `milestone/C21`; versione applicativa invariata; nessuna release. |
 | Attività | `docs/CNAME` contiene `planciacomandi.glaucosilvestri.it`, dal commit `e967d92` («Create CNAME») eseguito dall'interfaccia web direttamente su main. In `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`: puntano a `gloutchov.github.io/Plancia-Comandi/`. La voce C4 di questo piano dice che Pages `main:/docs` è stato attivato senza CNAME. Il DNS non è verificato. Glauco sceglie: verificare DNS e HTTPS su Pages e poi allineare canonical, Open Graph, `hreflang` e questa voce di piano, oppure rimuovere il CNAME e lasciare gli URL `github.io`. |
 | Criteri di accettazione | Canonical, Open Graph, `hreflang`, `docs/CNAME` e la voce C4 descrivono lo stesso host. Se il dominio proprio resta, DNS e HTTPS sono verificati prima dell'allineamento. La versione desktop resta quella già pubblicata. |
 | Test richiesti | Controllo di link, anchor e coerenza IT/EN del piano e della pagina. Dopo l'approvazione del deploy, controllo HTTPS dell'host scelto. Nessuna cattura di dati privati. |
@@ -415,7 +416,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | --- | --- |
 | Numero e obiettivo | M22 — PC-16, gravità bassa, verificata. Aggiornare i default di versione e fissare l'immagine Windows. L'immagine macOS è già `macos-15`. |
 | Dipendenza e branch previsto | Dopo C21; `milestone/22-packaging-defaults`. |
-| Checkpoint e versione previsti | `milestone/C22`; versione applicativa invariata; release GitHub richiesta. |
+| Checkpoint e versione previsti | `milestone/C22`; versione applicativa invariata; nessuna release. |
 | Attività | `package-windows.yml:12` e `package-macos.yml:12` hanno `default: "0.3.0"`. `package-macos.yml:7` descrive ancora lo SHA della 0.3.0. `package-windows.yml:23` usa `windows-latest`. `package-macos.yml:24` usa già `macos-15`, con il commento che è l'immagine Apple Silicon. Aggiornare o togliere il default di versione, aggiornare la descrizione e fissare l'immagine Windows a una versione esplicita. Lasciare `macos-15` finché un aggiornamento dell'immagine non è deciso a parte. I workflow restano `workflow_dispatch`, con `contents: read`. |
 | Criteri di accettazione | Nessun default punta ancora a 0.3.0. La descrizione non cita uno SHA di una release precedente come valore operativo. L'immagine Windows è un'etichetta fissa. Un push o una pull request non avviano i workflow. |
 | Test richiesti | Lettura statica dei due YAML. Nessun `workflow_dispatch` di prova. |
@@ -426,7 +427,7 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | --- | --- |
 | Numero e obiettivo | M23 — PC-17, gravità bassa, verificata. Ignorare file di ambiente e chiavi private che oggi `.gitignore` non elenca. |
 | Dipendenza e branch previsto | Dopo C22; `milestone/23-gitignore-secrets`. |
-| Checkpoint e versione previsti | `milestone/C23`; versione applicativa invariata; release GitHub richiesta. |
+| Checkpoint e versione previsti | `milestone/C23`; versione applicativa invariata; nessuna release. |
 | Attività | Su `d200abe` è stato verificato che `.gitignore` non contiene `.env`, `*.pem`, `*.key` né `*.p12`, e che quei nomi non risultano tracciati. Aggiungere `.env`, `.env.*` con l'eccezione `!.env.example`, `*.pem`, `*.key`, `*.p12` e `*.pfx`. Non trattare `.gitignore` come unico filtro dei segreti e non rimuovere dalla storia eventuali segreti già committati senza una decisione separata. |
 | Criteri di accettazione | Gli schemi `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` e `*.pfx` sono presenti. `.env.example` resta tracciabile. I file già voluti nel pacchetto o nei documenti restano tracciati. |
 | Test richiesti | Controllo statico di `.gitignore` e di `git check-ignore` su percorsi finti, compresi `.env.local`, `.env.example` e un `*.pfx`, fuori dal contenuto reale del repository. La verifica che i nomi della baseline non fossero tracciati resta quella fatta su `d200abe`. |
@@ -440,25 +441,40 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | Checkpoint e versione previsti | `milestone/C24`, `v0.3.17`; incremento `+0.0.1`. |
 | Attività | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` restituisce falso solo su Windows quando le tre prebuild ci sono; su Darwin restituisce sempre vero. La ricompilazione chiede i Command Line Tools di Xcode, che di solito richiedono un amministratore. Se una prebuild pubblicata è compatibile con l'ABI di Electron, usarla; la ricompilazione resta il ripiego quando la prebuild manca o non coincide. |
 | Criteri di accettazione | Su Darwin, con prebuild compatibile, lo script non lancia la ricompilazione. Senza prebuild compatibile, la ricompilazione resta il percorso documentato. Windows conserva il comportamento attuale delle tre prebuild. Il workflow macOS continua a produrre `plancia-comandi.app` senza identità di firma. |
-| Test richiesti | Test dello script con prebuild presente, assente e di ABI diversa. Suite e build. Smoke del pacchetto macOS ARM64 fuori dal checkout quando la milestone pubblica una release; in assenza di un Mac locale, registrare il limite e usare il workflow solo se Glauco lo chiede. |
+| Test richiesti | Test dello script con prebuild presente, assente e di ABI diversa. Suite e build. Smoke del pacchetto macOS ARM64 fuori dal checkout per la release `v0.3.17`. In assenza di un Mac locale, registrare il limite e usare il workflow solo se Glauco lo chiede. |
 | Documentazione | README, manuali IT/EN, quick start, MAP, `SECURITY_MODEL.md`, PLAN e versione. |
 | Stato | `M24`, solo pianificata; implementazione non avviata. |
 
 | Campo | M25 — Tag documentali e copia dello standard |
 | --- | --- |
-| Numero e obiettivo | M25 — PC-19, gravità bassa, verificata. Documentare l'eccezione dei tag `docs/*` oppure citare lo standard per versione, al posto della copia committata. |
+| Numero e obiettivo | M25 — PC-19, gravità bassa, verificata. Registrare come storici i tag `docs/*` già pubblicati. La regola unica della sezione Release dello standard sostituisce l'eccezione. |
 | Dipendenza e branch previsto | Dopo C24; `milestone/25-doc-tag-policy`. |
-| Checkpoint e versione previsti | `milestone/C25`; versione applicativa invariata; release GitHub richiesta. |
-| Attività | Sul remoto ci sono i tag annotati `docs/2026-11-10` (oggetto `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (oggetto `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) e `docs/desktop-fixes-plan-2026-11-13` (oggetto `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). Non seguono `vX.Y.Z` né `milestone/C<n>`. Il repository contiene anche `STARTUP_PREFERENCES_HOME.md`, 38056 byte, che può divergere dall'originale. Il 13 novembre 2026 Glauco ha concesso l'eccezione per i tag `docs/*`, compreso il tag `docs/plan-vesta-baseline-2026-11-13` chiesto per questa patch di piano. M25 documenta quell'eccezione, lasciando invariati i tag già pubblicati, oppure cita lo standard per versione al posto della copia committata. |
-| Criteri di accettazione | Il piano e `AGENTS.md` descrivono l'eccezione `docs/*` concessa da Glauco il 13 novembre 2026, compreso il tag chiesto per questa patch. I tag `vX.Y.Z` e `milestone/C<n>` già pubblicati restano al loro commit. Nessun tag pubblicato viene spostato. |
+| Checkpoint e versione previsti | `milestone/C25`; versione applicativa invariata; nessuna release. |
+| Attività | Sul remoto ci sono i tag annotati `docs/2026-11-10` (oggetto `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (oggetto `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) e `docs/desktop-fixes-plan-2026-11-13` (oggetto `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). Non seguono `vX.Y.Z` né `milestone/C<n>`. Il repository contiene anche `STARTUP_PREFERENCES_HOME.md`, 38596 byte al 14 novembre 2026. Il 14 novembre 2026 la regola unica della sezione Release dello standard supera l'eccezione `docs/*` concessa il 13 novembre 2026. I tag già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13` sul merge `191cd32cef4f570c5cdc315a8d31bb560857d1c9`, restano al loro commit e sono storici: non si spostano e non si cancellano. I tag nuovi seguono `vX.Y.Z` o `milestone/C<n>`. La copia di `STARTUP_PREFERENCES_HOME.md` resta nel repository; la sezione Release è allineata allo standard del 14 novembre 2026. |
+| Criteri di accettazione | Il piano e `AGENTS.md` rimandano alla regola unica della sezione Release dello standard. I tag `docs/*` già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13`, restano al loro commit. Nessun tag pubblicato viene spostato o cancellato. |
 | Test richiesti | `git diff --check` e controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
-| Documentazione | `PLAN.md`, `AGENTS.md` e, se si toglie la copia, i punti che oggi rimandano a `STARTUP_PREFERENCES_HOME.md`. |
+| Documentazione | `PLAN.md`, `AGENTS.md` e i rimandi a `STARTUP_PREFERENCES_HOME.md`. La copia resta nel repository. |
 | Stato | `M25`, solo pianificata; implementazione non avviata. |
+
+#### 2.5 Regola unica sulle release, 14 novembre 2026
+
+Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: M26 si esegue prima di M5–M25. Il 14 novembre 2026, ore 11:17 (Europe/Rome), Glauco ha approvato la chiusura: la voce è C26, già M26, con tag `milestone/C26`. Versione applicativa invariata 0.3.1, nessuna release. M25 resta pianificata e la copia dello standard resta nel repository.
+
+| Campo | C26 — Regola unica sulle release |
+| --- | --- |
+| Numero e obiettivo | C26, già M26 — Allineare il repository alla regola unica della sezione Release dello standard, dal 14 novembre 2026. È una decisione di Glauco di sola documentazione. |
+| Dipendenza e branch previsto | Prima di M5–M25, pur con un numero più alto. Glauco lo ha confermato il 14 novembre 2026, ore 10:54 (Europe/Rome). Il branch resta `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Lo standard, riga 75, indica `milestone/<numero>-<slug>` come esempio: si tiene il branch già aperto, così non serve aprire una nuova pull request. |
+| Checkpoint e versione previsti | `milestone/C26`; versione applicativa invariata **0.3.1**; incremento nessuno. Nessuna release e nessun tag `vX.Y.Z`. Glauco ha approvato la chiusura il 14 novembre 2026, ore 11:17 (Europe/Rome). |
+| Attività | Sostituire le regole di progetto sulla release obbligatoria e sull'eccezione dei tag `docs/*` con il rimando alla sezione Release dello standard. M16, M21, M22, M23 e M25 restano senza release e a versione invariata. Le altre milestone pianificate mantengono la release. I tag `docs/*` già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13`, restano al loro commit e sono storici. |
+| Criteri di accettazione | `AGENTS.md`, `PLAN.md` e la sezione Release di `STARTUP_PREFERENCES_HOME.md` descrivono la stessa regola, in italiano e in inglese dove il file le prevede. La versione applicativa resta 0.3.1. Nessun tag pubblicato è spostato o cancellato. |
+| Test richiesti | `git diff --check`; controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
+| Documentazione | `PLAN.md`, `AGENTS.md` e `STARTUP_PREFERENCES_HOME.md`. |
+| Stato | `C26`, già M26. Prima approvazione di Glauco il 14 novembre 2026, ore 11:17 (Europe/Rome). Tag `milestone/C26`. Versione 0.3.1 invariata, nessuna release. |
 
 ### 3. Convenzioni delle milestone
 
 - `P<n>`: proposta facoltativa, non eseguibile senza decisione esplicita del progettista.
-- `M<n>`: milestone approvata per il piano corrente, eseguita in ordine numerico su `milestone/<n>-<slug>` da `main`, dopo la verifica del precedente checkpoint remoto. Eccezione: M13 e M14 vengono subito dopo C5, prima di M6.
+- `M<n>`: milestone approvata per il piano corrente, eseguita in ordine numerico su `milestone/<n>-<slug>` da `main`, dopo la verifica del precedente checkpoint remoto. Eccezione: M13 e M14 vengono subito dopo C5, prima di M6. Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato che M26 si esegue prima di M5–M25. L'eccezione vale anche per il nome del branch: lo standard, riga 75, indica `milestone/<numero>-<slug>` come esempio, e si tiene `patch/0.3.1-regola-unica-release` perché è già aperto.
 - `C<n>`: lavoro approvato dal progettista, con lo stesso numero della relativa `M`; pubblicazione e chiusura operativa possono essere ancora pendenti.
 
 Le numerazioni `P` e `M` sono indipendenti. Ogni futura `M` deve specificare obiettivo funzionale, branch, checkpoint `milestone/C<n>`, incremento di versione, attività, criteri di accettazione, test, documenti e stato. Non iniziare la milestone successiva finché `main` e il checkpoint della precedente non sono verificati sul remoto.
@@ -480,7 +496,7 @@ Applicare la procedura completa in [AGENTS.md](AGENTS.md). Per ogni futura miles
 - [ ] Merge su `main`, push e commit remoto verificati; CI su `main` verificata quando necessaria.
 - [ ] Artifact e smoke della release, se dovuti, e relativi SHA-256 verificati sul commit finale prima dei tag.
 - [ ] Checkpoint annotato `milestone/C<n>` e tag versione se cambiata creati e verificati sul remoto.
-- [ ] Release prevista pubblicata e verificata; branch obsoleto rimosso solo dopo le verifiche e l'approvazione.
+- [ ] Release dovuta secondo la regola Release dello standard, se prevista, pubblicata e verificata; branch obsoleto rimosso solo dopo le verifiche e l'approvazione.
 - [ ] Percorsi temporanei presentati per conferma separata prima della pulizia; worktree finale controllato.
 
 Per una patch senza voce `M`, non inventare una milestone: si applicano congelamento, controllo del commit finale e approvazione, ma non il passaggio `M` → `C`, il secondo controllo dovuto a quel passaggio o il checkpoint di milestone. Ogni modifica successiva al controllo richiede nuova approvazione.
@@ -516,13 +532,13 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 
 ### 5. Versioni, CI e distribuzione
 
-Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. Una modifica esclusivamente documentale può lasciare invariata la versione e non richiede una release. Per milestone o patch applicative concluse pubblicare una release secondo le preferenze HOME; se l'app non è utilizzabile, indicarla come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
+Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
 
 Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Il workflow `package-macos.yml` si avvia solo manualmente sul runner `macos-15` per DMG e ZIP ARM64 non firmati; non parte su push o PR. È stato eseguito nella run `43257940568` e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Il piano di chiusura di M2 approvato il 12 novembre 2026 prevede questa build remota riproducibile per gli artifact della release v0.3.0, con SHA-256, accanto al workflow Windows: consuma minuti solo quando viene avviato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
 
 ## English
 
-This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.1**, published on 13 November 2026. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; second approval of commit `1155fc248acefe25ac7cc2068ca750d93150a46e` was received in the same session. Main, tags `milestone/C3` and `v0.3.1`, release and M3 branch removal are verified; **C4** (GitHub Pages landing page), formerly M4, is published at approved commit `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, with HTTPS site, `milestone/C4` checkpoint, site release and branch removal verified; desktop version remains 0.3.1. Vesta's baseline of 13 November 2026, analyzed on `e967d92` and rechecked on `d200abe`, is planned in section 2.4 and has not been started. M13 and M14 are brought forward to immediately after C5, stay separate milestones and are not started. M18 follows numeric order. Proposals do not authorize any other code changes.
+This plan records the existing Plancia Comandi baseline and future work. Application version: **0.3.1**, published on 13 November 2026. Milestone **C1** was merged into `main` at `4aabc9bc81a60b0c574221ce37578936341ae065`; remote tags `milestone/C1` and `v0.2.0` and the source release exist. **C2** stays the entry Glauco decided, with no further promotion. Release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) was published on 12 November 2026 at commit `94ff1e44106f08fdcf961cab74171668112ad780`; tags `v0.3.0` and `milestone/C2` point at that commit. **C3** (UI icon and screenshots), formerly M3, received Glauco's first approval on 13 November 2026 at commit `cc037278633d6b43e279eb66539c05d50d4364e8`; second approval of commit `1155fc248acefe25ac7cc2068ca750d93150a46e` was received in the same session. Main, tags `milestone/C3` and `v0.3.1`, release and M3 branch removal are verified; **C4** (GitHub Pages landing page), formerly M4, is published at approved commit `766a4aab7ef476fc1d1ac4d6af7f9cfb39a71455`, with HTTPS site, `milestone/C4` checkpoint, site release and branch removal verified; desktop version remains 0.3.1. The historical release `milestone/C4` (“C4 — Landing page”) stays as it is, as a historical record. Vesta's baseline of 13 November 2026, analyzed on `e967d92` and rechecked on `d200abe`, is planned in section 2.4 and has not been started. M13 and M14 are brought forward to immediately after C5, stay separate milestones and are not started. M18 follows numeric order. Proposals do not authorize any other code changes.
 
 **Contents**
 
@@ -532,6 +548,7 @@ This plan records the existing Plancia Comandi baseline and future work. Applica
 - [2.2 Planned desktop fixes](#22-planned-desktop-fixes)
 - [2.3 Proposals and remaining work](#23-proposals-and-remaining-work)
 - [2.4 Vesta baseline of 13 November 2026](#24-vesta-baseline-of-13-november-2026)
+- [2.5 Single release rule, 14 November 2026](#25-single-release-rule-14-november-2026)
 - [3. Milestone conventions](#3-milestone-conventions)
 - [4. Closure checklist](#4-closure-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
@@ -668,17 +685,17 @@ C1, formerly M1, is merged and published as source. C2, formerly M2, is approved
 
 Glauco requested this plan on 13 November 2026 following the 0.3.1 source review: 149 tests passed, full audit with 9 affected toolchain packages (2 critical, 7 moderate), production audit with no findings and an isolated pathological-regex test exceeding 250 ms. Details and limitations are in the [security model](SECURITY_MODEL.md#7-checks-and-residual-risks). Planning does not fix the vulnerabilities.
 
-PC-03, PC-04, PC-05, PC-08, PC-11 and PC-13 from the Vesta baseline are integrated into M5–M9. M13 and M14 are brought forward to immediately after C5 and stay separate milestones; M15–M25 stay in section 2.4 and M18 follows numeric order. Execute M5, then M13 and M14, then M6 → M7 → M8 → M9, each from main after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.2–0.3.8 assume no intervening releases: confirm version and tags at start. Each closure follows both HOME reviews, release with assets/SHA-256 and documentation/landing aligned with the published version. Prefer local checks; justify any necessary CI beforehand, using existing packaging workflows without new automation for this plan.
+PC-03, PC-04, PC-05, PC-08, PC-11 and PC-13 from the Vesta baseline are integrated into M5–M9. M13 and M14 are brought forward to immediately after C5 and stay separate milestones; M15–M25 stay in section 2.4 and M18 follows numeric order. Execute M26, then M5, then M13 and M14, then M6 → M7 → M8 → M9, each from main after verifying the preceding remote checkpoint and a separate start request. Versions 0.3.2–0.3.8 assume no intervening releases: confirm version and tags at start. Each closure follows both HOME reviews, release with assets/SHA-256 and documentation/landing aligned with the published version. Prefer local checks; justify any necessary CI beforehand, using existing packaging workflows without new automation for this plan.
 
 **Shared constraint:** Windows signing, macOS signing and notarization are excluded because credentials are unavailable. Unsigned packages and system warnings are disclosed limitations that do not block acceptance; checksums and origin verification remain necessary. This plan authorizes no signing, notarization or automatic-update configuration.
 
-This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` after verifying the C4 checkpoint. It changes documents only, retains version 0.3.1 and plans annotated documentation tag `docs/security-roadmap-2026-11-13` at the approved commit; no milestone is started and no new application release is planned.
+This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5bad43e746e56211f7bdd1` after verifying the C4 checkpoint. It changes documents only, retains version 0.3.1 and has the annotated documentation tag `docs/security-roadmap-2026-11-13` at the approved commit. That `docs/*` tag is historical and is not the format of later tags. No milestone is started and no new application release is planned.
 
 | Field | M5 — Updated Electron runtime |
 | --- | --- |
 | Number and goal | M5 — Update the shipped runtime while preserving terminals, bridge and preferences in supported packages. |
 | Vesta finding | PC-03, medium severity, verified and already tracked here. On `d200abe`, as on `e967d92`, `package.json:42` is `"electron": "45.2.3"`. This is not a second milestone. |
-| Dependency and planned branch | After C4 and this approved documentation patch; `milestone/5-electron-runtime`. |
+| Dependency and planned branch | After C26; `milestone/5-electron-runtime`. |
 | Planned checkpoint and version | `milestone/C5`, `v0.3.2`; increment `+0.0.1`. |
 | Tasks | Assess Electron 45.3.2, available at review time, or a newer maintained release; inspect official notes and Chromium/Node/V8 fixes. Vesta notes Chromium/V8 security backports and a `webRequest` redirect-loop fix in 45.3.0, and blocking of revoked eMudhra certificates in 45.3.1. Severity stays medium because the renderer does not load remote content. Update package and lockfile, Node requirements and native-module compatibility, then rebuild the packages. |
 | Acceptance | Chosen version justified and pinned in the lockfile; isolation, sandbox and CSP preserved. PTY, startup, layouts, IT/EN and themes work in verified packages. The `--omit=dev` audit does not replace assessment of the embedded runtime. |
@@ -787,9 +804,9 @@ Version, branch, checkpoint, tasks and tests for P1 and the security/package por
 
 Vesta analyzed `main` at `e967d92` on 13 November 2026 and did not run a build, the test suite, or `npm audit`. CNAME DNS was not verified. Exploitability of PC-01 and PC-02 is inferred, not demonstrated. The cited lines were rechecked on `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` for those files is empty, so the ranges stay as Vesta cited them. Two content notes on that same text: in `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links; in `.github/workflows/package-macos.yml` the runner is already `macos-15` (line 24). `package-windows.yml` still uses `windows-latest` (line 23). The `"0.3.0"` default is line 12 of both workflows, and the `package-macos.yml` description (line 7) still cites the 0.3.0 SHA.
 
-This patch uses `patch/0.3.1-plan-vesta-baseline`, from that main commit. It changes only `PLAN.md` and keeps application version 0.3.1. On 13 November 2026 Glauco granted the exception for `docs/*` tags, including the annotated documentation tag `docs/plan-vesta-baseline-2026-11-13` that he asked for on this commit. None of the milestones below is started.
+This patch uses `patch/0.3.1-plan-vesta-baseline`, from that main commit. It changes only `PLAN.md` and keeps application version 0.3.1. On 13 November 2026 Glauco granted the `docs/*` tag exception and asked for `docs/plan-vesta-baseline-2026-11-13`, published on merge `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. On 14 November 2026 the single rule in the Release section of the standard supersedes that exception. The tag stays on its commit and is historical: it is not moved and it is not deleted. None of the milestones below is started.
 
-PC-03, PC-04, PC-05, PC-08, PC-13 and PC-11 stay inside M5, M6, M7, M8 and M9. PC-11 is the M9 permissions part: `electron/main.ts` does not register `setPermissionRequestHandler` or `setPermissionCheckHandler`, and the planned work is to deny by default, with a test that the denial happens. The other thirteen findings stay M13–M25, one entry each: M22, M23 and M25 are not merged. The execution order is M5, then M13 and M14 immediately after C5, each a separate milestone, then M6 → M12, then M15 → M25. M18 stays after C17. Each entry starts from main after verifying the preceding remote checkpoint and a separate start request. This order does not authorize a start.
+PC-03, PC-04, PC-05, PC-08, PC-13 and PC-11 stay inside M5, M6, M7, M8 and M9. PC-11 is the M9 permissions part: `electron/main.ts` does not register `setPermissionRequestHandler` or `setPermissionCheckHandler`, and the planned work is to deny by default, with a test that the denial happens. The other thirteen findings stay M13–M25, one entry each: M22, M23 and M25 are not merged. The execution order is M26, then M5, then M13 and M14 immediately after C5, each a separate milestone, then M6 → M12, then M15 → M25. M18 stays after C17. Each entry starts from main after verifying the preceding remote checkpoint and a separate start request. This order does not authorize a start.
 
 1. M13 and M14, still separate milestones, immediately after C5. M18 follows numeric order, after C17, with DevTools and the demo gated on `!app.isPackaged`.
 2. Electron 45.3.2 together with M5 and M6.
@@ -800,9 +817,9 @@ PC-03, PC-04, PC-05, PC-08, PC-13 and PC-11 stay inside M5, M6, M7, M8 and M9. P
 
 Points 4 and 7 of Vesta's section 3 concern ContaMì only.
 
-Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `v0.3.17`, and are indicative assuming no intermediate releases. M17 is `+0.0.1`, `v0.3.13`, confirmed by Glauco on 13 November 2026: it aligns the initial language with the standard. M16, M21, M22, M23 and M25 leave the application version unchanged and still have checkpoint `milestone/C<n>`.
+Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `v0.3.17`, and are indicative assuming no intermediate releases. M17 is `+0.0.1`, `v0.3.13`, confirmed by Glauco on 13 November 2026: it aligns the initial language with the standard. M16, M21, M22, M23, M25 and M26 leave the application version unchanged and still have checkpoint `milestone/C<n>`.
 
-**Glauco's decision, 13 November 2026.** Entries whose application version stays unchanged still require a GitHub release: M16, M21, M22, M23, M25 and any other entry with no version increment. The application version stays unchanged.
+**Single rule, 14 November 2026.** The Release section of the standard supersedes the 13 November 2026 decision that required a GitHub release even when the version stayed unchanged. M16, M21, M22, M23, M25 and M26 have no release: they are documentation, CI or repository configuration, and they keep the version. The other planned milestones keep the release because they touch behavior, bugs, hardening, security or runtime dependencies. The type is confirmed at closure.
 
 **Findings already covered**
 
@@ -821,16 +838,16 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | M13 — PowerShell quoting | PC-01 | `milestone/13-powershell-quotes` | `milestone/C13` | `v0.3.3`, `+0.0.1` |
 | M14 — fish quoting | PC-02 | `milestone/14-fish-quoting` | `milestone/C14` | `v0.3.4`, `+0.0.1` |
 | M15 — Windows child-process polling | PC-06 | `milestone/15-windows-child-poll` | `milestone/C15` | `v0.3.12`, `+0.0.1` |
-| M16 — Repository alerts and configuration | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | application version unchanged; GitHub release required |
+| M16 — Repository alerts and configuration | PC-07 | `milestone/16-dependabot-config` | `milestone/C16` | application version unchanged; no GitHub release |
 | M17 — Initial system language | PC-09 | `milestone/17-system-locale` | `milestone/C17` | `v0.3.13`, `+0.0.1` |
 | M18 — DevTools and demo only outside the package | PC-10 | `milestone/18-packaged-devtools` | `milestone/C18` | `v0.3.14`, `+0.0.1` |
 | M19 — Confirm multiline paste and drop | PC-12 | `milestone/19-multiline-paste-confirm` | `milestone/C19` | `v0.3.15`, `+0.0.1` |
 | M20 — Session limits in the central file | PC-14 | `milestone/20-session-limits-config` | `milestone/C20` | `v0.3.16`, `+0.0.1` |
-| M21 — CNAME, canonical URLs and plan | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | application version unchanged; GitHub release required |
-| M22 — Packaging workflow defaults and images | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | application version unchanged; GitHub release required |
-| M23 — Git exclusions for env files and keys | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | application version unchanged; GitHub release required |
+| M21 — CNAME, canonical URLs and plan | PC-15 | `milestone/21-pages-cname` | `milestone/C21` | application version unchanged; no GitHub release |
+| M22 — Packaging workflow defaults and images | PC-16 | `milestone/22-packaging-defaults` | `milestone/C22` | application version unchanged; no GitHub release |
+| M23 — Git exclusions for env files and keys | PC-17 | `milestone/23-gitignore-secrets` | `milestone/C23` | application version unchanged; no GitHub release |
 | M24 — node-pty prebuild on macOS | PC-18 | `milestone/24-macos-pty-prebuild` | `milestone/C24` | `v0.3.17`, `+0.0.1` |
-| M25 — Documentation tags and the committed standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | application version unchanged; GitHub release required |
+| M25 — Documentation tags and the committed standard | PC-19 | `milestone/25-doc-tag-policy` | `milestone/C25` | application version unchanged; no GitHub release |
 
 | Field | M13 — PowerShell quoting |
 | --- | --- |
@@ -869,7 +886,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | --- | --- |
 | Number and goal | M16 — PC-07, medium severity, verified. Record Glauco's decision on Dependabot, secret scanning, push protection and protection of `main`. The only file activity is `.github/dependabot.yml`, and only when that decision includes it. |
 | Dependency and planned branch | Account settings do not wait for C15: Glauco can change them at any time. The file branch, if the decision includes the file, is `milestone/16-dependabot-config`, after C15. |
-| Planned checkpoint and version | `milestone/C16`; application version unchanged; GitHub release required. |
+| Planned checkpoint and version | `milestone/C16`; application version unchanged; no GitHub release. |
 | Tasks | At the baseline date, Dependabot alerts and secret scanning are off, `dependabot.yml` is absent, code scanning is absent and `main` is unprotected. Glauco can change the account settings at any time, without waiting for C15. Dependabot alerts, secret scanning, push protection and protection of `main` (no force-push and no deletion) stay account actions and follow his decision. If the decision includes the file, add `.github/dependabot.yml` for npm and for github-actions. |
 | Acceptance | The plan records the decision. No repository setting changes before it. If the file is part of the commit, it covers npm and github-actions and the packaging workflows stay `workflow_dispatch`. |
 | Required tests | Static check of the YAML, when present. No trial `workflow_dispatch`. No extra application test for settings alone. |
@@ -924,7 +941,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | --- | --- |
 | Number and goal | M21 — PC-15, low severity, verified. Align CNAME, canonical URLs and this plan after the domain choice, which is Glauco's. |
 | Dependency and planned branch | After C20 and after the explicit domain choice; `milestone/21-pages-cname`. |
-| Planned checkpoint and version | `milestone/C21`; application version unchanged; GitHub release required. |
+| Planned checkpoint and version | `milestone/C21`; application version unchanged; no GitHub release. |
 | Tasks | `docs/CNAME` contains `planciacomandi.glaucosilvestri.it`, from commit `e967d92` ("Create CNAME") made through the web UI directly on main. In `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links: they point at `gloutchov.github.io/Plancia-Comandi/`. The C4 entry in this plan says Pages `main:/docs` was enabled without a CNAME. DNS was not verified. Glauco chooses: verify DNS and HTTPS on Pages and then align canonical, Open Graph, `hreflang` and this plan entry, or remove the CNAME and keep the `github.io` URLs. |
 | Acceptance | Canonical, Open Graph, `hreflang`, `docs/CNAME` and the C4 entry describe the same host. If the custom domain stays, DNS and HTTPS are verified before alignment. The desktop version stays the one already published. |
 | Required tests | Check of links, anchors and IT/EN equivalence of the plan and the page. After deploy approval, an HTTPS check of the chosen host. No private-data captures. |
@@ -935,7 +952,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | --- | --- |
 | Number and goal | M22 — PC-16, low severity, verified. Update the version defaults and pin the Windows image. The macOS image is already `macos-15`. |
 | Dependency and planned branch | After C21; `milestone/22-packaging-defaults`. |
-| Planned checkpoint and version | `milestone/C22`; application version unchanged; GitHub release required. |
+| Planned checkpoint and version | `milestone/C22`; application version unchanged; no GitHub release. |
 | Tasks | `package-windows.yml:12` and `package-macos.yml:12` have `default: "0.3.0"`. `package-macos.yml:7` still describes the 0.3.0 SHA. `package-windows.yml:23` uses `windows-latest`. `package-macos.yml:24` already uses `macos-15`, with the comment that it is the Apple Silicon image. Update or remove the version default, update the description and pin the Windows image to an explicit label. Leave `macos-15` until an image update is decided separately. The workflows stay `workflow_dispatch`, with `contents: read`. |
 | Acceptance | No default still points at 0.3.0. The description does not cite a previous release SHA as an operational value. The Windows image is a fixed label. A push or a pull request does not start the workflows. |
 | Required tests | Static reading of both YAML files. No trial `workflow_dispatch`. |
@@ -946,7 +963,7 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | --- | --- |
 | Number and goal | M23 — PC-17, low severity, verified. Ignore environment files and private keys that `.gitignore` does not list today. |
 | Dependency and planned branch | After C22; `milestone/23-gitignore-secrets`. |
-| Planned checkpoint and version | `milestone/C23`; application version unchanged; GitHub release required. |
+| Planned checkpoint and version | `milestone/C23`; application version unchanged; no GitHub release. |
 | Tasks | On `d200abe` it was checked that `.gitignore` contains neither `.env`, `*.pem`, `*.key` nor `*.p12`, and that those names are not tracked. Add `.env`, `.env.*` with the exception `!.env.example`, `*.pem`, `*.key`, `*.p12` and `*.pfx`. `.gitignore` stays short of a filter for secrets, and secrets already committed are not removed from history without a separate decision. |
 | Acceptance | The patterns `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` and `*.pfx` are present. `.env.example` stays trackable. Files already intended for the package or the documents stay tracked. |
 | Required tests | Static check of `.gitignore` and `git check-ignore` on fake paths, including `.env.local`, `.env.example` and a `*.pfx`, outside the repository's real content. The check that the baseline names were not tracked remains the one done on `d200abe`. |
@@ -960,25 +977,40 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | Planned checkpoint and version | `milestone/C24`, `v0.3.17`; increment `+0.0.1`. |
 | Tasks | `scripts/install-native.mjs:40-43`: `shouldRebuildForElectron` returns false only on Windows when all three prebuilds are present; on Darwin it always returns true. The rebuild needs the Xcode Command Line Tools, which usually require an administrator. When a published prebuild matches Electron's ABI, use it; the rebuild stays the fallback when the prebuild is missing or does not match. |
 | Acceptance | On Darwin, with a compatible prebuild, the script does not start a rebuild. Without a compatible prebuild, the rebuild stays the documented path. Windows keeps the current three-prebuild behavior. The macOS workflow still produces `plancia-comandi.app` with no signing identity. |
-| Required tests | Script tests with a prebuild present, absent and of a different ABI. Suite and build. macOS ARM64 package smoke outside the checkout when the milestone publishes a release; without a local Mac, record the limit and use the workflow only if Glauco asks for it. |
+| Required tests | Script tests with a prebuild present, absent and of a different ABI. Suite and build. macOS ARM64 package smoke outside the checkout for release `v0.3.17`. Without a local Mac, record the limit and use the workflow only if Glauco asks for it. |
 | Documentation | README, IT/EN manuals, quick start, MAP, `SECURITY_MODEL.md`, PLAN and version. |
 | Status | `M24`, planned only; implementation not started. |
 
 | Field | M25 — Documentation tags and the committed standard |
 | --- | --- |
-| Number and goal | M25 — PC-19, low severity, verified. Document the exception for `docs/*` tags, or cite the standard by version instead of the committed copy. |
+| Number and goal | M25 — PC-19, low severity, verified. Record the `docs/*` tags already published as historical. The single rule in the Release section of the standard replaces the exception. |
 | Dependency and planned branch | After C24; `milestone/25-doc-tag-policy`. |
-| Planned checkpoint and version | `milestone/C25`; application version unchanged; GitHub release required. |
-| Tasks | The remote has annotated tags `docs/2026-11-10` (object `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (object `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) and `docs/desktop-fixes-plan-2026-11-13` (object `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). They follow neither `vX.Y.Z` nor `milestone/C<n>`. The repository also contains `STARTUP_PREFERENCES_HOME.md`, 38056 bytes, which can drift from the original. On 13 November 2026 Glauco granted the exception for `docs/*` tags, including the tag `docs/plan-vesta-baseline-2026-11-13` that he asked for this plan patch. M25 documents that exception, leaving published tags where they are, or cites the standard by version instead of the committed copy. |
-| Acceptance | The plan and `AGENTS.md` describe the `docs/*` exception granted by Glauco on 13 November 2026, including the tag he asked for this patch. Published `vX.Y.Z` and `milestone/C<n>` tags stay on their commit. No published tag is moved. |
+| Planned checkpoint and version | `milestone/C25`; application version unchanged; no GitHub release. |
+| Tasks | The remote has annotated tags `docs/2026-11-10` (object `ab100132e39d5906a833db5dca60c5cf4039ecb3`, commit `05062668b528d737d5c702673657bfd2b3dbaf8e`), `docs/security-roadmap-2026-11-13` (object `08682a313eebf036136f11ab76d56f4c20b8426b`, commit `970c450add36f3036c796454d3535ca39a566c0a`) and `docs/desktop-fixes-plan-2026-11-13` (object `dbd7d28b8fa1e9301d392ab45323120b8e1bbe06`, commit `d200abe611ef92220d9aa902f9f858192caee06b`). They follow neither `vX.Y.Z` nor `milestone/C<n>`. The repository also contains `STARTUP_PREFERENCES_HOME.md`, 38596 bytes as of 14 November 2026. On 14 November 2026 the single rule in the Release section of the standard supersedes the `docs/*` exception granted on 13 November 2026. The tags already published, including `docs/plan-vesta-baseline-2026-11-13` on merge `191cd32cef4f570c5cdc315a8d31bb560857d1c9`, stay on their commits and are historical: they are not moved and they are not deleted. New tags follow `vX.Y.Z` or `milestone/C<n>`. The copy of `STARTUP_PREFERENCES_HOME.md` stays in the repository; its Release section is aligned with the standard of 14 November 2026. |
+| Acceptance | The plan and `AGENTS.md` point to the single rule in the Release section of the standard. Published `docs/*` tags, including `docs/plan-vesta-baseline-2026-11-13`, stay on their commit. No published tag is moved or deleted. |
 | Required tests | `git diff --check` and a check of the required documents, links and IT/EN equivalence. No application test. |
-| Documentation | `PLAN.md`, `AGENTS.md` and, if the copy is removed, the places that currently point at `STARTUP_PREFERENCES_HOME.md`. |
+| Documentation | `PLAN.md`, `AGENTS.md` and the references to `STARTUP_PREFERENCES_HOME.md`. The copy stays in the repository. |
 | Status | `M25`, planned only; implementation not started. |
+
+#### 2.5 Single release rule, 14 November 2026
+
+On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26 is executed before M5–M25. On 14 November 2026, at 11:17 (Europe/Rome), Glauco approved the closure: the entry is C26, formerly M26, with tag `milestone/C26`. Application version stays 0.3.1, with no release. M25 stays planned and the copy of the standard stays in the repository.
+
+| Field | C26 — Single release rule |
+| --- | --- |
+| Number and goal | C26, formerly M26 — Align the repository with the single rule in the Release section of the standard, from 14 November 2026. This is Glauco's documentation-only decision. |
+| Dependency and planned branch | Before M5–M25, despite the higher number. Glauco confirmed it on 14 November 2026, at 10:54 (Europe/Rome). The branch stays `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Standard line 75 gives `milestone/<numero>-<slug>` as an example: the branch already open is kept, so a new pull request is not required. |
+| Planned checkpoint and version | `milestone/C26`; application version unchanged at **0.3.1**; no increment. No release and no `vX.Y.Z` tag. Glauco approved the closure on 14 November 2026, at 11:17 (Europe/Rome). |
+| Tasks | Replace the project rules that required a release even with an unchanged version, and the `docs/*` tag exception, with a reference to the Release section of the standard. M16, M21, M22, M23 and M25 stay without a release and with the version unchanged. The other planned milestones keep the release. Published `docs/*` tags, including `docs/plan-vesta-baseline-2026-11-13`, stay on their commits and are historical. |
+| Acceptance | `AGENTS.md`, `PLAN.md` and the Release section of `STARTUP_PREFERENCES_HOME.md` describe the same rule, in Italian and English where the file has both. The application version stays 0.3.1. No published tag is moved or deleted. |
+| Required tests | `git diff --check`; check of the required documents, links and IT/EN equivalence. No application test. |
+| Documentation | `PLAN.md`, `AGENTS.md` and `STARTUP_PREFERENCES_HOME.md`. |
+| Status | `C26`, formerly M26. Glauco's first approval on 14 November 2026, at 11:17 (Europe/Rome). Tag `milestone/C26`. Version 0.3.1 unchanged, no release. |
 
 ### 3. Milestone conventions
 
 - `P<n>`: optional proposal, not executable without an explicit designer decision.
-- `M<n>`: milestone authorized for the current plan, executed in numeric order on `milestone/<n>-<slug>` from `main`, after verifying the preceding remote checkpoint. Exception: M13 and M14 come immediately after C5, before M6.
+- `M<n>`: milestone authorized for the current plan, executed in numeric order on `milestone/<n>-<slug>` from `main`, after verifying the preceding remote checkpoint. Exception: M13 and M14 come immediately after C5, before M6. On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed that M26 is executed before M5–M25. The exception also covers the branch name: standard line 75 gives `milestone/<numero>-<slug>` as an example, and `patch/0.3.1-regola-unica-release` is kept because it is already open.
 - `C<n>`: work approved by the designer, retaining its `M` number; publication and operational closure may still be pending.
 
 `P` and `M` numbering is independent. Each future `M` must specify a functional goal, branch, `milestone/C<n>` checkpoint, version increment, tasks, acceptance criteria, tests, documentation and status. Do not start the next milestone until the preceding `main` and checkpoint are verified on the remote.
@@ -1000,7 +1032,7 @@ Follow the complete procedure in [AGENTS.md](AGENTS.md). Copy and complete this 
 - [ ] Merge to `main`, push and remote commit verified; CI on `main` verified when necessary.
 - [ ] Release artifacts and smoke tests, when required, and SHA-256 verified on the final commit before tagging.
 - [ ] Annotated `milestone/C<n>` checkpoint and version tag if changed created and verified on the remote.
-- [ ] Required release published and verified; obsolete branch removed only after verification and approval.
+- [ ] Release required by the Release rule, when one is due, published and verified; obsolete branch removed only after verification and approval.
 - [ ] Temporary paths presented for separate confirmation before cleanup; final worktree checked.
 
 For a patch without an `M` entry, do not invent a milestone: freezing, final-commit review and approval apply, but the `M` → `C` transition, the second review caused by that transition and the milestone checkpoint do not. Any change after review requires new approval.
@@ -1036,6 +1068,6 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 
 ### 5. Versions, CI and distribution
 
-Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Documentation-only work may keep the version unchanged and does not require a release. For completed application milestones or patches, publish a release under HOME preferences; mark it as a prerelease if the app is not usable. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
+Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Publication follows the single rule in the Release section of `STARTUP_PREFERENCES_HOME.md`, from 14 November 2026, with no project exception: a release only for changes that matter to how the app works. Documentation, CI, tests and refactoring with no effect have no release, leave the version unchanged and do not create a `vX.Y.Z` tag. If the app is not usable, a release that is due is marked as a prerelease. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
 
 The `package-windows.yml` workflow is manually triggered for a Windows build attempt that cannot be performed equivalently locally. It does not run on push or PR. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The `package-macos.yml` workflow is manual only, on the `macos-15` runner, for unsigned ARM64 DMG and ZIP files; it does not run on push or PR. It ran as `43257940568` and the artifacts are in release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). The M2 closing plan approved on 12 November 2026 includes this reproducible remote macOS build for the v0.3.0 release assets, with SHA-256, alongside the Windows workflow: it spends minutes only when launched. The macOS ARM64 checks for release `v0.2.0` run locally. Additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.
