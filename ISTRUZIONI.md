@@ -2,7 +2,7 @@
 
 Questo manuale descrive Plancia Comandi **0.3.3**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
-La release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. I sorgenti 0.3.3 sono la candidata M13, in verifica: correggono la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto richiesto su Windows PowerShell 5.1 e pwsh 7 in Windows è ancora pendente; non cambiano i controlli o il formato delle preferenze.
+La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
 **Sommario**
 

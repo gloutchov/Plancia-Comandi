@@ -4,11 +4,11 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.3 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. La candidata M13 0.3.3 corregge la quotatura PowerShell degli apostrofi Unicode ed è in verifica prima della pubblicazione. La release 0.3.2 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.3 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.3 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -102,9 +102,9 @@ npm run build
 
 Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notifiche, la policy del renderer e il controllo dei messaggi IPC precedenti a M1; non avvia Electron. La build esegue TypeScript e genera i bundle. Non esistono comandi npm dedicati a lint, typecheck o e2e. Il workflow manuale `package-windows.yml` non parte su push o PR e non pubblica una release. La run `43226304320` ha costruito i pacchetti Windows di 0.3.0, tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, e ha verificato l'eseguibile scompattato, il portable e l'app installata. Il workflow manuale `package-macos.yml` non parte su push o PR. La run `43257940568`, tooling `95500826ba986a4ef4addceda8840188595ee2c7`, ha costruito il DMG e lo ZIP Apple Silicon non firmati e ha eseguito smoke e ispezione solo sull'app scompattata. La release è [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). La build non verifica una shell reale o un installer.
 
-M13 aggiunge test dei percorsi per PowerShell: su Windows `npm test -- src/shared/shellQuote.native.test.ts` deve eseguire Windows PowerShell 5.1 e pwsh 7. Su macOS/Linux il confronto pwsh 7 è esplicito: `PLANCIA_TEST_PWSH=/percorso/pwsh npm test -- src/shared/shellQuote.native.test.ts`; senza il percorso entrambi i test nativi sono saltati. I test usano valori sintetici, profili temporanei e `-NoProfile`, senza appunti reali. Il workflow Windows manuale esistente esegue il confronto prima della build; non è avviato prima del controllo del commit. La verifica locale con pwsh 7.7.0 è riuscita; Windows resta da verificare prima della chiusura M13.
+C13 aggiunge test dei percorsi per PowerShell: su Windows `npm test -- src/shared/shellQuote.native.test.ts` deve eseguire Windows PowerShell 5.1 e pwsh 7. Su macOS/Linux il confronto pwsh 7 è esplicito: `PLANCIA_TEST_PWSH=/percorso/pwsh npm test -- src/shared/shellQuote.native.test.ts`; senza il percorso entrambi i test nativi sono saltati. I test usano valori sintetici, profili temporanei e `-NoProfile`, senza appunti reali. Il workflow Windows manuale esistente esegue il confronto prima della build; non è avviato prima del controllo del commit. La verifica locale con pwsh 7.7.0 è riuscita; la [run Windows 43646412449](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43646412449) ha superato 46 casi per ciascuno dei motori 5.1.26100.33648 e 7.6.9. Suite locale: 232 test riusciti e 1 saltato; build, pacchetti, smoke e SHA-256 della release verificati.
 
-La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.2. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
+La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.3. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
 
 ```bash
 npm run check:site
@@ -158,11 +158,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.3 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. M13 candidate 0.3.3 fixes PowerShell Unicode-apostrophe quoting and is under verification before publication. Release 0.3.2 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.3 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.3 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
@@ -256,9 +256,9 @@ npm run build
 
 Vitest checks status detection, output bursts, titles, stabilization, notifications, the renderer policy and the checks on IPC messages that predate M1; it does not launch Electron. The build runs TypeScript and generates bundles. There are no dedicated npm lint, typecheck or e2e commands. The manual `package-windows.yml` workflow does not run on push or PR and does not publish a release. Run `43226304320` built the Windows packages for 0.3.0, tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, and checked the unpacked executable, the portable executable and the installed app. The manual `package-macos.yml` workflow does not run on push or PR. Run `43257940568`, tooling `95500826ba986a4ef4addceda8840188595ee2c7`, built the unsigned Apple Silicon DMG and ZIP and ran smoke tests and inspection only on the unpacked app. The release is [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Building does not verify a real shell or installer.
 
-M13 adds PowerShell path tests: on Windows, `npm test -- src/shared/shellQuote.native.test.ts` must run Windows PowerShell 5.1 and pwsh 7. On macOS/Linux, pwsh 7 comparison is explicit: `PLANCIA_TEST_PWSH=/path/to/pwsh npm test -- src/shared/shellQuote.native.test.ts`; without that path both native tests are skipped. Tests use synthetic values, temporary profiles and `-NoProfile`, without the real clipboard. The existing manual Windows workflow runs the comparison before the build; it is not started before commit review. Local pwsh 7.7.0 verification passed; Windows verification is still required before M13 closure.
+C13 adds PowerShell path tests: on Windows, `npm test -- src/shared/shellQuote.native.test.ts` must run Windows PowerShell 5.1 and pwsh 7. On macOS/Linux, pwsh 7 comparison is explicit: `PLANCIA_TEST_PWSH=/path/to/pwsh npm test -- src/shared/shellQuote.native.test.ts`; without that path both native tests are skipped. Tests use synthetic values, temporary profiles and `-NoProfile`, without the real clipboard. The existing manual Windows workflow runs the comparison before the build; it is not started before commit review. Local pwsh 7.7.0 verification passed; [Windows run 43646412449](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43646412449) passed 46 cases per engine, versions 5.1.26100.33648 and 7.6.9. Local suite: 232 passed and 1 skipped; release build, packages, smoke and SHA-256 verified.
 
-The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.2 packages. Milestone C4 records its checks and publication. To check it from the checkout:
+The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.3 packages. Milestone C4 records its checks and publication. To check it from the checkout:
 
 ```bash
 npm run check:site

@@ -2,7 +2,7 @@
 
 This manual describes Plancia Comandi **0.3.3**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
-Release [0.3.2](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.2) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. Version 0.3.3 source is the M13 candidate under verification: it fixes PowerShell quoting for paths containing Unicode apostrophes. The required Windows PowerShell 5.1 and pwsh 7 comparison on Windows is still pending; controls and the settings format are unchanged.
+Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
 **Contents**
 
