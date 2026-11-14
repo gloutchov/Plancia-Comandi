@@ -97,7 +97,7 @@ Usare versionamento semantico, adattato alla scala reale del progetto:
 - `+0.1.0`: nuova funzionalita' minore o miglioramento funzionale rilevante.
 - `+1.0.0`: milestone importante, cambio architetturale, nuova superficie principale o rilascio stabile.
 
-Ogni milestone o patch per cui si pubblica una release deve aggiornare la versione. Una semplice modifica esclusivamente documentale puo' lasciare invariata la versione applicativa.
+Ogni milestone o patch per cui si pubblica una release deve aggiornare la versione. Le modifiche che non richiedono una release secondo la regola "Release" (documentazione, CI, test, refactoring senza effetti sul comportamento) lasciano invariata la versione applicativa e non creano tag `vX.Y.Z`.
 
 Quando la versione cambia, sincronizzarla in tutti i punti canonici del progetto, per esempio:
 
@@ -112,8 +112,9 @@ I tag Git di versione devono seguire il formato `vX.Y.Z`; i tag di checkpoint de
 
 ## Release
 
-- Pubblicare una GitHub release per ogni milestone o patch conclusa, incluse correzioni ordinarie e hardening, anche nelle prime fasi del progetto.
-- Per semplici modifiche esclusivamente documentali, la GitHub release non e' richiesta.
+- Regola unica per tutti i progetti, senza eccezioni (dal 14/11/2026): pubblicare una GitHub release solo quando la milestone o patch e' significativa per il funzionamento dell'app, cioe' modifiche al codice che cambiano il comportamento, correzioni di bug, hardening e aggiornamenti di sicurezza o di dipendenze di runtime, anche nelle prime fasi del progetto.
+- Non pubblicare release per documentazione, CI, test e refactoring che non cambiano il comportamento dell'app.
+- Il tipo di modifica, e quindi release si' o no, viene proposto prima della chiusura e confermato dal progettista; eventuali regole diverse nei singoli progetti sono superate da questa.
 - Se il programma non e' ancora utilizzabile, contrassegnare la release come prerelease e indicarne chiaramente lo stato.
 - Generare artifact per Windows e macOS quando applicabile e quando esiste una build distribuibile.
 - Ogni release deve includere checksum SHA-256 degli artifact.
