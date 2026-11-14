@@ -458,18 +458,18 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 
 #### 2.5 Regola unica sulle release, 14 novembre 2026
 
-Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: M26 si esegue prima di M5–M25. La voce è qui sotto e resta `M26` finché non arriva la prima approvazione esplicita. Il tag `milestone/C26` non è creato. M25 resta pianificata e la copia dello standard resta nel repository.
+Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: M26 si esegue prima di M5–M25. Il 14 novembre 2026, ore 11:17 (Europe/Rome), Glauco ha approvato la chiusura: la voce è C26, già M26, con tag `milestone/C26`. Versione applicativa invariata 0.3.1, nessuna release. M25 resta pianificata e la copia dello standard resta nel repository.
 
-| Campo | M26 — Regola unica sulle release |
+| Campo | C26 — Regola unica sulle release |
 | --- | --- |
-| Numero e obiettivo | M26 — Allineare il repository alla regola unica della sezione Release dello standard, dal 14 novembre 2026. È una decisione di Glauco di sola documentazione. |
+| Numero e obiettivo | C26, già M26 — Allineare il repository alla regola unica della sezione Release dello standard, dal 14 novembre 2026. È una decisione di Glauco di sola documentazione. |
 | Dipendenza e branch previsto | Prima di M5–M25, pur con un numero più alto. Glauco lo ha confermato il 14 novembre 2026, ore 10:54 (Europe/Rome). Il branch resta `patch/0.3.1-regola-unica-release`, da main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Lo standard, riga 75, indica `milestone/<numero>-<slug>` come esempio: si tiene il branch già aperto, così non serve aprire una nuova pull request. |
-| Checkpoint e versione previsti | `milestone/C26`; versione applicativa invariata **0.3.1**; incremento nessuno. Nessuna release e nessun tag `vX.Y.Z`. Il tag di checkpoint non è creato prima dell'approvazione. |
+| Checkpoint e versione previsti | `milestone/C26`; versione applicativa invariata **0.3.1**; incremento nessuno. Nessuna release e nessun tag `vX.Y.Z`. Glauco ha approvato la chiusura il 14 novembre 2026, ore 11:17 (Europe/Rome). |
 | Attività | Sostituire le regole di progetto sulla release obbligatoria e sull'eccezione dei tag `docs/*` con il rimando alla sezione Release dello standard. M16, M21, M22, M23 e M25 restano senza release e a versione invariata. Le altre milestone pianificate mantengono la release. I tag `docs/*` già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13`, restano al loro commit e sono storici. |
 | Criteri di accettazione | `AGENTS.md`, `PLAN.md` e la sezione Release di `STARTUP_PREFERENCES_HOME.md` descrivono la stessa regola, in italiano e in inglese dove il file le prevede. La versione applicativa resta 0.3.1. Nessun tag pubblicato è spostato o cancellato. |
 | Test richiesti | `git diff --check`; controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
 | Documentazione | `PLAN.md`, `AGENTS.md` e `STARTUP_PREFERENCES_HOME.md`. |
-| Stato | `M26`. La documentazione è su questo branch. Il passaggio a C segue solo la prima approvazione esplicita di Glauco. |
+| Stato | `C26`, già M26. Prima approvazione di Glauco il 14 novembre 2026, ore 11:17 (Europe/Rome). Tag `milestone/C26`. Versione 0.3.1 invariata, nessuna release. |
 
 ### 3. Convenzioni delle milestone
 
@@ -994,18 +994,18 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 
 #### 2.5 Single release rule, 14 November 2026
 
-On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26 is executed before M5–M25. The entry is below and stays `M26` until the first explicit approval. The `milestone/C26` tag is not created. M25 stays planned and the copy of the standard stays in the repository.
+On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26 is executed before M5–M25. On 14 November 2026, at 11:17 (Europe/Rome), Glauco approved the closure: the entry is C26, formerly M26, with tag `milestone/C26`. Application version stays 0.3.1, with no release. M25 stays planned and the copy of the standard stays in the repository.
 
-| Field | M26 — Single release rule |
+| Field | C26 — Single release rule |
 | --- | --- |
-| Number and goal | M26 — Align the repository with the single rule in the Release section of the standard, from 14 November 2026. This is Glauco's documentation-only decision. |
+| Number and goal | C26, formerly M26 — Align the repository with the single rule in the Release section of the standard, from 14 November 2026. This is Glauco's documentation-only decision. |
 | Dependency and planned branch | Before M5–M25, despite the higher number. Glauco confirmed it on 14 November 2026, at 10:54 (Europe/Rome). The branch stays `patch/0.3.1-regola-unica-release`, from main `191cd32cef4f570c5cdc315a8d31bb560857d1c9`. Standard line 75 gives `milestone/<numero>-<slug>` as an example: the branch already open is kept, so a new pull request is not required. |
-| Planned checkpoint and version | `milestone/C26`; application version unchanged at **0.3.1**; no increment. No release and no `vX.Y.Z` tag. The checkpoint tag is not created before approval. |
+| Planned checkpoint and version | `milestone/C26`; application version unchanged at **0.3.1**; no increment. No release and no `vX.Y.Z` tag. Glauco approved the closure on 14 November 2026, at 11:17 (Europe/Rome). |
 | Tasks | Replace the project rules that required a release even with an unchanged version, and the `docs/*` tag exception, with a reference to the Release section of the standard. M16, M21, M22, M23 and M25 stay without a release and with the version unchanged. The other planned milestones keep the release. Published `docs/*` tags, including `docs/plan-vesta-baseline-2026-11-13`, stay on their commits and are historical. |
 | Acceptance | `AGENTS.md`, `PLAN.md` and the Release section of `STARTUP_PREFERENCES_HOME.md` describe the same rule, in Italian and English where the file has both. The application version stays 0.3.1. No published tag is moved or deleted. |
 | Required tests | `git diff --check`; check of the required documents, links and IT/EN equivalence. No application test. |
 | Documentation | `PLAN.md`, `AGENTS.md` and `STARTUP_PREFERENCES_HOME.md`. |
-| Status | `M26`. The documentation is on this branch. The move to C follows only Glauco's first explicit approval. |
+| Status | `C26`, formerly M26. Glauco's first approval on 14 November 2026, at 11:17 (Europe/Rome). Tag `milestone/C26`. Version 0.3.1 unchanged, no release. |
 
 ### 3. Milestone conventions
 
