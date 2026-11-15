@@ -1,10 +1,11 @@
-export type ShellQuoteKind = 'posix' | 'powershell' | 'cmd'
+export type ShellQuoteKind = 'posix' | 'fish' | 'powershell' | 'cmd'
 
 const POWERSHELL = new Set(['powershell', 'pwsh'])
 const CMD = new Set(['cmd'])
 
-/** Unknown shell ids, including login shells, Git Bash, bash, zsh and fish, use POSIX quoting. */
+/** Unknown shell ids, including login shells, Git Bash, bash and zsh, use POSIX quoting. */
 export function shellQuoteKind(shellId: string): ShellQuoteKind {
+  if (shellId === 'fish') return 'fish'
   if (POWERSHELL.has(shellId)) return 'powershell'
   if (CMD.has(shellId)) return 'cmd'
   return 'posix'
@@ -12,6 +13,11 @@ export function shellQuoteKind(shellId: string): ShellQuoteKind {
 
 function quotePosix(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+function quoteFish(value: string): string {
+  // In fish single quotes, both backslashes and apostrophes need escaping.
+  return `'${value.replace(/[\\']/g, '\\$&')}'`
 }
 
 function quotePowerShell(value: string): string {
@@ -37,6 +43,7 @@ function quoteCmd(value: string): string {
 
 export function quoteShellArg(value: string, kind: ShellQuoteKind): string | null {
   if (!value || /[\0\r\n]/.test(value)) return null
+  if (kind === 'fish') return quoteFish(value)
   if (kind === 'powershell') return quotePowerShell(value)
   if (kind === 'cmd') return quoteCmd(value)
   return quotePosix(value)

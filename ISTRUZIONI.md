@@ -1,8 +1,8 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.3**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.4**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
-La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
+I sorgenti 0.3.4 aggiungono la quotatura specifica per le sessioni fish; questa versione non è ancora pubblicata. La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
 **Sommario**
 
@@ -37,7 +37,7 @@ Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pub
 
 Per preparare gli strumenti nativi:
 
-- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.3-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.3-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
+- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.4-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.4-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
 - **Linux:** `node-pty` 1.1.0 non ha una prebuild Linux. Su Debian e Ubuntu installa `build-essential` e `python3`, poi segui [Compilare ed eseguire su Linux](#24-compilare-ed-eseguire-su-linux). Su Linux non è stata testata di persona.
 
@@ -248,6 +248,8 @@ Su Windows e Linux, Ctrl+C copia la selezione e la toglie, così il Ctrl+C succe
 Trascinare uno o più file nel terminale inserisce i loro percorsi, fra virgolette adatte alla shell della sessione e separati da uno spazio, con uno spazio finale. Un percorso con un a capo non viene inserito. Il testo trascinato, senza file, viene incollato come testo. L'app non apre il file trascinato al posto del terminale e non apre nuove finestre da un link.
 
 Per le sessioni **Windows PowerShell** e **PowerShell 7**, i percorsi trascinati e quelli delle immagini incollate conservano gli apostrofi semplici e tipografici. Nella riga inserita ogni apostrofo appare raddoppiato: è la sintassi della shell, il nome originale resta invariato. Questo vale per i percorsi generati dall'app; il testo degli appunti continua a essere incollato come testo.
+
+Per usare fish, scegli **fish** nel campo **Shell** di **Nuova sessione**. I percorsi trascinati e quelli delle immagini incollate conservano spazi, apostrofi e backslash, anche finali. Nella riga inserita puoi vedere backslash aggiunti: servono alla sintassi di fish e il nome originale resta invariato. La scelta generica **Shell di login** conserva la quotatura POSIX, anche se avvia fish; per questi percorsi seleziona esplicitamente **fish**. Se cambi shell con un comando dentro una sessione, la quotatura continua a seguire la scelta iniziale. Il testo libero degli appunti e quello trascinato non vengono quotati.
 
 Se negli appunti c'è un'immagine e incolli, l'app la salva come PNG in una cartella sua dentro i dati utente e incolla il percorso quotato, con uno spazio finale. Il nome del file è generato dall'app. Le immagini più vecchie del tempo configurato, e quelle oltre il numero massimo, vengono eliminate. Se l'immagine non è accettabile, l'incolla usa il testo degli appunti.
 

@@ -1,8 +1,8 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.3**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.4**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
-Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
+Source version 0.3.4 adds quoting specific to fish sessions; this version is not published yet. Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
 **Contents**
 
@@ -37,7 +37,7 @@ Running source requires Git, Node.js with npm and access to the public repositor
 
 To prepare native tools:
 
-- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer `PlanciaComandi-win-0.3.3-x64-setup.exe` and the portable `PlanciaComandi-win-0.3.3-x64-portable.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer `PlanciaComandi-win-0.3.4-x64-setup.exe` and the portable `PlanciaComandi-win-0.3.4-x64-portable.exe`; the unpacked folder, when requested, is `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
 - **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 
@@ -248,6 +248,8 @@ On Windows and Linux, Ctrl+C copies the selection and clears it, so the next Ctr
 Dragging one or more files into the terminal inserts their paths, quoted for that session's shell and separated by a space, with one trailing space. A path that contains a line break is not inserted. Dragged text, with no files, is pasted as text. The app does not open a dropped file in place of the terminal and does not open new windows from a link.
 
 For **Windows PowerShell** and **PowerShell 7** sessions, dropped paths and pasted-image paths preserve straight and typographic apostrophes. Each apostrophe appears doubled in the inserted line: that is shell syntax, while the original name stays unchanged. This applies to app-generated paths; clipboard text is still pasted as text.
+
+To use fish, choose **fish** in the **Shell** field of **New session**. Dropped paths and pasted-image paths preserve spaces, apostrophes and backslashes, including trailing ones. The inserted line may contain added backslashes: they are fish syntax and the original name stays unchanged. The generic **Login shell** choice keeps POSIX quoting even when it launches fish; explicitly select **fish** for these paths. If you change shells with a command inside a session, quoting continues to follow the initial choice. Free clipboard and dropped text are not quoted.
 
 If the clipboard holds an image and you paste, the app saves it as a PNG in its own folder inside the user-data directory and pastes the quoted path, with a trailing space. The file name is generated by the app. Images older than the configured time, and images beyond the maximum count, are deleted. If the image is not acceptable, paste uses the clipboard text.
 

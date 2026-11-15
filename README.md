@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.3 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.3 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.4 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. M14 corregge nei sorgenti la quotatura dei percorsi nelle sessioni fish; 0.3.4 è in verifica locale e non è ancora pubblicata. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.3 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -158,7 +158,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.3 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.3 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.4 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. M14 fixes path quoting in fish sessions in source; 0.3.4 is undergoing local verification and is not published yet. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.3 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 

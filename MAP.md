@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.3**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.4**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -58,7 +58,9 @@ Plancia-Comandi/
 |   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
 |   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
 |   |-- terminalEdit.powershell.test.ts Test dei percorsi Unicode in drop e immagini incollate
+|   |-- terminalEdit.fish.test.ts     Test fish per drop, immagini, limiti e testo libero
 |   |-- test/
+|   |   |-- fishQuoting.ts           Percorsi sintetici e attese per gli escape fish
 |   |   |-- powershellQuoting.ts     Casi sintetici e bridge appunti finto per i test PowerShell
 |   |   |-- powershellNativeTransport.ts Protocollo base64 UTF-8 e validazione dei report nativi
 |   |   `-- powershellNativeTransport.test.ts Test di Unicode, separatori e report non validi
@@ -78,7 +80,8 @@ Plancia-Comandi/
 |       |-- appConfig.ts             Validazione della configurazione centrale
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
-|       |-- shellQuote.test.ts       Test POSIX, PowerShell Unicode e cmd
+|       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
+|       |-- shellDetection.test.ts   Rilevamento simulato dei quattro percorsi fish, senza shell reali
 |       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7 senza autoload di moduli, file UTF-8/base64 e diagnosi della fase, condizionato alla piattaforma
 |       |-- drop.ts                  Scelta tra percorsi e testo trascinati
 |       |-- drop.test.ts             Test del trascinamento
@@ -186,7 +189,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.3** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.4** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -242,7 +245,9 @@ Plancia-Comandi/
 |   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
 |   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
 |   |-- terminalEdit.powershell.test.ts Unicode drop and pasted-image path tests
+|   |-- terminalEdit.fish.test.ts     Fish drop, image, limit and free-text tests
 |   |-- test/
+|   |   |-- fishQuoting.ts           Synthetic paths and expected fish escapes
 |   |   |-- powershellQuoting.ts     Synthetic cases and clipboard bridge stub for PowerShell tests
 |   |   |-- powershellNativeTransport.ts UTF-8/base64 protocol and native report validation
 |   |   `-- powershellNativeTransport.test.ts Unicode, delimiter and invalid report tests
@@ -262,7 +267,8 @@ Plancia-Comandi/
 |       |-- appConfig.ts             Central-configuration validation
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
-|       |-- shellQuote.test.ts       POSIX, PowerShell and cmd tests
+|       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
+|       |-- shellDetection.test.ts   Mocked detection of the four fish paths, without real shells
 |       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip without module autoload, UTF-8/base64 files and stage diagnostics, platform conditional
 |       |-- drop.ts                  Choice between dropped paths and text
 |       |-- drop.test.ts             Drag-and-drop tests

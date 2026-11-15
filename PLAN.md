@@ -332,11 +332,11 @@ Le versioni che incrementano restano consecutive nella serie 0.3.x, da `v0.3.2` 
 | Numero e obiettivo | M14 — PC-02, gravità media, sospetta. Quotare fish dentro gli apici singoli secondo le sue sequenze di escape. |
 | Dipendenza e branch previsto | Dopo C13 e prima di M6; `milestone/14-fish-quoting`. Resta una milestone separata da M13. |
 | Checkpoint e versione previsti | `milestone/C14`, `v0.3.4`; incremento `+0.0.1`. |
-| Attività | `shellQuoteKind` (`src/shared/shellQuote.ts:6-15`) manda fish su POSIX; `src/shared/shellQuote.test.ts:11` si aspetta questo risultato e va aggiornato. Il rilevamento è in `electron/shells.ts:29-32`: `/opt/homebrew/bin/fish`, `/usr/local/bin/fish`, `/bin/fish` e `/usr/bin/fish`. Dentro gli apici singoli fish interpreta `\'` e `\\` come escape: un percorso con backslash finale, o con `\'`, può chiudere la stringa. Aggiungere il tipo `fish`, che dentro gli apici trasforma `\` in `\\` e `'` in `\'`. |
+| Attività | Aggiunto il tipo `fish` in `shellQuoteKind` e `quoteShellArg`: dentro gli apici singoli protegge sia backslash sia apostrofi secondo le regole di fish. Test dei percorsi con spazi, backslash finale, backslash seguito da apostrofo, metacaratteri e Unicode; verificati i chiamanti per trascinamento e immagini incollate, i limiti dopo gli escape e il testo libero invariato. `shellDetection.test.ts` verifica con filesystem simulato i quattro percorsi già rilevati da `electron/shells.ts`, senza modificarne il comportamento. |
 | Criteri di accettazione | Un percorso fish con backslash, apice e spazio resta un unico argomento. I percorsi Homebrew e di sistema sopra sono riconosciuti come fish. PowerShell, cmd e POSIX restano invariati. `SECURITY_MODEL.md` cita fish. |
 | Test richiesti | Aggiornare `shellQuote.test.ts:11` e aggiungere i test di rilevamento per i quattro percorsi. Test unitari del tipo `fish`, del backslash finale e di `\'`. Suite e build. Prova manuale su macOS solo se fish è installato nell'ambiente di verifica, con dati sintetici. |
 | Documentazione | `SECURITY_MODEL.md`, MAP per il test, manuali se l'elenco delle shell quotate cambia, PLAN e versione. |
-| Stato | `M14`, solo pianificata; implementazione non avviata. |
+| Stato | `M14`, implementata e verificata localmente il 15 novembre 2026 sul branch dedicato; voce ancora M, in attesa del primo controllo e dell'approvazione del commit. Nessun push, merge, tag o release eseguiti. Esiti nella sezione 4.5. |
 
 | Campo | M15 — Polling dei processi figli su Windows |
 | --- | --- |
@@ -571,6 +571,17 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 - [x] Consuntivo IT/EN e link landing 0.3.3 preparati sul branch locale `patch/0.3.3-c13-documentation-closeout`, versione invariata e nessun nuovo tag/release.
 - [ ] Controllo e approvazione esplicita del commit della patch documentale prima della pubblicazione; verificare poi Pages e file pubblici.
 - [ ] Temporanei conservati: `/private/tmp/plancia-m13-20261114`, `/private/tmp/plancia-m13-powershell7`, `/private/tmp/plancia-m13-regression-before.log` e directory `plancia-powershell-quote-*` (ora anche fixture/report sintetici e fase), più `/private/tmp/plancia-c13-closeout-20261114`. Diagnosi di sviluppo: `/private/tmp/plancia-drag-20261114`, `/private/tmp/plancia-dev-deps-20261114` e directory `plancia-dev-smoke-*`; percorsi/esiti nel resoconto locale `development-alignment-verification.json`. Cancellazione solo con conferma separata.
+
+#### 4.5 Esiti locali M14 — 15 novembre 2026
+
+- [x] Identità Git `Glauco Silvestri <gloutchov@gmail.com>` e account GitHub `gloutchov` verificati. Main locale/remoto: `2b9161d9a72ca908e0fc4d8ef6590a7888d88b63`. Checkpoint annotato remoto C13: `81cb36d8da15576cf11b96815408c2bd362d7531`, antenato di main.
+- [x] Branch `milestone/14-fish-quoting` da main in un worktree separato. Modifiche preesistenti ai due file package del checkout principale preservate ed escluse dalla milestone.
+- [x] Quotatura fish dedicata, test dei quattro percorsi di rilevamento, trascinamento e immagini con appunti simulati. Nessuna nuova dipendenza, regola IPC o modifica visiva. Versione sorgenti **0.3.4** nel manifest, nelle due radici del lockfile e nei documenti correnti; download e storia delle release conservati a 0.3.3.
+- [x] `npm ci` dal lockfile riuscito con Node.js 24.18.1 e rebuild node-pty per Electron 45.3.2; risoluzioni invariate. Primo tentativo nel sandbox fallito per DNS (`ENOTFOUND`); ripetuto con rete autorizzata. Test mirati **128/128**; suite **274 riusciti, 2 saltati** su 276. Build riuscita con avviso esistente del renderer oltre 500 kB; controllo sito riuscito.
+- [x] README, manuali IT/EN, quick start, modello di sicurezza, mappa, versione AGENTS e piano aggiornati; revisione locale di codice e documentazione. Controlli documentali, JSON, struttura IT/EN e `git diff --check` completati prima del commit da controllare.
+- [ ] Prova nativa fish non eseguita: fish assente su questo Mac, prevista solo se installata. Test PowerShell nativi saltati: ambiente non Windows e `PLANCIA_TEST_PWSH` non impostata. Nessuno smoke Electron/UI, packaging, prova Windows/Linux o audit delle dipendenze in questa fase: non cambiano controlli UI, pacchetti e smoke della release seguono il commit approvato, audit della toolchain assegnato a M6. Nessun workflow remoto avviato.
+- [ ] Limiti documentati: selezionare esplicitamente fish; la voce generica `login` conserva POSIX anche se avvia fish. Un cambio shell dentro il terminale non aggiorna la scelta iniziale. Nessuna prova nativa fish dichiarata.
+- [ ] Primo controllo e approvazione del commit locale, poi passaggio M14 → C14 con secondo controllo. Push, merge, pacchetti/SHA-256, checkpoint `milestone/C14`, tag `v0.3.4`, release e pulizia pendenti secondo HOME. Temporanei conservati fino a conferma separata.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -910,11 +921,11 @@ Versions that increment stay consecutive in the 0.3.x series, from `v0.3.2` to `
 | Number and goal | M14 — PC-02, medium severity, suspected. Quote fish inside single quotes according to its escape sequences. |
 | Dependency and planned branch | After C13 and before M6; `milestone/14-fish-quoting`. It stays a milestone separate from M13. |
 | Planned checkpoint and version | `milestone/C14`, `v0.3.4`; increment `+0.0.1`. |
-| Tasks | `shellQuoteKind` (`src/shared/shellQuote.ts:6-15`) maps fish to POSIX; `src/shared/shellQuote.test.ts:11` expects that result and is to be updated. Detection is in `electron/shells.ts:29-32`: `/opt/homebrew/bin/fish`, `/usr/local/bin/fish`, `/bin/fish` and `/usr/bin/fish`. Inside single quotes fish treats `\'` and `\\` as escapes: a path with a trailing backslash, or with `\'`, can close the string. Add a `fish` kind that, inside quotes, turns `\` into `\\` and `'` into `\'`. |
+| Tasks | Added the `fish` kind to `shellQuoteKind` and `quoteShellArg`: single-quoted paths escape backslashes and apostrophes using fish rules. Tests cover spaces, trailing backslashes, backslash followed by apostrophe, metacharacters and Unicode, dropped paths and pasted images, limits after escaping and unchanged free text. `shellDetection.test.ts` checks the four paths already discovered by `electron/shells.ts` with a mocked filesystem, without changing detection behavior. |
 | Acceptance | A fish path with a backslash, an apostrophe and a space stays one argument. The Homebrew and system paths above are recognized as fish. PowerShell, cmd and POSIX stay unchanged. `SECURITY_MODEL.md` mentions fish. |
 | Required tests | Update `shellQuote.test.ts:11` and add detection tests for the four paths. Unit tests for the `fish` kind, a trailing backslash and `\'`. Suite and build. A manual check on macOS only when fish is installed in the verification environment, with synthetic data. |
 | Documentation | `SECURITY_MODEL.md`, MAP for the test, manuals if the list of quoted shells changes, PLAN and version. |
-| Status | `M14`, planned only; implementation not started. |
+| Status | `M14`, implemented and verified locally on 15 November 2026 on its dedicated branch; still M, awaiting the first commit review and approval. No push, merge, tag or release performed. Results in section 4.5. |
 
 | Field | M15 — Windows child-process polling |
 | --- | --- |
@@ -1149,6 +1160,17 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 - [x] IT/EN closeout and landing 0.3.3 links prepared on local branch `patch/0.3.3-c13-documentation-closeout`, version unchanged and no new tag/release.
 - [ ] Personal review and explicit approval of the documentation patch commit before publication; then verify Pages and public files.
 - [ ] Temporary files retained: `/private/tmp/plancia-m13-20261114`, `/private/tmp/plancia-m13-powershell7`, `/private/tmp/plancia-m13-regression-before.log` and `plancia-powershell-quote-*` directories (now also synthetic fixtures/reports and stage), plus `/private/tmp/plancia-c13-closeout-20261114`. Development diagnosis: `/private/tmp/plancia-drag-20261114`, `/private/tmp/plancia-dev-deps-20261114` and `plancia-dev-smoke-*` directories; paths/results are in the local `development-alignment-verification.json` report. Deletion requires separate confirmation.
+
+#### 4.5 Local M14 results — 15 November 2026
+
+- [x] Git identity `Glauco Silvestri <gloutchov@gmail.com>` and GitHub account `gloutchov` verified. Local/remote main: `2b9161d9a72ca908e0fc4d8ef6590a7888d88b63`. Annotated remote C13 checkpoint: `81cb36d8da15576cf11b96815408c2bd362d7531`, an ancestor of main.
+- [x] Branch `milestone/14-fish-quoting` from main in a separate worktree. Pre-existing changes to both package files in the main checkout preserved and excluded from the milestone.
+- [x] Dedicated fish quoting, tests for all four discovery paths, drops and images with a clipboard stub. No new dependency, IPC rule or visual change. Source version **0.3.4** in the manifest, both lockfile roots and current documents; downloads and release history kept at 0.3.3.
+- [x] Lockfile `npm ci` passed using Node.js 24.18.1 and node-pty rebuild for Electron 45.3.2; resolutions unchanged. First sandbox attempt failed on DNS (`ENOTFOUND`); repeated with authorized network access. Targeted tests **128/128**; suite **274 passed, 2 skipped** out of 276. Build passed with the existing renderer warning above 500 kB; site check passed.
+- [x] README, IT/EN manuals, quick start, security model, map, AGENTS version and plan updated; local code and documentation review. Documentation, JSON, IT/EN structure and `git diff --check` completed before the commit submitted for review.
+- [ ] Native fish test not run: fish absent on this Mac, required only when installed. Native PowerShell tests skipped: not Windows and `PLANCIA_TEST_PWSH` unset. No Electron/UI smoke, packaging, Windows/Linux check or dependency audit in this phase: no UI controls change, release packages and smoke follow the approved commit, toolchain audit assigned to M6. No remote workflow started.
+- [ ] Documented limits: select fish explicitly; the generic `login` entry keeps POSIX even when it launches fish. A shell change inside the terminal does not update the initial choice. No native fish verification claimed.
+- [ ] First local commit review and approval, then M14 → C14 with a second review. Push, merge, packages/SHA-256, checkpoint `milestone/C14`, tag `v0.3.4`, release and cleanup pending under HOME. Temporary files retained until separate confirmation.
 
 ### 5. Versions, CI and distribution
 

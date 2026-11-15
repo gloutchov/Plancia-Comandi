@@ -1,20 +1,29 @@
 import { describe, expect, it } from 'vitest'
 import { formatDroppedPaths, quoteShellArg, shellQuoteKind } from './shellQuote'
 import { powerShellQuotingCases } from '../test/powershellQuoting'
+import { fishQuotingCases } from '../test/fishQuoting'
 
 describe('shellQuoteKind', () => {
-  it('maps Windows shells and treats the others as POSIX', () => {
+  it('maps Windows shells and fish, keeping the POSIX fallback', () => {
     expect(shellQuoteKind('powershell')).toBe('powershell')
     expect(shellQuoteKind('pwsh')).toBe('powershell')
     expect(shellQuoteKind('cmd')).toBe('cmd')
     expect(shellQuoteKind('gitbash')).toBe('posix')
     expect(shellQuoteKind('login')).toBe('posix')
-    expect(shellQuoteKind('fish')).toBe('posix')
+    expect(shellQuoteKind('fish')).toBe('fish')
     expect(shellQuoteKind('unknown')).toBe('posix')
   })
 })
 
 describe('quoteShellArg', () => {
+  it.each(fishQuotingCases)('quotes $name for fish', ({ value, quoted }) => {
+    expect(quoteShellArg(value, 'fish')).toBe(quoted)
+  })
+
+  it.each(['', 'a\0b', 'a\rb', 'a\nb'])('rejects invalid fish input %j', (value) => {
+    expect(quoteShellArg(value, 'fish')).toBeNull()
+  })
+
   it('quotes POSIX paths, including spaces and single quotes', () => {
     expect(quoteShellArg('/tmp/a b', 'posix')).toBe("'/tmp/a b'")
     expect(quoteShellArg("it's", 'posix')).toBe(`'it'\\''s'`)
@@ -47,6 +56,16 @@ describe('quoteShellArg', () => {
 })
 
 describe('formatDroppedPaths', () => {
+  it.each(fishQuotingCases)('counts fish escapes for $name without truncating', ({ value, quoted }) => {
+    expect(formatDroppedPaths([value], 'fish', quoted.length + 1)).toBe(`${quoted} `)
+    expect(formatDroppedPaths([value], 'fish', quoted.length)).toBeNull()
+  })
+
+  it('joins complete fish arguments and skips paths with line breaks or NUL', () => {
+    expect(formatDroppedPaths(['bad\n', 'a\\', 'bad\r', "b'c", 'bad\0'], 'fish', 200))
+      .toBe(String.raw`'a\\' 'b\'c' `)
+  })
+
   it('joins several paths with spaces and leaves one trailing space', () => {
     expect(formatDroppedPaths(['/tmp/a b', '/tmp/c'], 'posix', 200)).toBe("'/tmp/a b' '/tmp/c' ")
     expect(formatDroppedPaths(['C:\\A B\\x.png', 'C:\\C\\y.png'], 'powershell', 200)).toBe(
