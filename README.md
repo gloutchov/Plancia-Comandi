@@ -4,11 +4,11 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.4 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. M14 corregge nei sorgenti la quotatura dei percorsi nelle sessioni fish; 0.3.4 è in verifica locale e non è ancora pubblicata. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.3 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.4 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C14 corregge la quotatura dei percorsi nelle sessioni fish; il confronto nativo con fish 4.9.3 e la prova personale sono riusciti. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.4 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.4](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.4) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -104,7 +104,9 @@ Vitest verifica rilevamento degli stati, burst, titoli, stabilizzazione, notific
 
 C13 aggiunge test dei percorsi per PowerShell: su Windows `npm test -- src/shared/shellQuote.native.test.ts` deve eseguire Windows PowerShell 5.1 e pwsh 7. Su macOS/Linux il confronto pwsh 7 è esplicito: `PLANCIA_TEST_PWSH=/percorso/pwsh npm test -- src/shared/shellQuote.native.test.ts`; senza il percorso entrambi i test nativi sono saltati. I test usano valori sintetici, profili temporanei e `-NoProfile`, senza appunti reali. Il workflow Windows manuale esistente esegue il confronto prima della build; non è avviato prima del controllo del commit. La verifica locale con pwsh 7.7.0 è riuscita; la [run Windows 43646412449](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43646412449) ha superato 46 casi per ciascuno dei motori 5.1.26100.33648 e 7.6.9. Suite locale: 232 test riusciti e 1 saltato; build, pacchetti, smoke e SHA-256 della release verificati.
 
-La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.3. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
+C14, 15 novembre 2026: 274 test locali riusciti e 2 PowerShell nativi saltati su macOS; 17 confronti fish 4.9.3 riusciti. La [run Windows 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) ha superato 46 casi per ciascuno dei motori PowerShell 5.1.26100.33648 e 7.6.9 e verificato app scompattata, portable e installata. DMG montato in sola lettura e ZIP macOS ARM64 estratto sono stati ispezionati e provati fuori dal checkout, con profili isolati prima del main. Tutti i sei allegati sono stati riscaricati e confrontati con SHA-256 e digest GitHub; gli archivi sorgente ZIP/TAR coincidono con i 118 file del commit rilasciato. Non è una prova personale su PC Windows, Linux, macOS Intel o Gatekeeper su download in quarantena.
+
+La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.4. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
 
 ```bash
 npm run check:site
@@ -158,11 +160,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.4 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. M14 fixes path quoting in fish sessions in source; 0.3.4 is undergoing local verification and is not published yet. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.3 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.4 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C14 fixes path quoting in fish sessions; native fish 4.9.3 comparison and the personal test passed. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.4 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.4](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.4) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
@@ -258,7 +260,9 @@ Vitest checks status detection, output bursts, titles, stabilization, notificati
 
 C13 adds PowerShell path tests: on Windows, `npm test -- src/shared/shellQuote.native.test.ts` must run Windows PowerShell 5.1 and pwsh 7. On macOS/Linux, pwsh 7 comparison is explicit: `PLANCIA_TEST_PWSH=/path/to/pwsh npm test -- src/shared/shellQuote.native.test.ts`; without that path both native tests are skipped. Tests use synthetic values, temporary profiles and `-NoProfile`, without the real clipboard. The existing manual Windows workflow runs the comparison before the build; it is not started before commit review. Local pwsh 7.7.0 verification passed; [Windows run 43646412449](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43646412449) passed 46 cases per engine, versions 5.1.26100.33648 and 7.6.9. Local suite: 232 passed and 1 skipped; release build, packages, smoke and SHA-256 verified.
 
-The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.3 packages. Milestone C4 records its checks and publication. To check it from the checkout:
+C14, 15 November 2026: 274 local tests passed and 2 native PowerShell tests skipped on macOS; 17 fish 4.9.3 comparisons passed. [Windows run 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) passed 46 cases per engine, PowerShell 5.1.26100.33648 and 7.6.9, and checked the unpacked, portable and installed app. The read-only mounted DMG and extracted macOS ARM64 ZIP were inspected and tested outside the checkout, with profiles isolated before main. All six assets were downloaded again and compared with SHA-256 and GitHub digests; ZIP/TAR source archives match the released commit’s 118 files. This does not establish a personal Windows PC, Linux, Intel macOS or Gatekeeper check on quarantined downloads.
+
+The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.4 packages. Milestone C4 records its checks and publication. To check it from the checkout:
 
 ```bash
 npm run check:site

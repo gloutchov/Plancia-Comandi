@@ -2,7 +2,7 @@
 
 This manual describes Plancia Comandi **0.3.4**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
-Source version 0.3.4 adds quoting specific to fish sessions; this version is not published yet. Release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
+C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.4](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.4) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
 **Contents**
 
@@ -315,6 +315,8 @@ The window loads only the app's own pages. Production scripts come from the app'
 Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for the controls that are present and for the limits that are still open, and [PLAN.md](PLAN.md) for future proposals.
 
 ## 12. Development and distribution
+
+C14, 15 November 2026: 274 local tests passed and 2 native PowerShell tests skipped on macOS; 17 fish 4.9.3 comparisons passed. [Windows run 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) passed 46 cases per engine, PowerShell 5.1.26100.33648 and 7.6.9, and checked the unpacked, portable and installed app. The read-only mounted DMG and extracted macOS ARM64 ZIP were inspected and tested outside the checkout, with profiles isolated before main. All six assets were downloaded again and compared with SHA-256 and GitHub digests; ZIP/TAR source archives match the released commit’s 118 files. This does not establish a personal Windows PC, Linux, Intel macOS or Gatekeeper check on quarantined downloads.
 
 C5, 14 November 2026: 149 tests, build and documentation checks passed. [Windows run 43590402389](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43590402389) checked the unpacked, portable and installed app; final macOS packages were inspected and tested from the extracted ZIP and read-only mounted DMG, outside the checkout with isolated settings. All six release assets were downloaded again and checked with SHA-256. Windows checks ran on the GitHub runner; they do not establish a personal Windows PC test or Gatekeeper behavior for quarantined downloads.
 

@@ -2,7 +2,7 @@
 
 Questo manuale descrive Plancia Comandi **0.3.4**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
-I sorgenti 0.3.4 aggiungono la quotatura specifica per le sessioni fish; questa versione non è ancora pubblicata. La release [0.3.3](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.3) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
+C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.4](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.4) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
 **Sommario**
 
@@ -315,6 +315,8 @@ La finestra carica solo le pagine dell'app. Gli script di produzione arrivano da
 La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
+
+C14, 15 novembre 2026: 274 test locali riusciti e 2 PowerShell nativi saltati su macOS; 17 confronti fish 4.9.3 riusciti. La [run Windows 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) ha superato 46 casi per ciascuno dei motori PowerShell 5.1.26100.33648 e 7.6.9 e verificato app scompattata, portable e installata. DMG montato in sola lettura e ZIP macOS ARM64 estratto sono stati ispezionati e provati fuori dal checkout, con profili isolati prima del main. Tutti i sei allegati sono stati riscaricati e confrontati con SHA-256 e digest GitHub; gli archivi sorgente ZIP/TAR coincidono con i 118 file del commit rilasciato. Non è una prova personale su PC Windows, Linux, macOS Intel o Gatekeeper su download in quarantena.
 
 C5, 14 novembre 2026: 149 test, build e controlli documentali riusciti. La [run Windows 43590402389](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43590402389) ha verificato cartella scompattata, portable e app installata; i pacchetti macOS definitivi sono stati ispezionati e provati da ZIP estratto e DMG montato in sola lettura, fuori dal checkout e con preferenze isolate. I sei allegati della release sono stati riscaricati e verificati tramite SHA-256. La verifica Windows è sul runner GitHub; non attesta una prova personale su PC Windows o Gatekeeper su download in quarantena.
 
