@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.4**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.5**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.4](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.4) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -37,7 +37,7 @@ Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pub
 
 Per preparare gli strumenti nativi:
 
-- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.4-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.4-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
+- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.5-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.5-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/plancia-comandi.exe`.
 - **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
 - **Linux:** `node-pty` 1.1.0 non ha una prebuild Linux. Su Debian e Ubuntu installa `build-essential` e `python3`, poi segui [Compilare ed eseguire su Linux](#24-compilare-ed-eseguire-su-linux). Su Linux non è stata testata di persona.
 
@@ -193,11 +193,13 @@ Esempio di file parziale senza credenziali:
 }
 ```
 
-I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e limitati all'intervallo. Le tre liste aggiungono regex JavaScript alle regole integrate, senza sostituirle: massimo 40 stringhe per lista, ciascuna da 1 a 299 caratteri. I pattern idle si applicano all'ultima riga non vuota; busy/attention alle ultime righe. Le regex sintatticamente errate vengono ignorate; non esiste un timeout per regex costose, quindi usa espressioni semplici e fidate.
+I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e limitati all’intervallo. Le tre liste aggiungono regex JavaScript alle regole integrate, senza sostituirle: massimo 40 stringhe per lista, ciascuna da 1 a 299 caratteri; elementi fuori limite vengono esclusi come nelle versioni precedenti. Il testo esaminato è limitato alle ultime 4096 unità stringa visibili: idle usa l’ultima riga non vuota, busy le ultime 10 righe e attention le ultime 12. Le regex sintatticamente errate vengono ignorate, con un avviso; quelle valide continuano a funzionare. Il risultato personalizzato arriva in modo asincrono; nell’attesa valgono le regole integrate, quindi la stima può aggiornarsi leggermente dopo l’output.
+
+Se il matching impiega troppo tempo o non è disponibile, compare un avviso sopra i terminali: le tre liste personalizzate sono sospese per tutte le sessioni e il rilevamento standard resta attivo. Le PTY e il bridge continuano a funzionare. La sospensione resta fino a un cambiamento delle liste o al riavvio; cambiare solo lingua, tema o tempi non la annulla. Per recuperare, correggi i pattern con l’app chiusa e riavvia, oppure usa **Impostazioni → Ripristina i tempi**, che ripristina tutti i parametri del rilevamento e svuota anche le tre liste. Un riavvio con lo stesso pattern costoso può sospenderlo nuovamente. I pattern sono segnali euristici, non controlli di esecuzione dei comandi.
 
 ### 6.3 File di configurazione dell'app
 
-`config/app.config.json`, nella cartella dell'applicazione, raccoglie i limiti di appunti e trascinamento. Non contiene segreti. All'avvio l'app legge il file, ignora le chiavi sconosciute e, per ogni valore assente o fuori intervallo, usa il default indicato qui. Una modifica richiede il riavvio. Nell'app installata lo stesso file sta nella cartella `resources/config`, fuori dall'archivio interno, così si può modificare senza ricompilare.
+`config/app.config.json`, nella cartella dell’applicazione, raccoglie i limiti di appunti, trascinamento, input e pattern personalizzati. Non contiene segreti. All’avvio l’app legge il file e ignora le chiavi sconosciute; i campi mancanti o non numerici usano i default, mentre i valori numerici vengono arrotondati e limitati agli intervalli. Una modifica richiede il riavvio. Nell’app installata lo stesso file sta in `resources/config`, fuori dall’archivio interno, così si può modificare senza ricompilare.
 
 | Chiave | Default | Intervallo | Uso |
 | --- | --- | --- | --- |
@@ -210,6 +212,10 @@ I campi mancanti ricevono valori predefiniti; i numeri vengono arrotondati e lim
 | `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di una scrittura al terminale. L'incolla è più corto di 12 caratteri, così i marcatori dell'incolla fra parentesi ci stanno. |
 | `drop.maxFiles` | 20 | 1–50 | Quanti file trascinati inserire. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Lunghezza massima di un singolo percorso trascinato. |
+| `statusPatterns.budgetMs` | 50 | 10–250 | Budget in millisecondi per compilazione e matching di una richiesta; allo scadere si sospendono i pattern personalizzati. |
+| `statusPatterns.startupTimeoutMs` | 2000 | 500–10000 | Attesa massima per l’avvio del servizio di matching, separata dal budget della richiesta. |
+| `statusPatterns.maxInputChars` | 4096 | 256–32768 | Massimo testo visibile copiato prima di selezionare le righe da esaminare. |
+| `statusPatterns.workerMemoryMb` | 32 | 16–128 | Limite della memoria old-generation del motore JavaScript in MB; non è un limite globale alla memoria dell’app. |
 
 Esempio senza segreti:
 
@@ -224,7 +230,8 @@ Esempio senza segreti:
     "maxAgeHours": 24
   },
   "terminal": { "maxWriteChars": 200000 },
-  "drop": { "maxFiles": 20, "maxPathChars": 4096 }
+  "drop": { "maxFiles": 20, "maxPathChars": 4096 },
+  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 }
 }
 ```
 
@@ -287,6 +294,7 @@ La demo apre una shell ordinaria e una con `scripts/demo-codex.sh busy`, imposta
 | Una shell non compare | Installala nei percorsi rilevati o nel `PATH` dove previsto e riavvia l'app. Non c'è un campo per comandi shell arbitrari. |
 | Una CLI non viene trovata | Verifica che funzioni nella shell scelta e che il profilo di login configuri il `PATH`. L'app non installa le CLI. |
 | Stato inatteso | Leggi l'output reale, attiva il motivo, verifica tempi e pattern. Ridisegni continui e prompt insoliti possono produrre stime errate. |
+| Avviso sui pattern personalizzati | Il rilevamento standard continua. Correggi le liste e riavvia oppure usa **Ripristina i tempi** nelle impostazioni; vedi 6.2. |
 | Nessuna notifica | Controlla entrambi gli interruttori e i permessi del sistema; la sessione attiva con finestra a fuoco non notifica. Su Linux verifica il servizio notifiche. |
 | La porta di sviluppo è occupata | Chiudi l'altro processo di sviluppo che usa `47231`, dopo averne verificato l'identità, poi riprova. La porta è fissa e non viene cambiata automaticamente. |
 | Il JSON modificato non viene usato | Chiudi l'app, verifica sintassi e percorso, salva e riavvia. Un file invalido usa i default; una successiva modifica UI può riscriverlo. |
@@ -318,6 +326,8 @@ La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche
 
 ## 12. Sviluppo e distribuzione
 
+**M7 in verifica locale — sorgenti 0.3.5.** I pattern personalizzati vengono esaminati separatamente dal processo principale, con un budget di tempo e cancellazione. Un pattern non valido viene ignorato; se il matching supera il budget o non è disponibile, le tre liste personalizzate vengono sospese e resta attivo il rilevamento standard, con un avviso IT/EN. Suite locale: 292 test riusciti, 2 PowerShell nativi saltati; build riuscita. Verifiche, limiti e prova Windows ancora da eseguire dopo le approvazioni sono nel [piano](PLAN.md). La release pubblicata e i download restano 0.3.4 fino al rilascio verificato di 0.3.5.
+
 **C6 completata, 15 novembre 2026.** Vitest 5.1.0 sostituisce 3.2.4; electron-builder resta 26.18.0. L’override minimatch 11.0.1 è limitato alle precedenti versioni vulnerabili 7–11.0.0. Audit completo da 9 segnalazioni a zero, produzione sempre a zero; dipendenze runtime e bundle applicativi invariati. Versione 0.3.4 invariata, checkpoint `milestone/C6` pubblicato, nessuna nuova release. La [run Windows 43714263852](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43714263852) ha superato tutti i 282 test, inclusi 46 casi per ciascun motore PowerShell, build, ispezione e smoke scompattato/portable/installato; artifact scaricati e SHA-256 verificati. Su macOS: 280 test riusciti, 2 PowerShell nativi saltati, ispezione e smoke DMG/ZIP ARM64 con profili isolati. La landing con le shell, compresa fish, è pubblicata e verificata. Esiti e limiti nel [piano](PLAN.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
 C14, 15 novembre 2026: 274 test locali riusciti e 2 PowerShell nativi saltati su macOS; 17 confronti fish 4.9.3 riusciti. La [run Windows 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) ha superato 46 casi per ciascuno dei motori PowerShell 5.1.26100.33648 e 7.6.9 e verificato app scompattata, portable e installata. DMG montato in sola lettura e ZIP macOS ARM64 estratto sono stati ispezionati e provati fuori dal checkout, con profili isolati prima del main. Tutti i sei allegati sono stati riscaricati e confrontati con SHA-256 e digest GitHub; gli archivi sorgente ZIP/TAR coincidono con i 118 file del commit rilasciato. Non è una prova personale su PC Windows, Linux, macOS Intel o Gatekeeper su download in quarantena.
@@ -329,7 +339,7 @@ npm test
 npm run build
 ```
 
-`npm test` esegue Vitest sulla logica degli stati senza avviare shell o Electron. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale e non pubblica la release. È predisposto per usare Node.js 24, costruire il commit indicato da `source_sha` e controllare sul runner l’eseguibile estratto, il portabile e l’installazione silenziosa. Lo step di packaging esegue `node ../tooling/scripts/package-windows.mjs`: le opzioni restano un oggetto JavaScript e PowerShell non riceve `-c.*` né `--config.*`. La run `43086813880` si è fermata perché quegli argomenti venivano spezzati; la run `43096382710` non è partita (`startup_failure`). Il pacchetto Windows della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) viene dalla run `43226304320`: il workflow ha verificato l'eseguibile scompattato, il portable e l'app installata. Non è registrata una prova personale su un PC Windows. Il workflow `package-macos.yml` è solo manuale, sul runner `macos-15`, e non notarizza. La run `43257940568` ha prodotto il DMG e lo ZIP Apple Silicon. Su macOS smoke e ispezione sono stati eseguiti sull'app scompattata, non sul DMG o sullo ZIP. Su macOS `npm ci` esegue il postinstall, come nel capitolo Installazione. Il debito tecnico dei controlli è in [PLAN.md](PLAN.md). `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
+`npm test` esegue Vitest, inclusi worker Node reali per i pattern personalizzati; non avvia Electron o shell personali. I confronti PowerShell nativi, quando abilitati, usano solo fixture e profili temporanei. `npm run build` esegue il controllo TypeScript e genera `dist/` e `dist-electron/`. Non sono presenti comandi dedicati lint, typecheck o e2e. Il workflow GitHub Actions `package-windows.yml` è solo manuale e non pubblica la release. È predisposto per usare Node.js 24, costruire il commit indicato da `source_sha` e controllare sul runner l’eseguibile estratto, il portabile e l’installazione silenziosa. Lo step di packaging esegue `node ../tooling/scripts/package-windows.mjs`: le opzioni restano un oggetto JavaScript e PowerShell non riceve `-c.*` né `--config.*`. La run `43086813880` si è fermata perché quegli argomenti venivano spezzati; la run `43096382710` non è partita (`startup_failure`). Il pacchetto Windows della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) viene dalla run `43226304320`: il workflow ha verificato l'eseguibile scompattato, il portable e l'app installata. Non è registrata una prova personale su un PC Windows. Il workflow `package-macos.yml` è solo manuale, sul runner `macos-15`, e non notarizza. La run `43257940568` ha prodotto il DMG e lo ZIP Apple Silicon. Su macOS smoke e ispezione sono stati eseguiti sull'app scompattata, non sul DMG o sullo ZIP. Su macOS `npm ci` esegue il postinstall, come nel capitolo Installazione. Il debito tecnico dei controlli è in [PLAN.md](PLAN.md). `npm run preview` mostra soltanto il renderer, non sostituisce la finestra desktop.
 
 Per il packaging, dopo le verifiche, usa sul sistema interessato `npm run dist:mac`, `npm run dist:win` oppure `npm run dist:linux`; `npm run dist` seleziona la piattaforma corrente. I file in `release/` iniziano con `PlanciaComandi`. Identificatore app `it.plancia.comandi`, eseguibile configurato `plancia-comandi`. `node-pty` e `@xterm/headless` sono estratti dall'ASAR per il runtime. L'icona Linux e quella della finestra sono `build/icon.png`. Windows usa `build/icon.ico`, macOS `build/icon.icns`. Su Linux non è stata testata di persona.
 

@@ -7,7 +7,9 @@ import type { IPty } from 'node-pty'
 import type { Terminal } from '@xterm/headless'
 import { listActiveParents } from './children'
 import { createScreen, readScreen } from './screen'
+import { CustomPatternMatcher } from './customPatterns'
 import type { SettingsStore } from './settings'
+import type { StatusPatternLimits } from '../src/shared/appConfig'
 import {
   ActivityTracker,
   TitleParser,
@@ -20,6 +22,7 @@ import { translate } from '../src/shared/i18n'
 import type {
   CreateResult,
   CreateSessionInput,
+  CustomPatternWarning,
   Phase,
   ScreenMode,
   SessionInfo,
@@ -73,6 +76,7 @@ interface LiveSession {
   busySince: number | null
   closing: boolean
   error?: string
+  patternWarning?: CustomPatternWarning
 }
 
 function childEnv(): Record<string, string> {
@@ -99,6 +103,7 @@ export class SessionManager {
   private statusTimer: NodeJS.Timeout
   private childTimer: NodeJS.Timeout
   private polling = false
+  private patternMatcher: CustomPatternMatcher
 
   constructor(
     private deps: {
@@ -108,9 +113,11 @@ export class SessionManager {
       home: string
       notify: (title: string, body: string, sessionId: string) => void
       maxWriteChars: number
+      statusPatternLimits: StatusPatternLimits
     },
   ) {
     this.pty = loadPty()
+    this.patternMatcher = new CustomPatternMatcher(deps.statusPatternLimits, MAX_SESSIONS, () => this.tick())
     this.statusTimer = setInterval(() => this.tick(), 400)
     this.childTimer = setInterval(() => void this.pollChildren(), 2500)
     void this.pollChildren()
@@ -119,6 +126,7 @@ export class SessionManager {
   dispose(): void {
     clearInterval(this.statusTimer)
     clearInterval(this.childTimer)
+    void this.patternMatcher.dispose()
     for (const session of this.sessions.values()) {
       try {
         session.pty?.kill()
@@ -265,6 +273,7 @@ export class SessionManager {
   close(id: string): void {
     const session = this.sessions.get(id)
     if (!session) return
+    this.patternMatcher.cancel(id)
     if (session.exited || !session.pty) {
       this.remove(id)
       return
@@ -328,6 +337,8 @@ export class SessionManager {
   }
 
   private onExit(session: LiveSession, exitCode: number): void {
+    this.patternMatcher.cancel(session.id)
+    session.patternWarning = undefined
     session.exited = true
     session.exitCode = exitCode
     session.phase = 'exited'
@@ -341,6 +352,7 @@ export class SessionManager {
   private remove(id: string): void {
     const session = this.sessions.get(id)
     if (!session) return
+    this.patternMatcher.cancel(id)
     session.screen?.dispose()
     this.sessions.delete(id)
     this.order = this.order.filter((item) => item !== id)
@@ -351,9 +363,10 @@ export class SessionManager {
     const now = Date.now()
     const settings = this.deps.settings.data
     const config = settings.status
+    this.patternMatcher.setPatterns(config)
     let changed = false
     for (const session of this.sessions.values()) {
-      if (session.exited) continue
+      if (session.exited || session.closing) continue
       if (session.screen) {
         try {
           const snap = readScreen(session.screen)
@@ -362,6 +375,11 @@ export class SessionManager {
         } catch {
           session.screenMode = 'unknown'
         }
+      }
+      const custom = this.patternMatcher.evaluate(session.id, session.screenText)
+      if (custom.warning !== session.patternWarning) {
+        session.patternWarning = custom.warning
+        changed = true
       }
       const detected = detectSessionStatus(
         {
@@ -377,6 +395,7 @@ export class SessionManager {
           hasActiveChild: session.hasActiveChild,
         },
         config,
+        custom.matches,
       )
       const stable = stabilizePhase(detected, session.attentionUntil, now, config.attentionHoldMs)
       session.attentionUntil = stable.attentionUntil
@@ -466,6 +485,7 @@ export class SessionManager {
       exitCode: session.exitCode,
       createdAt: session.createdAt,
       error: session.error,
+      patternWarning: session.patternWarning,
     }
   }
 }

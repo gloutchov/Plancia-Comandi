@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.4 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C14 corregge la quotatura dei percorsi nelle sessioni fish; il confronto nativo con fish 4.9.3 e la prova personale sono riusciti. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.4 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.5 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C14 corregge la quotatura dei percorsi nelle sessioni fish; il confronto nativo con fish 4.9.3 e la prova personale sono riusciti. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.4 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -34,6 +34,8 @@ Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Pro
 Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. La lingua iniziale è italiana; il rilevamento automatico della lingua di sistema non è ancora implementato. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
 
 ![Vista affiancata nel tema chiaro](docs/screenshots/plancia-light.png)
+
+Nei sorgenti 0.3.5, se i pattern personalizzati sono troppo lenti o non disponibili, un avviso indica che resta attivo il rilevamento standard; i terminali continuano a ricevere input e output.
 
 ### 2. Installazione e primo utilizzo
 
@@ -94,6 +96,8 @@ I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono legger
 Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. La finestra non carica script da Internet. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md): la shell resta con i permessi dell'utente e i pacchetti non sono firmati.
 
 ### 5. Sviluppo e verifiche
+
+**M7 in verifica locale — sorgenti 0.3.5.** I pattern personalizzati vengono esaminati separatamente dal processo principale, con un budget di tempo e cancellazione. Un pattern non valido viene ignorato; se il matching supera il budget o non è disponibile, le tre liste personalizzate vengono sospese e resta attivo il rilevamento standard, con un avviso IT/EN. Suite locale: 292 test riusciti, 2 PowerShell nativi saltati; build riuscita. Verifiche, limiti e prova Windows ancora da eseguire dopo le approvazioni sono nel [piano](PLAN.md). La release pubblicata e i download restano 0.3.4 fino al rilascio verificato di 0.3.5.
 
 **C6 completata, 15 novembre 2026.** Vitest 5.1.0 sostituisce 3.2.4; electron-builder resta 26.18.0. L’override minimatch 11.0.1 è limitato alle precedenti versioni vulnerabili 7–11.0.0. Audit completo da 9 segnalazioni a zero, produzione sempre a zero; dipendenze runtime e bundle applicativi invariati. Versione 0.3.4 invariata, checkpoint `milestone/C6` pubblicato, nessuna nuova release. La [run Windows 43714263852](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43714263852) ha superato tutti i 282 test, inclusi 46 casi per ciascun motore PowerShell, build, ispezione e smoke scompattato/portable/installato; artifact scaricati e SHA-256 verificati. Su macOS: 280 test riusciti, 2 PowerShell nativi saltati, ispezione e smoke DMG/ZIP ARM64 con profili isolati. La landing con le shell, compresa fish, è pubblicata e verificata. Esiti e limiti nel [piano](PLAN.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
@@ -164,7 +168,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.4 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C14 fixes path quoting in fish sessions; native fish 4.9.3 comparison and the personal test passed. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.4 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.5 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C14 fixes path quoting in fish sessions; native fish 4.9.3 comparison and the personal test passed. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.4 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -194,6 +198,8 @@ Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Comma
 Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
 
 ![Side-by-side view in the light theme](docs/screenshots/plancia-light-en.png)
+
+In version 0.3.5 source, a warning explains when slow or unavailable custom patterns fall back to standard detection; terminals continue receiving input and output.
 
 ### 2. Installation and first use
 
@@ -254,6 +260,8 @@ Commands run with the permissions of the user starting the app and can read or c
 Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
+
+**M7 under local review — version 0.3.5 source.** Custom patterns are evaluated separately from the main process, with a time budget and cancellation. An invalid pattern is ignored; if matching exceeds the budget or is unavailable, all three custom lists are suspended and standard detection remains active, with an IT/EN warning. Local suite: 292 tests passed, 2 native PowerShell tests skipped; build passed. Checks, limits and Windows validation still required after approvals are in the [plan](PLAN.md). The published release and downloads stay at 0.3.4 until the verified 0.3.5 release.
 
 **C6 completed, 15 November 2026.** Vitest 5.1.0 replaces 3.2.4; electron-builder stays at 26.18.0. The minimatch 11.0.1 override is limited to previously vulnerable versions 7–11.0.0. Full audit goes from 9 findings to zero, production stays at zero; runtime dependencies and application bundles are unchanged. Version 0.3.4 unchanged, `milestone/C6` checkpoint published, no new release. [Windows run 43714263852](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43714263852) passed all 282 tests, including 46 cases per PowerShell engine, build, inspection and unpacked/portable/installed smoke; artifacts downloaded and SHA-256 verified. On macOS: 280 tests passed, 2 native PowerShell tests skipped, ARM64 DMG/ZIP inspection and smoke with isolated profiles. The landing with shells, including fish, is published and verified. Results and limits in the [plan](PLAN.md) and [security model](SECURITY_MODEL.md).
 

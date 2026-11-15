@@ -10,6 +10,14 @@ export type ScreenMode = 'normal' | 'alternate' | 'unknown'
 
 export type TitleSignal = 'busy' | 'attention' | 'unknown'
 
+export interface CustomPatternMatches {
+  idle: boolean
+  busy: boolean
+  attention: boolean
+}
+
+export type CustomPatternWarning = 'invalid' | 'timeout' | 'unavailable'
+
 export interface StatusConfig {
   /** Silence after real output before a session with no other signal becomes idle. */
   quietTimeoutMs: number
@@ -88,6 +96,7 @@ export interface SessionInfo {
   exitCode: number | null
   createdAt: number
   error?: string
+  patternWarning?: CustomPatternWarning
 }
 
 export type CreateResult =

@@ -5,6 +5,7 @@ import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -118,11 +119,12 @@ try {
     await until(() => evaluate(`document.querySelector('.tiles')?.dataset.layout === '${layout}'`), 'Layout did not update')
   }
   assert.equal(await evaluate('document.querySelectorAll(".xterm").length > 0'), true)
+  const patternsChecked = await smokeCustomPatterns({ evaluate, until, request, sessions, root, expectedVersion })
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
-  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close'], temporaryRoot: root }))
+  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : [])], temporaryRoot: root }))
 } catch (error) {
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
   throw error

@@ -14,5 +14,11 @@
   "drop": {
     "maxFiles": 20,
     "maxPathChars": 4096
+  },
+  "statusPatterns": {
+    "budgetMs": 50,
+    "startupTimeoutMs": 2000,
+    "maxInputChars": 4096,
+    "workerMemoryMb": 32
   }
 }

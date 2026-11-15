@@ -299,6 +299,7 @@ function start(): void {
     home,
     notify,
     maxWriteChars: appConfig.terminal.maxWriteChars,
+    statusPatternLimits: appConfig.statusPatterns,
   })
 
   nativeTheme.on('updated', () => {

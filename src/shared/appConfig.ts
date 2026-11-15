@@ -21,6 +21,14 @@ export interface AppConfig {
     maxFiles: number
     maxPathChars: number
   }
+  statusPatterns: StatusPatternLimits
+}
+
+export interface StatusPatternLimits {
+  budgetMs: number
+  startupTimeoutMs: number
+  maxInputChars: number
+  workerMemoryMb: number
 }
 
 export interface RuntimeLimits {
@@ -48,6 +56,12 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   drop: {
     maxFiles: 20,
     maxPathChars: 4096,
+  },
+  statusPatterns: {
+    budgetMs: 50,
+    startupTimeoutMs: 2000,
+    maxInputChars: 4096,
+    workerMemoryMb: 32,
   },
 }
 
@@ -78,6 +92,7 @@ export function validateAppConfig(input: unknown): AppConfig {
   const images = record(source.clipboardImages)
   const terminal = record(source.terminal)
   const drop = record(source.drop)
+  const patterns = record(source.statusPatterns)
   const defaults = APP_CONFIG_DEFAULTS
   return {
     clipboardImages: {
@@ -94,6 +109,12 @@ export function validateAppConfig(input: unknown): AppConfig {
     drop: {
       maxFiles: clamp(drop.maxFiles, 1, 50, defaults.drop.maxFiles),
       maxPathChars: clamp(drop.maxPathChars, 32, 32_767, defaults.drop.maxPathChars),
+    },
+    statusPatterns: {
+      budgetMs: clamp(patterns.budgetMs, 10, 250, defaults.statusPatterns.budgetMs),
+      startupTimeoutMs: clamp(patterns.startupTimeoutMs, 500, 10_000, defaults.statusPatterns.startupTimeoutMs),
+      maxInputChars: clamp(patterns.maxInputChars, 256, 32_768, defaults.statusPatterns.maxInputChars),
+      workerMemoryMb: clamp(patterns.workerMemoryMb, 16, 128, defaults.statusPatterns.workerMemoryMb),
     },
   }
 }

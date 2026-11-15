@@ -56,18 +56,22 @@ describe('prompts and markers', () => {
 
   it('reads the last non-empty line and the recent screen for markers', () => {
     const screen = ['older thinking note', '', 'ada@mac ~/src %'].join('\n')
-    expect(hasIdlePrompt(screen, cfg)).toBe(true)
-    expect(hasBusyMarker('hello\n⠋ Working (4s · esc to interrupt)\n', cfg)).toBe(true)
-    expect(hasBusyMarker('\u001B[33m⠋ Working\u001B[0m', cfg)).toBe(true)
+    expect(hasIdlePrompt(screen)).toBe(true)
+    expect(hasBusyMarker('hello\n⠋ Working (4s · esc to interrupt)\n')).toBe(true)
+    expect(hasBusyMarker('\u001B[33m⠋ Working\u001B[0m')).toBe(true)
   })
 
-  it('applies extra user patterns and ignores a broken regex', () => {
+  it('keeps user patterns out of the synchronous detector and accepts worker facts', () => {
     const custom = clampStatusConfig({
       extraIdlePatterns: ['^ready>'],
       extraBusyPatterns: ['['],
     })
-    expect(hasIdlePrompt('ready> ', custom)).toBe(true)
-    expect(hasBusyMarker('nothing to see', custom)).toBe(false)
+    expect(hasIdlePrompt('ready> ')).toBe(false)
+    expect(hasBusyMarker('nothing to see')).toBe(false)
+    const snapshot = input({ now: 8_000, lastActivityAt: 4_000, visibleText: 'ready> ' })
+    expect(detectSessionStatus(snapshot, custom).reason).not.toBe('idle-prompt')
+    expect(detectSessionStatus(snapshot, custom, { idle: true, busy: false, attention: false }))
+      .toEqual({ phase: 'idle', reason: 'idle-prompt' })
   })
 })
 

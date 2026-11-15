@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.4**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.5**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -35,13 +35,15 @@ Plancia-Comandi/
 |-- tsconfig.node.json               Configurazione TypeScript per Vite
 |-- index.html                       Documento HTML del renderer; la CSP è iniettata dal plugin Vite
 |-- config/
-|   `-- app.config.json              Limiti di appunti, trascinamento e input
+|   `-- app.config.json              Limiti di appunti, trascinamento, input e pattern
 |-- electron/
 |   |-- main.ts                      Finestra, lifecycle, IPC, CSP, notifiche, demo
 |   |-- legacyIpc.ts                 Registrazione dei canali IPC precedenti a M1
 |   |-- preload.ts                   Bridge API dedicato al renderer
 |   |-- editMenu.ts                  Menu Modifica e comandi di editing
 |   |-- clipboardIpc.ts              Lettura e scrittura degli appunti
+|   |-- customPatterns.ts            Worker unico, coda limitata, timeout e fallback M7
+|   |-- customPatternWorker.ts       Programma worker statico incluso nel bundle main
 |   |-- sessions.ts                  Creazione/chiusura PTY, buffer, polling e stati
 |   |-- settings.ts                  Preferenze, default, validazione e migrazione
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
@@ -100,6 +102,9 @@ Plancia-Comandi/
 |       |-- nativeInstall.test.ts    Test della scelta prebuild Windows o ricompilazione
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
+|       |-- customPatternText.ts     Copia limitata e selezione delle righe per il worker
+|       |-- customPatternText.test.ts Test dei limiti e dei contesti 10/12 righe
+|       |-- customPatterns.test.ts    Worker reali: regex patologiche, coda, cancellazione e recupero
 |       |-- status.ts                Logica pura di rilevamento e notifiche
 |       `-- status.test.ts           Test della logica pura
 |-- .github/
@@ -120,6 +125,7 @@ Plancia-Comandi/
 |   |-- package-windows.mjs          Opzioni Windows per electron-builder, senza shell
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
+|   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
 |   |-- icon.png                     Icona Linux e della finestra, PNG 1024
@@ -153,6 +159,8 @@ Plancia-Comandi/
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
 
+M7 invia solo porzioni limitate dello schermo a un singolo worker Node per le regex personalizzate; le regole integrate restano nel main. `customPatterns.ts` coalesca le richieste per sessione, cancella i lavori alla chiusura e sospende un profilo che supera il budget. Il main riceve solo i fatti di matching; la UI riceve i consueti metadati di stato e un codice di avviso localizzato. I quattro limiti `statusPatterns` sono validati da `appConfig.ts`; non servono nuovi file worker nel pacchetto perché il programma statico è incluso in main.js.
+
 Il workflow Windows manuale esegue la suite completa, inclusi i confronti nativi PowerShell 5.1/7, prima di build e packaging.
 
 La landing elenca le shell per piattaforma, compresa fish, con testi IT/EN in `i18n.js` e layout responsivo in `site.css`.
@@ -178,6 +186,8 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 Non esistono script npm lint, typecheck separato o e2e. `scripts/package-macos.mjs` descrive DMG e ZIP ARM64 non firmati. `scripts/package-windows.mjs` passa a electron-builder le opzioni Windows senza una shell. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1, la scelta di saltare la ricompilazione su Windows, le opzioni di packaging Windows e quelle macOS ARM64.
 
+La suite M7 avvia worker Node reali con dati sintetici e verifica scadenze, errori, cancellazione e code limitate. `smoke-custom-patterns.mjs`, chiamato dallo smoke nativo per versioni da 0.3.5, verifica app/bridge reattivi durante il caso patologico, fallback, avvisi IT/EN nei due temi e recupero. Le revisioni precedenti non ricevono la fixture patologica perché prive della protezione.
+
 ### 4. File locali e generati
 
 ```text
@@ -194,7 +204,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.4** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.5** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -227,13 +237,15 @@ Plancia-Comandi/
 |-- tsconfig.node.json               TypeScript configuration for Vite
 |-- index.html                       Renderer HTML document; the Vite plugin injects the CSP
 |-- config/
-|   `-- app.config.json              Clipboard, drag-and-drop and input limits
+|   `-- app.config.json              Clipboard, drag-and-drop, input and pattern limits
 |-- electron/
 |   |-- main.ts                      Window, lifecycle, IPC, CSP, notifications, demo
 |   |-- legacyIpc.ts                 Registration of the IPC channels that predate M1
 |   |-- preload.ts                   Dedicated renderer API bridge
 |   |-- editMenu.ts                  Edit menu and editing commands
 |   |-- clipboardIpc.ts              Clipboard reads and writes
+|   |-- customPatterns.ts            Single worker, bounded queue, timeout and M7 fallback
+|   |-- customPatternWorker.ts       Static worker program bundled into main
 |   |-- sessions.ts                  PTY creation/closing, buffers, polling and status
 |   |-- settings.ts                  Preferences, defaults, validation and migration
 |   |-- shells.ts                    Platform shell detection
@@ -292,6 +304,9 @@ Plancia-Comandi/
 |       |-- nativeInstall.test.ts    Test of the Windows prebuild or rebuild choice
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
+|       |-- customPatternText.ts     Bounded copy and worker screen-row selection
+|       |-- customPatternText.test.ts Bounds and 10/12-row context tests
+|       |-- customPatterns.test.ts    Real workers: pathological regexes, queue, cancellation and recovery
 |       |-- status.ts                Pure status and notification logic
 |       `-- status.test.ts           Pure-logic tests
 |-- .github/
@@ -312,6 +327,7 @@ Plancia-Comandi/
 |   |-- package-windows.mjs          Windows electron-builder options, no shell
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
+|   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
 |   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/
 |   |-- icon.png                     Linux and window icon, 1024 PNG
@@ -345,6 +361,8 @@ Plancia-Comandi/
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
 
+M7 sends only bounded screen regions to one Node worker for custom regexes; built-in rules stay in main. `customPatterns.ts` coalesces requests per session, cancels jobs on close and suspends a profile that exceeds its budget. Main receives only matching facts; UI receives the usual status metadata and a localized warning code. The four `statusPatterns` limits are validated by `appConfig.ts`; no additional worker files are needed in the package because the static program is bundled into main.js.
+
 The manual Windows workflow runs the full suite, including native PowerShell 5.1/7 comparisons, before build and packaging.
 
 The landing lists shells by platform, including fish, with IT/EN text in `i18n.js` and responsive layout in `site.css`.
@@ -369,6 +387,8 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
 There are no npm lint, separate typecheck or e2e scripts. `scripts/package-macos.mjs` describes the unsigned ARM64 DMG and ZIP. `scripts/package-windows.mjs` passes the Windows options to electron-builder without a shell. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1, the choice to skip the Windows rebuild, the Windows packaging options and the macOS ARM64 options.
+
+The M7 suite launches real Node workers with synthetic data and checks deadlines, errors, cancellation and bounded queues. `smoke-custom-patterns.mjs`, called by native smoke for versions from 0.3.5, checks app/bridge responsiveness during the pathological case, fallback, IT/EN warnings in both themes and recovery. Earlier revisions are not given the pathological fixture because they lack the protection.
 
 ### 4. Local and generated files
 

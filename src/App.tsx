@@ -69,6 +69,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const resolved = settings.theme === 'system' ? (systemDark ? 'dark' : 'light') : settings.theme
   const termTheme = resolved === 'dark' ? darkTerm : lightTerm
   const focused = sessions.find((session) => session.id === focusedId) ?? null
+  const patternWarning = sessions.find((session) => session.patternWarning)?.patternWarning
 
   useEffect(() => {
     document.documentElement.dataset.theme = resolved
@@ -334,6 +335,11 @@ function Workspace({ boot }: { boot: BootInfo }) {
             onSelect={setLayout}
           />
         </header>
+        {patternWarning ? (
+          <p className="pattern-warning" role="status" data-testid="pattern-warning">
+            {t(`patternWarning_${patternWarning}` as MessageKey)}
+          </p>
+        ) : null}
         {visibleIds.size === 0 ? (
           <div className="empty-stage">
             <div className="empty-card">

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.4**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.5**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -40,9 +40,11 @@ Per chiuderla premi **×** nella sua riga. L'app chiede conferma se la considera
 
 Per errori del modulo terminale, su macOS e Linux esegui `npm run rebuild` e riavvia. Su Windows, se il terminale non parte, ripeti `npm ci`. Approfondimenti nel [manuale](ISTRUZIONI.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
+Nei sorgenti 0.3.5, un avviso sui pattern personalizzati indica che il rilevamento standard continua. Per svuotare le liste personalizzate e ripristinare il rilevamento usa **Impostazioni → Ripristina i tempi**. La release pubblicata resta 0.3.4 fino alla verifica e pubblicazione di 0.3.5.
+
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.4**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.5**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 
@@ -79,3 +81,5 @@ In **Settings**, choose language, theme, terminal size and alerts; preferences a
 To close a session, click **×** in its row. The app asks for confirmation when it considers it working or waiting for action. Finish and save your work before quitting the app: sessions are not restored and a full quit has no general confirmation for all sessions.
 
 For terminal-module errors on macOS and Linux, run `npm run rebuild` and restart. On Windows, if the terminal does not start, run `npm ci` again. See the [manual](INSTRUCTIONS.md) and [security model](SECURITY_MODEL.md) for details.
+
+In version 0.3.5 source, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. The published release stays at 0.3.4 until 0.3.5 is verified and published.

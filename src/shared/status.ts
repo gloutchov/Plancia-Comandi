@@ -1,4 +1,4 @@
-import type { Phase, StatusConfig, StatusInput, StatusResult, TitleSignal } from './types'
+import type { CustomPatternMatches, Phase, StatusConfig, StatusInput, StatusResult, TitleSignal } from './types'
 
 /**
  * Status detection for Plancia Comandi.
@@ -161,44 +161,34 @@ function tail(text: string, count: number): string {
   return stripAnsi(text).split('\n').slice(-count).join('\n')
 }
 
-function compilePatterns(sources: string[]): RegExp[] {
-  const compiled: RegExp[] = []
-  for (const source of sources) {
-    try {
-      compiled.push(new RegExp(source, 'i'))
-    } catch {
-      // A bad user pattern must not break detection.
-    }
-  }
-  return compiled
-}
-
 function matchesAny(text: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(text))
 }
 
-export function hasIdlePrompt(visibleText: string, config: StatusConfig): boolean {
+export function hasIdlePrompt(visibleText: string): boolean {
   const line = lastNonEmptyLine(visibleText)
   if (!line) return false
-  if (looksLikeShellPrompt(line)) return true
-  return matchesAny(line, compilePatterns(config.extraIdlePatterns))
+  return looksLikeShellPrompt(line)
 }
 
-export function hasBusyMarker(visibleText: string, config: StatusConfig): boolean {
+export function hasBusyMarker(visibleText: string): boolean {
   const region = tail(visibleText, 10)
   if (!region.trim()) return false
-  if (matchesAny(region, BUILTIN_BUSY)) return true
-  return matchesAny(region, compilePatterns(config.extraBusyPatterns))
+  return matchesAny(region, BUILTIN_BUSY)
 }
 
-export function hasAttentionMarker(visibleText: string, config: StatusConfig): boolean {
+export function hasAttentionMarker(visibleText: string): boolean {
   const region = tail(visibleText, 12)
   if (!region.trim()) return false
-  if (matchesAny(region, BUILTIN_ATTENTION)) return true
-  return matchesAny(region, compilePatterns(config.extraAttentionPatterns))
+  return matchesAny(region, BUILTIN_ATTENTION)
 }
 
-export function detectSessionStatus(input: StatusInput, config: StatusConfig): StatusResult {
+/** User regexes never execute here: only matching facts from the worker enter. */
+export function detectSessionStatus(
+  input: StatusInput,
+  config: StatusConfig,
+  custom: CustomPatternMatches = { idle: false, busy: false, attention: false },
+): StatusResult {
   if (input.exited) return { phase: 'exited', reason: 'process-exited' }
 
   if (input.lastOutputAt == null) {
@@ -210,9 +200,9 @@ export function detectSessionStatus(input: StatusInput, config: StatusConfig): S
 
   const silent = input.lastActivityAt == null ? Number.POSITIVE_INFINITY : input.now - input.lastActivityAt
   const titleSignal = effectiveTitleSignal(input.title, input.titleChangedAt, input.now, config)
-  const attention = hasAttentionMarker(input.visibleText, config)
-  const busyMarker = hasBusyMarker(input.visibleText, config)
-  const idlePrompt = hasIdlePrompt(input.visibleText, config)
+  const attention = hasAttentionMarker(input.visibleText) || custom.attention
+  const busyMarker = hasBusyMarker(input.visibleText) || custom.busy
+  const idlePrompt = hasIdlePrompt(input.visibleText) || custom.idle
 
   if (titleSignal === 'attention' || attention) {
     return {

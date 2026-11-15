@@ -61,6 +61,13 @@ describe('validateAppConfig', () => {
     expect(config.drop).toEqual(APP_CONFIG_DEFAULTS.drop)
   })
 
+  it('bounds worker time, text and memory independently of corrupt values', () => {
+    expect(validateAppConfig({ statusPatterns: { budgetMs: -10, startupTimeoutMs: 99_999, maxInputChars: 1, workerMemoryMb: 999 } }).statusPatterns)
+      .toEqual({ budgetMs: 10, startupTimeoutMs: 10_000, maxInputChars: 256, workerMemoryMb: 128 })
+    expect(validateAppConfig({ statusPatterns: { budgetMs: 'broken', startupTimeoutMs: Infinity, maxInputChars: {}, workerMemoryMb: 'broken' } }).statusPatterns)
+      .toEqual(APP_CONFIG_DEFAULTS.statusPatterns)
+  })
+
   it('prefers a resources copy and otherwise the application root', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'plancia-config-'))
     const resources = path.join(root, 'resources')
