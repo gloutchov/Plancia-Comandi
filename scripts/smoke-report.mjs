@@ -1,5 +1,5 @@
 const stages = new Set([
-  'launch', 'isolated before main', 'boot metadata', 'native PTY command',
+  'launch', 'isolated before main', 'boot metadata', 'native PTY command', 'native worker readiness',
   'custom pattern regression', 'settings failure regression', 'IPC CSP and permissions', 'session close',
   ...['it/dark', 'en/light'].flatMap(value => ['update', 'reload', 'render'].map(action => `preferences ${value} ${action}`)),
   ...[1, 2, 3].map(index => `native PTY ${index} create`),

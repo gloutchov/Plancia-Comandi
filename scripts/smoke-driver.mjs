@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import { restoreSmokeWorkerStartup } from './smoke-worker.mjs'
 
 export function smokeEnvironment(root, source = process.env, platform = process.platform) {
   const env = Object.fromEntries(Object.entries(source).filter(([key]) =>
@@ -83,6 +84,7 @@ export async function isolateBeforeMain({ diagnostics, until, root }) {
       return Object.fromEntries(Object.keys(paths).map(key => [key, app.getPath(key)]));
     })()`, false)
     assert.deepEqual(actual, expected)
+    await driver.evaluate(`(${restoreSmokeWorkerStartup.toString()})()`, false)
     // The caller may install synthetic-only probes while startup is paused.
     return { ...driver, resume: async () => {
       await driver.request('Debugger.removeBreakpoint', { breakpointId: breakpoint.breakpointId })
