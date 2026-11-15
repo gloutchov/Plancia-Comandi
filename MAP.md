@@ -137,12 +137,12 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
-|   |-- smoke-driver.mjs             Ambiente e debugger CDP su loopback, isolamento iniziale
+|   |-- smoke-driver.mjs             Ambiente, scoperta debugger via HTTP loopback e isolamento
 |   |-- smoke-worker.mjs             Default worker non debug e handshake ConPTY di prova
 |   |-- smoke-worker.test.ts         Regresso con inspector e opzioni worker esplicite
 |   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
 |   |-- smoke-report.test.ts         Redazione dei contenuti e limite 32 richieste
-|   |-- smoke-driver.test.ts         Assenza credenziali/flag e percorsi temporanei
+|   |-- smoke-driver.test.ts         Ambiente isolato e scoperta debugger senza stderr
 |   |-- smoke-security.mjs           IPC reale, permessi e CSP sul pacchetto
 |   |-- smoke-macos-formats.mjs      Estrae ZIP, monta DMG readonly, ispeziona e prova
 |   |-- smoke-settings.mjs           Smoke M8: guasto salvataggio, avvisi IT/EN e recupero
@@ -366,12 +366,12 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
-|   |-- smoke-driver.mjs             Filtered env and loopback CDP, early isolation
+|   |-- smoke-driver.mjs             Filtered env, HTTP loopback debugger discovery, early isolation
 |   |-- smoke-worker.mjs             Non-debug worker defaults and ConPTY handshake fixture
 |   |-- smoke-worker.test.ts         Attached-inspector regression and explicit worker options
 |   |-- smoke-report.mjs             Bounded allowlisted failure metadata
 |   |-- smoke-report.test.ts         Content redaction and 32-request bound
-|   |-- smoke-driver.test.ts         No credentials/flags and temporary paths
+|   |-- smoke-driver.test.ts         Isolated environment and debugger discovery without stderr
 |   |-- smoke-security.mjs           Live IPC, permissions and CSP in packages
 |   |-- smoke-macos-formats.mjs      Extracts ZIP, mounts DMG read-only, inspects and tests
 |   |-- smoke-settings.mjs           M8 smoke: save failure, IT/EN warnings and recovery

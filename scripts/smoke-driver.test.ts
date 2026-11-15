@@ -1,6 +1,12 @@
 import path from 'node:path'
+import assert from 'node:assert/strict'
+import { spawn } from 'node:child_process'
+import { mkdtempSync, rmSync } from 'node:fs'
+import net from 'node:net'
+import os from 'node:os'
+import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it } from 'vitest'
-import { smokeEnvironment } from './smoke-driver.mjs'
+import { mainInspectorUrl, smokeEnvironment } from './smoke-driver.mjs'
 
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
@@ -13,3 +19,27 @@ describe('native package smoke isolation', () => {
     expect(JSON.stringify(env)).not.toContain('SYNTHETIC_SECRET')
   })
 })
+
+it('discovers a paused inner Node process without inherited stdout or stderr', async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-inspector-discovery-'))
+  const server = net.createServer()
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
+  const port = (server.address() as net.AddressInfo).port
+  await new Promise<void>(resolve => server.close(() => resolve()))
+  const child = spawn(process.execPath, [`--inspect-brk=127.0.0.1:${port}`, '-e', 'setInterval(()=>{},1000)'], {
+    cwd: root, env: smokeEnvironment(root), stdio: 'ignore',
+  })
+  const exit = new Promise<void>(resolve => { child.once('exit', () => resolve()); child.once('error', () => resolve()) })
+  try {
+    const deadline = Date.now() + 5000
+    let url: string | null = null
+    do {
+      url = await mainInspectorUrl(port)
+      if (url) break
+      await delay(20)
+    } while (Date.now() < deadline)
+    assert(url?.startsWith(`ws://127.0.0.1:${port}/`), 'Inspector unavailable without stderr forwarding')
+  } finally {
+    child.kill('SIGTERM'); await exit; rmSync(root, { recursive: true, force: true })
+  }
+}, 10000)

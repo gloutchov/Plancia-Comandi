@@ -55,8 +55,22 @@ export async function connectProtocol(url, onEvent = () => {}) {
   return { request, evaluate, close: () => socket.close() }
 }
 
-export async function isolateBeforeMain({ diagnostics, until, root }) {
-  const url = await until(() => diagnostics().match(/Debugger listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1], 'Main debugger did not start')
+/** Launchers such as NSIS need not forward the inner process's stderr. */
+export async function mainInspectorUrl(port) {
+  assert(Number.isInteger(port) && port > 0 && port < 65536, 'Invalid loopback inspector port')
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1000) })
+    const entries = await response.json()
+    if (!Array.isArray(entries)) return null
+    const url = entries.find(entry => entry.type === 'node')?.webSocketDebuggerUrl
+    return typeof url === 'string' && url.startsWith(`ws://127.0.0.1:${port}/`) ? url : null
+  } catch { return null }
+}
+
+export async function isolateBeforeMain({ diagnostics, until, root, inspectorPort }) {
+  const url = await until(() => inspectorPort === undefined
+    ? diagnostics().match(/Debugger listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1]
+    : mainInspectorUrl(inspectorPort), 'Main debugger did not start')
   const scripts = new Map()
   let paused
   const driver = await connectProtocol(url, (method, params) => {

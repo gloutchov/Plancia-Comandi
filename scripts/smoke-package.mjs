@@ -29,9 +29,14 @@ await writeFile(path.join(userData, 'settings.json'), JSON.stringify(settings))
 const server = net.createServer()
 await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve))
 const port = server.address().port
+const mainServer = net.createServer()
+await new Promise((resolve, reject) => mainServer.once('error', reject).listen(0, '127.0.0.1', resolve))
+const inspectorPort = mainServer.address().port
+assert.notEqual(port, inspectorPort)
 await new Promise((resolve) => server.close(resolve))
+await new Promise((resolve) => mainServer.close(resolve))
 const env = smokeEnvironment(root)
-const child = spawn(executable, ['--inspect-brk=127.0.0.1:0', `--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1'], {
+const child = spawn(executable, [`--inspect-brk=127.0.0.1:${inspectorPort}`, `--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1'], {
   cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false,
 })
 let exited = false
@@ -79,7 +84,7 @@ async function evaluate(expression) {
   return result.result?.value
 }
 try {
-  main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root })
+  main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root, inspectorPort })
   stageAt('isolated before main')
   if (hasSecuritySmoke(expectedVersion)) await installSecurityProbes(main, root)
   await main.resume()
