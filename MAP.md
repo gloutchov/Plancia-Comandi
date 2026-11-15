@@ -119,6 +119,7 @@ Plancia-Comandi/
 |   |-- package-macos.test.ts        Test delle opzioni e del percorso dell'app
 |   |-- package-windows.mjs          Opzioni Windows per electron-builder, senza shell
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
+|   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
 |   |-- icon.png                     Icona Linux e della finestra, PNG 1024
@@ -151,6 +152,10 @@ Plancia-Comandi/
 ### 2. Flusso e responsabilità
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
+
+Il workflow Windows manuale esegue la suite completa, inclusi i confronti nativi PowerShell 5.1/7, prima di build e packaging.
+
+La landing elenca le shell per piattaforma, compresa fish, con testi IT/EN in `i18n.js` e layout responsivo in `site.css`.
 
 La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; gli script classici differiti caricano `i18n.js` prima di `site.js` per testi, attributi e galleria, anche nell'apertura diretta dell'HTML. Le due chiavi di localStorage appartengono al sito e non a `settings.json`. Il controllo strutturale verifica anche sintassi e riferimenti agli elementi della UI.
 
@@ -306,6 +311,7 @@ Plancia-Comandi/
 |   |-- package-macos.test.ts        Options and app-path tests
 |   |-- package-windows.mjs          Windows electron-builder options, no shell
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
+|   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/
 |   |-- icon.png                     Linux and window icon, 1024 PNG
@@ -338,6 +344,10 @@ Plancia-Comandi/
 ### 2. Flow and responsibilities
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
+
+The manual Windows workflow runs the full suite, including native PowerShell 5.1/7 comparisons, before build and packaging.
+
+The landing lists shells by platform, including fish, with IT/EN text in `i18n.js` and responsive layout in `site.css`.
 
 The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; deferred classic scripts load `i18n.js` before `site.js` for text, attributes and the gallery, including when opening the HTML directly. Its two localStorage keys belong to the site rather than `settings.json`. The structural check also validates syntax and references to UI elements.
 

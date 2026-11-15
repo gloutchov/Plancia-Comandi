@@ -17,6 +17,7 @@ Queste regole adattano al repository le preferenze HOME fornite dal progettista.
 - Versione canonica in `package.json` e relativa radice del lockfile. Versione documentata attuale **0.3.4**. Per modifiche di versione sincronizzare i documenti che la riportano; non creare un secondo file versione senza necessità.
 - `config/app.config.json` è la configurazione centrale dei parametri di appunti, trascinamento e dimensione dell'input introdotti da M1. Va validata all'avvio; i valori fuori intervallo tornano ai default documentati. `settings.json` fuori dal checkout resta la configurazione utente di lingua, tema, vista e rilevamento. Non aggiungere segreti. Gli altri limiti ancora nei moduli restano la proposta P2, non un lavoro implicito.
 - Un task documentale descrive il comportamento reale e registra lacune: non deve trasformarsi in un intervento applicativo non richiesto.
+- Toolchain M6: Vitest 5.1.0, electron-builder 26.18.0; Node sorgenti `^22.12.0 || ^24.0.0 || >=26.0.0`. L’override `minimatch@>=7.0.0 <11.0.1` → 11.0.1 è limitato alla toolchain: mantenerne la motivazione nel modello e verificare audit, API pubbliche e packaging quando cambia. Il workflow Windows manuale esegue la suite completa, compresi i confronti PowerShell 5.1/7, prima della build.
 
 ## Documentazione e UI
 

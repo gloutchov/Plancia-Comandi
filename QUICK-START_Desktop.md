@@ -12,14 +12,14 @@ Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.4**.
 
 ### 1. Avviare
 
-Nella cartella del repository, con Git, Node.js/npm e strumenti nativi già installati:
+Nella cartella del repository, con Git, Node.js 22.12+ della serie 22, 24.x oppure 26+, npm e strumenti nativi già installati:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-La landing statica in `docs/` presenta funzioni, download e manuali; ha sorgenti predisposti per GitHub Pages (C4). Non crea terminali nel browser.
+La landing statica in `docs/` presenta funzioni, shell apribili per piattaforma (inclusa fish), download e manuali; ha sorgenti predisposti per GitHub Pages (C4). Non crea terminali nel browser.
 
 Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone del terminale. Il primo avvio usa l'italiano e il tema del sistema.
 
@@ -52,14 +52,14 @@ This guide takes you from the checkout to your first terminal in Plancia Comandi
 
 ### 1. Start
 
-In the repository folder, with Git, Node.js/npm and native build tools installed:
+In the repository folder, with Git, Node.js 22.12+ on the 22.x line, 24.x, or 26+, npm and native build tools installed:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-The static landing page in `docs/` presents features, downloads and manuals; its source is prepared for GitHub Pages (C4). It does not create browser terminals.
+The static landing page in `docs/` presents features, launchable shells by platform (including fish), downloads and manuals; its source is prepared for GitHub Pages (C4). It does not create browser terminals.
 
 Use the desktop window that opens. The development website in a browser has no terminal access. The first start uses Italian and the system theme; open **Impostazioni** and choose **English** to switch language.
 

@@ -23,14 +23,14 @@ C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 1
 
 Serve un computer desktop con macOS, Windows o Linux e una shell utilizzabile. La finestra ha dimensione minima 860 × 560. Queste sono piattaforme target, non una certificazione di compatibilità per ogni versione del sistema. I pacchetti configurati sono DMG/ZIP per macOS, NSIS/portabile x64 per Windows e AppImage/DEB per Linux; le verifiche reali di distribuzione sono ancora da completare.
 
-Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pubblico. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.3.2 richiede Node.js 22.12 o successivo: è il minimo per installare le dipendenze. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
+Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pubblico. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.3.2 richiede almeno Node.js 22.12; la toolchain corrente richiede Node.js 22.12+ della serie 22, 24.x oppure 26+. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
 
 ## 2. Installazione
 
 ### 2.1 Installare il software necessario
 
 1. Installa **Git** dal [sito ufficiale](https://git-scm.com/downloads), scegliendo il tuo sistema operativo e seguendo l'installer. Su Windows puoi installare anche Git Bash. Apri un nuovo terminale e verifica `git --version`.
-2. Installa **Node.js 22.12** o successivo, con npm, dal [sito ufficiale](https://nodejs.org/en/download), scegliendo sistema e architettura. È il minimo richiesto da Electron 45.3.2. Le verifiche locali usano Node.js 24. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
+2. Installa **Node.js 22.12+ della serie 22, 24.x oppure 26+**, con npm, dal [sito ufficiale](https://nodejs.org/en/download), scegliendo sistema e architettura. Sono i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Le verifiche locali usano Node.js 24. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
 3. Prepara gli strumenti nativi solo dove la compilazione serve ancora. Su Windows x64 o arm64 non serve compilare e non servono diritti di amministratore: non installare Python né i Build Tools C++, e `npm ci` non ricompila `node-pty`. Su macOS servono gli strumenti di sviluppo Xcode. Su Linux servono Python, `make` e un compilatore C++, perché `node-pty` 1.1.0 non include una prebuild Linux. Non occorre un compilatore per usare un pacchetto già compilato.
 4. Se vuoi una shell opzionale, installala con il suo installer e riavvia Plancia Comandi. Su Windows vengono cercati PowerShell 7 nel `PATH` e Git Bash nelle cartelle standard di Git. La normale Windows PowerShell è la scelta iniziale; su macOS/Linux si usa la shell di login.
 5. Se vuoi usare una CLI AI, completa prima la sua installazione e il suo accesso nel normale terminale di sistema. Plancia Comandi non include la CLI, non ne configura l'account e non gestisce le sue credenziali.
@@ -68,7 +68,7 @@ La distribuzione prevista è non firmata. Gatekeeper e SmartScreen possono mostr
 
 Su Linux non è stata testata di persona.
 
-1. Installa **Git** e **Node.js 22.12** o successivo, con npm, come nei punti 1 e 2 di questo capitolo. Electron 45.3.2 non si installa con una versione di Node più vecchia. I controlli descritti in questi documenti usano Node.js 24.
+1. Installa **Git** e **Node.js 22.12+ della serie 22, 24.x oppure 26+**, con npm, come nei punti 1 e 2 di questo capitolo. Electron 45.3.2 non si installa con una versione di Node più vecchia. I controlli descritti in questi documenti usano Node.js 24.
 2. Installa gli strumenti che compilano `node-pty`. Il README di `node-pty` 1.1.0 chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`. Il pacchetto Python da installare è `python3`: node-gyp lo usa per la ricompilazione che `npm ci` esegue, perché non esiste una prebuild Linux.
 
 ```bash
@@ -100,6 +100,8 @@ Se il checkout esiste già, non clonarlo di nuovo: esegui gli ultimi quattro com
 3. Scegli la **Shell** e la **Cartella**. **Sfoglia** apre il selettore di cartelle. La prima cartella proposta è la home; in seguito viene riproposta l'ultima usata.
 4. Premi **Apri** e attendi il prompt. Se la cartella non è valida o il modulo terminale non si carica, correggi l'errore mostrato.
 5. Digita un comando nella shell, come faresti nel terminale di sistema.
+
+Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
 
 La lingua iniziale è italiana anche sui sistemi non italiani. In **Impostazioni** puoi scegliere **Italiano** o **English**. Il tema iniziale segue il sistema; puoi forzare **Chiaro** o **Scuro**. Le preferenze restano salvate.
 
@@ -315,6 +317,8 @@ La finestra carica solo le pagine dell'app. Gli script di produzione arrivano da
 La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
+
+**M6 in verifica locale.** Vitest 5.1.0 sostituisce 3.2.4; electron-builder resta 26.18.0. Un override npm porta a minimatch 11.0.1 solo le precedenti versioni vulnerabili 7–11.0.0. Audit completo da 9 segnalazioni a zero, produzione sempre a zero; dipendenze runtime e bundle applicativi invariati. Versione 0.3.4, con proposta di checkpoint C6 senza nuova release. Motivazione, verifiche e prova Windows ancora da eseguire sono nel [piano](PLAN.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
 C14, 15 novembre 2026: 274 test locali riusciti e 2 PowerShell nativi saltati su macOS; 17 confronti fish 4.9.3 riusciti. La [run Windows 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) ha superato 46 casi per ciascuno dei motori PowerShell 5.1.26100.33648 e 7.6.9 e verificato app scompattata, portable e installata. DMG montato in sola lettura e ZIP macOS ARM64 estratto sono stati ispezionati e provati fuori dal checkout, con profili isolati prima del main. Tutti i sei allegati sono stati riscaricati e confrontati con SHA-256 e digest GitHub; gli archivi sorgente ZIP/TAR coincidono con i 118 file del commit rilasciato. Non è una prova personale su PC Windows, Linux, macOS Intel o Gatekeeper su download in quarantena.
 

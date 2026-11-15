@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "engines": {
-    "node": ">=22.12"
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "main": "dist-electron/main.js",
   "scripts": {
@@ -45,6 +45,9 @@
     "vite": "6.4.6",
     "vite-plugin-electron": "0.29.1",
     "vite-plugin-electron-renderer": "0.14.6",
-    "vitest": "3.2.4"
+    "vitest": "5.1.0"
+  },
+  "overrides": {
+    "minimatch@>=7.0.0 <11.0.1": "11.0.1"
   }
 }

@@ -83,6 +83,13 @@
           <article><span class="step-number" aria-hidden="true">02</span><h3 data-copy="features.tile.title">Affianca ciò che serve</h3><p data-copy="features.tile.body">Una, Affiancate, Incolonnate o Griglia: scegli la vista adatta alle sessioni aperte, senza spostare finestre sul desktop.</p><span class="feature-note" data-copy="features.tile.note">Quattro viste</span></article>
           <article><span class="step-number" aria-hidden="true">03</span><h3 data-copy="features.follow.title">Segui l’attività</h3><p data-copy="features.follow.body">Stati, pallini e notifiche aiutano a trovare una sessione in attesa. Il rilevamento è euristico: controlla sempre il terminale.</p><span class="feature-note" data-copy="features.follow.note">Al lavoro · In attesa · Azione</span></article>
         </div>
+        <div class="shells" aria-labelledby="shells-title">
+          <div><h3 id="shells-title" data-copy="features.shells.title">Scegli la tua shell.</h3><p data-copy="features.shells.intro">Le shell si installano separatamente. Plancia Comandi mostra quelle disponibili sul tuo sistema.</p></div>
+          <dl class="shell-list">
+            <div><dt>Windows</dt><dd data-copy="features.shells.windows">Windows PowerShell · PowerShell 7 · Prompt dei comandi · Git Bash</dd></div>
+            <div><dt>macOS / Linux</dt><dd data-copy="features.shells.unix">Shell di login · zsh · bash · fish</dd></div>
+          </dl>
+        </div>
       </section>
 
       <section class="gallery-section section" id="gallery" aria-labelledby="gallery-title">
@@ -121,7 +128,7 @@
           </div>
           <p class="download-notice" data-copy="download.notice">Pacchetti non firmati; macOS senza notarizzazione. SmartScreen e Gatekeeper possono mostrare avvisi. Verifica i checksum e consulta le istruzioni prima di aprire un download.</p>
           <div class="getting-started"><h3 data-copy="start.title">Dalla prima apertura al primo terminale.</h3><ol><li data-copy="start.one">Scarica il pacchetto adatto e apri l’app seguendo il manuale.</li><li data-copy="start.two">Premi Nuova sessione, scegli shell e cartella, poi Apri.</li><li data-copy="start.three">Con almeno due sessioni scegli Affiancate o Incolonnate; da tre è disponibile la Griglia.</li></ol><a class="text-link manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md"><span data-copy="start.manual">Apri il manuale italiano</span><span aria-hidden="true">↗</span></a></div>
-          <details class="source-details"><summary data-copy="source.title">Linux e avvio dai sorgenti</summary><div><p data-copy="source.body">Per Linux non è pubblicato un pacchetto 0.3.4 e non è registrata una prova personale. I sorgenti richiedono Git e Node.js 22.12 o successivo; su macOS e Linux servono anche gli strumenti di compilazione di node-pty. Su Windows si usano le prebuild.</p><pre><code>git clone https://github.com/gloutchov/Plancia-Comandi.git
+          <details class="source-details"><summary data-copy="source.title">Linux e avvio dai sorgenti</summary><div><p data-copy="source.body">Per Linux non è pubblicato un pacchetto 0.3.4 e non è registrata una prova personale. I sorgenti richiedono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+; su macOS e Linux servono anche gli strumenti di compilazione di node-pty. Su Windows si usano le prebuild.</p><pre><code>git clone https://github.com/gloutchov/Plancia-Comandi.git
 cd Plancia-Comandi
 npm ci
 npm run dev</code></pre><p data-copy="source.separate">Le CLI che vuoi usare nei terminali si installano e autenticano separatamente.</p><a class="text-link manual-link" href="https://github.com/gloutchov/Plancia-Comandi/blob/main/ISTRUZIONI.md" data-copy="source.manual">Requisiti e installazione nel manuale ↗</a></div></details>

@@ -29,13 +29,15 @@ Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e pref
 - Tema di sistema, chiaro o scuro; interfaccia italiana o inglese; dimensione del testo e tempi configurabili.
 - Copia, incolla, trascinamento di file e testo, collegamenti nel browser e scorciatoie adatte alla piattaforma.
 
+Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
+
 Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. La lingua iniziale è italiana; il rilevamento automatico della lingua di sistema non è ancora implementato. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
 
 ![Vista affiancata nel tema chiaro](docs/screenshots/plancia-light.png)
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git e Node.js 22.12 o successivo con npm: è il minimo richiesto da Electron 45.3.2. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -56,7 +58,7 @@ Vedi il [quick start desktop](QUICK-START_Desktop.md) e il [manuale italiano](IS
 
 Su Linux non è stata testata di persona.
 
-1. Installa Git e Node.js 22.12 o successivo, con npm. È il minimo di Electron 45.3.2. I controlli descritti in questi documenti usano Node.js 24.
+1. Installa Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain. I controlli descritti in questi documenti usano Node.js 24.
 2. Installa gli strumenti per compilare `node-pty`. La versione 1.1.0 non ha una prebuild Linux e `npm ci` la ricompila per Electron con node-gyp. Il README di `node-pty` chiede `make`, `python` e `build-essential`. Su Debian e Ubuntu `build-essential` include già `make`, `gcc` e `g++`; il pacchetto Python da installare è `python3`.
 
 ```bash
@@ -92,6 +94,8 @@ I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono legger
 Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. La finestra non carica script da Internet. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md): la shell resta con i permessi dell'utente e i pacchetti non sono firmati.
 
 ### 5. Sviluppo e verifiche
+
+**M6 in verifica locale.** Vitest 5.1.0 sostituisce 3.2.4; electron-builder resta 26.18.0. Un override npm porta a minimatch 11.0.1 solo le precedenti versioni vulnerabili 7–11.0.0. Audit completo da 9 segnalazioni a zero, produzione sempre a zero; dipendenze runtime e bundle applicativi invariati. Versione 0.3.4, con proposta di checkpoint C6 senza nuova release. Motivazione, verifiche e prova Windows ancora da eseguire sono nel [piano](PLAN.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
 Stack: Electron 45, React 19, TypeScript, Vite 6, xterm.js, `@xterm/headless` e `node-pty`. La UI è in `src/`, l'accesso a PTY e sistema in `electron/`, la logica pura degli stati in `src/shared/status.ts`. Vedi [MAP.md](MAP.md) e [AGENTS.md](AGENTS.md).
 
@@ -185,13 +189,15 @@ Screenshots of source version 0.3.1 on Windows, using demonstration data and iso
 - System, light or dark theme; Italian or English interface; configurable text size and detection timings.
 - Copy, paste, file and text drag-and-drop, browser links and platform-specific shortcuts.
 
+Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Command Prompt** and **Git Bash** on Windows; **Login shell**, **zsh**, **bash** and **fish** on macOS/Linux, when present in detected locations. The landing shows the same list by platform.
+
 Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
 
 ![Side-by-side view in the light theme](docs/screenshots/plancia-light-en.png)
 
 ### 2. Installation and first use
 
-Running from source requires Git and Node.js 22.12 or newer with npm: that is the minimum required by Electron 45.3.2. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
+Running from source requires Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain; Electron 45.3.2 requires at least Node.js 22.12. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -212,7 +218,7 @@ See the [desktop quick start](QUICK-START_Desktop.md) and [English manual](INSTR
 
 It has not been tested in person on Linux.
 
-1. Install Git and Node.js 22.12 or newer, with npm. That is the minimum for Electron 45.3.2. The checks described in these documents use Node.js 24.
+1. Install Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain. The checks described in these documents use Node.js 24.
 2. Install the tools that compile `node-pty`. Version 1.1.0 has no Linux prebuild, and `npm ci` rebuilds it for Electron with node-gyp. The `node-pty` README asks for `make`, `python` and `build-essential`. On Debian and Ubuntu, `build-essential` already includes `make`, `gcc` and `g++`; the Python package to install is `python3`.
 
 ```bash
@@ -248,6 +254,8 @@ Commands run with the permissions of the user starting the app and can read or c
 Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
+
+**M6 under local review.** Vitest 5.1.0 replaces 3.2.4; electron-builder stays at 26.18.0. An npm override moves only previously vulnerable versions 7–11.0.0 to minimatch 11.0.1. Full audit goes from 9 findings to zero, production stays at zero; runtime dependencies and application bundles are unchanged. Version 0.3.4, with a proposed C6 checkpoint and no new release. Rationale, checks and the outstanding Windows trial are in the [plan](PLAN.md) and [security model](SECURITY_MODEL.md).
 
 Stack: Electron 45, React 19, TypeScript, Vite 6, xterm.js, `@xterm/headless` and `node-pty`. UI lives in `src/`, PTY and system access in `electron/`, and pure status logic in `src/shared/status.ts`. See [MAP.md](MAP.md) and [AGENTS.md](AGENTS.md).
 
