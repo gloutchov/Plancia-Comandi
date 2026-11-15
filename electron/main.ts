@@ -27,6 +27,10 @@ function devServerUrl(): string | undefined {
   return rendererDevServerUrl(app.isPackaged, process.env['VITE_DEV_SERVER_URL'])
 }
 
+function rendererDocumentUrl(): string {
+  return devServerUrl() ?? pathToFileURL(path.join(RENDERER_DIST, 'index.html')).href
+}
+
 function envFlag(name: string, legacy: string): boolean {
   return process.env[name] === '1' || process.env[legacy] === '1'
 }
@@ -112,8 +116,7 @@ function notify(title: string, body: string, sessionId: string): void {
 
 function isAppSender(event: IpcSenderEvent): boolean {
   const current = currentWindow()
-  return isTrustedRendererSender(event, current?.webContents ?? null,
-    devServerUrl() ?? pathToFileURL(path.join(RENDERER_DIST, 'index.html')).href)
+  return isTrustedRendererSender(event, current?.webContents ?? null, rendererDocumentUrl())
 }
 
 function registerIpc(): void {
@@ -284,9 +287,8 @@ function createWindow(): void {
     if (demoMode()) void startDemo()
   })
 
-  const devUrl = devServerUrl()
-  if (devUrl) void win.loadURL(devUrl)
-  else void win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+  // Load the exact URL accepted by IPC, including encoded ~ in Windows 8.3 paths.
+  void win.loadURL(rendererDocumentUrl())
 
   if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })
 }

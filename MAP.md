@@ -144,7 +144,7 @@ Plancia-Comandi/
 |   |-- smoke-report.test.ts         Redazione dei contenuti e limite 32 richieste
 |   |-- smoke-driver.test.ts         Ambiente isolato e scoperta debugger senza stderr
 |   |-- smoke-security.mjs           IPC reale, permessi e CSP sul pacchetto
-|   |-- smoke-macos-formats.mjs      Estrae ZIP, monta DMG readonly, ispeziona e prova
+|   |-- smoke-macos-formats.mjs      ZIP in percorso con tilde, DMG readonly, ispezione e smoke
 |   |-- smoke-settings.mjs           Smoke M8: guasto salvataggio, avvisi IT/EN e recupero
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
@@ -373,7 +373,7 @@ Plancia-Comandi/
 |   |-- smoke-report.test.ts         Content redaction and 32-request bound
 |   |-- smoke-driver.test.ts         Isolated environment and debugger discovery without stderr
 |   |-- smoke-security.mjs           Live IPC, permissions and CSP in packages
-|   |-- smoke-macos-formats.mjs      Extracts ZIP, mounts DMG read-only, inspects and tests
+|   |-- smoke-macos-formats.mjs      ZIP in a tilde path, read-only DMG, inspection and smoke
 |   |-- smoke-settings.mjs           M8 smoke: save failure, IT/EN warnings and recovery
 |   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/

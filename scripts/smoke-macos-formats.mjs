@@ -13,7 +13,8 @@ const release = path.resolve(releaseArgument)
 const source = path.resolve(sourceArgument)
 const scripts = path.dirname(fileURLToPath(import.meta.url))
 const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-mac-formats-'))
-const extracted = path.join(root, 'zip')
+// Exercise the ~ found in Windows portable extraction paths such as RUNNER~1.
+const extracted = path.join(root, 'zip~1')
 const mount = path.join(root, 'dmg')
 await mkdir(extracted); await mkdir(mount)
 function run(command, args) {
