@@ -40,7 +40,7 @@ Per chiuderla premi **×** nella sua riga. L'app chiede conferma se la considera
 
 Per errori del modulo terminale, su macOS e Linux esegui `npm run rebuild` e riavvia. Su Windows, se il terminale non parte, ripeti `npm ci`. Approfondimenti nel [manuale](ISTRUZIONI.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
-Nei sorgenti 0.3.5, un avviso sui pattern personalizzati indica che il rilevamento standard continua. Per svuotare le liste personalizzate e ripristinare il rilevamento usa **Impostazioni → Ripristina i tempi**. La release pubblicata resta 0.3.4 fino alla verifica e pubblicazione di 0.3.5.
+Nella release 0.3.5, un avviso sui pattern personalizzati indica che il rilevamento standard continua. Per svuotare le liste personalizzate e ripristinare il rilevamento usa **Impostazioni → Ripristina i tempi**. La [release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) è pubblicata con pacchetti Windows x64/macOS ARM64 non firmati e checksum verificati.
 
 ## English
 
@@ -82,4 +82,4 @@ To close a session, click **×** in its row. The app asks for confirmation when 
 
 For terminal-module errors on macOS and Linux, run `npm run rebuild` and restart. On Windows, if the terminal does not start, run `npm ci` again. See the [manual](INSTRUCTIONS.md) and [security model](SECURITY_MODEL.md) for details.
 
-In version 0.3.5 source, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. The published release stays at 0.3.4 until 0.3.5 is verified and published.
+In release 0.3.5, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) is published with unsigned Windows x64/macOS ARM64 packages and verified checksums.
