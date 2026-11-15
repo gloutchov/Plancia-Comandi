@@ -4,7 +4,7 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.5 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C14 corregge la quotatura dei percorsi nelle sessioni fish; il confronto nativo con fish 4.9.3 e la prova personale sono riusciti. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.5 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.6 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. C14 corregge la quotatura dei percorsi nelle sessioni fish; il confronto nativo con fish 4.9.3 e la prova personale sono riusciti. C13 corregge la quotatura PowerShell degli apostrofi Unicode; i confronti nativi su Windows PowerShell 5.1 e PowerShell 7 sono riusciti. La release 0.3.5 è pubblicata con pacchetti Windows x64 e macOS ARM64 verificati e checksum SHA-256. I pacchetti e il comportamento sulle singole piattaforme richiedono ancora le verifiche indicate nel [piano](PLAN.md). I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -85,6 +85,8 @@ npm run dev
 
 Apri **Impostazioni** per lingua, tema, corpo del terminale, avvisi e tempi del rilevamento. Le modifiche effettuate nell'interfaccia si applicano subito e restano sul computer in `settings.json`, nella cartella dati dell'app. **Apri il file di configurazione** mostra il file nel gestore dei file; dopo una modifica manuale riavvia l'app.
 
+Nei sorgenti 0.3.6, un avviso indica recupero delle preferenze o modifiche non salvate. I file `.bak` e i log locali sono descritti nel [manuale](ISTRUZIONI.md#6-configurazione); chiudi l’app prima di recuperare o modificare manualmente il JSON.
+
 Il tema predefinito segue il sistema. Le impostazioni non contengono credenziali né ripristinano le sessioni. Valori mancanti o non validi ricevono i valori predefiniti o sono limitati all'intervallo ammesso. I limiti di appunti, trascinamento e lunghezza dell'input stanno in [`config/app.config.json`](config/app.config.json); dopo una modifica di quel file riavvia l'app. Vedi la [configurazione completa](ISTRUZIONI.md#6-configurazione).
 
 ![Impostazioni di aspetto, avvisi e rilevamento](docs/screenshots/plancia-settings.png)
@@ -96,6 +98,8 @@ I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono legger
 Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. La finestra non carica script da Internet. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md): la shell resta con i permessi dell'utente e i pacchetti non sono firmati.
 
 ### 5. Sviluppo e verifiche
+
+**M8 in verifica locale — sorgenti 0.3.6.** Le preferenze sono salvate con sostituzione atomica; prima del ripiego sui default il file non valido viene conservato come `.bak`. Se lettura o backup falliscono, il file resta protetto da sovrascritture; un errore di salvataggio lascia intatta l’ultima configurazione e le modifiche restano valide per la sessione, con un avviso IT/EN. La diagnostica locale conserva solo evento e codici di sistema ammessi: niente messaggi grezzi, stack, percorsi o contenuti. Suite macOS: 340 test riusciti e 2 PowerShell nativi saltati; build e smoke DMG/ZIP ARM64 con profili isolati, guasto di salvataggio, fallback e recupero riusciti. M8 resta `M` fino al controllo personale del commit; Windows e pubblicazione sono successivi alle approvazioni. La release e i download pubblici restano 0.3.5; proposta la release patch 0.3.6 per hardening applicativo. Dettagli nel [piano](PLAN.md).
 
 **C7 completata, 15 novembre 2026 — release 0.3.5.** I pattern personalizzati vengono esaminati in un worker cancellabile, con un budget di tempo. Un pattern non valido viene ignorato; dopo timeout o indisponibilità le tre liste personalizzate sono sospese e prosegue il rilevamento standard, con avviso IT/EN. Per svuotare le liste usa **Impostazioni → Ripristina i tempi**. Suite macOS: 292 test riusciti, 2 PowerShell nativi saltati; [Windows 43726467574](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43726467574): 294 test riusciti senza salti, inclusi i confronti PowerShell 5.1/7, e smoke scompattato/portable/installato. DMG/ZIP ARM64 finali ispezionati e provati con profili isolati, IT/EN, entrambi i temi, fallback e ripristino. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5), quattro pacchetti e due manifest SHA-256 pubblicati e riscaricati: byte e digest verificati. Checkpoint `milestone/C7` e tag `v0.3.5` sul commit `641e129e76afe0cf0f6638ae456c70908a35bf95`; dettagli e limiti nel [piano](PLAN.md).
 
@@ -168,7 +172,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.5 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C14 fixes path quoting in fish sessions; native fish 4.9.3 comparison and the personal test passed. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.5 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
+**Source version 0.3.6 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. C14 fixes path quoting in fish sessions; native fish 4.9.3 comparison and the personal test passed. C13 fixes PowerShell Unicode-apostrophe quoting; native comparisons on Windows PowerShell 5.1 and PowerShell 7 passed. Release 0.3.5 is published with verified Windows x64 and macOS ARM64 packages and SHA-256 checksums. Packages and platform behavior still require the checks listed in the [plan](PLAN.md). Tools used inside terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -249,6 +253,8 @@ npm run dev
 
 Open **Settings** for language, theme, terminal size, alerts and detection timings. Interface changes apply immediately and remain on this computer in `settings.json`, in the app's data directory. **Open the configuration file** reveals the file in the file manager; restart the app after editing it manually.
 
+In version 0.3.6 source, a warning reports preference recovery or unsaved changes. Backups and local logs are described in the [manual](INSTRUCTIONS.md#6-configuration); close the app before recovering or manually editing JSON.
+
 The default theme follows the system. Settings do not store credentials or restore sessions. Missing or invalid values receive defaults or are clamped to their allowed range. Clipboard, drag-and-drop and input-length limits live in [`config/app.config.json`](config/app.config.json); restart the app after editing that file. See the [full configuration](INSTRUCTIONS.md#6-configuration).
 
 ![Appearance, alert and detection settings](docs/screenshots/plancia-settings-en.png)
@@ -260,6 +266,8 @@ Commands run with the permissions of the user starting the app and can read or c
 Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
+
+**M8 under local review — version 0.3.6 source.** Preferences use atomic replacement; an invalid file is preserved as `.bak` before falling back to defaults. If reading or backup fails, the file is protected from overwriting; a save failure leaves the last configuration intact and changes remain active for the session, with an IT/EN warning. Local diagnostics retain only static events and allowlisted system codes: no raw messages, stacks, paths or contents. macOS suite: 340 tests passed and 2 native PowerShell tests skipped; build and isolated ARM64 DMG/ZIP smoke passed, including save failure, fallback and recovery. M8 stays `M` until personal review of the commit; Windows and publication follow approvals. The public release and downloads remain 0.3.5; patch release 0.3.6 is proposed for app hardening. Details in the [plan](PLAN.md).
 
 **C7 completed, 15 November 2026 — release 0.3.5.** Custom patterns run in a cancellable worker with a time budget. Invalid patterns are ignored; after timeout or unavailability all three custom lists are suspended and standard detection continues, with an IT/EN warning. Use **Settings → Reset timings** to clear the lists. macOS suite: 292 tests passed, 2 native PowerShell tests skipped; [Windows 43726467574](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43726467574): 294 tests passed without skips, including PowerShell 5.1/7 comparisons, and unpacked/portable/installed smoke. Final ARM64 DMG/ZIP inspected and tested with isolated profiles, IT/EN, both themes, fallback and recovery. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5), four packages and two SHA-256 manifests published and downloaded again: bytes and digests verified. Checkpoint `milestone/C7` and tag `v0.3.5` at commit `641e129e76afe0cf0f6638ae456c70908a35bf95`; details and limits in the [plan](PLAN.md).
 

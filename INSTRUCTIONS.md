@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.5**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.6**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -142,6 +142,7 @@ In **Settings → Alerts**, enable **System notification** and **Dot in the side
 
 A tiled but inactive session may still generate alerts. Its dot clears when you watch it with the window focused; clicking a notification returns to that session. System alerts depend on OS permissions and, on Linux, the available notification service.
 
+
 ## 6. Configuration
 
 ### 6.1 Interface preferences
@@ -157,6 +158,19 @@ The central user preferences file is `settings.json` in the directory Electron r
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, otherwise `~/.config/Plancia Comandi/settings.json` |
 
 Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language `it`, layout `single`, both alerts enabled, reasons hidden. `layout` accepts `single`, `split`, `stack` or `grid`; an unknown value falls back to `single`. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
+
+**Preference recovery in version 0.3.6 source**
+
+Saving first writes a temporary file in the same directory and then replaces `settings.json`. A failure before replacement preserves the last configuration; language, theme and other changes remain active only for the current session and a warning appears. A later successful save clears the warning. Replacement does not guarantee durability after power loss or filesystem failure.
+
+1. Close the app before editing or recovering a file manually. The locations above identify the folder; if `settings.json` exists, **Open configuration file** reveals it in the file manager. Then exit the app.
+2. If JSON/UTF-8 is invalid, the root is not an object or the file exceeds `settings.maxBytes`, the current file is moved to `settings.json.bak` before defaults are used. If that name already exists, another unique name ending in `.bak` is created; older backups are not overwritten. Inspect the copy, repair it if needed and restore it as `settings.json` only with the app closed. Copies may contain private paths and patterns: do not share them automatically.
+3. If the app cannot read or preserve the file, it does not overwrite it. The **Preferences unavailable** warning means changes remain in memory until exit. Check permissions, free space and that `settings.json` is a regular file, then restart. Leaf symlinks are refused.
+4. If **Could not save preferences** appears, fix the access or space problem and change a preference again to retry; the last saved configuration remains available. An abrupt exit may leave a `settings.json.tmp-*` file: it is not loaded as configuration. Retain it for inspection and manage it only with the app closed.
+
+Migration from `Molo`/`molo` preserves the original and atomically saves only recognized fields. A corrupt legacy file within the limit is copied to `.bak` in the new folder; an oversized or unreadable legacy file stays at its original location, with writes blocked for the session. New files use Unix mode `0600` and new directories `0700`; Windows relies on profile ACLs rather than POSIX bits.
+
+The same folder contains `diagnostics.jsonl` and, after rotation, `diagnostics.jsonl.1`: app-generated logs are bounded by `diagnostics.maxBytes` per file. They contain a timestamp, static event, allowlisted system code and, when available, an allowlisted operation. Raw messages, stacks, environment, paths, clipboard and terminal output are not saved; unknown codes become `UNKNOWN`. If the local log is unwritable, the console receives the same metadata only. No remote upload. This filter covers messages managed by the app: shell output, dependencies and Electron/system diagnostics remain outside its control.
 
 Quit the app before editing JSON manually, keep a copy if it contains customizations, and restart after saving. The file is not reloaded automatically. A missing or unreadable/invalid file uses defaults; a nonexistent last folder falls back to home. If the current file does not exist, the app searches for and copies the file from the former `Molo`/`molo` directories, retaining the original.
 
@@ -212,6 +226,8 @@ If matching takes too long or is unavailable, a warning appears above the termin
 | `terminal.maxWriteChars` | 200000 | 1000–1000000 | Maximum length of one write to the terminal. A paste is 12 characters shorter, so the bracketed-paste markers still fit. |
 | `drop.maxFiles` | 20 | 1–50 | How many dropped files to insert. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Maximum length of one dropped path. |
+| `settings.maxBytes` | 262144 | 16384–1048576 | Maximum bytes before JSON/UTF-8 reading; finite numbers are rounded and clamped. |
+| `diagnostics.maxBytes` | 65536 | 4096–1048576 | Byte limit for each of the two rotating local logs. |
 | `statusPatterns.budgetMs` | 50 | 10–250 | Millisecond budget for compilation and matching of one request; expiry suspends custom patterns. |
 | `statusPatterns.startupTimeoutMs` | 2000 | 500–10000 | Maximum wait for the matching service to start, separate from the request budget. |
 | `statusPatterns.maxInputChars` | 4096 | 256–32768 | Maximum visible text copied before selecting the rows to examine. |
@@ -325,6 +341,8 @@ The window loads only the app's own pages. Production scripts come from the app'
 Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, themes and installers remains incomplete. The previous README reported Linux demo tests: these do not establish current macOS or Windows verification. See [SECURITY_MODEL.md](SECURITY_MODEL.md) for the controls that are present and for the limits that are still open, and [PLAN.md](PLAN.md) for future proposals.
 
 ## 12. Development and distribution
+
+**M8 under local review — version 0.3.6 source.** Preferences use atomic replacement; an invalid file is preserved as `.bak` before falling back to defaults. If reading or backup fails, the file is protected from overwriting; a save failure leaves the last configuration intact and changes remain active for the session, with an IT/EN warning. Local diagnostics retain only static events and allowlisted system codes: no raw messages, stacks, paths or contents. macOS suite: 340 tests passed and 2 native PowerShell tests skipped; build and isolated ARM64 DMG/ZIP smoke passed, including save failure, fallback and recovery. M8 stays `M` until personal review of the commit; Windows and publication follow approvals. The public release and downloads remain 0.3.5; patch release 0.3.6 is proposed for app hardening. Details in the [plan](PLAN.md).
 
 **C7 completed, 15 November 2026 — release 0.3.5.** Custom patterns run in a cancellable worker with a time budget. Invalid patterns are ignored; after timeout or unavailability all three custom lists are suspended and standard detection continues, with an IT/EN warning. Use **Settings → Reset timings** to clear the lists. macOS suite: 292 tests passed, 2 native PowerShell tests skipped; [Windows 43726467574](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43726467574): 294 tests passed without skips, including PowerShell 5.1/7 comparisons, and unpacked/portable/installed smoke. Final ARM64 DMG/ZIP inspected and tested with isolated profiles, IT/EN, both themes, fallback and recovery. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5), four packages and two SHA-256 manifests published and downloaded again: bytes and digests verified. Checkpoint `milestone/C7` and tag `v0.3.5` at commit `641e129e76afe0cf0f6638ae456c70908a35bf95`; details and limits in the [plan](PLAN.md).
 

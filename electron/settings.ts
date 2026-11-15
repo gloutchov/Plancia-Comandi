@@ -1,6 +1,5 @@
-import { app } from 'electron'
 import fs from 'node:fs'
-import path from 'node:path'
+import { SettingsFile } from './settingsFile'
 import { clampStatusConfig } from '../src/shared/status'
 import type { AppSettings, LayoutMode, Locale, SettingsPatch, ThemeSetting } from '../src/shared/types'
 
@@ -40,7 +39,7 @@ function asBool(value: unknown, fallback: boolean): boolean {
 }
 
 function asFont(value: unknown): number {
-  const size = Number(value)
+  const size = typeof value === 'number' || typeof value === 'string' ? Number(value) : NaN
   if (!Number.isFinite(size)) return 14
   return Math.min(22, Math.max(11, Math.round(size)))
 }
@@ -72,34 +71,18 @@ export class SettingsStore {
   readonly file: string
   data: AppSettings
   private home: string
+  private storage: SettingsFile
 
-  constructor(home: string) {
+  constructor(home: string, options: { userData: string; appData: string; maxBytes: number }) {
     this.home = home
-    this.file = path.join(app.getPath('userData'), 'settings.json')
-    this.migrateLegacyFile()
-    this.data = this.read()
+    this.storage = new SettingsFile(options)
+    this.file = this.storage.file
+    this.data = sanitizeSettings(this.storage.read() as Partial<AppSettings> | null, home)
+    if (this.storage.migrationPending) this.save()
   }
 
-  /** Copy settings written by the app when it was still named Molo. */
-  private migrateLegacyFile(): void {
-    if (fs.existsSync(this.file)) return
-    const appData = app.getPath('appData')
-    const legacy = ['Molo', 'molo'].map((name) => path.join(appData, name, 'settings.json'))
-    for (const oldFile of legacy) {
-      if (oldFile === this.file || !fs.existsSync(oldFile)) continue
-      fs.mkdirSync(path.dirname(this.file), { recursive: true })
-      fs.copyFileSync(oldFile, this.file)
-      return
-    }
-  }
-
-  private read(): AppSettings {
-    try {
-      const parsed = JSON.parse(fs.readFileSync(this.file, 'utf8')) as Partial<AppSettings>
-      return sanitizeSettings(parsed, this.home)
-    } catch {
-      return defaultSettings(this.home)
-    }
+  get warning() {
+    return this.storage.warning
   }
 
   update(patch: SettingsPatch): AppSettings {
@@ -116,12 +99,11 @@ export class SettingsStore {
   }
 
   save(): void {
-    fs.mkdirSync(path.dirname(this.file), { recursive: true })
     const body = {
       _comment:
         'Plancia Comandi settings. Timings are milliseconds. extraIdlePatterns, extraBusyPatterns and extraAttentionPatterns are JavaScript regex sources.',
       ...this.data,
     }
-    fs.writeFileSync(this.file, JSON.stringify(body, null, 2))
+    this.storage.write(JSON.stringify(body, null, 2))
   }
 }

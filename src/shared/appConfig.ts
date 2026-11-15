@@ -22,6 +22,8 @@ export interface AppConfig {
     maxPathChars: number
   }
   statusPatterns: StatusPatternLimits
+  settings: { maxBytes: number }
+  diagnostics: { maxBytes: number }
 }
 
 export interface StatusPatternLimits {
@@ -63,6 +65,8 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
     maxInputChars: 4096,
     workerMemoryMb: 32,
   },
+  settings: { maxBytes: 262_144 },
+  diagnostics: { maxBytes: 65_536 },
 }
 
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
@@ -93,6 +97,8 @@ export function validateAppConfig(input: unknown): AppConfig {
   const terminal = record(source.terminal)
   const drop = record(source.drop)
   const patterns = record(source.statusPatterns)
+  const settings = record(source.settings)
+  const diagnostics = record(source.diagnostics)
   const defaults = APP_CONFIG_DEFAULTS
   return {
     clipboardImages: {
@@ -116,6 +122,8 @@ export function validateAppConfig(input: unknown): AppConfig {
       maxInputChars: clamp(patterns.maxInputChars, 256, 32_768, defaults.statusPatterns.maxInputChars),
       workerMemoryMb: clamp(patterns.workerMemoryMb, 16, 128, defaults.statusPatterns.workerMemoryMb),
     },
+    settings: { maxBytes: clamp(typeof settings.maxBytes === 'number' ? settings.maxBytes : undefined, 16_384, 1_048_576, defaults.settings.maxBytes) },
+    diagnostics: { maxBytes: clamp(typeof diagnostics.maxBytes === 'number' ? diagnostics.maxBytes : undefined, 4096, 1_048_576, defaults.diagnostics.maxBytes) },
   }
 }
 

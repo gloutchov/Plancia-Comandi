@@ -76,10 +76,11 @@ export function clampStatusConfig(input: Partial<StatusConfig> | undefined | nul
     ...defaultStatusConfig,
     ...(input ?? {}),
   }
-  const next = { ...merged }
+  const next = { ...defaultStatusConfig }
   for (const key of Object.keys(LIMITS) as Array<keyof typeof LIMITS>) {
     const [min, max] = LIMITS[key]
-    const value = Number(merged[key])
+    const raw: unknown = merged[key]
+    const value = raw === null || ['number', 'string', 'boolean'].includes(typeof raw) ? Number(raw) : NaN
     next[key] = Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : defaultStatusConfig[key]
   }
   next.extraIdlePatterns = sanitizePatternList(merged.extraIdlePatterns)

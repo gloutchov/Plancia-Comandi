@@ -1,4 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
+import { validSettingsWarning } from '../src/shared/diagnosticMessages'
+import type { SettingsWarning } from '../src/shared/types'
 import type { AppSettings, BootInfo, CreateResult, CreateSessionInput, SessionInfo, SettingsPatch, TerminalChunk, TerminalSnapshot } from '../src/shared/types'
 
 function subscribe<T>(channel: string, callback: (payload: T) => void): () => void {
@@ -8,7 +10,7 @@ function subscribe<T>(channel: string, callback: (payload: T) => void): () => vo
 }
 
 const api = {
-  boot: (): Promise<BootInfo> => ipcRenderer.invoke('app:boot'),
+  boot: (): Promise<BootInfo | null> => ipcRenderer.invoke('app:boot'),
   createSession: (input: CreateSessionInput): Promise<CreateResult> => ipcRenderer.invoke('sessions:create', input),
   closeSession: (id: string): Promise<void> => ipcRenderer.invoke('sessions:close', id),
   renameSession: (id: string, name: string): Promise<void> => ipcRenderer.invoke('sessions:rename', id, name),
@@ -65,6 +67,9 @@ const api = {
   onFocus: (callback: (id: string) => void): (() => void) => subscribe('session:focus', callback),
   onSystemTheme: (callback: (dark: boolean) => void): (() => void) => subscribe('theme:system', callback),
   onSettings: (callback: (settings: AppSettings) => void): (() => void) => subscribe('settings:updated', callback),
+  onSettingsWarning: (callback: (warning: SettingsWarning | null) => void): (() => void) => subscribe('settings:warning', (value: unknown) => {
+    if (validSettingsWarning(value)) callback(value)
+  }),
 }
 
 contextBridge.exposeInMainWorld('plancia', api)

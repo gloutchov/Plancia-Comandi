@@ -347,8 +347,7 @@ function run(parsed: Parsed, effects: LegacyEffects): unknown {
       effects.watch(parsed.id, parsed.focused)
       return undefined
     case 'shell:openExternal':
-      effects.openExternal(parsed.url)
-      return undefined
+      return effects.openExternal(parsed.url)
     default: {
       const unreachable: never = parsed
       return unreachable

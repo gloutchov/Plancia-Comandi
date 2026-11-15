@@ -82,7 +82,7 @@ export function NewSessionDialog({
             </button>
           </div>
         </div>
-        {error ? <p className="form-error">{error}</p> : null}
+        {error ? <p className="form-error" role="alert">{error}</p> : null}
         <div className="dialog-actions">
           <button type="button" className="btn" onClick={onCancel}>
             {t('cancel')}

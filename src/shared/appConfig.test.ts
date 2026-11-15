@@ -80,6 +80,18 @@ describe('validateAppConfig', () => {
     fs.rmSync(root, { recursive: true, force: true })
   })
 
+  it('bounds preference input and local log limits with independent defaults', () => {
+    expect(validateAppConfig({ settings: { maxBytes: 1 }, diagnostics: { maxBytes: 9_999_999 } }))
+      .toMatchObject({ settings: { maxBytes: 16_384 }, diagnostics: { maxBytes: 1_048_576 } })
+    expect(validateAppConfig({ settings: { maxBytes: Infinity }, diagnostics: { maxBytes: 'broken' } }))
+      .toMatchObject({ settings: APP_CONFIG_DEFAULTS.settings, diagnostics: APP_CONFIG_DEFAULTS.diagnostics })
+    expect(validateAppConfig({ settings: { maxBytes: 20_000.8 } }).settings.maxBytes).toBe(20_001)
+    for (const value of [null, true, '20000', [], { toString: 'invalid' }]) {
+      expect(validateAppConfig({ settings: { maxBytes: value }, diagnostics: { maxBytes: value } }))
+        .toMatchObject({ settings: APP_CONFIG_DEFAULTS.settings, diagnostics: APP_CONFIG_DEFAULTS.diagnostics })
+    }
+  })
+
   it('uses defaults when the file cannot be read', () => {
     expect(loadAppConfig(path.join(os.tmpdir(), 'plancia-missing-app.config.json'))).toEqual(APP_CONFIG_DEFAULTS)
   })

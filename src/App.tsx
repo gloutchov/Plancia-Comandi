@@ -9,6 +9,7 @@ import { cx } from './cx'
 import { phaseKey, reasonKey, translate, type MessageKey } from './shared/i18n'
 import { displayedLayout, layoutCapacity, nextLayout, selectVisibleSessions } from './shared/layout'
 import { settingsFromUpdate } from './shared/settingsForm'
+import { sessionErrorMessage } from './shared/diagnosticMessages'
 import { shortenPath } from './shared/paths'
 import { appShortcut, type KeyLike } from './shortcuts'
 import { darkTerm, lightTerm } from './termTheme'
@@ -19,7 +20,7 @@ import {
   setFocusedTerminal,
   terminalHasFocus,
 } from './terminalEdit'
-import type { AppSettings, BootInfo, LayoutMode, SessionInfo, SettingsPatch } from './shared/types'
+import type { AppSettings, BootInfo, LayoutMode, SessionInfo, SettingsPatch, SettingsWarning } from './shared/types'
 
 export function App() {
   const [boot, setBoot] = useState<BootInfo | null>(null)
@@ -30,7 +31,10 @@ export function App() {
       setError('desktop')
       return
     }
-    window.plancia.boot().then(setBoot).catch(() => {
+    window.plancia.boot().then((info) => {
+      if (info) setBoot(info)
+      else setError('boot')
+    }).catch(() => {
       setError('boot')
     })
   }, [])
@@ -53,6 +57,7 @@ export function App() {
 
 function Workspace({ boot }: { boot: BootInfo }) {
   const [settings, setSettings] = useState<AppSettings>(boot.settings)
+  const [settingsWarning, setSettingsWarning] = useState<SettingsWarning | null>(boot.settingsWarning ?? null)
   const [sessions, setSessions] = useState<SessionInfo[]>(boot.sessions)
   const [systemDark, setSystemDark] = useState(boot.systemDark)
   const [focusedId, setFocusedId] = useState<string | null>(boot.sessions[0]?.id ?? null)
@@ -90,6 +95,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
     const offSessions = bridge.onSessions(setSessions)
     const offTheme = bridge.onSystemTheme(setSystemDark)
     const offSettings = bridge.onSettings(setSettings)
+    const offWarning = bridge.onSettingsWarning(setSettingsWarning)
     const offFocus = bridge.onFocus((id) => {
       setFocusedId(id)
       setSidebarOpen(false)
@@ -98,6 +104,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
       offSessions()
       offTheme()
       offSettings()
+      offWarning()
       offFocus()
     }
   }, [])
@@ -263,11 +270,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [boot.limits])
 
   function createError(code: string): string {
-    if (code === 'bad-cwd') return t('badCwd')
-    if (code === 'bad-shell') return t('badShell')
-    if (code === 'max-sessions') return t('maxSessions', { n: 12 })
-    if (code === 'pty-missing') return t('ptyMissing')
-    return code || t('createFailed')
+    return sessionErrorMessage(locale, code)
   }
 
   const sessionName = (session: SessionInfo) =>
@@ -335,6 +338,11 @@ function Workspace({ boot }: { boot: BootInfo }) {
             onSelect={setLayout}
           />
         </header>
+        {settingsWarning ? (
+          <p className="pattern-warning" role="status" data-testid="settings-warning">
+            {t(('settingsWarning_' + settingsWarning) as MessageKey)}
+          </p>
+        ) : null}
         {patternWarning ? (
           <p className="pattern-warning" role="status" data-testid="pattern-warning">
             {t(`patternWarning_${patternWarning}` as MessageKey)}

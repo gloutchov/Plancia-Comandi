@@ -17,6 +17,7 @@ export interface CustomPatternMatches {
 }
 
 export type CustomPatternWarning = 'invalid' | 'timeout' | 'unavailable'
+export type SettingsWarning = 'recovered' | 'read-blocked' | 'write-failed'
 
 export interface StatusConfig {
   /** Silence after real output before a session with no other signal becomes idle. */
@@ -110,6 +111,7 @@ export interface BootInfo {
   demo: boolean
   systemDark: boolean
   settings: AppSettings
+  settingsWarning?: SettingsWarning | null
   sessions: SessionInfo[]
   shells: ShellChoice[]
   limits: {

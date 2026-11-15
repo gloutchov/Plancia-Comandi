@@ -42,6 +42,8 @@ Per errori del modulo terminale, su macOS e Linux esegui `npm run rebuild` e ria
 
 Nella release 0.3.5, un avviso sui pattern personalizzati indica che il rilevamento standard continua. Per svuotare le liste personalizzate e ripristinare il rilevamento usa **Impostazioni → Ripristina i tempi**. La [release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) è pubblicata con pacchetti Windows x64/macOS ARM64 non firmati e checksum verificati.
 
+Nei sorgenti 0.3.6, se compare un avviso sulle preferenze, le modifiche possono valere solo per la sessione. Chiudi l’app prima del recupero manuale; conserva `settings.json.bak` e consulta il [manuale](ISTRUZIONI.md#6-configurazione). I log locali contengono solo metadati consentiti; nessun invio remoto.
+
 ## English
 
 This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.5**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
@@ -83,3 +85,5 @@ To close a session, click **×** in its row. The app asks for confirmation when 
 For terminal-module errors on macOS and Linux, run `npm run rebuild` and restart. On Windows, if the terminal does not start, run `npm ci` again. See the [manual](INSTRUCTIONS.md) and [security model](SECURITY_MODEL.md) for details.
 
 In release 0.3.5, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) is published with unsigned Windows x64/macOS ARM64 packages and verified checksums.
+
+In version 0.3.6 source, a preference warning may mean changes apply only to the session. Close the app before manual recovery; retain `settings.json.bak` and consult the [manual](INSTRUCTIONS.md#6-configuration). Local logs contain only allowlisted metadata; no remote upload.

@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.5**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.6**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -142,6 +142,7 @@ In **Impostazioni → Avvisi** puoi attivare separatamente **Notifica di sistema
 
 Una sessione affiancata ma non attiva può ancora generare avvisi. Il pallino si azzera quando guardi la sessione con la finestra a fuoco; cliccare una notifica riporta alla sessione. Gli avvisi di sistema dipendono dalle autorizzazioni del sistema operativo e, su Linux, dal servizio notifiche disponibile.
 
+
 ## 6. Configurazione
 
 ### 6.1 Preferenze dell'interfaccia
@@ -157,6 +158,19 @@ Il file centrale delle preferenze utente è `settings.json` nella directory rest
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, oppure `~/.config/Plancia Comandi/settings.json` |
 
 Sono salvati `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` e `status`. Tema iniziale `system`, lingua `it`, vista `single`, avvisi entrambi attivi, motivo nascosto. `layout` accetta `single`, `split`, `stack` o `grid`; un valore sconosciuto torna a `single`. L'ultima shell e cartella sono riutilizzate per nuove sessioni; un identificatore di shell non disponibile ripiega sulla prima scelta rilevata. Le shell Unix vengono avviate come login shell (`-l`); su Windows la scelta iniziale è Windows PowerShell con `-NoLogo`.
+
+**Recupero delle preferenze nei sorgenti 0.3.6**
+
+Il salvataggio scrive prima un file temporaneo nella stessa cartella e poi sostituisce `settings.json`. Un errore prima della sostituzione preserva l’ultima configurazione; lingua, tema e altre modifiche restano applicate solo alla sessione corrente e compare un avviso. Un successivo salvataggio riuscito rimuove l’avviso. La sostituzione non garantisce la persistenza dopo un guasto dell’alimentazione o del filesystem.
+
+1. Chiudi l’app prima di modificare o recuperare un file a mano. Le posizioni sopra indicano la cartella; se `settings.json` esiste, **Apri il file di configurazione** la mostra nel gestore file. Poi esci dall’app.
+2. Se JSON/UTF-8 non è valido, la radice non è un oggetto o il file supera `settings.maxBytes`, il file corrente viene spostato in `settings.json.bak` prima di usare i default. Se il nome esiste già, viene creato un altro nome univoco che termina con `.bak`; i backup precedenti non vengono sovrascritti. Controlla la copia, correggila se necessario e ripristinala come `settings.json` solo con l’app chiusa. Le copie possono contenere percorsi e pattern privati: non condividerle automaticamente.
+3. Se l’app non riesce a leggere o preservare il file, non lo sovrascrive. L’avviso **Preferenze non disponibili** indica che le modifiche restano in memoria fino all’uscita. Verifica permessi, spazio libero e che `settings.json` sia un file regolare, poi riavvia. I link simbolici sul file sono rifiutati.
+4. Se compare **Impossibile salvare le preferenze**, correggi il problema di accesso o spazio e modifica nuovamente una preferenza per riprovare; l’ultima configurazione salvata resta disponibile. Dopo una chiusura improvvisa può restare un `settings.json.tmp-*`: non viene caricato come configurazione. Conservalo per il controllo e gestiscilo solo con l’app chiusa.
+
+La migrazione da `Molo`/`molo` conserva l’originale e salva atomicamente solo i campi riconosciuti. Un vecchio file corrotto entro il limite viene copiato in `.bak` nella nuova cartella; un vecchio file troppo grande o non leggibile resta nella posizione originale, con scritture bloccate per la sessione. I nuovi file hanno modalità `0600` su Unix e le nuove cartelle `0700`; su Windows contano le ACL del profilo, non i bit POSIX.
+
+Nella stessa cartella trovi `diagnostics.jsonl` e, dopo la rotazione, `diagnostics.jsonl.1`: al massimo `diagnostics.maxBytes` per file per i log generati dall’app. Contengono timestamp, evento fisso, codice di sistema ammesso e, quando disponibile, un’operazione ammessa. Il messaggio grezzo, lo stack, ambiente, percorsi, appunti e output del terminale non vengono salvati; i codici non riconosciuti diventano `UNKNOWN`. Se il log locale non è scrivibile, la console riceve gli stessi soli metadati. Nessun invio remoto. Questo filtro riguarda i messaggi gestiti dall’app: output delle shell, dipendenze e diagnostica Electron/sistema restano fuori dal suo controllo.
 
 Chiudi l'app prima di modificare il JSON a mano, conserva una copia se contiene personalizzazioni e riavvia dopo il salvataggio. Non c'è ricaricamento automatico del file. Un file mancante o illeggibile/non valido usa i valori predefiniti; un'ultima cartella inesistente ripiega sulla home. Se non esiste il file attuale, l'app cerca e copia quello delle vecchie cartelle `Molo`/`molo`, lasciando l'originale.
 
@@ -212,6 +226,8 @@ Se il matching impiega troppo tempo o non è disponibile, compare un avviso sopr
 | `terminal.maxWriteChars` | 200000 | 1000–1000000 | Lunghezza massima di una scrittura al terminale. L'incolla è più corto di 12 caratteri, così i marcatori dell'incolla fra parentesi ci stanno. |
 | `drop.maxFiles` | 20 | 1–50 | Quanti file trascinati inserire. |
 | `drop.maxPathChars` | 4096 | 32–32767 | Lunghezza massima di un singolo percorso trascinato. |
+| `settings.maxBytes` | 262144 | 16384–1048576 | Dimensione massima prima della lettura JSON/UTF-8, in byte; i numeri finiti sono arrotondati e limitati all’intervallo. |
+| `diagnostics.maxBytes` | 65536 | 4096–1048576 | Limite per ciascuno dei due log locali a rotazione, in byte. |
 | `statusPatterns.budgetMs` | 50 | 10–250 | Budget in millisecondi per compilazione e matching di una richiesta; allo scadere si sospendono i pattern personalizzati. |
 | `statusPatterns.startupTimeoutMs` | 2000 | 500–10000 | Attesa massima per l’avvio del servizio di matching, separata dal budget della richiesta. |
 | `statusPatterns.maxInputChars` | 4096 | 256–32768 | Massimo testo visibile copiato prima di selezionare le righe da esaminare. |
@@ -325,6 +341,8 @@ La finestra carica solo le pagine dell'app. Gli script di produzione arrivano da
 La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche, temi e installer resta da completare. Il precedente README riportava prove della demo su Linux: non costituiscono una verifica corrente su macOS o Windows. Vedi [SECURITY_MODEL.md](SECURITY_MODEL.md) per i controlli presenti e per i limiti ancora aperti, e [PLAN.md](PLAN.md) per le proposte future.
 
 ## 12. Sviluppo e distribuzione
+
+**M8 in verifica locale — sorgenti 0.3.6.** Le preferenze sono salvate con sostituzione atomica; prima del ripiego sui default il file non valido viene conservato come `.bak`. Se lettura o backup falliscono, il file resta protetto da sovrascritture; un errore di salvataggio lascia intatta l’ultima configurazione e le modifiche restano valide per la sessione, con un avviso IT/EN. La diagnostica locale conserva solo evento e codici di sistema ammessi: niente messaggi grezzi, stack, percorsi o contenuti. Suite macOS: 340 test riusciti e 2 PowerShell nativi saltati; build e smoke DMG/ZIP ARM64 con profili isolati, guasto di salvataggio, fallback e recupero riusciti. M8 resta `M` fino al controllo personale del commit; Windows e pubblicazione sono successivi alle approvazioni. La release e i download pubblici restano 0.3.5; proposta la release patch 0.3.6 per hardening applicativo. Dettagli nel [piano](PLAN.md).
 
 **C7 completata, 15 novembre 2026 — release 0.3.5.** I pattern personalizzati vengono esaminati in un worker cancellabile, con un budget di tempo. Un pattern non valido viene ignorato; dopo timeout o indisponibilità le tre liste personalizzate sono sospese e prosegue il rilevamento standard, con avviso IT/EN. Per svuotare le liste usa **Impostazioni → Ripristina i tempi**. Suite macOS: 292 test riusciti, 2 PowerShell nativi saltati; [Windows 43726467574](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43726467574): 294 test riusciti senza salti, inclusi i confronti PowerShell 5.1/7, e smoke scompattato/portable/installato. DMG/ZIP ARM64 finali ispezionati e provati con profili isolati, IT/EN, entrambi i temi, fallback e ripristino. [Release 0.3.5](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.5), quattro pacchetti e due manifest SHA-256 pubblicati e riscaricati: byte e digest verificati. Checkpoint `milestone/C7` e tag `v0.3.5` sul commit `641e129e76afe0cf0f6638ae456c70908a35bf95`; dettagli e limiti nel [piano](PLAN.md).
 

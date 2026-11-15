@@ -8,6 +8,7 @@ import type { Terminal } from '@xterm/headless'
 import { listActiveParents } from './children'
 import { createScreen, readScreen } from './screen'
 import { CustomPatternMatcher } from './customPatterns'
+import { reportDiagnostic } from './diagnostics'
 import type { SettingsStore } from './settings'
 import type { StatusPatternLimits } from '../src/shared/appConfig'
 import {
@@ -41,7 +42,7 @@ function loadPty(): PtyModule | null {
   try {
     return require('node-pty') as PtyModule
   } catch (error) {
-    console.error('node-pty failed to load', error)
+    reportDiagnostic('pty-load-failed', error)
     return null
   }
 }
@@ -115,8 +116,9 @@ export class SessionManager {
       maxWriteChars: number
       statusPatternLimits: StatusPatternLimits
     },
+    ptyModule: PtyModule | null = loadPty(),
   ) {
-    this.pty = loadPty()
+    this.pty = ptyModule
     this.patternMatcher = new CustomPatternMatcher(deps.statusPatternLimits, MAX_SESSIONS, () => this.tick())
     this.statusTimer = setInterval(() => this.tick(), 400)
     this.childTimer = setInterval(() => void this.pollChildren(), 2500)
@@ -215,8 +217,8 @@ export class SessionManager {
       session.pid = session.pty.pid
     } catch (error) {
       session.screen?.dispose()
-      const message = error instanceof Error ? error.message : 'pty'
-      return { ok: false, error: message || 'pty' }
+      reportDiagnostic('pty-spawn-failed', error)
+      return { ok: false, error: 'pty-spawn-failed' }
     }
 
     session.pty.onData((data) => this.onData(session, data))
@@ -239,7 +241,7 @@ export class SessionManager {
     try {
       session.pty?.write(payload)
     } catch (error) {
-      console.error('pty write failed', error)
+      reportDiagnostic('pty-write-failed', error)
     }
   }
 
@@ -256,7 +258,7 @@ export class SessionManager {
     try {
       session.pty?.resize(cols, rows)
     } catch (error) {
-      console.error('pty resize failed', error)
+      reportDiagnostic('pty-resize-failed', error)
     }
   }
 
@@ -456,7 +458,7 @@ export class SessionManager {
         if (session.pid) session.hasActiveChild = parents.has(session.pid)
       }
     } catch (error) {
-      console.error('child process snapshot failed', error)
+      reportDiagnostic('process-snapshot-failed', error)
       for (const session of live) session.hasActiveChild = null
     } finally {
       this.polling = false

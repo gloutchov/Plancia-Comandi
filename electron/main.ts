@@ -14,6 +14,7 @@ import { registerClipboardIpc } from './clipboardIpc'
 import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
+import { configureDiagnostics, reportDiagnostic } from './diagnostics'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
@@ -61,7 +62,10 @@ function send(channel: string, payload?: unknown): void {
 }
 
 function publishSettings(): void {
-  if (settings) send('settings:updated', settings.data)
+  if (settings) {
+    send('settings:updated', settings.data)
+    send('settings:warning', settings.warning)
+  }
 }
 
 function applyThemeSource(theme: ThemeSetting): void {
@@ -83,6 +87,7 @@ function bootInfo(): BootInfo {
     demo: demoMode(),
     systemDark: nativeTheme.shouldUseDarkColors,
     settings: settings.data,
+    settingsWarning: settings.warning,
     sessions: manager?.list() ?? [],
     shells: shellChoices,
     limits: runtimeLimits(appConfig),
@@ -138,6 +143,7 @@ function registerIpc(): void {
         applyThemeSource(next.theme)
         installApplicationMenu(next.locale, currentWindow)
         manager?.retick()
+        publishSettings()
         return next
       },
       currentSettings: () => settings?.data ?? null,
@@ -164,7 +170,7 @@ function registerIpc(): void {
         manager?.setWatching(id, focused)
       },
       openExternal: (url) => {
-        void shell.openExternal(url)
+        return shell.openExternal(url)
       },
     },
   })
@@ -262,8 +268,8 @@ function createWindow(): void {
     },
   })
 
-  win.webContents.on('preload-error', (_event, preload, error) => {
-    console.error('preload error', preload, error)
+  win.webContents.on('preload-error', (_event, _preload, error) => {
+    reportDiagnostic('preload-failed', error)
   })
   guardNavigation(win)
   win.once('ready-to-show', () => win?.show())
@@ -284,8 +290,11 @@ function createWindow(): void {
 function start(): void {
   const home = app.getPath('home')
   appConfig = loadAppConfig(resolveAppConfigFile(APP_ROOT, process.resourcesPath))
+  configureDiagnostics(app.getPath('userData'), appConfig.diagnostics.maxBytes)
   cleanupClipboardImages(app.getPath('userData'), appConfig.clipboardImages)
-  settings = new SettingsStore(home)
+  settings = new SettingsStore(home, {
+    userData: app.getPath('userData'), appData: app.getPath('appData'), maxBytes: appConfig.settings.maxBytes,
+  })
   if (demoMode()) nativeTheme.themeSource = 'dark'
   else applyThemeSource(settings.data.theme)
 
@@ -343,7 +352,7 @@ if (!gotLock) {
   })
 
   app.whenReady().then(start).catch((error) => {
-    console.error(error)
+    reportDiagnostic('startup-failed', error)
     app.quit()
   })
 }

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.5**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.6**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -46,6 +46,9 @@ Plancia-Comandi/
 |   |-- customPatternWorker.ts       Programma worker statico incluso nel bundle main
 |   |-- sessions.ts                  Creazione/chiusura PTY, buffer, polling e stati
 |   |-- settings.ts                  Preferenze, default, validazione e migrazione
+|   |-- settingsFile.ts              Lettura limitata, recupero .bak, blocco scritture e migrazione
+|   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
+|   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
 |   |-- children.ts                  Snapshot dei processi figli e timeout
 |   `-- screen.ts                    Parser terminale headless per lo schermo
@@ -97,6 +100,9 @@ Plancia-Comandi/
 |       |-- legacyIpc.test.ts        Test negativi isolati per mittente estraneo e payload invalido
 |       |-- settingsForm.ts          Numeri del dialogo e aggiornamento delle impostazioni
 |       |-- settingsForm.test.ts     Test di 1e400 e di un aggiornamento nullo
+|       |-- settingsStore.test.ts    File temporanei, corruzione, limiti, guasti e interruzioni reali
+|       |-- diagnostics.test.ts      Redazione, rotazione, errori PTY/IPC e testi localizzati
+|       |-- diagnosticMessages.ts    Codici di avviso ed errori senza testo nativo nella UI
 |       |-- textLimit.ts             Taglio del testo senza spezzare un'emoji
 |       |-- textLimit.test.ts        Test dell'emoji a cavallo del limite
 |       |-- nativeInstall.test.ts    Test della scelta prebuild Windows o ricompilazione
@@ -126,6 +132,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
+|   |-- smoke-settings.mjs           Smoke M8: guasto salvataggio, avvisi IT/EN e recupero
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
 |   |-- icon.png                     Icona Linux e della finestra, PNG 1024
@@ -169,6 +176,8 @@ La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e 
 
 La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
+M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
+
 ### 3. Comandi e verifiche
 
 | Comando | Responsabilità |
@@ -198,13 +207,16 @@ release/                          Pacchetti generati; ignorati da Git
 .vite/, out/, *.log, *.local       Cache/output/stato locale ignorati da Git
 .git/                             Metadati Git; usare i comandi Git
 <Electron userData>/settings.json  Preferenze fuori dal checkout, potenzialmente con percorsi privati
+<Electron userData>/settings.json.bak, *.bak  Copie di recupero private, mai sovrascritte
+<Electron userData>/settings.json.tmp-*      Temporanei ignorati al riavvio, possibili dopo un’interruzione
+<Electron userData>/diagnostics.jsonl[.1]    Due log locali limitati con soli metadati
 ```
 
 `build/` e `docs/screenshots/` contengono asset sorgente tracciati: non confonderli con output eliminabile. `package-lock.json` è generato da npm ma è tracciato; cambiarlo solo per una modifica alle dipendenze autorizzata. Le modifiche preesistenti ai due file package restano escluse dal commit documentale. Nessuna esclusione Git sostituisce un controllo dei segreti.
 
 ## English
 
-This map describes Plancia Comandi **0.3.5** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.6** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -248,6 +260,9 @@ Plancia-Comandi/
 |   |-- customPatternWorker.ts       Static worker program bundled into main
 |   |-- sessions.ts                  PTY creation/closing, buffers, polling and status
 |   |-- settings.ts                  Preferences, defaults, validation and migration
+|   |-- settingsFile.ts              Bounded reads, .bak recovery, write protection and migration
+|   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
+|   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
 |   |-- shells.ts                    Platform shell detection
 |   |-- children.ts                  Child-process snapshots and timeouts
 |   `-- screen.ts                    Headless terminal screen parser
@@ -299,6 +314,9 @@ Plancia-Comandi/
 |       |-- legacyIpc.test.ts        Isolated negative tests for a foreign sender and an invalid payload
 |       |-- settingsForm.ts          Dialog numbers and a settings update
 |       |-- settingsForm.test.ts     Tests for 1e400 and a null update
+|       |-- settingsStore.test.ts    Temporary files, corruption, bounds, failures and real interruption
+|       |-- diagnostics.test.ts      Redaction, rotation, PTY/IPC failures and localized messages
+|       |-- diagnosticMessages.ts    Warning/error codes without native text in UI
 |       |-- textLimit.ts             Text cut that does not split an emoji
 |       |-- textLimit.test.ts        Test of an emoji straddling the limit
 |       |-- nativeInstall.test.ts    Test of the Windows prebuild or rebuild choice
@@ -328,6 +346,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
+|   |-- smoke-settings.mjs           M8 smoke: save failure, IT/EN warnings and recovery
 |   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/
 |   |-- icon.png                     Linux and window icon, 1024 PNG
@@ -371,6 +390,8 @@ The landing is independent of the Electron UI: `preferences.js` applies language
 
 UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
+M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
+
 ### 3. Commands and checks
 
 | Command | Responsibility |
@@ -400,6 +421,9 @@ release/                          Generated packages; ignored by Git
 .vite/, out/, *.log, *.local       Ignored local cache/output/state
 .git/                             Git metadata; use Git commands
 <Electron userData>/settings.json  Preferences outside checkout, potentially containing private paths
+<Electron userData>/settings.json.bak, *.bak  Private recovery copies, never overwritten
+<Electron userData>/settings.json.tmp-*      Ignored at restart; may remain after interruption
+<Electron userData>/diagnostics.jsonl[.1]    Two bounded local metadata logs
 ```
 
 `build/` and `docs/screenshots/` contain tracked source assets: they are not disposable output. `package-lock.json` is generated by npm but tracked; change it only for authorized dependency work. Pre-existing changes to both package files remain excluded from the documentation commit. No Git exclusion replaces a secrets check.

@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module'
 import type { Terminal } from '@xterm/headless'
+import { reportDiagnostic } from './diagnostics'
 
 const require = createRequire(import.meta.url)
 
@@ -12,7 +13,7 @@ function loadHeadless(): HeadlessModule | null {
   try {
     moduleCache = require('@xterm/headless') as HeadlessModule
   } catch (error) {
-    console.error('Headless terminal failed to load', error)
+    reportDiagnostic('screen-load-failed', error)
     moduleCache = null
   }
   return moduleCache

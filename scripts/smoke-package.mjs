@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
+import { smokeSettings } from './smoke-settings.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -120,11 +121,12 @@ try {
   }
   assert.equal(await evaluate('document.querySelectorAll(".xterm").length > 0'), true)
   const patternsChecked = await smokeCustomPatterns({ evaluate, until, request, sessions, root, expectedVersion })
+  const settingsChecked = await smokeSettings({ evaluate, until, request, root, userData, expectedVersion })
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
-  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : [])], temporaryRoot: root }))
+  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], temporaryRoot: root }))
 } catch (error) {
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
   throw error
