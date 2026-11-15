@@ -138,6 +138,8 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
 |   |-- smoke-driver.mjs             Ambiente e debugger CDP su loopback, isolamento iniziale
+|   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
+|   |-- smoke-report.test.ts         Redazione dei contenuti e limite 32 richieste
 |   |-- smoke-driver.test.ts         Assenza credenziali/flag e percorsi temporanei
 |   |-- smoke-security.mjs           IPC reale, permessi e CSP sul pacchetto
 |   |-- smoke-macos-formats.mjs      Estrae ZIP, monta DMG readonly, ispeziona e prova
@@ -363,6 +365,8 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
 |   |-- smoke-driver.mjs             Filtered env and loopback CDP, early isolation
+|   |-- smoke-report.mjs             Bounded allowlisted failure metadata
+|   |-- smoke-report.test.ts         Content redaction and 32-request bound
 |   |-- smoke-driver.test.ts         No credentials/flags and temporary paths
 |   |-- smoke-security.mjs           Live IPC, permissions and CSP in packages
 |   |-- smoke-macos-formats.mjs      Extracts ZIP, mounts DMG read-only, inspects and tests

@@ -87,6 +87,9 @@ export async function isolateBeforeMain({ diagnostics, until, root }) {
     return { ...driver, resume: async () => {
       await driver.request('Debugger.removeBreakpoint', { breakpointId: breakpoint.breakpointId })
       await driver.request('Debugger.resume')
+      // Early startup isolation is finished. Keep Runtime available for later
+      // probes, without leaving the main process's Debugger agent enabled.
+      await driver.request('Debugger.disable')
     } }
   } catch (error) { driver.close(); throw error }
 }
