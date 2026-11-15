@@ -10,9 +10,10 @@ const resources = path.resolve(resourcesArgument)
 const source = path.resolve(sourceArgument)
 const require = createRequire(path.join(source, 'package.json'))
 const asar = require('@electron/asar')
+const developmentPackages = Object.keys(JSON.parse(fs.readFileSync(path.join(source, 'package.json'), 'utf8')).devDependencies ?? {})
 const archive = path.join(resources, 'app.asar')
 const entries = asar.listPackage(archive)
-const problem = unexpectedPackageEntry(entries)
+const problem = unexpectedPackageEntry(entries, developmentPackages)
 assert.equal(problem, null, problem ?? undefined)
 const manifest = JSON.parse(asar.extractFile(archive, 'package.json').toString())
 assert.equal(manifest.version, version)
@@ -31,4 +32,17 @@ function compare(directory) {
 for (const directory of ['dist', 'dist-electron', 'config']) compare(directory)
 assert.deepEqual(fs.readFileSync(path.join(resources, 'config', 'app.config.json')), fs.readFileSync(path.join(source, 'config', 'app.config.json')))
 assert(fs.existsSync(path.join(resources, 'app.asar.unpacked', 'node_modules', 'node-pty')), 'Native PTY is not unpacked')
-console.log(JSON.stringify({ inspection: 'passed', version, comparedBundles: compared, entries: entries.length }))
+// Check loose resources too: a private file outside app.asar is still shipped.
+const loose = []
+function inspectLoose(directory, prefix = '') {
+  for (const item of fs.readdirSync(directory, { withFileTypes: true })) {
+    assert(!item.isSymbolicLink(), 'Unexpected resource symlink')
+    const name = `${prefix}/${item.name}`
+    if (item.isDirectory()) inspectLoose(path.join(directory, item.name), name)
+    else loose.push(name.replace(/^\/app\.asar\.unpacked/, ''))
+  }
+}
+inspectLoose(resources)
+const looseProblem = unexpectedPackageEntry(loose, developmentPackages)
+assert.equal(looseProblem, null, looseProblem ?? undefined)
+console.log(JSON.stringify({ inspection: 'passed', version, comparedBundles: compared, entries: entries.length, looseFiles: loose.length, developmentPackagesExcluded: developmentPackages.length }))

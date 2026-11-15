@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.6**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.7**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -38,6 +38,7 @@ Plancia-Comandi/
 |   `-- app.config.json              Limiti di appunti, trascinamento, input e pattern
 |-- electron/
 |   |-- main.ts                      Finestra, lifecycle, IPC, CSP, notifiche, demo
+|   |-- permissions.ts              Negazione di controlli e richieste Chromium
 |   |-- legacyIpc.ts                 Registrazione dei canali IPC precedenti a M1
 |   |-- preload.ts                   Bridge API dedicato al renderer
 |   |-- editMenu.ts                  Menu Modifica e comandi di editing
@@ -96,7 +97,11 @@ Plancia-Comandi/
 |       |-- navigation.test.ts       Test delle navigazioni consentite
 |       |-- csp.ts                   Policy CSP di produzione e di sviluppo
 |       |-- csp.test.ts              Test della policy, senza eval e senza host remoti
+|       |-- ipcSender.ts             WebContents, mainFrame e documento atteso
 |       |-- legacyIpc.ts             Mittente e payload degli IPC precedenti a M1
+|       |-- ipcSender.test.ts        Frame/URL mancanti, disposti, estranei e spoofing
+|       |-- ipcRegistration.test.ts  Negativi sui 16 gestori con effetti simulati
+|       |-- permissions.test.ts      Entrambi gli handler, anche tipi sconosciuti
 |       |-- legacyIpc.test.ts        Test negativi isolati per mittente estraneo e payload invalido
 |       |-- settingsForm.ts          Numeri del dialogo e aggiornamento delle impostazioni
 |       |-- settingsForm.test.ts     Test di 1e400 e di un aggiornamento nullo
@@ -132,6 +137,10 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
+|   |-- smoke-driver.mjs             Ambiente e debugger CDP su loopback, isolamento iniziale
+|   |-- smoke-driver.test.ts         Assenza credenziali/flag e percorsi temporanei
+|   |-- smoke-security.mjs           IPC reale, permessi e CSP sul pacchetto
+|   |-- smoke-macos-formats.mjs      Estrae ZIP, monta DMG readonly, ispeziona e prova
 |   |-- smoke-settings.mjs           Smoke M8: guasto salvataggio, avvisi IT/EN e recupero
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
 |-- build/
@@ -178,6 +187,8 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
 
+Lo smoke imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
+
 ### 3. Comandi e verifiche
 
 | Comando | Responsabilità |
@@ -216,7 +227,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.6** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.7** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -252,6 +263,7 @@ Plancia-Comandi/
 |   `-- app.config.json              Clipboard, drag-and-drop, input and pattern limits
 |-- electron/
 |   |-- main.ts                      Window, lifecycle, IPC, CSP, notifications, demo
+|   |-- permissions.ts              Denies Chromium permission checks and requests
 |   |-- legacyIpc.ts                 Registration of the IPC channels that predate M1
 |   |-- preload.ts                   Dedicated renderer API bridge
 |   |-- editMenu.ts                  Edit menu and editing commands
@@ -310,7 +322,11 @@ Plancia-Comandi/
 |       |-- navigation.test.ts       Allowed-navigation tests
 |       |-- csp.ts                   Production and development CSP
 |       |-- csp.test.ts              Policy tests, with no eval and no remote hosts
+|       |-- ipcSender.ts             WebContents, mainFrame and expected document
 |       |-- legacyIpc.ts             Sender and payload checks for IPC that predates M1
+|       |-- ipcSender.test.ts        Missing/disposed/foreign frames and URL spoofing
+|       |-- ipcRegistration.test.ts  All 16 handlers with synthetic effects
+|       |-- permissions.test.ts      Both handlers, including unknown types
 |       |-- legacyIpc.test.ts        Isolated negative tests for a foreign sender and an invalid payload
 |       |-- settingsForm.ts          Dialog numbers and a settings update
 |       |-- settingsForm.test.ts     Tests for 1e400 and a null update
@@ -346,6 +362,10 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
+|   |-- smoke-driver.mjs             Filtered env and loopback CDP, early isolation
+|   |-- smoke-driver.test.ts         No credentials/flags and temporary paths
+|   |-- smoke-security.mjs           Live IPC, permissions and CSP in packages
+|   |-- smoke-macos-formats.mjs      Extracts ZIP, mounts DMG read-only, inspects and tests
 |   |-- smoke-settings.mjs           M8 smoke: save failure, IT/EN warnings and recovery
 |   `-- smoke-package.mjs            Isolated native package smoke test
 |-- build/
@@ -391,6 +411,8 @@ The landing is independent of the Electron UI: `preferences.js` applies language
 UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
+
+Smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
 ### 3. Commands and checks
 

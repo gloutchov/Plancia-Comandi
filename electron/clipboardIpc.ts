@@ -1,8 +1,9 @@
 import { clipboard, ipcMain, nativeImage } from 'electron'
 import { saveClipboardImage } from '../src/shared/clipboardImages'
 import type { AppConfig } from '../src/shared/appConfig'
+import type { IpcSenderEvent } from '../src/shared/ipcSender'
 
-type IpcEvent = { sender: Electron.WebContents }
+type IpcEvent = IpcSenderEvent
 
 function imageMime(types: readonly string[]): string | null {
   const images = types.filter((type) => type.startsWith('image/'))
@@ -14,8 +15,10 @@ export function registerClipboardIpc(options: {
   getConfig: () => AppConfig
   userDataDir: string
 }): void {
-  ipcMain.handle('clipboard:writeText', async (event, text: unknown) => {
+  ipcMain.handle('clipboard:writeText', async (event, ...args: unknown[]) => {
     if (!options.isSender(event)) return false
+    if (args.length !== 1) return false
+    const text = args[0]
     if (typeof text !== 'string' || text.length === 0) return false
     const max = options.getConfig().terminal.maxWriteChars
     try {
@@ -26,8 +29,8 @@ export function registerClipboardIpc(options: {
     }
   })
 
-  ipcMain.handle('clipboard:readText', async (event) => {
-    if (!options.isSender(event)) return ''
+  ipcMain.handle('clipboard:readText', async (event, ...args: unknown[]) => {
+    if (!options.isSender(event) || args.length !== 0) return ''
     try {
       const text = await clipboard.readText()
       if (!text) return ''
@@ -38,8 +41,8 @@ export function registerClipboardIpc(options: {
     }
   })
 
-  ipcMain.handle('clipboard:readImage', async (event) => {
-    if (!options.isSender(event)) return null
+  ipcMain.handle('clipboard:readImage', async (event, ...args: unknown[]) => {
+    if (!options.isSender(event) || args.length !== 0) return null
     try {
       const items = await clipboard.read()
       const config = options.getConfig().clipboardImages

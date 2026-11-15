@@ -2,18 +2,20 @@ import { randomBytes } from 'node:crypto'
 import { BrowserWindow, ipcMain, Menu } from 'electron'
 import { translate, type MessageKey } from '../src/shared/i18n'
 import type { Locale } from '../src/shared/types'
+import type { IpcSenderEvent } from '../src/shared/ipcSender'
 
 export type EditCommand = 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll'
 
-type IpcEvent = { sender: Electron.WebContents }
+type IpcEvent = IpcSenderEvent
 
 const pending = new Map<string, (handled: boolean) => void>()
 
 export function registerEditIpc(isSender: (event: IpcEvent) => boolean): void {
-  ipcMain.on('edit:result', (event, payload: unknown) => {
+  ipcMain.on('edit:result', (event, payload: unknown, ...extra: unknown[]) => {
     if (!isSender(event) || !payload || typeof payload !== 'object') return
+    if (extra.length || Array.isArray(payload) || Object.keys(payload).some(key => key !== 'id' && key !== 'handled')) return
     const source = payload as { id?: unknown; handled?: unknown }
-    if (typeof source.id !== 'string' || typeof source.handled !== 'boolean') return
+    if (typeof source.id !== 'string' || !/^[0-9a-f]{16}$/.test(source.id) || typeof source.handled !== 'boolean') return
     const resolve = pending.get(source.id)
     if (!resolve) return
     pending.delete(source.id)

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.6**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.7**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -44,9 +44,11 @@ Nella release 0.3.6, un avviso sui pattern personalizzati indica che il rilevame
 
 Dalla versione 0.3.6, se compare un avviso sulle preferenze, le modifiche possono valere solo per la sessione. Chiudi l’app prima del recupero manuale; conserva `settings.json.bak` e consulta il [manuale](ISTRUZIONI.md#6-configurazione). I log locali contengono solo metadati consentiti; nessun invio remoto.
 
+Dai sorgenti 0.3.7 i permessi web non necessari (per esempio posizione e fotocamera) sono negati automaticamente. Non occorre concederli per usare terminali, copia/incolla o notifiche native. Finestre o documenti estranei non possono usare il bridge privilegiato dell’app; le shell mantengono i permessi dell’utente.
+
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.6**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.7**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 
@@ -87,3 +89,5 @@ For terminal-module errors on macOS and Linux, run `npm run rebuild` and restart
 In release 0.3.6, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. [Release 0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) is published with unsigned Windows x64/macOS ARM64 packages and verified checksums.
 
 From version 0.3.6, a preference warning may mean changes apply only to the session. Close the app before manual recovery; retain `settings.json.bak` and consult the [manual](INSTRUCTIONS.md#6-configuration). Local logs contain only allowlisted metadata; no remote upload.
+
+From version 0.3.7 source, unnecessary web permissions (for example location and camera) are denied automatically. They are not needed for terminals, copy/paste or native notifications. Foreign windows or documents cannot use the app’s privileged bridge; shells retain the user’s permissions.

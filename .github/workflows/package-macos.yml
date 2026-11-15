@@ -82,6 +82,10 @@ jobs:
         run: |
           resources=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).resources)" "$RUNNER_TEMP/mac-layout.json")
           node tooling/scripts/inspect-package.mjs "$resources" app "$EXPECTED_VERSION"
+      - name: Verify distributed DMG and ZIP with isolated security smoke
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: node tooling/scripts/smoke-macos-formats.mjs app/release app "$EXPECTED_VERSION"
       - name: Create SHA-256 manifest
         working-directory: app/release
         run: |

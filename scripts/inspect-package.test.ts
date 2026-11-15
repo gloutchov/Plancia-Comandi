@@ -34,12 +34,24 @@ describe('archiveEntryPath', () => {
 })
 
 describe('normalizeArchiveEntries', () => {
+  it('rejects private recovery/log files and declared development tools in both path styles', () => {
+    for (const name of ['settings.json.bak', 'settings.json.123.bak', 'settings.json.tmp-123', 'diagnostics.jsonl', 'diagnostics.jsonl.1', '.env.local']) {
+      expect(unexpectedPackageEntry(['/profile/' + name])).not.toBeNull()
+      expect(unexpectedPackageEntry(['\\profile\\' + name])).not.toBeNull()
+    }
+    for (const name of ['vite', '@electron/asar']) {
+      expect(unexpectedPackageEntry([`/node_modules/${name}/index.js`], [name])).not.toBeNull()
+      expect(unexpectedPackageEntry([`/node_modules/runtime/index.js`], [name])).toBeNull()
+    }
+  })
   it('catches a Windows listPackage entry list', () => {
     const entries = ['\\scripts\\x.mjs', '\\.env']
     expect(entries).toEqual([path.win32.join('/', 'scripts', 'x.mjs'), path.win32.join('/', '.env')])
     expect(normalizeArchiveEntries(entries)).toEqual(['/scripts/x.mjs', '/.env'])
     expect(unexpectedPackageEntry(['\\scripts\\x.mjs'])).toBe('Unexpected package entry: /scripts/')
     expect(unexpectedPackageEntry(['\\.env'])).toBe('Local settings or environment file in package')
+    expect(unexpectedPackageEntry(['\\.git\\config'])).toBe('Unexpected package entry: /.git/')
+    expect(unexpectedPackageEntry(['\\settings.json'])).toBe('Local settings or environment file in package')
     expect(unexpectedPackageEntry(entries)).toBe('Unexpected package entry: /scripts/')
     expect(unexpectedPackageEntry(['\\dist\\assets\\index.js', '/package.json'])).toBeNull()
   })

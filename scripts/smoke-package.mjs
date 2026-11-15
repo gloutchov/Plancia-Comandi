@@ -7,6 +7,8 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 import { smokeSettings } from './smoke-settings.mjs'
+import { smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
+import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -16,7 +18,7 @@ await access(executable)
 const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-package-smoke-'))
 const userData = path.join(root, 'user-data')
 await mkdir(userData)
-await mkdir(path.join(root, 'shell'))
+for (const dir of ['shell', 'home', 'app-data', 'local-app-data', 'session-data', 'config', 'data', 'cache']) await mkdir(path.join(root, dir))
 const settings = {
   locale: 'en', theme: 'light', layout: 'single', fontSize: 13,
   notifyDesktop: false, notifyBadge: false, lastCwd: root,
@@ -26,12 +28,8 @@ const server = net.createServer()
 await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve))
 const port = server.address().port
 await new Promise((resolve) => server.close(resolve))
-// Retain only OS/runtime variables, never credentials, demo flags or project data.
-const env = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-  /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR|LANG|LC_ALL|DISPLAY|XAUTHORITY|__CF_USER_TEXT_ENCODING)$/i.test(key)))
-env.ZDOTDIR = path.join(root, 'shell')
-env.PLANCIA_SMOKE_VALUE = 'OK'
-const child = spawn(executable, [`--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1'], {
+const env = smokeEnvironment(root)
+const child = spawn(executable, ['--inspect-brk=127.0.0.1:0', `--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1'], {
   cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false,
 })
 let exited = false
@@ -43,6 +41,7 @@ for (const stream of [child.stdout, child.stderr]) stream.on('data', (chunk) => 
   diagnostics = (diagnostics + chunk.toString()).slice(-16000)
 })
 let socket
+let main
 const pending = new Map()
 let nextId = 0
 const sessions = []
@@ -67,11 +66,15 @@ async function request(method, params = {}) {
   return result
 }
 async function evaluate(expression) {
-  const result = await request('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })
+  const result = await request('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true, allowUnsafeEvalBlockedByCSP: false })
   if (result.exceptionDetails) throw new Error('Renderer evaluation failed')
   return result.result?.value
 }
 try {
+  main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root })
+  console.log('Smoke stage: isolated before main')
+  if (hasSecuritySmoke(expectedVersion)) await installSecurityProbes(main, root)
+  await main.resume()
   const page = await until(async () => {
     try {
       const response = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1000) })
@@ -89,6 +92,7 @@ try {
     else item.resolve(reply.result)
   })
   await until(() => evaluate('Boolean(window.plancia && document.querySelector(".app"))'), 'Preload bridge or workspace did not load')
+  console.log('Smoke stage: workspace ready')
   const boot = await evaluate(`window.plancia.boot().then(b => ({version:b.version, demo:b.demo, cwd:b.settings.lastCwd, count:b.sessions.length}))`)
   assert.equal(boot.version, expectedVersion)
   assert.equal(boot.demo, false)
@@ -122,15 +126,18 @@ try {
   assert.equal(await evaluate('document.querySelectorAll(".xterm").length > 0'), true)
   const patternsChecked = await smokeCustomPatterns({ evaluate, until, request, sessions, root, expectedVersion })
   const settingsChecked = await smokeSettings({ evaluate, until, request, root, userData, expectedVersion })
+  console.log('Smoke stage: functional regressions passed')
+  const security = hasSecuritySmoke(expectedVersion) ? await smokeSecurity({ main, evaluate, request, until, root, userData, sessions }) : null
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
-  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], temporaryRoot: root }))
+  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
 } catch (error) {
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
   throw error
 } finally {
+  main?.close()
   if (socket?.readyState === WebSocket.OPEN) {
     for (const id of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`).catch(() => {})
     socket.close()

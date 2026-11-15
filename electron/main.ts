@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Notification, dialog, nativeTheme, session, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { SessionManager } from './sessions'
 import { SettingsStore } from './settings'
 import { defaultShellId, detectShells } from './shells'
@@ -15,6 +15,8 @@ import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
+import { isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
+import { denyRendererPermissions } from './permissions'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
@@ -108,9 +110,10 @@ function notify(title: string, body: string, sessionId: string): void {
   note.show()
 }
 
-function isAppSender(event: { sender: Electron.WebContents }): boolean {
+function isAppSender(event: IpcSenderEvent): boolean {
   const current = currentWindow()
-  return !!current && event.sender === current.webContents
+  return isTrustedRendererSender(event, current?.webContents ?? null,
+    devServerUrl() ?? pathToFileURL(path.join(RENDERER_DIST, 'index.html')).href)
 }
 
 function registerIpc(): void {
@@ -121,6 +124,7 @@ function registerIpc(): void {
   })
   registerEditIpc(isAppSender)
   registerLegacyIpc({
+    isSender: isAppSender,
     appContents: () => currentWindow()?.webContents ?? null,
     maxWriteChars: () => appConfig.terminal.maxWriteChars,
     effects: {
@@ -315,6 +319,7 @@ function start(): void {
     send('theme:system', nativeTheme.shouldUseDarkColors)
   })
 
+  denyRendererPermissions(session.defaultSession)
   installContentSecurityPolicy()
   registerIpc()
   installMenu()
