@@ -15,6 +15,7 @@ import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantN
 import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
+import { SMOKE_BUDGET_MS, smokeBudgetExpired, smokeBudgetMessage, smokeUsesWindowsConptyChecks } from './smoke-package-guard.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -73,18 +74,39 @@ const sessions = []
 let stage = 'launch'
 const requests = []
 const stageAt = (value) => { stage = value; console.log(`Smoke stage: ${stage}`) }
+const smokeStarted = Date.now()
+let budgetHit = false
+function stopPackagedApp() {
+  if (!child?.pid || exited) return
+  if (process.platform === 'win32') spawn('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore' })
+  else try { child.kill('SIGKILL') } catch { /* already gone */ }
+}
+function throwIfBudget() {
+  if (budgetHit || smokeBudgetExpired(smokeStarted)) {
+    budgetHit = true
+    stopPackagedApp()
+    throw new Error(smokeBudgetMessage())
+  }
+}
+const budgetTimer = setTimeout(() => {
+  budgetHit = true
+  stopPackagedApp()
+}, SMOKE_BUDGET_MS)
 async function until(task, message, milliseconds = 30000) {
   const deadline = Date.now() + milliseconds
   do {
+    throwIfBudget()
     if (launchError) throw launchError
     if (exited) throw new Error(`Packaged app exited before the smoke test completed (code ${exitCode}, signal ${exitSignal}): ${diagnostics.slice(-500)}`)
     const value = await task()
     if (value) return value
     await delay(200)
   } while (Date.now() < deadline)
+  throwIfBudget()
   throw new Error(message)
 }
 async function request(method, params = {}) {
+  throwIfBudget()
   const id = ++nextId
   const entry = { id, method, stage, status: 'pending' }
   requests.push(entry)
@@ -229,7 +251,17 @@ try {
     } catch { return null }
   }, 'Packaged renderer did not open')
   socket = new WebSocket(page.webSocketDebuggerUrl)
-  await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, { once: true }); socket.addEventListener('error', reject, { once: true }) })
+  await new Promise((resolve, reject) => {
+    const left = Math.max(0, SMOKE_BUDGET_MS - (Date.now() - smokeStarted))
+    const timer = setTimeout(() => {
+      budgetHit = true
+      stopPackagedApp()
+      reject(new Error(smokeBudgetMessage()))
+    }, left)
+    const finish = (callback, value) => { clearTimeout(timer); callback(value) }
+    socket.addEventListener('open', () => finish(resolve), { once: true })
+    socket.addEventListener('error', () => finish(reject, new Error('Renderer debugger socket failed')), { once: true })
+  })
   socket.addEventListener('message', ({ data }) => {
     const reply = JSON.parse(data)
     const item = pending.get(reply.id)
@@ -255,7 +287,7 @@ try {
     if (portableWrapper() && !mainPid) console.log(PORTABLE_LISTENER_GAP)
     if (listenerPids.length) await assertOwnedListeners(listenerPids, portableWrapper())
     const checks = ['isolated preferences', 'preload', 'loopback CDP']
-    if (await windowsConptyCloseCheck(mainPid)) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
+    if (smokeUsesWindowsConptyChecks(process.platform) && await windowsConptyCloseCheck(mainPid)) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
     else {
       const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
       stageAt('release PTY create')
@@ -316,7 +348,7 @@ try {
   const fullRows = await portableProcessRows()
   const fullMainPid = portableWrapper() ? packagedListenerPid(fullRows, child.pid) : child.pid
   if (portableWrapper() && !fullMainPid) console.log(PORTABLE_LISTENER_GAP)
-  const conptyChecked = await windowsConptyCloseCheck(fullMainPid)
+  const conptyChecked = smokeUsesWindowsConptyChecks(process.platform) && await windowsConptyCloseCheck(fullMainPid)
   stageAt('session close')
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
@@ -333,6 +365,7 @@ try {
   await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify(smokeFailureMetadata(stage, requests, { exitCode, exitSignal, output: `${diagnostics}\n${failureDetail}` }), null, 2))
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
 } finally {
+  clearTimeout(budgetTimer)
   main?.close()
   if (socket?.readyState === WebSocket.OPEN) {
     for (const id of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`).catch(() => {})
