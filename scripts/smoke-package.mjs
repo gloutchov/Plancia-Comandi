@@ -10,6 +10,7 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
+import { conptyChildCommand, conptyChildFile, conptyCloseReport, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
@@ -87,6 +88,28 @@ async function evaluate(expression) {
   if (result.exceptionDetails) throw new Error('Renderer evaluation failed')
   return result.result?.value
 }
+async function windowsConptyCloseCheck() {
+  if (process.platform !== 'win32') return false
+  stageAt('ConPTY child')
+  const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke ConPTY', shellId: 'cmd', cwd: root })})`)
+  assert.equal(created.ok, true, 'ConPTY session failed to open')
+  const id = created.session.id
+  const shellPid = created.session.pid
+  assert.equal(Number.isInteger(shellPid) && shellPid > 0, true, 'ConPTY shell pid missing')
+  sessions.push(id)
+  await evaluate(`window.plancia.write(${JSON.stringify(id)}, ${JSON.stringify(conptyChildCommand())})`)
+  await until(() => evaluate(`window.plancia.subscribe(${JSON.stringify(id)}).then(s => s.data.includes('PLANCIA_CHILD_OK'))`), 'ConPTY child did not start')
+  const childPid = Number((await readFile(path.join(root, conptyChildFile), 'utf8')).trim())
+  assert.equal(Number.isInteger(childPid) && childPid > 0, true, 'ConPTY child pid missing')
+  stageAt('ConPTY close')
+  await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`)
+  const index = sessions.indexOf(id)
+  if (index >= 0) sessions.splice(index, 1)
+  await until(() => evaluate(`window.plancia.boot().then(b => !b.sessions.some(s => s.id === ${JSON.stringify(id)}))`), 'ConPTY session did not close')
+  await until(async () => conptyCloseReport(parseProcessTable(await windowsProcessTable()), shellPid, childPid).clear, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
+  assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection while closing ConPTY')
+  return true
+}
 try {
   if (mode === 'full') {
     main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root, inspectorPort })
@@ -121,18 +144,23 @@ try {
     assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
     stageAt('loopback debugging port')
     await assertLoopbackListener(port)
-    const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
-    stageAt('release PTY create')
-    const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke release', shellId, cwd: root })})`)
-    assert.equal(created.ok, true, 'Native PTY session failed to open')
-    sessions.push(created.session.id)
-    stageAt('release session close')
-    await evaluate(`window.plancia.closeSession(${JSON.stringify(created.session.id)})`)
-    sessions.length = 0
-    await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
-    console.log(JSON.stringify({ smoke: 'passed', mode, platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'loopback CDP', 'one native PTY', 'session close'], temporaryRoot: root }))
-    return
-  }
+    const checks = ['isolated preferences', 'preload', 'loopback CDP']
+    if (await windowsConptyCloseCheck()) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
+    else {
+      const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
+      stageAt('release PTY create')
+      const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke release', shellId, cwd: root })})`)
+      assert.equal(created.ok, true, 'Native PTY session failed to open')
+      sessions.push(created.session.id)
+      stageAt('release session close')
+      await evaluate(`window.plancia.closeSession(${JSON.stringify(created.session.id)})`)
+      sessions.length = 0
+      await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
+      checks.push('one native PTY', 'session close')
+    }
+    assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+    console.log(JSON.stringify({ smoke: 'passed', mode, platform: process.platform, arch: process.arch, version: expectedVersion, checks, temporaryRoot: root }))
+  } else {
   for (const [locale, theme] of [['it', 'dark'], ['en', 'light']]) {
     stageAt(`preferences ${locale}/${theme} update`)
     await evaluate(`window.plancia.updateSettings(${JSON.stringify({ locale, theme })})`)
@@ -174,12 +202,15 @@ try {
   const settingsChecked = await smokeSettings({ evaluate, until, request, root, userData, expectedVersion })
   stageAt('IPC CSP and permissions')
   const security = hasSecuritySmoke(expectedVersion) ? await smokeSecurity({ main, evaluate, request, until, root, userData, sessions }) : null
+  const conptyChecked = await windowsConptyCloseCheck()
   stageAt('session close')
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
-  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
+  assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
+  }
 } catch (error) {
   // Only bounded protocol metadata: never expressions, payloads, settings,
   // terminal output, environment, paths, exception messages or native logs.

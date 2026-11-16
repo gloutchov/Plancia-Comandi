@@ -150,6 +150,8 @@ Plancia-Comandi/
 |   |-- electron-fuses.test.ts       Flip su una copia di Electron e legame del manifest
 |   |-- after-pack-fuses.mjs         Copia il gemello e accende i fuse nel pacchetto
 |   |-- smoke-fuses.mjs              Lettura dei fuse e prove negative sul binario di release
+|   |-- conpty-orphans.mjs           Chiusura ConPTY con figlio e controllo degli orfani
+|   |-- conpty-orphans.test.ts       Tabella dei processi e rifiuto non gestito
 |   |-- verify-sha256-manifest.mjs   Il manifest nomina i file appena misurati
 |   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto, full o release
 |-- build/
@@ -384,6 +386,8 @@ Plancia-Comandi/
 |   |-- electron-fuses.test.ts       Flip on an Electron copy and manifest binding
 |   |-- after-pack-fuses.mjs         Copies the twin and flips fuses in the package
 |   |-- smoke-fuses.mjs              Fuse read and negative tests on the release binary
+|   |-- conpty-orphans.mjs           ConPTY close with a child and the orphan check
+|   |-- conpty-orphans.test.ts       Process table and unhandled rejection
 |   |-- verify-sha256-manifest.mjs   The manifest names the files just hashed
 |   `-- smoke-package.mjs            Isolated native package smoke, full or release
 |-- build/
