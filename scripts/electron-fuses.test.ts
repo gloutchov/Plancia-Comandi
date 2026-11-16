@@ -17,6 +17,8 @@ import {
   assetDigestMatches,
   copyOpenFuseTwin,
   decidedFuseStates,
+  fileImportHref,
+  fileImportHrefWin32,
   loadFuses,
   prepareOpenFuseTwin,
   resolveAppPackageJson,
@@ -94,15 +96,28 @@ describe('release fuse configuration', () => {
       expect(resolveAppPackageJson(empty)).toMatch(/package\.json$/)
       expect(loadFuses(empty).pathToFuseFile).toBeTypeOf('function')
       for (const file of [verify, smoke]) {
-        const loaded = spawnSync(process.execPath, ['--input-type=module', '-e', `import ${JSON.stringify(file)}`], { cwd: empty, encoding: 'utf8' })
+        const href = fileImportHref(file)
+        expect(href.startsWith('file:')).toBe(true)
+        const loaded = spawnSync(process.execPath, ['--input-type=module', '-e', `import ${JSON.stringify(href)}`], { cwd: empty, encoding: 'utf8' })
         expect(loaded.stderr).toContain('Usage:')
         expect(loaded.stderr).not.toContain('Cannot find package')
+        expect(loaded.stderr).not.toContain('ERR_UNSUPPORTED_ESM_URL_SCHEME')
       }
+      const smokeSource = readFileSync(smoke, 'utf8')
+      expect(smokeSource).not.toContain('expectNodeOptions(executable, open)')
+      expect(smokeSource).toContain('durationMs')
       expect(readFileSync(script, 'utf8')).not.toContain("from '@electron/fuses'")
       expect(readFileSync(smoke, 'utf8')).not.toContain("from '@electron/fuses'")
     } finally {
       rmSync(empty, { recursive: true, force: true })
     }
+  })
+
+  it('imports a Windows drive path as a file URL', () => {
+    const raw = 'D:\\a\\Plancia\\scripts\\smoke-fuses.mjs'
+    expect(new URL(raw).protocol).toBe('d:')
+    expect(fileImportHrefWin32(raw)).toBe('file:///D:/a/Plancia/scripts/smoke-fuses.mjs')
+    expect(fileImportHrefWin32('\\\\server\\share\\scripts\\smoke-fuses.mjs')).toBe('file://server/share/scripts/smoke-fuses.mjs')
   })
 
   it('recognises an open twin and a macOS bundle path', () => {

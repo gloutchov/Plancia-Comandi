@@ -76,6 +76,21 @@ async function freePort() {
   return port
 }
 
+async function runCase(name, executable, role, fn) {
+  const started = Date.now()
+  const binary = `${role}:${path.basename(executable)}`
+  let outcome = 'passed'
+  try {
+    const result = await fn()
+    if (typeof result === 'string') outcome = result
+  } catch (error) {
+    outcome = 'failed'
+    console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started }))
+    throw error
+  }
+  console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started }))
+}
+
 async function expectInspector(executable, prefix, shouldListen) {
   const port = await freePort()
   const handle = start(executable, [`--user-data-dir=${dataDir()}`, `${prefix}=127.0.0.1:${port}`])
@@ -89,9 +104,13 @@ async function expectInspector(executable, prefix, shouldListen) {
   }
   await stop(handle)
   assert.equal(seen, shouldListen, `${prefix} listener ${shouldListen ? 'missing' : 'unexpected'}`)
+  return shouldListen ? 'listening' : 'closed'
 }
 
-async function expectNodeOptions(executable, shouldListen) {
+// Packaged Electron 45.3.2 drops --inspect from NODE_OPTIONS even when the
+// nodeOptions fuse is on. shell/common/node_bindings.cc keeps only
+// --http-parser and --max-http-header-size. Both binaries must stay closed.
+async function expectNodeOptions(executable) {
   const port = await freePort()
   const handle = start(executable, [`--user-data-dir=${dataDir()}`], { NODE_OPTIONS: `--inspect=127.0.0.1:${port}` })
   await delay(800)
@@ -103,7 +122,8 @@ async function expectNodeOptions(executable, shouldListen) {
     await delay(200)
   }
   await stop(handle)
-  assert.equal(seen, shouldListen, `NODE_OPTIONS --inspect ${shouldListen ? 'missing' : 'unexpected'}`)
+  assert.equal(seen, false, 'NODE_OPTIONS --inspect opened a port in a packaged app')
+  return 'closed'
 }
 
 async function expectRunAsNode(executable, shouldRun) {
@@ -116,6 +136,7 @@ async function expectRunAsNode(executable, shouldRun) {
   try { written = (await readFile(marker, 'utf8')) === 'ran' } catch { written = false }
   await stop(handle)
   assert.equal(written, shouldRun, `ELECTRON_RUN_AS_NODE ${shouldRun ? 'did not run' : 'ran'}`)
+  return shouldRun ? 'ran' : 'blocked'
 }
 
 async function expectSignal(executable, shouldOpen) {
@@ -150,11 +171,12 @@ assertDefaultFuses(await readFuseStates(openExecutable))
 assertOnlyFuseWireDiffers(await unsignedBytes(pathToFuseFile(openExecutable)), await unsignedBytes(pathToFuseFile(releaseExecutable)))
 
 for (const [executable, open] of [[releaseExecutable, false], [openExecutable, true]]) {
-  await expectRunAsNode(executable, open)
-  await expectNodeOptions(executable, open)
-  await expectInspector(executable, '--inspect', open)
-  await expectInspector(executable, '--inspect-brk', open)
-  await expectSignal(executable, open)
+  const role = open ? 'twin' : 'release'
+  await runCase('ELECTRON_RUN_AS_NODE', executable, role, () => expectRunAsNode(executable, open))
+  await runCase('NODE_OPTIONS', executable, role, () => expectNodeOptions(executable))
+  await runCase('--inspect', executable, role, () => expectInspector(executable, '--inspect', open))
+  await runCase('--inspect-brk', executable, role, () => expectInspector(executable, '--inspect-brk', open))
+  await runCase('SIGUSR1', executable, role, () => expectSignal(executable, open))
 }
 
 console.log(JSON.stringify({

@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { cp, readdir, readFile, readlink } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 let fusesModule
 
@@ -28,6 +28,29 @@ export function resolveAppPackageJson(start = process.cwd()) {
     }
   }
   throw new Error('Cannot resolve @electron/fuses from an app package.json')
+}
+
+export function fileImportHref(filePath) {
+  const href = pathToFileURL(filePath).href
+  if (!href.startsWith('file:')) throw new Error(`import() requires a file URL, received ${href}`)
+  return href
+}
+
+// Node's pathToFileURL follows the host platform. This reproduces the Windows
+// rule so a Linux test rejects a raw `D:` specifier before it reaches import().
+export function fileImportHrefWin32(filePath) {
+  const resolved = path.win32.resolve(filePath)
+  let href
+  if (resolved.startsWith('\\\\')) {
+    const [host, ...rest] = resolved.slice(2).split('\\')
+    href = new URL(`file://${host}/${rest.join('/')}`).href
+  } else if (/^[A-Za-z]:\\/.test(resolved)) {
+    href = new URL(`/${resolved.replaceAll('\\', '/')}`, 'file://').href
+  } else {
+    throw new Error(`Not a Windows path: ${resolved}`)
+  }
+  if (!href.startsWith('file:')) throw new Error(`import() requires a file URL, received ${href}`)
+  return href
 }
 
 export function loadFuses(start) {
