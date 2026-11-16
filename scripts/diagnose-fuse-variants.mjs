@@ -1,7 +1,9 @@
-import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises'
+import { spawn } from 'node:child_process'
+import { access, mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { readExecutableIntegrity } from './asar-integrity-resource.mjs'
 import {
   copyBundle,
   fuseTarget,
@@ -53,6 +55,97 @@ async function cleanLaunch(executable) {
   return { outcome: alive ? 'alive' : 'exited', durationMs: Date.now() - started, ...detail, logs }
 }
 
+function runTool(command, args, timeoutMs) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] })
+    let outputText = ''
+    const timer = setTimeout(() => { child.kill(); resolve({ code: null, output: outputText.slice(-400), timedOut: true }) }, timeoutMs)
+    child.stdout?.on('data', (chunk) => { outputText = (outputText + chunk).slice(-2000) })
+    child.stderr?.on('data', (chunk) => { outputText = (outputText + chunk).slice(-2000) })
+    child.once('error', (error) => { clearTimeout(timer); resolve({ code: null, output: String(error.message || error).slice(0, 300), timedOut: false }) })
+    child.once('exit', (code) => { clearTimeout(timer); resolve({ code, output: outputText.slice(-400), timedOut: false }) })
+  })
+}
+
+async function sevenZip() {
+  const candidates = process.platform === 'win32'
+    ? ['7z', 'C:\\Program Files\\7-Zip\\7z.exe']
+    : ['7z']
+  for (const candidate of candidates) {
+    const probe = await runTool(candidate, [], 8000)
+    if (!/ENOENT|not found/i.test(probe.output)) return candidate
+  }
+  return null
+}
+
+async function findInstalledExe(root) {
+  const found = []
+  async function walk(dir, depth) {
+    if (depth > 5 || found.length > 8) return
+    let entries = []
+    try { entries = await readdir(dir, { withFileTypes: true }) } catch { return }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) await walk(full, depth + 1)
+      else if (entry.name.toLowerCase() === 'plancia-comandi.exe') found.push(full)
+    }
+  }
+  await walk(root, 0)
+  for (const exe of found) {
+    try {
+      await access(path.join(path.dirname(exe), 'resources', 'app.asar'))
+      return exe
+    } catch { /* a helper exe without the archive */ }
+  }
+  return found[0] ?? null
+}
+
+async function packagedExecutable(role, archive) {
+  if (process.platform !== 'win32') return { role, skipped: 'not-windows' }
+  const notes = []
+  const zip = await sevenZip()
+  const extracted = await mkdtemp(path.join(os.tmpdir(), 'plancia-integrity-'))
+  try {
+    if (!zip) notes.push('7z-missing')
+    else {
+      const unpacked = await runTool(zip, ['x', archive, `-o${extracted}`, '-y'], 120000)
+      const exe = await findInstalledExe(extracted)
+      if (exe) return { role, source: '7z', ...(await readExecutableIntegrity(exe)) }
+      notes.push(`7z:${unpacked.code ?? 'error'}`)
+    }
+    if (role === 'installer') {
+      const installed = await mkdtemp(path.join(os.tmpdir(), 'plancia-installed-'))
+      const setup = await runTool(archive, ['/S', `/D=${installed}`], 180000)
+      const installedExe = await findInstalledExe(installed)
+      await rm(installed, { recursive: true, force: true }).catch(() => {})
+      if (installedExe) return { role, source: 'nsis', ...(await readExecutableIntegrity(installedExe)) }
+      notes.push(`nsis:${setup.code ?? 'error'}`)
+    }
+    return { role, source: 'file', notes, ...(await readExecutableIntegrity(archive)) }
+  } catch (error) {
+    return { role, present: false, notes, error: String(error.message || error).slice(0, 300) }
+  } finally {
+    await rm(extracted, { recursive: true, force: true }).catch(() => {})
+  }
+}
+
+async function describeExe(role, exePath) {
+  try {
+    return { role, ...(await readExecutableIntegrity(exePath)) }
+  } catch (error) {
+    return { role, exe: path.basename(exePath), present: false, error: String(error.message || error).slice(0, 300) }
+  }
+}
+
+const integrity = []
+const releaseExe = fuseTarget(finalDir, process.platform, await readdir(finalDir).catch(() => []))
+if (process.platform === 'win32') integrity.push(await describeExe('release-unpacked', releaseExe))
+else integrity.push({ role: 'release-unpacked', skipped: 'not-windows' })
+const twinDir = `${finalDir}-open-fuses`
+const twinEntries = await readdir(twinDir).catch(() => null)
+if (process.platform === 'win32' && twinEntries) integrity.push(await describeExe('twin', fuseTarget(twinDir, process.platform, twinEntries)))
+else integrity.push({ role: 'twin', skipped: twinEntries ? 'not-windows' : 'twin-missing' })
+
 const results = []
 for (const [kind, label] of variants) {
   const dest = `${finalDir}-variant-${kind}`
@@ -65,7 +158,9 @@ for (const [kind, label] of variants) {
     await sealDarwinApp(dest)
     const states = await readFuseStates(target)
     const executable = process.platform === 'darwin' ? discoverMacApp(dest).executable : target
-    result = { variant: label, states, ...await cleanLaunch(executable) }
+    const resource = process.platform === 'win32' ? await describeExe(`variant-${kind}`, executable) : { role: `variant-${kind}`, skipped: 'not-windows' }
+    integrity.push(resource)
+    result = { variant: label, states, integrity: resource, ...await cleanLaunch(executable) }
   } catch (error) {
     result = { variant: label, outcome: 'setup-failed', message: String(error.message || error).slice(0, 500) }
   } finally {
@@ -75,6 +170,18 @@ for (const [kind, label] of variants) {
   console.log(JSON.stringify(result))
 }
 
+if (process.platform === 'win32') {
+  const releaseDir = path.dirname(finalDir)
+  const names = await readdir(releaseDir).catch(() => [])
+  for (const name of names) {
+    const role = /-portable\.exe$/i.test(name) ? 'portable' : /-setup\.exe$/i.test(name) ? 'installer' : null
+    if (!role) continue
+    const report = await packagedExecutable(role, path.join(releaseDir, name))
+    integrity.push(report)
+    console.log(JSON.stringify(report))
+  }
+}
+
 await mkdir(path.dirname(output), { recursive: true })
-await writeFile(output, JSON.stringify({ variants: results }, null, 2))
-console.log(JSON.stringify({ wrote: path.basename(output), variants: results.length }))
+await writeFile(output, JSON.stringify({ variants: results, integrity }, null, 2))
+console.log(JSON.stringify({ wrote: path.basename(output), variants: results.length, integrity: integrity.length }))
