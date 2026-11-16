@@ -84,7 +84,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  Dizionari IT/EN e testi delle scorciatoie
 |       |-- paths.ts                 Abbreviazione visiva dei percorsi
 |       |-- appConfig.ts             Validazione della configurazione centrale
-|       |-- startupTrace.ts          Traccia di avvio solo con PLANCIA_DIAG_STARTUP=1
+|       |-- startupTrace.ts          Traccia opt-in: percorsi e, se fallisce, nome messaggio stack
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
@@ -138,7 +138,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
-|   |-- smoke-driver.mjs             Ambiente, scoperta debugger via HTTP loopback e isolamento
+|   |-- smoke-driver.mjs             Profilo isolato condiviso, debugger loopback e isolamento
 |   |-- smoke-worker.mjs             Default worker non debug e handshake ConPTY di prova
 |   |-- smoke-worker.test.ts         Regresso con inspector e opzioni worker esplicite
 |   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
@@ -155,7 +155,7 @@ Plancia-Comandi/
 |   |-- check-fuse-wires.mjs         Stampa e verifica i fuse di release e gemello
 |   |-- diagnose-fuse-variants.mjs   Avvio pulito con un fuse acceso e lettura INTEGRITY
 |   |-- asar-integrity-resource.mjs  Risorsa Windows INTEGRITY e hash dell'header ASAR
-|   |-- fuse-smoke-launch.mjs        Profilo isolato, chiusura dell'albero e coda dei log
+|   |-- fuse-smoke-launch.mjs        Stesso profilo di smoke-package, chiusura e coda dei log
 |   |-- check-mac-bundles.mjs        Firma ad hoc e fuse di default del gemello, prima dello smoke
 |   |-- prepare-open-fuse-twin.mjs   Gemello ricavato dal binario finale, fuse riportati ai default
 |   |-- assert-release-fuses.mjs     Lettura dei fuse sul portable, sull'installato e sui formati macOS
@@ -329,7 +329,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  IT/EN dictionaries and shortcut labels
 |       |-- paths.ts                 Visual path shortening
 |       |-- appConfig.ts             Central-configuration validation
-|       |-- startupTrace.ts          Startup trace only when PLANCIA_DIAG_STARTUP=1
+|       |-- startupTrace.ts          Opt-in trace: paths and, on failure, name message stack
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
@@ -383,7 +383,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
-|   |-- smoke-driver.mjs             Filtered env, HTTP loopback debugger discovery, early isolation
+|   |-- smoke-driver.mjs             Shared isolated profile, loopback debugger and isolation
 |   |-- smoke-worker.mjs             Non-debug worker defaults and ConPTY handshake fixture
 |   |-- smoke-worker.test.ts         Attached-inspector regression and explicit worker options
 |   |-- smoke-report.mjs             Bounded allowlisted failure metadata
@@ -400,7 +400,7 @@ Plancia-Comandi/
 |   |-- check-fuse-wires.mjs         Prints and checks the release and twin fuses
 |   |-- diagnose-fuse-variants.mjs   Clean launch with one fuse on, and the INTEGRITY read
 |   |-- asar-integrity-resource.mjs  Windows INTEGRITY resource and ASAR header hash
-|   |-- fuse-smoke-launch.mjs        Isolated profile, tree stop and log tail
+|   |-- fuse-smoke-launch.mjs        Same profile as smoke-package, tree stop and log tail
 |   |-- check-mac-bundles.mjs        Ad-hoc signature and default twin fuses, before smoke
 |   |-- prepare-open-fuse-twin.mjs   Twin taken from the finished binary, fuses reset to defaults
 |   |-- assert-release-fuses.mjs     Fuse read on portable, installed and macOS formats

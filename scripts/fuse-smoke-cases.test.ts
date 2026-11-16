@@ -1,6 +1,9 @@
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
-import { isDiagnosticFile } from './fuse-smoke-launch.mjs'
+import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
   it('treats a live release process as blocked and an early exit as a failure', () => {
@@ -16,6 +19,25 @@ describe('fuse smoke case outcomes', () => {
       pid: 12, exitCode: 0, signal: null, spawnError: null, outputTail: 'hello',
     })
     expect(processExitDetail({ pid: 4, code: null, signal: null, error: 'spawn ENOENT', output: '' }).spawnError).toBe('spawn ENOENT')
+  })
+
+  it('uses the package-smoke profile and adds only the startup trace', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'plancia-fuse-profile-'))
+    try {
+      const profile = await prepareIsolatedCase(dir, { startupTrace: true })
+      expect(profile.env.PLANCIA_DIAG_STARTUP).toBe('1')
+      expect(profile.env.PLANCIA_DIAG_DIR).toBe(dir)
+      expect(profile.env.ELECTRON_NO_ATTACH_CONSOLE).toBeUndefined()
+      expect(profile.env.ELECTRON_ENABLE_LOGGING).toBeUndefined()
+      expect(profile.env.HOME).toBe(path.join(dir, 'home'))
+      expect(profile.env.APPDATA).toBe(path.join(dir, 'app-data'))
+      expect(profile.env.LOCALAPPDATA).toBe(path.join(dir, 'local-app-data'))
+      expect(existsSync(path.join(dir, 'session-data'))).toBe(true)
+      expect(JSON.parse(readFileSync(path.join(profile.userData, 'settings.json'), 'utf8')).lastCwd).toBe(dir)
+      expect(launchArgs(profile, [`--user-data-dir=${profile.userData}`])).toEqual([`--user-data-dir=${profile.userData}`])
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('keeps Electron logs and crash dumps and skips settings', () => {

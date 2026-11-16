@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { mkdir, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
@@ -50,6 +51,25 @@ export function smokeEnvironment(root, source = process.env, platform = process.
   })
   if (platform !== 'win32') env.SHELL = '/bin/zsh'
   return env
+}
+
+const ISOLATED_DIRS = ['shell', 'home', 'app-data', 'local-app-data', 'session-data', 'config', 'data', 'cache']
+
+export function isolatedSmokeSettings(root) {
+  return {
+    locale: 'en', theme: 'light', layout: 'single', fontSize: 13,
+    notifyDesktop: false, notifyBadge: false, lastCwd: root,
+  }
+}
+
+/** Directories, settings and environment shared by the package smoke and the fuse launches. */
+export async function prepareIsolatedSmokeRoot(root) {
+  const userData = path.join(root, 'user-data')
+  await mkdir(userData, { recursive: true })
+  for (const dir of ISOLATED_DIRS) await mkdir(path.join(root, dir), { recursive: true })
+  const settings = isolatedSmokeSettings(root)
+  await writeFile(path.join(userData, 'settings.json'), JSON.stringify(settings))
+  return { root, userData, env: smokeEnvironment(root), settings }
 }
 
 /** Local inspector/CDP transport; never shipped as an application API. */

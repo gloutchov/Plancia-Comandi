@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { execFile, spawn } from 'node:child_process'
-import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 import { smokeSettings } from './smoke-settings.mjs'
-import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
@@ -21,14 +21,7 @@ assert(['full', 'release'].includes(mode), 'Smoke mode must be full or release')
 assert(['darwin', 'win32'].includes(process.platform), 'Run on macOS or Windows')
 await access(executable)
 const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-package-smoke-'))
-const userData = path.join(root, 'user-data')
-await mkdir(userData)
-for (const dir of ['shell', 'home', 'app-data', 'local-app-data', 'session-data', 'config', 'data', 'cache']) await mkdir(path.join(root, dir))
-const settings = {
-  locale: 'en', theme: 'light', layout: 'single', fontSize: 13,
-  notifyDesktop: false, notifyBadge: false, lastCwd: root,
-}
-await writeFile(path.join(userData, 'settings.json'), JSON.stringify(settings))
+const { userData, env } = await prepareIsolatedSmokeRoot(root)
 const server = net.createServer()
 await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve))
 const port = server.address().port
@@ -38,7 +31,6 @@ const inspectorPort = mainServer.address().port
 assert.notEqual(port, inspectorPort)
 await new Promise((resolve) => server.close(resolve))
 await new Promise((resolve) => mainServer.close(resolve))
-const env = smokeEnvironment(root)
 const launchArgs = [`--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1']
 if (mode === 'full') launchArgs.unshift(`--inspect-brk=127.0.0.1:${inspectorPort}`)
 const child = spawn(executable, launchArgs, {

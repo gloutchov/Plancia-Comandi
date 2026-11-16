@@ -42,7 +42,7 @@ const variants = [
 async function cleanLaunch(executable) {
   const reap = await reapAppImages()
   const dir = await mkdtemp(path.join(os.tmpdir(), 'plancia-fuse-variant-'))
-  const profile = await prepareIsolatedCase(dir, { logging: true, startupTrace: true })
+  const profile = await prepareIsolatedCase(dir, { startupTrace: true })
   const started = Date.now()
   const handle = spawnTracked(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile)
   const deadline = Date.now() + STARTUP_HOLD_MS

@@ -40,7 +40,7 @@ function caseDir() {
 }
 
 function start(executable, args, profile, extraEnv = {}) {
-  const handle = spawnTracked(executable, args, profile, extraEnv, root)
+  const handle = spawnTracked(executable, args, profile, extraEnv)
   current = handle
   return handle
 }
@@ -77,7 +77,7 @@ function earlyExit(message, handle) {
   return error
 }
 
-async function recordFailure(name, binary, error, handle) {
+async function recordFailure(name, binary, error, handle, reap) {
   const detail = handle ? processExitDetail(handle.state) : processExitDetail(null)
   const logs = handle?.profile ? await collectDiagnosticTails([handle.profile.userData, handle.profile.dir]) : []
   const startup = handle?.profile ? await readStartupTrace(handle.profile.dir) : []
@@ -91,15 +91,15 @@ async function recordFailure(name, binary, error, handle) {
     outputTail: detail.outputTail || String(error.message || '').slice(-2000),
     startup,
     logs,
+    reap,
   }, null, 2))
-  console.log(JSON.stringify({ case: name, binary, outcome: 'failed', durationMs: error.durationMs, exitCode: detail.exitCode, signal: detail.signal }))
+  console.log(JSON.stringify({ case: name, binary, outcome: 'failed', durationMs: error.durationMs, exitCode: detail.exitCode, signal: detail.signal, reap }))
 }
 
 async function runCase(name, executable, role, fn) {
   const started = Date.now()
   const binary = `${role}:${path.basename(executable)}`
   const reap = await reapAppImages()
-  if (reap.before.length) console.log(JSON.stringify({ case: name, binary, reap }))
   let outcome = 'passed'
   let failure = null
   try {
@@ -120,10 +120,10 @@ async function runCase(name, executable, role, fn) {
   current = null
   const error = failure || stopFailure
   if (error) {
-    await recordFailure(name, binary, error, handle)
+    await recordFailure(name, binary, error, handle, reap)
     throw error
   }
-  console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started }))
+  console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started, reap }))
 }
 
 async function expectStartup(executable, profile, failure) {
@@ -214,17 +214,16 @@ assertReleaseFuses(await readFuseStates(releaseExecutable))
 assertDefaultFuses(await readFuseStates(openExecutable))
 assertOnlyFuseWireDiffers(await unsignedBytes(pathToFuseFile(openExecutable)), await unsignedBytes(pathToFuseFile(releaseExecutable)))
 
-await runCase('twin-startup', openExecutable, 'twin', async () => expectStartup(openExecutable, await prepareIsolatedCase(caseDir(), { logging: true, startupTrace: true }), 'Twin startup failed'))
-await runCase('release-startup', releaseExecutable, 'release', async () => expectStartup(releaseExecutable, await prepareIsolatedCase(caseDir(), { logging: true, startupTrace: true }), 'Release startup failed'))
+await runCase('twin-startup', openExecutable, 'twin', async () => expectStartup(openExecutable, await prepareIsolatedCase(caseDir(), { startupTrace: true }), 'Twin startup failed'))
+await runCase('release-startup', releaseExecutable, 'release', async () => expectStartup(releaseExecutable, await prepareIsolatedCase(caseDir(), { startupTrace: true }), 'Release startup failed'))
 
 for (const [executable, open] of [[releaseExecutable, false], [openExecutable, true]]) {
   const role = open ? 'twin' : 'release'
-  const logging = !open
-  await runCase('ELECTRON_RUN_AS_NODE', executable, role, async () => expectRunAsNode(executable, await prepareIsolatedCase(caseDir(), { logging }), open))
-  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareIsolatedCase(caseDir(), { logging })))
-  await runCase('--inspect', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir(), { logging }), '--inspect', open))
-  await runCase('--inspect-brk', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir(), { logging }), '--inspect-brk', open))
-  await runCase('SIGUSR1', executable, role, async () => expectSignal(executable, await prepareIsolatedCase(caseDir(), { logging }), open))
+  await runCase('ELECTRON_RUN_AS_NODE', executable, role, async () => expectRunAsNode(executable, await prepareIsolatedCase(caseDir()), open))
+  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareIsolatedCase(caseDir())))
+  await runCase('--inspect', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir()), '--inspect', open))
+  await runCase('--inspect-brk', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir()), '--inspect-brk', open))
+  await runCase('SIGUSR1', executable, role, async () => expectSignal(executable, await prepareIsolatedCase(caseDir()), open))
 }
 
 console.log(JSON.stringify({

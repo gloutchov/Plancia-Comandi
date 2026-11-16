@@ -64,6 +64,32 @@ function quitFor(reason: string): void {
   app.quit()
 }
 
+let startupStep = 'load'
+
+function startupFailureFields(error: unknown): Record<string, string | number | boolean | null> {
+  const detail: Record<string, string | number | boolean | null> = { step: startupStep }
+  if (error instanceof Error) {
+    detail.name = error.name || 'Error'
+    detail.message = error.message
+    if (typeof error.stack === 'string') detail.stack = error.stack
+    const cause = error.cause
+    if (cause instanceof Error) detail.cause = `${cause.name}: ${cause.message}`
+    else if (typeof cause === 'string') detail.cause = cause
+    const code = (error as { code?: unknown }).code
+    if (typeof code === 'string' || typeof code === 'number') detail.code = String(code)
+    return detail
+  }
+  detail.name = 'non-error'
+  if (typeof error === 'string') detail.message = error
+  return detail
+}
+
+function failStartup(error: unknown): void {
+  try { startupTrace?.event('startup-failed', startupFailureFields(error)) } catch { /* quit still has to run */ }
+  reportDiagnostic('startup-failed', error)
+  quitFor('startup-failed')
+}
+
 let win: BrowserWindow | null = null
 let manager: SessionManager | null = null
 let settings: SettingsStore | null = null
@@ -322,9 +348,7 @@ function createWindow(): void {
 
 function traceStartupFiles(): void {
   if (!startupTrace) return
-  const html = path.join(RENDERER_DIST, 'index.html')
-  const config = resolveAppConfigFile(APP_ROOT, process.resourcesPath)
-  const pty = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'node-pty', 'build', 'Release', 'pty.node')
+  startupStep = 'paths'
   startupTrace.event('paths', {
     userData: app.getPath('userData'),
     home: app.getPath('home'),
@@ -336,6 +360,10 @@ function traceStartupFiles(): void {
     dirname: __dirname,
     resourcesPath: process.resourcesPath,
   })
+  startupStep = 'files'
+  const html = path.join(RENDERER_DIST, 'index.html')
+  const config = resolveAppConfigFile(APP_ROOT, process.resourcesPath)
+  const pty = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'node-pty', 'build', 'Release', 'pty.node')
   startupTrace.event('files', {
     preload: fs.existsSync(preloadPath()),
     html: fs.existsSync(html),
@@ -345,20 +373,29 @@ function traceStartupFiles(): void {
 }
 
 function start(): void {
+  startupStep = 'trace'
   traceStartupFiles()
+  startupStep = 'home'
   const home = app.getPath('home')
+  startupStep = 'config'
   appConfig = loadAppConfig(resolveAppConfigFile(APP_ROOT, process.resourcesPath))
+  startupStep = 'diagnostics'
   configureDiagnostics(app.getPath('userData'), appConfig.diagnostics.maxBytes)
+  startupStep = 'clipboard'
   cleanupClipboardImages(app.getPath('userData'), appConfig.clipboardImages)
+  startupStep = 'settings'
   settings = new SettingsStore(home, {
     userData: app.getPath('userData'), appData: app.getPath('appData'), maxBytes: appConfig.settings.maxBytes,
   })
+  startupStep = 'theme'
   if (demoMode()) nativeTheme.themeSource = 'dark'
   else applyThemeSource(settings.data.theme)
 
+  startupStep = 'shells'
   shellChoices = detectShells()
   if (!settings.data.lastShellId) settings.data.lastShellId = defaultShellId(shellChoices)
 
+  startupStep = 'sessions'
   manager = new SessionManager({
     getWindow: currentWindow,
     settings,
@@ -373,10 +410,15 @@ function start(): void {
     send('theme:system', nativeTheme.shouldUseDarkColors)
   })
 
+  startupStep = 'permissions'
   denyRendererPermissions(session.defaultSession)
+  startupStep = 'csp'
   installContentSecurityPolicy()
+  startupStep = 'ipc'
   registerIpc()
+  startupStep = 'menu'
   installMenu()
+  startupStep = 'window'
   createWindow()
 }
 
@@ -421,8 +463,10 @@ if (!gotLock) {
     manager?.dispose()
   })
 
-  app.whenReady().then(start).catch((error) => {
-    reportDiagnostic('startup-failed', error)
-    quitFor('startup-failed')
+  app.whenReady().then(() => {
+    startupStep = 'ready'
+    start()
+  }).catch((error: unknown) => {
+    failStartup(error)
   })
 }

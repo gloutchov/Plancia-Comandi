@@ -4,6 +4,7 @@ import path from 'node:path'
 const MAX_BYTES = 16_384
 const MAX_LINES = 48
 const PATH_KEYS = new Set(['userData', 'home', 'appData', 'homeEnv', 'appDataEnv', 'localAppData', 'appPath', 'dirname', 'resourcesPath'])
+const TEXT_KEYS = new Map([['message', 500], ['stack', 2000], ['cause', 500]])
 
 export interface StartupTrace {
   event(name: string, detail?: Record<string, string | number | boolean | null>): void
@@ -16,6 +17,8 @@ function detailValue(key: string, value: string | number | boolean | null): stri
   if (typeof value === 'number' && Number.isFinite(value)) return value
   if (typeof value !== 'string') return undefined
   if (PATH_KEYS.has(key)) return value.slice(0, 300)
+  const textCap = TEXT_KEYS.get(key)
+  if (textCap) return value.slice(0, textCap)
   if (/^[A-Za-z0-9_.:-]{1,80}$/.test(value)) return value
   return undefined
 }

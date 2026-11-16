@@ -1,8 +1,8 @@
 import { execFile, spawn } from 'node:child_process'
-import { mkdir, readdir, readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { smokeEnvironment } from './smoke-driver.mjs'
+import { prepareIsolatedSmokeRoot } from './smoke-driver.mjs'
 
 export const STARTUP_HOLD_MS = 3000
 const LOG_FILES = 6
@@ -12,28 +12,18 @@ export function isDiagnosticFile(name) {
   return /\.(log|dmp)$/i.test(name) || /crash/i.test(name) || name === 'startup.jsonl'
 }
 
-export function launchArgs(profile, args) {
-  return profile.logging ? ['--enable-logging', ...args] : args
+export function launchArgs(_profile, args) {
+  return args
 }
 
-export async function prepareIsolatedCase(dir, { logging = false, startupTrace = false } = {}) {
-  const env = smokeEnvironment(dir)
-  // Windows attaches a console when ELECTRON_RUN_AS_NODE is set, even if the
-  // runAsNode fuse is off (electron_main_win.cc). Skip that attach for the GUI.
-  env.ELECTRON_NO_ATTACH_CONSOLE = '1'
-  if (logging) env.ELECTRON_ENABLE_LOGGING = '1'
+export async function prepareIsolatedCase(dir, { startupTrace = false } = {}) {
+  const prepared = await prepareIsolatedSmokeRoot(dir)
+  const env = { ...prepared.env }
   if (startupTrace) {
     env.PLANCIA_DIAG_STARTUP = '1'
     env.PLANCIA_DIAG_DIR = dir
   }
-  const userData = path.join(dir, 'user-data')
-  await Promise.all([
-    ...Object.entries(env)
-      .filter(([key]) => /^(HOME|USERPROFILE|APPDATA|LOCALAPPDATA|XDG_|ZDOTDIR)/.test(key))
-      .map(([, value]) => mkdir(value, { recursive: true })),
-    mkdir(userData, { recursive: true }),
-  ])
-  return { dir, env, userData, logging, startupTrace }
+  return { dir, env, userData: prepared.userData, startupTrace }
 }
 
 export async function readStartupTrace(dir) {
@@ -117,7 +107,7 @@ export function spawnTracked(executable, args, profile, extraEnv = {}, cwd = pro
     cwd,
     env: { ...profile.env, ...extraEnv },
     stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true,
+    windowsHide: false,
   })
   const state = { output: '', code: null, signal: null, exited: false, error: null, pid: child.pid ?? null }
   for (const stream of [child.stdout, child.stderr]) {
