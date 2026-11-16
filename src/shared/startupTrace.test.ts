@@ -87,7 +87,7 @@ describe('startup trace', () => {
     }), ['C:\\Users\\runneradmin'])
     const windowsLine = startupLine('unhandledRejection', windows)
     expect(windowsLine).not.toMatch(/[A-Za-z]:[\\/]/)
-    expect(windowsLine).toContain('<home>')
+    expect(windowsLine).not.toContain('runneradmin')
     expect(windowsLine).toContain('<path>')
     expect(windowsLine).toContain('ENOENT')
     expect(windowsLine).toContain('spawn')
@@ -105,7 +105,7 @@ describe('startup trace', () => {
     expect(posixLine).toContain('<home>')
     expect(posixLine).toContain('<path>')
     expect(posixLine).toContain('close sessions.js:10')
-    expect(scrubDiagnosticText('x'.repeat(400), [])).toHaveLength(200)
+    expect(scrubDiagnosticText('ab '.repeat(100), [])).toHaveLength(200)
 
     const main = readFileSync(new URL('../../electron/main.ts', import.meta.url), 'utf8')
     const branch = main.slice(main.indexOf('if (startupTrace) {'), main.indexOf('function quitFor'))
@@ -113,6 +113,68 @@ describe('startup trace', () => {
     expect(main.replace(branch, '')).not.toContain('installStartupProcessHandlers(')
     expect(main).not.toContain("process.on('uncaughtException'")
     expect(main).not.toContain("process.on('unhandledRejection'")
+  })
+
+  it('replaces every backslash token with a path placeholder', () => {
+    const text = scrubDiagnosticText('load C:\\Program Files\\X\\y.dll and resources\\app.asar\\main.js', [])
+    expect(text).not.toContain('\\')
+    expect(text).not.toContain('y.dll')
+    expect(text).not.toContain('app.asar')
+    expect(text).toContain('<path>')
+  })
+
+  it('replaces wide POSIX paths and tilde paths', () => {
+    const text = scrubDiagnosticText('open /tmp/plancia/città,file%20.txt and ~/secret,name', [])
+    expect(text).not.toContain('/tmp')
+    expect(text).not.toContain('città')
+    expect(text).not.toContain('~/secret')
+    expect(text).toContain('<path>')
+  })
+
+  it('replaces URLs before other tokens', () => {
+    const text = scrubDiagnosticText('see https://example.com/a/b?q=1 and FILE://HOST/share', [])
+    expect(text).not.toContain('example.com')
+    expect(text).not.toContain('HOST')
+    expect(text).toContain('<url>')
+  })
+
+  it('redacts environment assignments, auth schemes and long tokens', () => {
+    const text = scrubDiagnosticText(`PATH=C:\\Windows\\System32 Bearer abc.def Basic xyz ${'A'.repeat(32)}`, [])
+    expect(text).not.toContain('Windows')
+    expect(text).not.toContain('abc.def')
+    expect(text).not.toContain('xyz')
+    expect(text).not.toContain('A'.repeat(32))
+    expect(text).toContain('<env>')
+    expect(text).toContain('<redacted>')
+  })
+
+  it('keeps only safe name, code and syscall tokens', () => {
+    const rejected = startupProcessDetail(Object.assign(new Error('plain'), {
+      name: 'C:\\secret', code: 'not-a-code', syscall: 'Spawn',
+    }), [])
+    expect(rejected.name).toBe('Error')
+    expect(rejected.code).toBeUndefined()
+    expect(rejected.syscall).toBeUndefined()
+    const kept = startupProcessDetail(Object.assign(new Error('plain'), {
+      name: 'TypeError', code: 'ENOENT', syscall: 'spawn',
+    }), [])
+    expect(kept.name).toBe('TypeError')
+    expect(kept.code).toBe('ENOENT')
+    expect(kept.syscall).toBe('spawn')
+  })
+
+  it('scrubs function names in frames and limits them to 80 characters', () => {
+    const long = 'fn.'.repeat(30)
+    const detail = startupProcessDetail(Object.assign(new Error('x'), {
+      stack: [
+        `    at ${long} (sessions.js:3:1)`,
+        '    at C:\\secret\\mod.kill (windowsPtyAgent.js:4:1)',
+      ].join('\n'),
+    }), [])
+    const frames = String(detail.stack).split(' | ')
+    expect(frames[0]).toBe(`${long.slice(0, 80)} sessions.js:3`)
+    expect(frames[1]).toBe('<path> windowsPtyAgent.js:4')
+    expect(frames[1]).not.toContain('secret')
   })
 
   it('writes the same line to stderr and to the case directory', () => {

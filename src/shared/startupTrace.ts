@@ -40,11 +40,15 @@ export function diagnosticHomes(env: NodeJS.ProcessEnv = process.env): string[] 
 
 export function scrubDiagnosticText(text: string, homes: readonly string[] = diagnosticHomes()): string {
   let value = String(text)
+  value = value.replace(/\b[a-z][a-z0-9+.-]*:\/\/\S+/gi, '<url>')
+  value = value.replace(/\b[A-Z][A-Z0-9_]{2,}=\S+/g, '<env>')
+  value = value.replace(/\b(?:Bearer|Basic)\s+\S+/gi, '<redacted>')
+  value = value.replace(/[A-Za-z0-9_+/=-]{32,}/g, '<redacted>')
   const variants = homes.flatMap(homeVariants).sort((a, b) => b.length - a.length)
   for (const home of variants) value = replaceAllInsensitive(value, home, '<home>')
-  value = value.replace(/\\\\[^\s"'<>|]+/g, '<path>')
-  value = value.replace(/[A-Za-z]:[\\/][^\s"'<>|]+/g, '<path>')
-  value = value.replace(/\/(?:[\w.@+-]+\/)*[\w.@+-]+/g, '<path>')
+  value = value.replace(/[^\s"'<>|]*\\[^\s"'<>|]*/g, '<path>')
+  value = value.replace(/~\/[^\s"'<>|:]*/g, '<path>')
+  value = value.replace(/\/[^\s"'<>|:]+/g, '<path>')
   return value.slice(0, 200)
 }
 
@@ -57,14 +61,28 @@ export function startupProcessDetail(
     if (typeof reason === 'string' && reason) detail.message = scrubDiagnosticText(reason, homes)
     return detail
   }
-  const detail: Record<string, string | number | boolean | null> = { name: reason.name || 'Error' }
+  const detail: Record<string, string | number | boolean | null> = { name: allowedName(reason.name) }
   const errno = reason as NodeJS.ErrnoException
-  if (typeof errno.code === 'string') detail.code = errno.code
-  if (typeof errno.syscall === 'string') detail.syscall = errno.syscall
+  const code = allowedCode(errno.code)
+  const syscall = allowedSyscall(errno.syscall)
+  if (code) detail.code = code
+  if (syscall) detail.syscall = syscall
   if (reason.message) detail.message = scrubDiagnosticText(reason.message, homes)
-  const frames = reducedStack(reason.stack)
+  const frames = reducedStack(reason.stack, homes)
   if (frames) detail.stack = frames
   return detail
+}
+
+function allowedName(name: string | undefined): string {
+  return typeof name === 'string' && /^[A-Za-z][\w.]{0,39}$/.test(name) ? name : 'Error'
+}
+
+function allowedCode(code: unknown): string | null {
+  return typeof code === 'string' && /^[A-Z0-9_]{1,40}$/.test(code) ? code : null
+}
+
+function allowedSyscall(syscall: unknown): string | null {
+  return typeof syscall === 'string' && /^[a-z_]{1,24}$/.test(syscall) ? syscall : null
 }
 
 function homeVariants(home: string): string[] {
@@ -78,13 +96,13 @@ function replaceAllInsensitive(text: string, needle: string, replacement: string
   return text.replace(new RegExp(pattern, 'gi'), replacement)
 }
 
-function reducedStack(stack: string | undefined): string | null {
+function reducedStack(stack: string | undefined, homes: readonly string[]): string | null {
   if (!stack) return null
   const frames: string[] = []
   for (const line of stack.split('\n')) {
     const match = /^\s*at (?:async )?(?:(.+?) )?\(?(.+):(\d+):\d+\)?\s*$/.exec(line)
     if (!match) continue
-    const fn = (match[1] || 'anonymous').trim()
+    const fn = scrubDiagnosticText((match[1] || 'anonymous').trim(), homes).slice(0, 80)
     const file = match[2].split(/[/\\]/).pop() || 'unknown'
     frames.push(`${fn} ${file}:${match[3]}`)
     if (frames.length === 8) break
