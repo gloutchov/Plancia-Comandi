@@ -79,7 +79,8 @@ function allowedName(name: string | undefined): string {
 }
 
 function allowedCode(code: unknown): string | null {
-  return typeof code === 'string' && /^[A-Z0-9_]{1,40}$/.test(code) ? code : null
+  const text = typeof code === 'number' && Number.isFinite(code) ? String(code) : code
+  return typeof text === 'string' && /^[A-Z0-9_]{1,40}$/.test(text) ? text : null
 }
 
 function allowedSyscall(syscall: unknown): string | null {
@@ -131,22 +132,24 @@ function detailValue(key: string, value: string | number | boolean | null): stri
   return undefined
 }
 
-export function startupFailureDetail(step: string, error: unknown): Record<string, string | number | boolean | null> {
-  const detail: Record<string, string | number | boolean | null> = { step, cause: null, code: 'UNKNOWN' }
-  if (error instanceof Error) {
-    detail.name = error.name || 'Error'
-    detail.message = error.message
-    if (typeof error.stack === 'string') detail.stack = error.stack
-    const cause = error.cause
-    if (cause instanceof Error) detail.cause = `${cause.name}: ${cause.message}`
-    else if (typeof cause === 'string') detail.cause = cause
-    const code = (error as { code?: unknown }).code
-    if (typeof code === 'string' || typeof code === 'number') detail.code = String(code)
-    return detail
-  }
-  detail.name = 'non-error'
-  if (typeof error === 'string') detail.message = error
+export function startupFailureDetail(step: string, error: unknown, homes: readonly string[] = diagnosticHomes()): Record<string, string | number | boolean | null> {
+  const detail = startupProcessDetail(error, homes)
+  detail.step = step
+  detail.cause = scrubbedCause(error, homes)
+  if (detail.code == null) detail.code = 'UNKNOWN'
   return detail
+}
+
+function scrubbedCause(error: unknown, homes: readonly string[]): string | null {
+  if (!(error instanceof Error)) return null
+  const cause = error.cause
+  if (cause instanceof Error) {
+    const name = allowedName(cause.name)
+    const message = cause.message ? scrubDiagnosticText(cause.message, homes) : ''
+    return message ? `${name}: ${message}` : name
+  }
+  if (typeof cause === 'string' && cause) return scrubDiagnosticText(cause, homes)
+  return null
 }
 
 export function startupLine(name: string, detail: Record<string, string | number | boolean | null> = {}): string {

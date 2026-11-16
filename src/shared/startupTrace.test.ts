@@ -18,6 +18,18 @@ describe('startup trace', () => {
     expect(line.ready).toBe(false)
     expect(line.userData).toBe('C:/temp/user-data')
     expect(line.note).toBeUndefined()
+    const failure = new Error('open C:\\Users\\mario\\AppData\\x')
+    failure.stack = 'Error: open C:\\Users\\mario\\AppData\\x\n    at fail (C:\\Users\\mario\\app\\main.js:72:4)'
+    failure.cause = new Error('from /Users/mario/Library/x')
+    Object.assign(failure, { code: 12 })
+    const detail = startupFailureDetail('paths', failure, [])
+    expect(detail.message).not.toContain('mario')
+    expect(detail.stack).not.toContain('mario')
+    expect(detail.cause).not.toContain('mario')
+    expect(detail.message).toContain('<path>')
+    expect(detail.stack).toContain('fail main.js:72')
+    expect(detail.cause).toContain('<path>')
+    expect(detail.code).toBe('12')
   })
 
   it('replaces the user segment in startup paths and keeps the rest', () => {
