@@ -152,6 +152,8 @@ Plancia-Comandi/
 |   |-- smoke-fuses.mjs              Lettura dei fuse e prove negative sul binario di release
 |   |-- fuse-smoke-cases.mjs         Esito di ELECTRON_RUN_AS_NODE e dettaglio dell'uscita
 |   |-- check-fuse-wires.mjs         Stampa e verifica i fuse di release e gemello
+|   |-- diagnose-fuse-variants.mjs   Avvio pulito con un fuse di release acceso alla volta
+|   |-- fuse-smoke-launch.mjs        Profilo isolato, chiusura dell'albero e coda dei log
 |   |-- check-mac-bundles.mjs        Firma ad hoc e fuse di default del gemello, prima dello smoke
 |   |-- prepare-open-fuse-twin.mjs   Gemello ricavato dal binario finale, fuse riportati ai default
 |   |-- assert-release-fuses.mjs     Lettura dei fuse sul portable, sull'installato e sui formati macOS
@@ -393,6 +395,8 @@ Plancia-Comandi/
 |   |-- smoke-fuses.mjs              Fuse read and negative tests on the release binary
 |   |-- fuse-smoke-cases.mjs         ELECTRON_RUN_AS_NODE outcome and exit detail
 |   |-- check-fuse-wires.mjs         Prints and checks the release and twin fuses
+|   |-- diagnose-fuse-variants.mjs   Clean launch with one release fuse enabled at a time
+|   |-- fuse-smoke-launch.mjs        Isolated profile, tree stop and log tail
 |   |-- check-mac-bundles.mjs        Ad-hoc signature and default twin fuses, before smoke
 |   |-- prepare-open-fuse-twin.mjs   Twin taken from the finished binary, fuses reset to defaults
 |   |-- assert-release-fuses.mjs     Fuse read on portable, installed and macOS formats

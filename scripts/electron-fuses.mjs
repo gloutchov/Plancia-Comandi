@@ -117,6 +117,19 @@ export function defaultFuseStates() {
   return fuseStatesFrom(defaultFuseConfig())
 }
 
+// A twin with one release fuse turned on, so a startup failure can be tied to
+// that fuse. The other wires stay at the Electron 45.3.2 defaults.
+export function variantFuseConfig(kind) {
+  const { FuseV1Options } = loadFuses()
+  const config = defaultFuseConfig()
+  const integrity = kind === 'integrity' || kind === 'both'
+  const asar = kind === 'asar' || kind === 'both'
+  if (!integrity && !asar) throw new Error(`Unknown fuse variant: ${kind}`)
+  config[FuseV1Options.EnableEmbeddedAsarIntegrityValidation] = integrity
+  config[FuseV1Options.OnlyLoadAppFromAsar] = asar
+  return config
+}
+
 export function twinDirectory(appOutDir) {
   return `${appOutDir}-open-fuses`
 }
@@ -238,6 +251,14 @@ export function assertReleaseFuses(states) {
   }
 }
 
+export async function sealDarwinApp(dir) {
+  if (process.platform !== 'darwin') return
+  const entries = await readdir(dir)
+  const apps = entries.filter(name => name.endsWith('.app'))
+  if (apps.length !== 1) throw new Error('Expected one macOS app in the open-fuse twin')
+  await runTool('codesign', ['--force', '--deep', '--sign', '-', path.join(dir, apps[0])])
+}
+
 export async function prepareOpenFuseTwin(finalDir) {
   const twin = await copyOpenFuseTwin(finalDir)
   const outside = await symlinksOutside(twin)
@@ -247,11 +268,7 @@ export async function prepareOpenFuseTwin(finalDir) {
   const entries = await readdir(twin)
   const target = fuseTarget(twin, process.platform, entries)
   await loadFuses().flipFuses(target, defaultFuseConfig())
-  if (process.platform === 'darwin') {
-    const apps = entries.filter(name => name.endsWith('.app'))
-    if (apps.length !== 1) throw new Error('Expected one macOS app in the open-fuse twin')
-    await runTool('codesign', ['--force', '--deep', '--sign', '-', path.join(twin, apps[0])])
-  }
+  await sealDarwinApp(twin)
   assertDefaultFuses(await readFuseStates(target))
   return twin
 }

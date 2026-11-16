@@ -26,6 +26,7 @@ import {
   readFuseStates,
   releaseFuseConfig,
   sha256File,
+  variantFuseConfig,
 } from './electron-fuses.mjs'
 
 const require = createRequire(new URL('../package.json', import.meta.url))
@@ -107,13 +108,32 @@ describe('release fuse configuration', () => {
       expect(smokeSource).not.toContain('expectNodeOptions(executable, open)')
       expect(smokeSource).toContain('durationMs')
       expect(smokeSource).toContain('smoke-failure.json')
-      expect(smokeSource).toContain('ELECTRON_NO_ATTACH_CONSOLE')
+      expect(smokeSource).toContain('Release startup failed')
+      expect(smokeSource).toContain('release-startup')
+      const launchSource = readFileSync(fileURLToPath(new URL('./fuse-smoke-launch.mjs', import.meta.url)), 'utf8')
+      expect(launchSource).toContain('ELECTRON_NO_ATTACH_CONSOLE')
+      expect(launchSource).toContain('ELECTRON_ENABLE_LOGGING')
       expect(smokeSource).not.toContain('if (handle.state.exited) return')
       expect(readFileSync(script, 'utf8')).not.toContain("from '@electron/fuses'")
       expect(readFileSync(smoke, 'utf8')).not.toContain("from '@electron/fuses'")
     } finally {
       rmSync(empty, { recursive: true, force: true })
     }
+  })
+
+  it('turns one default fuse on for a startup variant', () => {
+    const { FuseV1Options } = loadFuses()
+    const integrity = variantFuseConfig('integrity')
+    const asar = variantFuseConfig('asar')
+    const both = variantFuseConfig('both')
+    expect(integrity[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]).toBe(true)
+    expect(integrity[FuseV1Options.OnlyLoadAppFromAsar]).toBe(false)
+    expect(integrity[FuseV1Options.RunAsNode]).toBe(true)
+    expect(asar[FuseV1Options.OnlyLoadAppFromAsar]).toBe(true)
+    expect(asar[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]).toBe(false)
+    expect(both[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]).toBe(true)
+    expect(both[FuseV1Options.OnlyLoadAppFromAsar]).toBe(true)
+    expect(() => variantFuseConfig('release')).toThrow(/Unknown fuse variant/)
   })
 
   it('imports a Windows drive path as a file URL', () => {
@@ -139,6 +159,8 @@ describe('release fuse configuration', () => {
     expect(config).not.toContain('electronFuses:')
     const windows = require('node:fs').readFileSync(new URL('../.github/workflows/package-windows.yml', import.meta.url), 'utf8') as string
     expect(windows).toContain('check-fuse-wires.mjs')
+    expect(windows).toContain('diagnose-fuse-variants.mjs')
+    expect(windows).toContain('plancia-fuse-variants/variants.json')
     expect(windows).toContain('plancia-fuse-smoke-*/smoke-failure.json')
     expect(windows).toContain('smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION" release')
   })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { isDiagnosticFile } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
   it('treats a live release process as blocked and an early exit as a failure', () => {
@@ -15,5 +16,11 @@ describe('fuse smoke case outcomes', () => {
       pid: 12, exitCode: 0, signal: null, spawnError: null, outputTail: 'hello',
     })
     expect(processExitDetail({ pid: 4, code: null, signal: null, error: 'spawn ENOENT', output: '' }).spawnError).toBe('spawn ENOENT')
+  })
+
+  it('keeps Electron logs and crash dumps and skips settings', () => {
+    expect(isDiagnosticFile('debug.log')).toBe(true)
+    expect(isDiagnosticFile('crashpad.dmp')).toBe(true)
+    expect(isDiagnosticFile('settings.json')).toBe(false)
   })
 })

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
-import { execFile, spawn } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { spawn } from 'node:child_process'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
@@ -13,7 +13,15 @@ import {
   readFuseStates,
 } from './electron-fuses.mjs'
 import { processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
-import { smokeEnvironment } from './smoke-driver.mjs'
+import {
+  STARTUP_HOLD_MS,
+  collectDiagnosticTails,
+  launchArgs,
+  prepareIsolatedCase,
+  spawnTracked,
+  stillRunning,
+  stopTracked,
+} from './fuse-smoke-launch.mjs'
 
 const releaseExecutable = path.resolve(process.argv[2] ?? '')
 const openExecutable = path.resolve(process.argv[3] ?? '')
@@ -29,99 +37,14 @@ function caseDir() {
   return path.join(root, `case-${profile}`)
 }
 
-async function prepareCase(dir) {
-  const env = smokeEnvironment(dir)
-  // Windows attaches a console when ELECTRON_RUN_AS_NODE is set, even if the
-  // runAsNode fuse is off (electron_main_win.cc). Skip that attach for the GUI.
-  env.ELECTRON_NO_ATTACH_CONSOLE = '1'
-  const userData = path.join(dir, 'user-data')
-  await Promise.all([
-    ...Object.entries(env)
-      .filter(([key]) => /^(HOME|USERPROFILE|APPDATA|LOCALAPPDATA|XDG_|ZDOTDIR)/.test(key))
-      .map(([, value]) => mkdir(value, { recursive: true })),
-    mkdir(userData, { recursive: true }),
-  ])
-  return { env, userData }
-}
-
-function execText(command, args) {
-  return new Promise((resolve) => {
-    execFile(command, args, { windowsHide: true, timeout: 8000, encoding: 'utf8' }, (error, stdout, stderr) => {
-      resolve(`${stdout || ''}${error && !stdout ? stderr || '' : ''}`)
-    })
-  })
-}
-
-async function appPids(executable) {
-  if (process.platform === 'win32') {
-    const literal = `'${executable.replaceAll("'", "''")}'`
-    const text = await execText('powershell.exe', ['-NoProfile', '-Command',
-      `Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -eq ${literal} } | ForEach-Object { $_.ProcessId }`])
-    return [...new Set(text.split(/\s+/).map(Number).filter(pid => Number.isInteger(pid) && pid > 0))]
-  }
-  const text = await execText('ps', ['-eo', 'pid=,args='])
-  const pids = []
-  for (const line of text.split('\n')) {
-    const match = line.trim().match(/^(\d+)\s+(.*)$/)
-    if (!match) continue
-    const args = match[2]
-    if (args === executable || args.startsWith(`${executable} `)) pids.push(Number(match[1]))
-  }
-  return pids
-}
-
-async function taskkill(pid) {
-  await new Promise((resolve) => {
-    const killer = spawn('taskkill.exe', ['/pid', String(pid), '/t', '/f'], { stdio: 'ignore', windowsHide: true })
-    killer.once('exit', resolve)
-    killer.once('error', resolve)
-  })
-}
-
-function start(executable, args, env, extraEnv = {}) {
-  const child = spawn(executable, args, {
-    cwd: root,
-    env: { ...env, ...extraEnv },
-    stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true,
-  })
-  const state = { output: '', code: null, signal: null, exited: false, error: null, pid: child.pid ?? null }
-  for (const stream of [child.stdout, child.stderr]) {
-    stream.on('data', (chunk) => { state.output = (state.output + chunk.toString()).slice(-4000) })
-  }
-  child.once('exit', (code, signal) => { state.exited = true; state.code = code; state.signal = signal })
-  child.once('error', (error) => { state.exited = true; state.error = error.message })
-  const handle = { child, state, executable, stopped: false, remaining: [] }
+function start(executable, args, profile, extraEnv = {}) {
+  const handle = spawnTracked(executable, args, profile, extraEnv, root)
   current = handle
   return handle
 }
 
-async function stillRunning(handle) {
-  if (!handle.state.exited) return true
-  handle.remaining = await appPids(handle.executable)
-  return handle.remaining.length > 0
-}
-
 async function stop(handle) {
-  if (!handle || handle.stopped) return
-  handle.stopped = true
-  const pid = handle.state.pid
-  if (process.platform === 'win32' && pid) await taskkill(pid)
-  else if (!handle.state.exited) handle.child.kill('SIGTERM')
-  const deadline = Date.now() + 8000
-  while (!handle.state.exited && Date.now() < deadline) await delay(100)
-  let left = await appPids(handle.executable)
-  for (const extra of left) {
-    if (process.platform === 'win32') await taskkill(extra)
-    else try { process.kill(extra, 'SIGTERM') } catch { /* already gone */ }
-  }
-  const again = Date.now() + 3000
-  while (left.length && Date.now() < again) {
-    await delay(100)
-    left = await appPids(handle.executable)
-  }
-  handle.remaining = left
-  if (left.length) throw new Error(`App process still running after stop: ${left.join(',')}`)
+  await stopTracked(handle)
 }
 
 function portOpen(port) {
@@ -154,6 +77,7 @@ function earlyExit(message, handle) {
 
 async function recordFailure(name, binary, error, handle) {
   const detail = handle ? processExitDetail(handle.state) : processExitDetail(null)
+  const logs = handle?.profile ? await collectDiagnosticTails([handle.profile.userData, handle.profile.dir]) : []
   await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify({
     case: name,
     binary,
@@ -162,6 +86,7 @@ async function recordFailure(name, binary, error, handle) {
     exitSignal: detail.signal,
     spawnError: detail.spawnError,
     outputTail: detail.outputTail || String(error.message || '').slice(-2000),
+    logs,
   }, null, 2))
   console.log(JSON.stringify({ case: name, binary, outcome: 'failed', durationMs: error.durationMs, exitCode: detail.exitCode, signal: detail.signal }))
 }
@@ -195,9 +120,17 @@ async function runCase(name, executable, role, fn) {
   console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started }))
 }
 
+async function expectStartup(executable, profile) {
+  const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile)
+  const deadline = Date.now() + STARTUP_HOLD_MS
+  while (!handle.state.exited && Date.now() < deadline) await delay(100)
+  if (!await stillRunning(handle)) throw earlyExit('Release startup failed', handle)
+  return 'alive'
+}
+
 async function expectInspector(executable, profile, prefix, shouldListen) {
   const port = await freePort()
-  const handle = start(executable, [`--user-data-dir=${profile.userData}`, `${prefix}=127.0.0.1:${port}`], profile.env)
+  const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`, `${prefix}=127.0.0.1:${port}`]), profile)
   await delay(800)
   if (!await stillRunning(handle)) throw earlyExit(`${prefix} process exited before the port check`, handle)
   let seen = false
@@ -215,7 +148,7 @@ async function expectInspector(executable, profile, prefix, shouldListen) {
 // --http-parser and --max-http-header-size. Both binaries must stay closed.
 async function expectNodeOptions(executable, profile) {
   const port = await freePort()
-  const handle = start(executable, [`--user-data-dir=${profile.userData}`], profile.env, { NODE_OPTIONS: `--inspect=127.0.0.1:${port}` })
+  const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile, { NODE_OPTIONS: `--inspect=127.0.0.1:${port}` })
   await delay(800)
   if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS process exited before the port check', handle)
   let seen = false
@@ -232,7 +165,7 @@ async function expectRunAsNode(executable, profile, shouldRun) {
   const marker = path.join(path.dirname(profile.userData), 'node-marker')
   // No --user-data-dir: Node would treat it as its own flag when the fuse is
   // on. The case directory's HOME and APPDATA are the isolated profile.
-  const handle = start(executable, ['-e', `require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'ran')`], profile.env, { ELECTRON_RUN_AS_NODE: '1' })
+  const handle = start(executable, launchArgs(profile, ['-e', `require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'ran')`]), profile, { ELECTRON_RUN_AS_NODE: '1' })
   const deadline = Date.now() + 6000
   while (!handle.state.exited && Date.now() < deadline) await delay(100)
   let written = false
@@ -245,7 +178,7 @@ async function expectRunAsNode(executable, profile, shouldRun) {
 
 async function expectSignal(executable, profile, shouldOpen) {
   if (process.platform !== 'darwin') return 'skipped'
-  const handle = start(executable, [`--user-data-dir=${profile.userData}`], profile.env)
+  const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile)
   await delay(1000)
   if (!await stillRunning(handle)) throw earlyExit('App exited before SIGUSR1', handle)
   handle.child.kill('SIGUSR1')
@@ -273,13 +206,16 @@ assertReleaseFuses(await readFuseStates(releaseExecutable))
 assertDefaultFuses(await readFuseStates(openExecutable))
 assertOnlyFuseWireDiffers(await unsignedBytes(pathToFuseFile(openExecutable)), await unsignedBytes(pathToFuseFile(releaseExecutable)))
 
+await runCase('release-startup', releaseExecutable, 'release', async () => expectStartup(releaseExecutable, await prepareIsolatedCase(caseDir(), { logging: true })))
+
 for (const [executable, open] of [[releaseExecutable, false], [openExecutable, true]]) {
   const role = open ? 'twin' : 'release'
-  await runCase('ELECTRON_RUN_AS_NODE', executable, role, async () => expectRunAsNode(executable, await prepareCase(caseDir()), open))
-  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareCase(caseDir())))
-  await runCase('--inspect', executable, role, async () => expectInspector(executable, await prepareCase(caseDir()), '--inspect', open))
-  await runCase('--inspect-brk', executable, role, async () => expectInspector(executable, await prepareCase(caseDir()), '--inspect-brk', open))
-  await runCase('SIGUSR1', executable, role, async () => expectSignal(executable, await prepareCase(caseDir()), open))
+  const logging = !open
+  await runCase('ELECTRON_RUN_AS_NODE', executable, role, async () => expectRunAsNode(executable, await prepareIsolatedCase(caseDir(), { logging }), open))
+  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareIsolatedCase(caseDir(), { logging })))
+  await runCase('--inspect', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir(), { logging }), '--inspect', open))
+  await runCase('--inspect-brk', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir(), { logging }), '--inspect-brk', open))
+  await runCase('SIGUSR1', executable, role, async () => expectSignal(executable, await prepareIsolatedCase(caseDir(), { logging }), open))
 }
 
 console.log(JSON.stringify({

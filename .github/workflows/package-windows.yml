@@ -79,6 +79,8 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked-open-fuses/plancia-comandi.exe "$env:EXPECTED_VERSION" full
+      - name: Probe one release fuse at a time
+        run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/win-unpacked "$env:RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches
         run: node tooling/scripts/smoke-fuses.mjs app/release/win-unpacked/plancia-comandi.exe app/release/win-unpacked-open-fuses/plancia-comandi.exe
       - name: Smoke unpacked Windows package
@@ -123,6 +125,14 @@ jobs:
             app/release/PlanciaComandi-win-*.exe
             app/release/SHA256SUMS-Windows.txt
           if-no-files-found: error
+          retention-days: 7
+      - name: Upload fuse variant diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-fuse-variants-${{ inputs.source_sha }}
+          path: ${{ runner.temp }}/plancia-fuse-variants/variants.json
+          if-no-files-found: ignore
           retention-days: 7
       - name: Retain bounded smoke failure metadata
         if: failure()

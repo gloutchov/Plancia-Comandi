@@ -85,6 +85,8 @@ jobs:
         run: |
           executable=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-open-fuses.json")
           node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION" full
+      - name: Probe one release fuse at a time
+        run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/mac-arm64 "$RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches
         run: |
           release=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-layout.json")
@@ -126,6 +128,14 @@ jobs:
             app/release/PlanciaComandi-mac-*.zip
             app/release/SHA256SUMS-macOS.txt
           if-no-files-found: error
+          retention-days: 7
+      - name: Upload fuse variant diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos-fuse-variants-${{ inputs.source_sha }}
+          path: ${{ runner.temp }}/plancia-fuse-variants/variants.json
+          if-no-files-found: ignore
           retention-days: 7
       - name: Retain bounded smoke failure metadata
         if: failure()
