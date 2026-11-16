@@ -112,11 +112,19 @@ function reducedStack(stack: string | undefined, homes: readonly string[]): stri
   return frames.length ? frames.join(' | ') : null
 }
 
+export function scrubStartupPath(value: string, homes: readonly string[] = diagnosticHomes()): string {
+  let text = value
+  const variants = homes.flatMap(homeVariants).sort((a, b) => b.length - a.length)
+  for (const home of variants) text = replaceAllInsensitive(text, home, '<home>')
+  text = text.replace(/([\\/])Users\1[^\\/]+/gi, '$1Users$1<user>')
+  return text.slice(0, 300)
+}
+
 function detailValue(key: string, value: string | number | boolean | null): string | number | boolean | null | undefined {
   if (typeof value === 'boolean' || value === null) return value
   if (typeof value === 'number' && Number.isFinite(value)) return value
   if (typeof value !== 'string') return undefined
-  if (PATH_KEYS.has(key)) return value.slice(0, 300)
+  if (PATH_KEYS.has(key)) return scrubStartupPath(value)
   const textCap = TEXT_KEYS.get(key)
   if (textCap) return value.slice(0, textCap)
   if (/^[A-Za-z0-9_.:-]{1,80}$/.test(value)) return value

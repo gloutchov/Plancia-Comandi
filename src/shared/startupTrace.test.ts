@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createStartupTrace, installStartupProcessHandlers, scrubDiagnosticText, startupFailureDetail, startupLine, startupProcessDetail } from './startupTrace'
+import { createStartupTrace, installStartupProcessHandlers, scrubDiagnosticText, scrubStartupPath, startupFailureDetail, startupLine, startupProcessDetail } from './startupTrace'
 
 describe('startup trace', () => {
   it('keeps allowlisted facts and drops free text', () => {
@@ -18,6 +18,17 @@ describe('startup trace', () => {
     expect(line.ready).toBe(false)
     expect(line.userData).toBe('C:/temp/user-data')
     expect(line.note).toBeUndefined()
+  })
+
+  it('replaces the user segment in startup paths and keeps the rest', () => {
+    const windows = scrubStartupPath('C:\\Users\\mario\\AppData\\Roaming\\Plancia Comandi', [])
+    const posix = scrubStartupPath('/Users/mario/Library/Application Support/Plancia', [])
+    expect(windows).not.toContain('mario')
+    expect(posix).not.toContain('mario')
+    expect(windows).toBe('C:\\Users\\<user>\\AppData\\Roaming\\Plancia Comandi')
+    expect(posix).toBe('/Users/<user>/Library/Application Support/Plancia')
+    expect(scrubStartupPath('D:\\a\\_temp\\plancia\\user-data', [])).toBe('D:\\a\\_temp\\plancia\\user-data')
+    expect(scrubStartupPath('resources\\app.asar', [])).toBe('resources\\app.asar')
   })
 
   it('keeps a bounded startup failure and drops other free text', () => {
