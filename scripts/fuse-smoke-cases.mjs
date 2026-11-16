@@ -53,6 +53,11 @@ export function headerSizeFromEvaluation(result) {
   return { headerSize: null, error: 'non-number', description: null }
 }
 
+export function startupDiagnostic(alive, failure, startup) {
+  if (alive) return null
+  return { case: failure, alive, startup }
+}
+
 export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '', alive = true }) {
   const ignored = String(output).includes(NODE_OPTIONS_IGNORED)
   if (shouldApply) return headerSize === NODE_OPTIONS_HEADER_SIZE && !ignored ? `applied:${headerSize}` : null

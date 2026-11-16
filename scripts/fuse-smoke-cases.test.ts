@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
-import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
+import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome, startupDiagnostic } from './fuse-smoke-cases.mjs'
+import { isDiagnosticFile, launchArgs, prepareIsolatedCase, startupCrashEvents } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
   it('treats a live release process as blocked and an early exit as a failure', () => {
@@ -42,6 +42,20 @@ describe('fuse smoke case outcomes', () => {
     expect(failed.error).toBe(description)
     expect(headerSizeFromEvaluation({ result: { value: { size: 8192, via: 'getBuiltinModule' } } })).toEqual({
       headerSize: 8192, error: null, description: null,
+    })
+  })
+
+  it('treats an uncaught startup event as a package-smoke failure', () => {
+    expect(startupCrashEvents([{ event: 'paths' }, { event: 'files' }])).toEqual([])
+    expect(startupCrashEvents([{ event: 'uncaughtException' }, { event: 'unhandledRejection' }])).toEqual(['uncaughtException', 'unhandledRejection'])
+  })
+
+  it('prints the startup failure line only when the process is dead', () => {
+    expect(startupDiagnostic(true, 'Release startup failed', [{ event: 'paths' }])).toBeNull()
+    expect(startupDiagnostic(false, 'Release startup failed', [{ event: 'startup-failed' }])).toEqual({
+      case: 'Release startup failed',
+      alive: false,
+      startup: [{ event: 'startup-failed' }],
     })
   })
 

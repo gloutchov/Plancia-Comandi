@@ -16,7 +16,7 @@ import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
 import { packagedPtyNodeCandidates } from '../src/shared/ptyProbe'
-import { createStartupTrace, startupFailureDetail, type StartupTrace } from '../src/shared/startupTrace'
+import { createStartupTrace, installStartupProcessHandlers, startupFailureDetail, type StartupTrace } from '../src/shared/startupTrace'
 import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
 
@@ -57,6 +57,7 @@ if (startupTrace) {
     startupTrace.event('process.exit', { reason: startupTrace.reason(), code: typeof code === 'number' ? code : null, ready: app.isReady() })
     return processExit(code)
   }) as typeof process.exit
+  installStartupProcessHandlers(process.env, startupTrace, process)
 }
 
 function quitFor(reason: string): void {
@@ -429,12 +430,6 @@ if (!gotLock) {
   })
   app.on('child-process-gone', (_event, details) => {
     startupTrace?.event('child-process-gone', { type: details.type, reason: details.reason, exitCode: details.exitCode })
-  })
-  process.on('uncaughtException', (error) => {
-    startupTrace?.event('uncaughtException', { name: error.name })
-  })
-  process.on('unhandledRejection', (reason) => {
-    startupTrace?.event('unhandledRejection', { name: reason instanceof Error ? reason.name : 'non-error' })
   })
 
   app.on('activate', () => {

@@ -1,8 +1,9 @@
+import { EventEmitter } from 'node:events'
 import { mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createStartupTrace, startupFailureDetail, startupLine } from './startupTrace'
+import { createStartupTrace, installStartupProcessHandlers, startupFailureDetail, startupLine } from './startupTrace'
 
 describe('startup trace', () => {
   it('keeps allowlisted facts and drops free text', () => {
@@ -52,6 +53,33 @@ describe('startup trace', () => {
     const wrapped = new Error('outer')
     wrapped.cause = new Error('inner')
     expect(startupFailureDetail('settings', wrapped).cause).toBe('Error: inner')
+  })
+
+  it('registers the process handlers only when the startup trace is enabled', () => {
+    const off = new EventEmitter()
+    installStartupProcessHandlers({}, null, off)
+    installStartupProcessHandlers({ PLANCIA_DIAG_STARTUP: '0' }, createStartupTrace(undefined, () => {}), off)
+    expect(off.listenerCount('uncaughtException')).toBe(0)
+    expect(off.listenerCount('unhandledRejection')).toBe(0)
+
+    const on = new EventEmitter()
+    const lines: string[] = []
+    const trace = createStartupTrace(undefined, (line) => lines.push(line))
+    installStartupProcessHandlers({ PLANCIA_DIAG_STARTUP: '1' }, trace, on)
+    expect(on.listenerCount('uncaughtException')).toBe(1)
+    expect(on.listenerCount('unhandledRejection')).toBe(1)
+    on.emit('uncaughtException', new Error('boom'))
+    on.emit('unhandledRejection', 'plain')
+    expect(lines.map((line) => JSON.parse(line).event)).toEqual(['uncaughtException', 'unhandledRejection'])
+    expect(JSON.parse(lines[0]).name).toBe('Error')
+    expect(JSON.parse(lines[1]).name).toBe('non-error')
+
+    const main = readFileSync(new URL('../../electron/main.ts', import.meta.url), 'utf8')
+    const branch = main.slice(main.indexOf('if (startupTrace) {'), main.indexOf('function quitFor'))
+    expect(branch).toContain('installStartupProcessHandlers(process.env, startupTrace, process)')
+    expect(main.replace(branch, '')).not.toContain('installStartupProcessHandlers(')
+    expect(main).not.toContain("process.on('uncaughtException'")
+    expect(main).not.toContain("process.on('unhandledRejection'")
   })
 
   it('writes the same line to stderr and to the case directory', () => {

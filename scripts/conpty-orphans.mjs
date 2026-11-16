@@ -67,6 +67,40 @@ export function conptyCloseReport(rows, shellPid, childPid) {
   }
 }
 
+export function planciaInstanceReport(rows, ownPid) {
+  const named = rows.filter(row => /plancia-comandi\.exe$/i.test(row.name || ''))
+  return {
+    count: named.length,
+    ownPid,
+    extra: named.filter(row => row.pid !== ownPid).map(row => row.pid),
+  }
+}
+
+/** Pid of the extracted app. The portable wrapper's own pid is not a listener owner. */
+export function packagedListenerPid(rows, wrapperPid) {
+  const name = (row) => /plancia-comandi\.exe$/i.test(row.name || '')
+  const children = new Map()
+  for (const row of rows) {
+    const list = children.get(row.ppid) || []
+    list.push(row)
+    children.set(row.ppid, list)
+  }
+  const under = []
+  const queue = [...(children.get(wrapperPid) || [])]
+  const seen = new Set()
+  while (queue.length) {
+    const row = queue.shift()
+    if (!row || seen.has(row.pid)) continue
+    seen.add(row.pid)
+    if (name(row)) under.push(row.pid)
+    queue.push(...(children.get(row.pid) || []))
+  }
+  if (under.length === 1) return under[0]
+  const named = rows.filter(name).map(row => row.pid)
+  if (under.length === 0 && named.length === 1) return named[0]
+  return null
+}
+
 export function mainRejectedFuseClose(diagnostics) {
   return /UnhandledPromiseRejection|unhandledRejection|runAsNode is disabled|Cannot fork/i.test(String(diagnostics))
 }

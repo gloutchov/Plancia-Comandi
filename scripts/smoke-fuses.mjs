@@ -12,7 +12,7 @@ import {
   pathToFuseFile,
   readFuseStates,
 } from './electron-fuses.mjs'
-import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome, startupDiagnostic } from './fuse-smoke-cases.mjs'
 import { connectProtocol, mainInspectorUrl } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
@@ -132,7 +132,8 @@ async function expectStartup(executable, profile, failure) {
   const deadline = Date.now() + STARTUP_HOLD_MS
   while (!handle.state.exited && Date.now() < deadline) await delay(100)
   const alive = await stillRunning(handle)
-  console.log(JSON.stringify({ case: failure, alive, startup: await readStartupTrace(profile.dir) }))
+  const diagnostic = startupDiagnostic(alive, failure, await readStartupTrace(profile.dir))
+  if (diagnostic) console.log(JSON.stringify(diagnostic))
   if (!alive) throw earlyExit(failure, handle)
   return 'alive'
 }

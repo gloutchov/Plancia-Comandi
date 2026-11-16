@@ -10,7 +10,8 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, parseProcessTable, planciaInstanceReport, windowsProcessTable } from './conpty-orphans.mjs'
+import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
@@ -22,6 +23,8 @@ assert(['darwin', 'win32'].includes(process.platform), 'Run on macOS or Windows'
 await access(executable)
 const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-package-smoke-'))
 const { userData, env } = await prepareIsolatedSmokeRoot(root)
+env.PLANCIA_DIAG_STARTUP = '1'
+env.PLANCIA_DIAG_DIR = root
 const server = net.createServer()
 await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve))
 const port = server.address().port
@@ -95,17 +98,31 @@ function ownedListenText(pid) {
     })
   })
 }
-async function assertOwnedListeners(pid) {
+const PORTABLE_LISTENER_GAP = 'portable CDP listeners not measured'
+
+async function assertOwnedListeners(pid, portable = false) {
   const text = await ownedListenText(pid)
   const addresses = process.platform === 'win32' ? parseNetstatListeners(text, pid) : parseListenAddresses(text)
   if (!text.trim() || addresses.length === 0) {
-    console.log(JSON.stringify({ listeners: 'unavailable' }))
+    console.log(portable ? PORTABLE_LISTENER_GAP : JSON.stringify({ listeners: 'unavailable' }))
     return
   }
   console.log(JSON.stringify({ listeners: addresses }))
   assert.equal(addresses.some(listenAddressEscapesLoopback), false, 'A debug listener is not limited to loopback')
 }
-async function windowsConptyCloseCheck() {
+async function portableAppPid() {
+  if (process.platform !== 'win32' || !/-portable\.exe$/i.test(path.basename(executable))) return child.pid
+  let rows = []
+  try { rows = parseProcessTable(await windowsProcessTable()) } catch { rows = [] }
+  const pid = packagedListenerPid(rows, child.pid)
+  if (!pid) console.log(PORTABLE_LISTENER_GAP)
+  return pid
+}
+async function assertNoStartupCrash() {
+  const events = startupCrashEvents(await readStartupTrace(root))
+  assert.equal(events.length, 0, `startup.jsonl recorded ${events.join(',')}`)
+}
+async function windowsConptyCloseCheck(appPid) {
   if (process.platform !== 'win32') return false
   stageAt('ConPTY child')
   const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke ConPTY', shellId: 'cmd', cwd: root })})`)
@@ -117,15 +134,25 @@ async function windowsConptyCloseCheck() {
   sessions.push(id)
   const command = conptyChildCommand()
   await evaluate(`window.plancia.write(${JSON.stringify(id)}, ${JSON.stringify(command)})`)
-  const child = await waitForConptyChild(id, shellPid, command)
-  assert.equal(Number.isInteger(child.pid) && child.pid > 0, true, 'ConPTY child pid missing')
+  const ping = await waitForConptyChild(id, shellPid, command)
+  assert.equal(Number.isInteger(ping.pid) && ping.pid > 0, true, 'ConPTY child pid missing')
   stageAt('ConPTY close')
   await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`)
   const index = sessions.indexOf(id)
   if (index >= 0) sessions.splice(index, 1)
   await until(() => evaluate(`window.plancia.boot().then(b => !b.sessions.some(s => s.id === ${JSON.stringify(id)}))`), 'ConPTY session did not close')
-  await until(async () => conptyCloseReport(parseProcessTable(await windowsProcessTable()), shellRow, child).clear, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
+  const samples = []
+  await until(async () => {
+    const rows = parseProcessTable(await windowsProcessTable())
+    samples.push(planciaInstanceReport(rows, appPid))
+    return conptyCloseReport(rows, shellRow, ping).clear
+  }, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
+  const extra = [...new Set(samples.flatMap(sample => sample.extra))]
+  const peak = samples.reduce((max, sample) => Math.max(max, sample.count), 0)
+  console.log(JSON.stringify({ conptyPlancia: { ownPid: appPid, peak, extra } }))
+  assert.equal(extra.length, 0, `node-pty fork started another plancia-comandi instance: ${extra.join(',')}`)
   assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection while closing ConPTY')
+  await assertNoStartupCrash()
   return true
 }
 async function waitForConptyChild(id, shellPid, command) {
@@ -176,9 +203,10 @@ try {
     assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
     stageAt('loopback debugging port')
     await assertLoopbackListener(port)
-    await assertOwnedListeners(child.pid)
+    const listenerPid = await portableAppPid()
+    if (listenerPid) await assertOwnedListeners(listenerPid, listenerPid !== child.pid)
     const checks = ['isolated preferences', 'preload', 'loopback CDP']
-    if (await windowsConptyCloseCheck()) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
+    if (await windowsConptyCloseCheck(child.pid)) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
     else {
       const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
       stageAt('release PTY create')
@@ -192,6 +220,7 @@ try {
       checks.push('one native PTY', 'session close')
     }
     assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+    await assertNoStartupCrash()
     console.log(JSON.stringify({ smoke: 'passed', mode, platform: process.platform, arch: process.arch, version: expectedVersion, checks, temporaryRoot: root }))
   } else {
   for (const [locale, theme] of [['it', 'dark'], ['en', 'light']]) {
@@ -235,13 +264,14 @@ try {
   const settingsChecked = await smokeSettings({ evaluate, until, request, root, userData, expectedVersion })
   stageAt('IPC CSP and permissions')
   const security = hasSecuritySmoke(expectedVersion) ? await smokeSecurity({ main, evaluate, request, until, root, userData, sessions }) : null
-  const conptyChecked = await windowsConptyCloseCheck()
+  const conptyChecked = await windowsConptyCloseCheck(child.pid)
   stageAt('session close')
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
   assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+  await assertNoStartupCrash()
   console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
   }
 } catch (error) {

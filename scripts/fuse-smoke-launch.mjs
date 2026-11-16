@@ -26,6 +26,12 @@ export async function prepareIsolatedCase(dir, { startupTrace = false } = {}) {
   return { dir, env, userData: prepared.userData, startupTrace }
 }
 
+export function startupCrashEvents(lines) {
+  return (Array.isArray(lines) ? lines : [])
+    .filter(line => line && (line.event === 'uncaughtException' || line.event === 'unhandledRejection'))
+    .map(line => line.event)
+}
+
 export async function readStartupTrace(dir) {
   try {
     const text = await readFile(path.join(dir, 'startup.jsonl'), 'utf8')

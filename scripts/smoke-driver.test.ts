@@ -11,10 +11,10 @@ import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl,
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
     const root = path.resolve('synthetic-profile')
-    const source = { PATH: '/runtime', HOME: '/private', APPDATA: '/private', USERPROFILE: '/private', OPENAI_API_KEY: 'SYNTHETIC_SECRET', NODE_OPTIONS: '--require private.js', ELECTRON_RUN_AS_NODE: '1', PLANCIA_DEMO: '1', VITE_DEV_SERVER_URL: 'https://untrusted.test/' }
+    const source = { PATH: '/runtime', HOME: '/private', APPDATA: '/private', USERPROFILE: '/private', OPENAI_API_KEY: 'SYNTHETIC_SECRET', NODE_OPTIONS: '--require private.js', ELECTRON_RUN_AS_NODE: '1', PLANCIA_DEMO: '1', VITE_DEV_SERVER_URL: 'https://untrusted.test/', SSH_AUTH_SOCK: '/tmp/agent.sock', AWS_ACCESS_KEY_ID: 'AKIA', AWS_SECRET_ACCESS_KEY: 'secret', PLANCIA_DEVTOOLS: '1', PLANCIA_DIAG_STARTUP: '1', PLANCIA_DIAG_DIR: '/tmp/diag', CUSTOM_KEY: 'value' }
     const env = smokeEnvironment(root, source, platform)
     expect(env.PATH).toBe('/runtime')
-    for (const key of ['OPENAI_API_KEY', 'NODE_OPTIONS', 'ELECTRON_RUN_AS_NODE', 'PLANCIA_DEMO', 'VITE_DEV_SERVER_URL']) expect(env[key]).toBeUndefined()
+    for (const key of ['OPENAI_API_KEY', 'NODE_OPTIONS', 'ELECTRON_RUN_AS_NODE', 'PLANCIA_DEMO', 'VITE_DEV_SERVER_URL', 'SSH_AUTH_SOCK', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'PLANCIA_DEVTOOLS', 'PLANCIA_DIAG_STARTUP', 'PLANCIA_DIAG_DIR', 'CUSTOM_KEY']) expect(env[key]).toBeUndefined()
     for (const key of ['HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME', 'ZDOTDIR']) expect(env[key].startsWith(root + path.sep)).toBe(true)
     expect(JSON.stringify(env)).not.toContain('SYNTHETIC_SECRET')
   })
@@ -27,8 +27,14 @@ describe('native package smoke isolation', () => {
       windir: 'C:\\Windows',
       TEMP: 'C:\\Windows\\Temp',
       TMP: 'C:\\Windows\\Temp',
+      ComSpec: 'C:\\Windows\\System32\\cmd.exe',
+      PATHEXT: '.COM;.EXE',
       HOMEDRIVE: 'C:',
       HOMEPATH: '\\Users\\runner',
+      SSH_AUTH_SOCK: '/tmp/agent.sock',
+      AWS_PROFILE: 'private',
+      PLANCIA_DEVTOOLS: '1',
+      PLANCIA_DIAG_STARTUP: '1',
       USERPROFILE: 'C:\\Users\\runner',
       APPDATA: 'C:\\Users\\runner\\AppData\\Roaming',
       LOCALAPPDATA: 'C:\\Users\\runner\\AppData\\Local',
@@ -42,6 +48,12 @@ describe('native package smoke isolation', () => {
     expect(env.windir).toBe('C:\\Windows')
     expect(env.TEMP).toBe('C:\\Windows\\Temp')
     expect(env.TMP).toBe('C:\\Windows\\Temp')
+    expect(env.ComSpec).toBe('C:\\Windows\\System32\\cmd.exe')
+    expect(env.PATHEXT).toBe('.COM;.EXE')
+    expect(env.SSH_AUTH_SOCK).toBeUndefined()
+    expect(env.AWS_PROFILE).toBeUndefined()
+    expect(env.PLANCIA_DEVTOOLS).toBeUndefined()
+    expect(env.PLANCIA_DIAG_STARTUP).toBeUndefined()
     expect(env.USERPROFILE.endsWith(`${path.sep}home`) || env.USERPROFILE.endsWith('\\home')).toBe(true)
     expect(env.APPDATA.endsWith(`${path.sep}app-data`) || env.APPDATA.endsWith('\\app-data')).toBe(true)
     expect(env.LOCALAPPDATA.endsWith(`${path.sep}local-app-data`) || env.LOCALAPPDATA.endsWith('\\local-app-data')).toBe(true)

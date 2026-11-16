@@ -51,8 +51,9 @@ function canConnect(port, host) {
   })
 }
 
-const DROPPED_ENV = /^(NODE_OPTIONS|ELECTRON_RUN_AS_NODE|PLANCIA_DEMO|MOLO_DEMO|VITE_DEV_SERVER_URL)$/i
-const SECRET_ENV = /(SECRET|TOKEN|PASSWORD|CREDENTIAL|API_KEY)/i
+// Inherited names the packaged process may see. Profile, secrets and diagnostic
+// flags are not in this list: the smoke sets HOME and the Windows profile itself.
+const SMOKE_ENV = /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR|LANG|LC_ALL|DISPLAY|XAUTHORITY|__CF_USER_TEXT_ENCODING)$/i
 
 /** HOMEDRIVE and HOMEPATH for an isolated Windows USERPROFILE, when the path has a drive. */
 export function windowsProfileVars(home) {
@@ -64,8 +65,7 @@ export function windowsProfileVars(home) {
 export function smokeEnvironment(root, source = process.env, platform = process.platform) {
   const env = {}
   for (const [key, value] of Object.entries(source)) {
-    if (typeof value !== 'string' || DROPPED_ENV.test(key) || SECRET_ENV.test(key)) continue
-    env[key] = value
+    if (typeof value === 'string' && SMOKE_ENV.test(key)) env[key] = value
   }
   const home = path.join(root, 'home')
   Object.assign(env, {

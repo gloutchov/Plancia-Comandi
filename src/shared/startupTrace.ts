@@ -12,6 +12,25 @@ export interface StartupTrace {
   reason(): string
 }
 
+export interface StartupProcessTarget {
+  on(event: 'uncaughtException', listener: (error: Error) => void): unknown
+  on(event: 'unhandledRejection', listener: (reason: unknown) => void): unknown
+}
+
+export function installStartupProcessHandlers(
+  env: NodeJS.ProcessEnv,
+  trace: StartupTrace | null,
+  target: StartupProcessTarget,
+): void {
+  if (env.PLANCIA_DIAG_STARTUP !== '1' || !trace) return
+  target.on('uncaughtException', (error) => {
+    trace.event('uncaughtException', { name: error instanceof Error && error.name ? error.name : 'non-error' })
+  })
+  target.on('unhandledRejection', (reason) => {
+    trace.event('unhandledRejection', { name: reason instanceof Error ? reason.name : 'non-error' })
+  })
+}
+
 function detailValue(key: string, value: string | number | boolean | null): string | number | boolean | null | undefined {
   if (typeof value === 'boolean' || value === null) return value
   if (typeof value === 'number' && Number.isFinite(value)) return value
