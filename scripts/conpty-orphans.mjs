@@ -2,8 +2,8 @@ import { execFile } from 'node:child_process'
 
 // cmd echoes the typed line. A marker inside the command is visible before
 // the child exists, so the child is found from the process list instead.
-// -n 90 is longer than the 30s search plus the 15s close wait, so ping is still
-// the same process when the session closes. start /b keeps it in cmd's console.
+// ping -t does not exit by itself. start /b keeps it in cmd's console, so
+// after close that pid and every shell descendant must be gone.
 export function conptyChildCommand() {
   return 'start /b ping.exe -t 127.0.0.1\r'
 }
@@ -168,6 +168,34 @@ export function startupFaultEvents(diagnostics) {
     } catch { /* the line is not a startup trace event */ }
   }
   return events
+}
+
+// +2 covers a console helper Windows may still be reaping. A leaked conout worker adds more.
+export const MAIN_THREAD_TOLERANCE = 2
+
+export function parseThreadCount(text) {
+  const line = String(text).trim().split(/\r?\n/).map((row) => row.trim()).find(Boolean)
+  if (!line || !/^\d+$/.test(line)) return null
+  return Number(line)
+}
+
+export function threadCountWithinTolerance(before, after, tolerance = MAIN_THREAD_TOLERANCE) {
+  return Number.isInteger(before) && Number.isInteger(after) && after <= before + tolerance
+}
+
+export function windowsThreadCount(pid) {
+  const id = Number(pid)
+  return new Promise((resolve, reject) => {
+    execFile('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      `(Get-CimInstance Win32_Process -Filter 'ProcessId=${id}').ThreadCount`,
+    ], { windowsHide: true, timeout: 15000 }, (error, stdout) => {
+      if (error) reject(error)
+      else resolve(String(stdout))
+    })
+  })
 }
 
 export function windowsProcessTable() {

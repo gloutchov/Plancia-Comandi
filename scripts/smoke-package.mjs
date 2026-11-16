@@ -10,8 +10,8 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { assertConptyHostFiles } from './conpty-host-files.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, startupFaultEvents, windowsProcessTable } from './conpty-orphans.mjs'
+import { assertConptyHostFiles, packageSourceDir } from './conpty-host-files.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, parseThreadCount, planciaInstanceReport, startupFaultEvents, threadCountWithinTolerance, windowsProcessTable, windowsThreadCount } from './conpty-orphans.mjs'
 import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
@@ -31,7 +31,7 @@ if (process.platform === 'win32') {
     resources = path.join(path.dirname(extracted.exe), 'resources')
   }
   try {
-    console.log(JSON.stringify({ conptyHost: assertConptyHostFiles(resources, process.cwd()) }))
+    console.log(JSON.stringify({ conptyHost: assertConptyHostFiles(resources, packageSourceDir(import.meta.url)) }))
   } finally {
     if (extracted) await rm(extracted.dir, { recursive: true, force: true })
   }
@@ -151,9 +151,19 @@ async function assertNoStartupCrash() {
   const events = startupCrashEvents(await readStartupTrace(root))
   assert.equal(events.length, 0, `startup.jsonl recorded ${events.join(',')}`)
 }
+async function mainThreadCount(pid) {
+  let text = ''
+  try { text = await windowsThreadCount(pid) } catch (error) {
+    throw new Error(`Main thread count is unavailable: ${String(error.message || error).slice(0, 200)}`)
+  }
+  const count = parseThreadCount(text)
+  if (count == null) throw new Error(`Main thread count is unavailable: ${JSON.stringify(String(text).slice(0, 200))}`)
+  return count
+}
 async function windowsConptyCloseCheck(appPid) {
   if (process.platform !== 'win32') return false
   assert.equal(Number.isInteger(appPid) && appPid > 0, true, 'ConPTY check has no extracted plancia-comandi main pid')
+  const threadsBefore = await mainThreadCount(appPid)
   stageAt('ConPTY child')
   const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke ConPTY', shellId: 'cmd', cwd: root })})`)
   assert.equal(created.ok, true, 'ConPTY session failed to open')
@@ -179,6 +189,10 @@ async function windowsConptyCloseCheck(appPid) {
     return report.clear && descendantPids(rows, shellPid).length === 0 && !rows.some((row) => row.pid === ping.pid)
   }, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
   await evaluate('window.plancia.boot().then(b => Boolean(b.version))')
+  await delay(2500)
+  const threadsAfter = await mainThreadCount(appPid)
+  console.log(JSON.stringify({ conptyThreads: { before: threadsBefore, after: threadsAfter, tolerance: 2 } }))
+  assert.equal(threadCountWithinTolerance(threadsBefore, threadsAfter), true, `Main thread count rose from ${threadsBefore} to ${threadsAfter}`)
   const extra = [...new Set(samples.flatMap(sample => sample.extra))]
   const peak = samples.reduce((max, sample) => Math.max(max, sample.count), 0)
   console.log(JSON.stringify({ conptyPlancia: { ownPid: appPid, peak, extra } }))
@@ -201,6 +215,7 @@ async function waitForConptyChild(id, shellPid, command) {
   console.error(failureDetail)
   throw new Error(`ConPTY child did not appear within 30s: ${failureDetail}`)
 }
+let smokeError = null
 try {
   if (mode === 'full') {
     main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root, inspectorPort })
@@ -313,11 +328,11 @@ try {
   console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
   }
 } catch (error) {
+  smokeError = error
   // Only bounded protocol metadata: never expressions, payloads, settings,
   // terminal output, environment, paths, exception messages or native logs.
   await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify(smokeFailureMetadata(stage, requests, { exitCode, exitSignal, output: `${diagnostics}\n${failureDetail}` }), null, 2))
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
-  throw error
 } finally {
   main?.close()
   if (socket?.readyState === WebSocket.OPEN) {
@@ -330,6 +345,11 @@ try {
     const deadline = Date.now() + 8000
     while (!exited && Date.now() < deadline) await delay(100)
   }
-  if (!exited) throw new Error('Packaged app did not exit within 8000ms')
+  if (!exited) {
+    const detail = 'Packaged app did not exit within 8000ms'
+    if (smokeError) smokeError.exitDetail = detail
+    else smokeError = new Error(detail)
+  }
   console.log(`Smoke-test files retained at ${root}`)
 }
+if (smokeError) throw smokeError

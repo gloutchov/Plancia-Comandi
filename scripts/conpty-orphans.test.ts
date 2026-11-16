@@ -7,8 +7,10 @@ import {
   packagedListenerPid,
   packagedListenerPids,
   parseProcessTable,
+  parseThreadCount,
   planciaInstanceReport,
   startupFaultEvents,
+  threadCountWithinTolerance,
 } from './conpty-orphans.mjs'
 
 describe('ConPTY close on the Windows package', () => {
@@ -65,6 +67,13 @@ describe('ConPTY close on the Windows package', () => {
     expect(mainRejectedFuseClose('preload ready')).toBe(false)
     expect(mainRejectedFuseClose('UnhandledPromiseRejectionWarning: fork failed')).toBe(true)
     expect(mainRejectedFuseClose('The fuse runAsNode is disabled')).toBe(true)
+  })
+
+  it('reads a Windows thread count and allows only a small rise', () => {
+    expect(parseThreadCount('  14\r\n')).toBe(14)
+    expect(parseThreadCount('unavailable')).toBeNull()
+    expect(threadCountWithinTolerance(10, 12)).toBe(true)
+    expect(threadCountWithinTolerance(10, 13)).toBe(false)
   })
 
   it('prints the cleaned startup fault when the fork check matches', () => {

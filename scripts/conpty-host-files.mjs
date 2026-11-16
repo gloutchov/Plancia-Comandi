@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 export const CONPTY_HOST_FILES = [
   'node_modules/node-pty/prebuilds/win32-x64/conpty/conpty.dll',
@@ -17,6 +18,32 @@ export function packagedConptyFile(resourcesDir, relative) {
 
 export function sourceConptyFile(sourceRoot, relative) {
   return path.join(sourceRoot, ...relative.split('/'))
+}
+
+function prebuildsDir(sourceRoot) {
+  return path.join(sourceRoot, 'node_modules', 'node-pty', 'prebuilds')
+}
+
+/**
+ * Checkout that contains node_modules. CI runs this script from tooling/scripts
+ * with the app checkout at ../../app. A local run from scripts/ uses the parent.
+ * PLANCIA_SOURCE_DIR overrides both. The working directory is not used.
+ */
+export function packageSourceDir(scriptUrl, env = process.env, exists = existsSync) {
+  if (typeof env.PLANCIA_SOURCE_DIR === 'string' && env.PLANCIA_SOURCE_DIR.trim()) {
+    const dir = path.resolve(env.PLANCIA_SOURCE_DIR)
+    if (!exists(prebuildsDir(dir))) throw new Error(`PLANCIA_SOURCE_DIR has no node_modules/node-pty/prebuilds: ${dir}`)
+    return dir
+  }
+  const scriptDir = path.dirname(fileURLToPath(scriptUrl))
+  const candidates = [
+    path.resolve(scriptDir, '..'),
+    path.resolve(scriptDir, '..', '..', 'app'),
+  ]
+  for (const dir of candidates) {
+    if (exists(prebuildsDir(dir))) return dir
+  }
+  throw new Error(`node_modules/node-pty/prebuilds was not found. Set PLANCIA_SOURCE_DIR to the app checkout. Looked in ${candidates.join(', ')}`)
 }
 
 /** Presence and SHA-256 of the unpacked ConPTY host files, compared with the checkout prebuild. */
