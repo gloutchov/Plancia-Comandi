@@ -137,6 +137,19 @@ export function mainRejectedFuseClose(diagnostics) {
   return /UnhandledPromiseRejection|unhandledRejection|runAsNode is disabled|Cannot fork/i.test(String(diagnostics))
 }
 
+export function startupFaultEvents(diagnostics) {
+  const events = []
+  for (const line of String(diagnostics).split(/\r?\n/)) {
+    const start = line.indexOf('{')
+    if (start < 0) continue
+    try {
+      const event = JSON.parse(line.slice(start))
+      if (event?.event === 'uncaughtException' || event?.event === 'unhandledRejection') events.push(event)
+    } catch { /* the line is not a startup trace event */ }
+  }
+  return events
+}
+
 export function windowsProcessTable() {
   return new Promise((resolve, reject) => {
     execFile('powershell.exe', [

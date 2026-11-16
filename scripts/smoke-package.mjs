@@ -10,7 +10,7 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, windowsProcessTable } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, startupFaultEvents, windowsProcessTable } from './conpty-orphans.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
@@ -128,6 +128,10 @@ async function portableProcessRows() {
   if (!portableWrapper()) return []
   try { return parseProcessTable(await windowsProcessTable()) } catch { return [] }
 }
+function assertNoForkRejection(message) {
+  if (mainRejectedFuseClose(diagnostics)) console.log(JSON.stringify({ startupFaults: startupFaultEvents(diagnostics) }))
+  assert.equal(mainRejectedFuseClose(diagnostics), false, message)
+}
 async function assertNoStartupCrash() {
   const events = startupCrashEvents(await readStartupTrace(root))
   assert.equal(events.length, 0, `startup.jsonl recorded ${events.join(',')}`)
@@ -162,7 +166,7 @@ async function windowsConptyCloseCheck(appPid) {
   const peak = samples.reduce((max, sample) => Math.max(max, sample.count), 0)
   console.log(JSON.stringify({ conptyPlancia: { ownPid: appPid, peak, extra } }))
   assert.equal(extra.length, 0, `node-pty fork started another plancia-comandi instance: ${extra.join(',')}`)
-  assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection while closing ConPTY')
+  assertNoForkRejection('Main process reported a fork or unhandled rejection while closing ConPTY')
   await assertNoStartupCrash()
   return true
 }
@@ -233,7 +237,7 @@ try {
       await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
       checks.push('one native PTY', 'session close')
     }
-    assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+    assertNoForkRejection('Main process reported a fork or unhandled rejection')
     await assertNoStartupCrash()
     console.log(JSON.stringify({ smoke: 'passed', mode, platform: process.platform, arch: process.arch, version: expectedVersion, checks, temporaryRoot: root }))
   } else {
@@ -287,7 +291,7 @@ try {
   sessions.length = 0
   await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
-  assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection')
+  assertNoForkRejection('Main process reported a fork or unhandled rejection')
   await assertNoStartupCrash()
   console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
   }

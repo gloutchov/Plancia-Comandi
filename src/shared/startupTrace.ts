@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 const MAX_BYTES = 16_384
@@ -23,12 +24,72 @@ export function installStartupProcessHandlers(
   target: StartupProcessTarget,
 ): void {
   if (env.PLANCIA_DIAG_STARTUP !== '1' || !trace) return
+  const homes = diagnosticHomes(env)
   target.on('uncaughtException', (error) => {
-    trace.event('uncaughtException', { name: error instanceof Error && error.name ? error.name : 'non-error' })
+    trace.event('uncaughtException', startupProcessDetail(error, homes))
   })
   target.on('unhandledRejection', (reason) => {
-    trace.event('unhandledRejection', { name: reason instanceof Error ? reason.name : 'non-error' })
+    trace.event('unhandledRejection', startupProcessDetail(reason, homes))
   })
+}
+
+export function diagnosticHomes(env: NodeJS.ProcessEnv = process.env): string[] {
+  const found = [env.HOME, env.USERPROFILE, os.homedir()]
+  return found.filter((value): value is string => typeof value === 'string' && value.length > 1)
+}
+
+export function scrubDiagnosticText(text: string, homes: readonly string[] = diagnosticHomes()): string {
+  let value = String(text)
+  const variants = homes.flatMap(homeVariants).sort((a, b) => b.length - a.length)
+  for (const home of variants) value = replaceAllInsensitive(value, home, '<home>')
+  value = value.replace(/\\\\[^\s"'<>|]+/g, '<path>')
+  value = value.replace(/[A-Za-z]:[\\/][^\s"'<>|]+/g, '<path>')
+  value = value.replace(/\/(?:[\w.@+-]+\/)*[\w.@+-]+/g, '<path>')
+  return value.slice(0, 200)
+}
+
+export function startupProcessDetail(
+  reason: unknown,
+  homes: readonly string[] = diagnosticHomes(),
+): Record<string, string | number | boolean | null> {
+  if (!(reason instanceof Error)) {
+    const detail: Record<string, string | number | boolean | null> = { name: 'non-error' }
+    if (typeof reason === 'string' && reason) detail.message = scrubDiagnosticText(reason, homes)
+    return detail
+  }
+  const detail: Record<string, string | number | boolean | null> = { name: reason.name || 'Error' }
+  const errno = reason as NodeJS.ErrnoException
+  if (typeof errno.code === 'string') detail.code = errno.code
+  if (typeof errno.syscall === 'string') detail.syscall = errno.syscall
+  if (reason.message) detail.message = scrubDiagnosticText(reason.message, homes)
+  const frames = reducedStack(reason.stack)
+  if (frames) detail.stack = frames
+  return detail
+}
+
+function homeVariants(home: string): string[] {
+  const trimmed = home.replace(/[\\/]+$/, '')
+  if (trimmed.length < 2) return []
+  return [...new Set([trimmed, trimmed.replaceAll('\\', '/'), trimmed.replaceAll('/', '\\')])]
+}
+
+function replaceAllInsensitive(text: string, needle: string, replacement: string): string {
+  const pattern = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return text.replace(new RegExp(pattern, 'gi'), replacement)
+}
+
+function reducedStack(stack: string | undefined): string | null {
+  if (!stack) return null
+  const frames: string[] = []
+  for (const line of stack.split('\n')) {
+    const match = /^\s*at (?:async )?(?:(.+?) )?\(?(.+):(\d+):\d+\)?\s*$/.exec(line)
+    if (!match) continue
+    const fn = (match[1] || 'anonymous').trim()
+    const file = match[2].split(/[/\\]/).pop() || 'unknown'
+    frames.push(`${fn} ${file}:${match[3]}`)
+    if (frames.length === 8) break
+  }
+  return frames.length ? frames.join(' | ') : null
 }
 
 function detailValue(key: string, value: string | number | boolean | null): string | number | boolean | null | undefined {

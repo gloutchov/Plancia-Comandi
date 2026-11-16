@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createStartupTrace, installStartupProcessHandlers, startupFailureDetail, startupLine } from './startupTrace'
+import { createStartupTrace, installStartupProcessHandlers, scrubDiagnosticText, startupFailureDetail, startupLine, startupProcessDetail } from './startupTrace'
 
 describe('startup trace', () => {
   it('keeps allowlisted facts and drops free text', () => {
@@ -73,6 +73,39 @@ describe('startup trace', () => {
     expect(lines.map((line) => JSON.parse(line).event)).toEqual(['uncaughtException', 'unhandledRejection'])
     expect(JSON.parse(lines[0]).name).toBe('Error')
     expect(JSON.parse(lines[1]).name).toBe('non-error')
+  })
+
+  it('scrubs absolute paths from process-handler diagnostics on Windows and POSIX', () => {
+    const windows = startupProcessDetail(Object.assign(new Error('spawn C:\\Users\\runneradmin\\AppData\\Local\\plancia.exe from D:\\a\\_temp\\agent.js ENOENT'), {
+      code: 'ENOENT',
+      syscall: 'spawn',
+      stack: [
+        'Error: spawn C:\\Users\\runneradmin\\AppData\\Local\\plancia.exe ENOENT',
+        '    at WindowsPtyAgent.kill (C:\\Users\\runneradmin\\app\\windowsPtyAgent.js:147:10)',
+        '    at SessionManager.close (D:\\a\\_temp\\sessions.js:285:7)',
+      ].join('\n'),
+    }), ['C:\\Users\\runneradmin'])
+    const windowsLine = startupLine('unhandledRejection', windows)
+    expect(windowsLine).not.toMatch(/[A-Za-z]:[\\/]/)
+    expect(windowsLine).toContain('<home>')
+    expect(windowsLine).toContain('<path>')
+    expect(windowsLine).toContain('ENOENT')
+    expect(windowsLine).toContain('spawn')
+    expect(windowsLine).toContain('WindowsPtyAgent.kill windowsPtyAgent.js:147')
+    expect(windowsLine).toContain('SessionManager.close sessions.js:285')
+    expect(typeof windows.message).toBe('string')
+    expect(String(windows.message).length).toBeLessThanOrEqual(200)
+
+    const posix = startupProcessDetail(Object.assign(new Error('open /home/ubuntu/src/app.js and /tmp/plancia/secret'), {
+      stack: '    at close (/home/ubuntu/app/sessions.js:10:4)',
+    }), ['/home/ubuntu'])
+    const posixLine = startupLine('uncaughtException', posix)
+    expect(posixLine).not.toContain('/home/ubuntu')
+    expect(posixLine).not.toContain('/tmp/plancia')
+    expect(posixLine).toContain('<home>')
+    expect(posixLine).toContain('<path>')
+    expect(posixLine).toContain('close sessions.js:10')
+    expect(scrubDiagnosticText('x'.repeat(400), [])).toHaveLength(200)
 
     const main = readFileSync(new URL('../../electron/main.ts', import.meta.url), 'utf8')
     const branch = main.slice(main.indexOf('if (startupTrace) {'), main.indexOf('function quitFor'))

@@ -8,6 +8,7 @@ import {
   packagedListenerPids,
   parseProcessTable,
   planciaInstanceReport,
+  startupFaultEvents,
 } from './conpty-orphans.mjs'
 
 describe('ConPTY close on the Windows package', () => {
@@ -64,5 +65,11 @@ describe('ConPTY close on the Windows package', () => {
     expect(mainRejectedFuseClose('preload ready')).toBe(false)
     expect(mainRejectedFuseClose('UnhandledPromiseRejectionWarning: fork failed')).toBe(true)
     expect(mainRejectedFuseClose('The fuse runAsNode is disabled')).toBe(true)
+  })
+
+  it('prints the cleaned startup fault when the fork check matches', () => {
+    const line = JSON.stringify({ event: 'unhandledRejection', name: 'Error', message: 'spawn <home> ENOENT', code: 'ENOENT' })
+    expect(startupFaultEvents(`ready\n${line}\n`)).toEqual([JSON.parse(line)])
+    expect(startupFaultEvents('Cannot fork')).toEqual([])
   })
 })
