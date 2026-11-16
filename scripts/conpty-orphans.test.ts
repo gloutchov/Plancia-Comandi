@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   conptyChildCommand,
   conptyCloseReport,
+  descendantNamed,
   mainRejectedFuseClose,
   parseProcessTable,
 } from './conpty-orphans.mjs'
@@ -9,10 +10,14 @@ import {
 describe('ConPTY close on the Windows package', () => {
   it('starts a long-running child and records its pid', () => {
     const command = conptyChildCommand()
-    expect(command).toContain('ping.exe')
-    expect(command).toContain('PLANCIA_CHILD_OK')
-    expect(command).toContain('conpty-child.txt')
-    expect(command.endsWith('\r')).toBe(true)
+    expect(command).toBe('start /b ping.exe -n 60 127.0.0.1\r')
+    expect(command).not.toContain('PLANCIA_CHILD_OK')
+  })
+
+  it('finds a ping descendant of the shell', () => {
+    const rows = parseProcessTable('10 1 cmd.exe\n21 10 ping.exe\n30 1 other.exe\n')
+    expect(descendantNamed(rows, 10, /ping/i)).toEqual({ pid: 21, ppid: 10, name: 'ping.exe' })
+    expect(descendantNamed(rows, 99, /ping/i)).toBeNull()
   })
 
   it('treats a closed shell and its child as clear, and an orphan as not', () => {

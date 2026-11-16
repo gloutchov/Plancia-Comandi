@@ -10,7 +10,7 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { conptyChildCommand, conptyChildFile, conptyCloseReport, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
@@ -45,10 +45,13 @@ const child = spawn(executable, launchArgs, {
   cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false,
 })
 let exited = false
+let exitCode = null
+let exitSignal = null
 let launchError
 let diagnostics = ''
+let failureDetail = ''
 child.once('error', (error) => { launchError = error })
-child.once('exit', () => { exited = true })
+child.once('exit', (code, signal) => { exited = true; exitCode = code; exitSignal = signal })
 for (const stream of [child.stdout, child.stderr]) stream.on('data', (chunk) => {
   diagnostics = (diagnostics + chunk.toString()).slice(-16000)
 })
@@ -64,7 +67,7 @@ async function until(task, message, milliseconds = 30000) {
   const deadline = Date.now() + milliseconds
   do {
     if (launchError) throw launchError
-    if (exited) throw new Error('Packaged app exited before the smoke test completed')
+    if (exited) throw new Error(`Packaged app exited before the smoke test completed (code ${exitCode}, signal ${exitSignal}): ${diagnostics.slice(-500)}`)
     const value = await task()
     if (value) return value
     await delay(200)
@@ -97,9 +100,9 @@ async function windowsConptyCloseCheck() {
   const shellPid = created.session.pid
   assert.equal(Number.isInteger(shellPid) && shellPid > 0, true, 'ConPTY shell pid missing')
   sessions.push(id)
-  await evaluate(`window.plancia.write(${JSON.stringify(id)}, ${JSON.stringify(conptyChildCommand())})`)
-  await until(() => evaluate(`window.plancia.subscribe(${JSON.stringify(id)}).then(s => s.data.includes('PLANCIA_CHILD_OK'))`), 'ConPTY child did not start')
-  const childPid = Number((await readFile(path.join(root, conptyChildFile), 'utf8')).trim())
+  const command = conptyChildCommand()
+  await evaluate(`window.plancia.write(${JSON.stringify(id)}, ${JSON.stringify(command)})`)
+  const childPid = await waitForConptyChild(id, shellPid, command)
   assert.equal(Number.isInteger(childPid) && childPid > 0, true, 'ConPTY child pid missing')
   stageAt('ConPTY close')
   await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`)
@@ -109,6 +112,20 @@ async function windowsConptyCloseCheck() {
   await until(async () => conptyCloseReport(parseProcessTable(await windowsProcessTable()), shellPid, childPid).clear, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
   assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection while closing ConPTY')
   return true
+}
+async function waitForConptyChild(id, shellPid, command) {
+  const deadline = Date.now() + 30000
+  let processes = ''
+  while (Date.now() < deadline) {
+    processes = await windowsProcessTable()
+    const child = descendantNamed(parseProcessTable(processes), shellPid, /ping/i)
+    if (child) return child.pid
+    await delay(200)
+  }
+  const terminal = await evaluate(`window.plancia.subscribe(${JSON.stringify(id)}).then(s => s.data)`).catch(() => '')
+  failureDetail = JSON.stringify(conptyTimeoutDetail({ command, terminal, processes }))
+  console.error(failureDetail)
+  throw new Error('ConPTY child did not appear')
 }
 try {
   if (mode === 'full') {
@@ -214,7 +231,7 @@ try {
 } catch (error) {
   // Only bounded protocol metadata: never expressions, payloads, settings,
   // terminal output, environment, paths, exception messages or native logs.
-  await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify(smokeFailureMetadata(stage, requests), null, 2))
+  await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify(smokeFailureMetadata(stage, requests, { exitCode, exitSignal, output: `${diagnostics}\n${failureDetail}` }), null, 2))
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
   throw error
 } finally {

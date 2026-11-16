@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { copyFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, lstat, mkdir, mkdtemp, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { FuseState, FuseV1Options, FuseVersion, flipFuses } from '@electron/fuses'
@@ -7,8 +7,11 @@ import { describe, expect, it } from 'vitest'
 import {
   assertManifestBinds,
   assertOnlyFuseWireDiffers,
+  appBundlePath,
   assertReleaseFuses,
+  assertTwinStillOpen,
   assetDigestMatches,
+  copyOpenFuseTwin,
   decidedFuseStates,
   manifestLine,
   readFuseStates,
@@ -35,6 +38,32 @@ describe('release fuse configuration', () => {
     expect(config[FuseV1Options.GrantFileProtocolExtraPrivileges]).toBe(true)
     expect(config[FuseV1Options.WasmTrapHandlers]).toBe(true)
     expect(Object.keys(decidedFuseStates())).toHaveLength(9)
+  })
+
+  it.skipIf(process.platform === 'win32')('keeps a relative framework symlink inside the twin', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-twin-link-'))
+    const src = path.join(root, 'src')
+    await mkdir(path.join(src, 'Versions', 'A'), { recursive: true })
+    await writeFile(path.join(src, 'Versions', 'A', 'bin'), 'x')
+    await symlink('A', path.join(src, 'Versions', 'Current'))
+    try {
+      const twin = await copyOpenFuseTwin(src)
+      const target = await readlink(path.join(twin, 'Versions', 'Current'))
+      expect(target).toBe('A')
+      expect((await lstat(path.join(twin, 'Versions', 'Current'))).isSymbolicLink()).toBe(true)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it('recognises an open twin and a macOS bundle path', () => {
+    const open = decidedFuseStates()
+    open[FuseV1Options.RunAsNode] = FuseState.ENABLE
+    open[FuseV1Options.EnableNodeCliInspectArguments] = FuseState.ENABLE
+    expect(() => assertTwinStillOpen(open)).not.toThrow()
+    expect(() => assertTwinStillOpen(decidedFuseStates())).toThrow(/runAsNode/)
+    const bundle = ['', 'tmp', 'Plancia Comandi.app', 'Contents', 'MacOS', 'plancia-comandi'].join(path.sep)
+    expect(appBundlePath(bundle)).toBe(['', 'tmp', 'Plancia Comandi.app'].join(path.sep))
   })
 
   it('points electron-builder at the afterPack hook instead of the eight-fuse schema', () => {

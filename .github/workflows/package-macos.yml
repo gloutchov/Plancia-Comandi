@@ -72,6 +72,11 @@ jobs:
           node tooling/scripts/mac-unpacked-paths.mjs app/release/mac-arm64 > "$RUNNER_TEMP/mac-layout.json"
       - name: Resolve the open-fuse twin
         run: node tooling/scripts/mac-unpacked-paths.mjs app/release/mac-arm64-open-fuses > "$RUNNER_TEMP/mac-open-fuses.json"
+      - name: Check bundle signatures and that the twin fuses stay open
+        run: |
+          release=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-layout.json")
+          open=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-open-fuses.json")
+          node tooling/scripts/check-mac-bundles.mjs "$release" "$open"
       - name: Smoke the open-fuse twin with the full harness
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
@@ -125,6 +130,8 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-smoke-diagnostics-${{ inputs.source_sha }}
-          path: ${{ runner.temp }}/plancia-package-smoke-*/smoke-failure.json
+          path: |
+            ${{ runner.temp }}/plancia-package-smoke-*/smoke-failure.json
+            ${{ runner.temp }}/plancia-package-smoke-*/runtime-diagnostics.log
           if-no-files-found: ignore
           retention-days: 7

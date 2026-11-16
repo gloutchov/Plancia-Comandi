@@ -1,5 +1,6 @@
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cp, readFile } from 'node:fs/promises'
+import { cp, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { FuseState, FuseV1Options, FuseVersion, flipFuses, getCurrentFuseWire } from '@electron/fuses'
 
@@ -48,10 +49,45 @@ export function fuseTarget(appOutDir, platform, entries) {
   return path.join(appOutDir, `${executableName}${suffix}`)
 }
 
+function runTool(command, args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+    let output = ''
+    child.stdout.on('data', (chunk) => { output += chunk })
+    child.stderr.on('data', (chunk) => { output += chunk })
+    child.once('error', reject)
+    child.once('exit', (code) => {
+      if (code === 0) resolve(output)
+      else reject(new Error(`${command} exited ${code}: ${output.slice(-800)}`))
+    })
+  })
+}
+
+// Node's fs.cp rewrites a relative symlink to an absolute path in the source.
+// The twin would then load the release framework after the fuse flip.
 export async function copyOpenFuseTwin(appOutDir) {
   const twin = twinDirectory(appOutDir)
-  await cp(appOutDir, twin, { recursive: true, errorOnExist: true, force: false })
+  if (process.platform === 'darwin') {
+    await runTool('ditto', [appOutDir, twin])
+    const apps = (await readdir(twin)).filter(name => name.endsWith('.app'))
+    if (apps.length !== 1) throw new Error('Expected one macOS app in the open-fuse twin')
+    await runTool('codesign', ['--force', '--deep', '--sign', '-', path.join(twin, apps[0])])
+  } else {
+    await cp(appOutDir, twin, { recursive: true, verbatimSymlinks: true, dereference: false, errorOnExist: true, force: false })
+  }
   return twin
+}
+
+export function assertTwinStillOpen(states) {
+  if (states[FuseV1Options.RunAsNode] !== FuseState.ENABLE) throw new Error('Open-fuse twin has runAsNode disabled')
+  if (states[FuseV1Options.EnableNodeCliInspectArguments] !== FuseState.ENABLE) throw new Error('Open-fuse twin has nodeCliInspect disabled')
+}
+
+export function appBundlePath(executable) {
+  const parts = String(executable).split(path.sep)
+  const index = parts.findLastIndex(part => part.endsWith('.app'))
+  if (index < 0) return null
+  return parts.slice(0, index + 1).join(path.sep)
 }
 
 export async function applyReleaseFuses(target) {
