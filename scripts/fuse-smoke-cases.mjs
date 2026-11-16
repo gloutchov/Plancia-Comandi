@@ -15,7 +15,7 @@ export const NODE_OPTIONS_IGNORED = 'NODE_OPTIONS ignored due to disabled nodeOp
 
 export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '' }) {
   const ignored = String(output).includes(NODE_OPTIONS_IGNORED)
-  if (shouldApply) return headerSize === NODE_OPTIONS_HEADER_SIZE && !ignored ? 'applied' : null
+  if (shouldApply) return headerSize === NODE_OPTIONS_HEADER_SIZE && !ignored ? `applied:${headerSize}` : null
   return ignored && headerSize == null ? 'ignored' : null
 }
 

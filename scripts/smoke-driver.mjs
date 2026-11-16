@@ -146,14 +146,18 @@ export async function connectProtocol(url, onEvent = () => {}) {
 }
 
 /** Launchers such as NSIS need not forward the inner process's stderr. */
+export function nodeInspectorWebSocket(entries, port) {
+  if (!Array.isArray(entries)) return null
+  const url = entries.find(entry => entry && entry.type === 'node' && typeof entry.webSocketDebuggerUrl === 'string')?.webSocketDebuggerUrl
+  return typeof url === 'string' && url.startsWith(`ws://127.0.0.1:${port}/`) ? url : null
+}
+
 export async function mainInspectorUrl(port) {
   assert(Number.isInteger(port) && port > 0 && port < 65536, 'Invalid loopback inspector port')
   try {
     const response = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1000) })
     const entries = await response.json()
-    if (!Array.isArray(entries)) return null
-    const url = entries.find(entry => entry.type === 'node')?.webSocketDebuggerUrl
-    return typeof url === 'string' && url.startsWith(`ws://127.0.0.1:${port}/`) ? url : null
+    return nodeInspectorWebSocket(entries, port)
   } catch { return null }
 }
 

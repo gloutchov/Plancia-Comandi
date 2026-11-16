@@ -15,7 +15,7 @@ describe('fuse smoke case outcomes', () => {
   })
 
   it('requires the kept NODE_OPTIONS header size on the twin and the ignore log on the release', () => {
-    expect(nodeOptionsOutcome({ shouldApply: true, headerSize: NODE_OPTIONS_HEADER_SIZE, output: '' })).toBe('applied')
+    expect(nodeOptionsOutcome({ shouldApply: true, headerSize: NODE_OPTIONS_HEADER_SIZE, output: '' })).toBe(`applied:${NODE_OPTIONS_HEADER_SIZE}`)
     expect(nodeOptionsOutcome({ shouldApply: true, headerSize: 16384, output: '' })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: true, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: `warn ${NODE_OPTIONS_IGNORED}` })).toBe('ignored')

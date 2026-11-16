@@ -6,7 +6,7 @@ import net from 'node:net'
 import os from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it } from 'vitest'
-import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl, parseListenAddresses, parseNetstatListeners, smokeEnvironment, windowsProfileVars } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl, nodeInspectorWebSocket, parseListenAddresses, parseNetstatListeners, smokeEnvironment, windowsProfileVars } from './smoke-driver.mjs'
 
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
@@ -52,6 +52,18 @@ describe('native package smoke isolation', () => {
     expect(env.ELECTRON_RUN_AS_NODE).toBeUndefined()
     expect(windowsProfileVars('D:\\a\\_temp\\plancia\\home')).toEqual({ HOMEDRIVE: 'D:', HOMEPATH: '\\a\\_temp\\plancia\\home' })
   })
+})
+
+it('uses one node inspector websocket on the requested loopback port', () => {
+  const port = 49284
+  const node = `ws://127.0.0.1:${port}/8164f734-b88a-4505-a77c-d9d0ae7cfe11`
+  const entries = [
+    { type: 'page', webSocketDebuggerUrl: `ws://127.0.0.1:${port}/page` },
+    { type: 'node', webSocketDebuggerUrl: node },
+    { type: 'node', webSocketDebuggerUrl: `ws://127.0.0.1:${port}/child` },
+  ]
+  expect(nodeInspectorWebSocket(entries, port)).toBe(node)
+  expect(nodeInspectorWebSocket([{ type: 'node', webSocketDebuggerUrl: 'ws://0.0.0.0:1/x' }], port)).toBeNull()
 })
 
 it('reads the Windows netstat row owned by one process', () => {

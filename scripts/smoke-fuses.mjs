@@ -13,7 +13,7 @@ import {
   readFuseStates,
 } from './electron-fuses.mjs'
 import { NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
-import { connectProtocol } from './smoke-driver.mjs'
+import { connectProtocol, mainInspectorUrl } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
   collectDiagnosticTails,
@@ -153,17 +153,19 @@ async function expectInspector(executable, profile, prefix, shouldListen) {
 }
 
 // Packaged Electron keeps only --http-parser and --max-http-header-size.
-// The twin must show that header size through its CLI inspector. The release
-// fuse clears NODE_OPTIONS, which Electron logs when logging is enabled.
-async function headerSizeFromInspector(output, port) {
-  const match = String(output).match(/Debugger listening on (ws:\/\/127\.0\.0\.1:\d+\/\S+)/)
-  const url = match?.[1]
-  if (!url?.startsWith(`ws://127.0.0.1:${port}/`)) return null
+// One inspector connection reads the header size, then the socket is closed
+// and the process is stopped. --inspect stays on the parent command line.
+const NODE_OPTIONS_READ_MS = 8000
+
+async function readHeaderSizeAt(url) {
   const driver = await connectProtocol(url)
   try {
     await driver.request('Runtime.enable')
     const value = await driver.evaluate("require('node:http').maxHeaderSize", false)
-    return typeof value === 'number' ? value : null
+    if (typeof value !== 'number') return { headerSize: null, error: 'non-number' }
+    return { headerSize: value, error: null }
+  } catch (error) {
+    return { headerSize: null, error: String(error.message || error).slice(0, 300) }
   } finally {
     driver.close()
   }
@@ -178,20 +180,34 @@ async function expectNodeOptions(executable, profile, shouldApply) {
     ELECTRON_ENABLE_LOGGING: '1',
   })
   let headerSize = null
-  const deadline = Date.now() + 8000
-  while (Date.now() < deadline) {
-    if (!await stillRunning(handle) && !shouldApply) break
-    if (shouldApply && !headerSize) {
-      try { headerSize = await headerSizeFromInspector(handle.state.output, port) } catch { headerSize = null }
-      if (headerSize) break
+  let readError = null
+  const deadline = Date.now() + NODE_OPTIONS_READ_MS
+  try {
+    if (shouldApply) {
+      let url = null
+      while (!url && Date.now() < deadline && await stillRunning(handle)) {
+        url = await mainInspectorUrl(port)
+        if (!url) await delay(100)
+      }
+      if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS twin exited before the inspector listed a node target', handle)
+      if (!url) throw earlyExit(`NODE_OPTIONS inspector did not list a node target on 127.0.0.1:${port} within ${NODE_OPTIONS_READ_MS}ms`, handle)
+      const read = await readHeaderSizeAt(url)
+      headerSize = read.headerSize
+      readError = read.error
+    } else {
+      while (Date.now() < deadline && await stillRunning(handle) && !String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) await delay(100)
+      if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS release exited', handle)
     }
-    if (!shouldApply && String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) break
-    await delay(200)
+  } finally {
+    await stop(handle)
   }
-  if (shouldApply && !await stillRunning(handle)) throw earlyExit('NODE_OPTIONS twin exited before the header size could be read', handle)
-  if (!shouldApply && !await stillRunning(handle)) throw earlyExit('NODE_OPTIONS release exited', handle)
   const outcome = nodeOptionsOutcome({ shouldApply, headerSize: shouldApply ? headerSize : null, output: handle.state.output })
-  if (!outcome) throw earlyExit(`NODE_OPTIONS ${shouldApply ? 'was not applied on the open-fuse twin' : 'was not ignored on the release binary'}`, handle)
+  if (!outcome) {
+    const detail = shouldApply
+      ? `header size ${headerSize ?? 'missing'}${readError ? ` (${readError})` : ''} on 127.0.0.1:${port} was not ${NODE_OPTIONS_HEADER_SIZE} within ${NODE_OPTIONS_READ_MS}ms`
+      : `was not ignored within ${NODE_OPTIONS_READ_MS}ms`
+    throw earlyExit(`NODE_OPTIONS ${detail}`, handle)
+  }
   return outcome
 }
 
