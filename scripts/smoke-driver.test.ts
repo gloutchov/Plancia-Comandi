@@ -6,7 +6,7 @@ import net from 'node:net'
 import os from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it } from 'vitest'
-import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl, parseListenAddresses, smokeEnvironment, windowsProfileVars } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl, parseListenAddresses, parseNetstatListeners, smokeEnvironment, windowsProfileVars } from './smoke-driver.mjs'
 
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
@@ -52,6 +52,16 @@ describe('native package smoke isolation', () => {
     expect(env.ELECTRON_RUN_AS_NODE).toBeUndefined()
     expect(windowsProfileVars('D:\\a\\_temp\\plancia\\home')).toEqual({ HOMEDRIVE: 'D:', HOMEPATH: '\\a\\_temp\\plancia\\home' })
   })
+})
+
+it('reads the Windows netstat row owned by one process', () => {
+  const text = [
+    '  TCP    0.0.0.0:135    0.0.0.0:0    LISTENING    4',
+    '  TCP    127.0.0.1:9222    0.0.0.0:0    LISTENING    4242',
+    '  TCP    [::1]:9222    [::]:0    LISTENING    4242',
+  ].join('\n')
+  expect(parseNetstatListeners(text, 4242)).toEqual(['127.0.0.1', '::1'])
+  expect(parseNetstatListeners(text, 4)).toEqual(['0.0.0.0'])
 })
 
 it('reads loopback and wildcard listen addresses', () => {

@@ -19,7 +19,9 @@ import {
   decidedFuseStates,
   fileImportHref,
   fileImportHrefWin32,
+  hasFuseSentinel,
   loadFuses,
+  portableFuseDecision,
   prepareOpenFuseTwin,
   resolveAppPackageJson,
   manifestLine,
@@ -192,6 +194,23 @@ describe('release fuse configuration', () => {
       await rm(root, { recursive: true, force: true })
     }
   }, 60000)
+
+  it('refuses a portable wrapper that has no Electron fuse sentinel', () => {
+    const wrapper = Buffer.from('MZ-not-an-electron-binary')
+    expect(hasFuseSentinel(wrapper)).toBe(false)
+    expect(hasFuseSentinel(readFileSync(electronBinary))).toBe(true)
+    expect(() => portableFuseDecision({
+      baseName: 'PlanciaComandi-win-0.3.8-x64-portable.exe',
+      hasSentinel: false,
+      nestedSentinel: false,
+    })).toThrow(/no Electron fuse sentinel/)
+    expect(portableFuseDecision({
+      baseName: 'PlanciaComandi-win-0.3.8-x64-portable.exe',
+      hasSentinel: false,
+      nestedSentinel: true,
+    })).toBe('extracted')
+    expect(portableFuseDecision({ baseName: 'plancia-comandi.exe', hasSentinel: true })).toBe('direct')
+  })
 
   it('binds a tested file hash to the manifest and to an asset digest', async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-sha-'))

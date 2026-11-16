@@ -273,6 +273,21 @@ export async function prepareOpenFuseTwin(finalDir) {
   return twin
 }
 
+export function hasFuseSentinel(buffer) {
+  const bytes = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer)
+  return bytes.includes(sentinel)
+}
+
+/** Direct read for an Electron exe. A portable 7z wrapper must use the nested exe. */
+export function portableFuseDecision({ baseName, hasSentinel, nestedSentinel = false }) {
+  if (hasSentinel) return 'direct'
+  if (/-portable\.exe$/i.test(baseName)) {
+    if (nestedSentinel) return 'extracted'
+    throw new Error('Portable wrapper has no Electron fuse sentinel and the nested executable was not found')
+  }
+  throw new Error('Electron fuse sentinel was not found')
+}
+
 export function fuseStateSpans(buffer) {
   const spans = []
   let from = 0

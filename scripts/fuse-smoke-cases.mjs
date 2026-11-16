@@ -7,6 +7,18 @@ export function runAsNodeOutcome({ shouldRun, written, alive }) {
   return alive ? 'blocked' : null
 }
 
+// Packaged Electron keeps only --http-parser and --max-http-header-size in
+// NODE_OPTIONS. --inspect and --require are removed even when the fuse is on.
+export const NODE_OPTIONS_PROBE = '--max-http-header-size=8192'
+export const NODE_OPTIONS_HEADER_SIZE = 8192
+export const NODE_OPTIONS_IGNORED = 'NODE_OPTIONS ignored due to disabled nodeOptions fuse.'
+
+export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '' }) {
+  const ignored = String(output).includes(NODE_OPTIONS_IGNORED)
+  if (shouldApply) return headerSize === NODE_OPTIONS_HEADER_SIZE && !ignored ? 'applied' : null
+  return ignored && headerSize == null ? 'ignored' : null
+}
+
 export function processExitDetail(state, outputLimit = 2000) {
   const output = String(state?.output || '')
   return {

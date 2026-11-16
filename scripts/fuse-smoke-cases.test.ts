@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
@@ -12,6 +12,15 @@ describe('fuse smoke case outcomes', () => {
     expect(runAsNodeOutcome({ shouldRun: true, written: true, alive: false })).toBe('ran')
     expect(runAsNodeOutcome({ shouldRun: true, written: false, alive: true })).toBeNull()
     expect(runAsNodeOutcome({ shouldRun: false, written: true, alive: true })).toBeNull()
+  })
+
+  it('requires the kept NODE_OPTIONS header size on the twin and the ignore log on the release', () => {
+    expect(nodeOptionsOutcome({ shouldApply: true, headerSize: NODE_OPTIONS_HEADER_SIZE, output: '' })).toBe('applied')
+    expect(nodeOptionsOutcome({ shouldApply: true, headerSize: 16384, output: '' })).toBeNull()
+    expect(nodeOptionsOutcome({ shouldApply: true, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
+    expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: `warn ${NODE_OPTIONS_IGNORED}` })).toBe('ignored')
+    expect(nodeOptionsOutcome({ shouldApply: false, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
+    expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: 'closed' })).toBeNull()
   })
 
   it('keeps the exit code, signal and output of a process that quit', () => {

@@ -17,6 +17,17 @@ export function parseListenAddresses(text) {
   return found
 }
 
+/** netstat -ano rows for one pid. Get-NetTCPConnection can return no text without elevation. */
+export function parseNetstatListeners(text, pid) {
+  const found = []
+  for (const raw of String(text).split(/\r?\n/)) {
+    const match = raw.trim().match(/^TCP\s+(\*|0\.0\.0\.0|\[::\]|\[::1\]|::|\d+\.\d+\.\d+\.\d+|\[[0-9a-f:]+\]):\d+\s+\S+\s+LISTENING\s+(\d+)\s*$/i)
+    if (!match || Number(match[2]) !== pid) continue
+    found.push(match[1].replace(/^\[|\]$/g, ''))
+  }
+  return found
+}
+
 export function listenAddressEscapesLoopback(address) {
   return address === '*' || address === '0.0.0.0' || address === '::'
 }

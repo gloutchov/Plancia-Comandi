@@ -7,7 +7,7 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 import { smokeSettings } from './smoke-settings.mjs'
-import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
@@ -86,7 +86,7 @@ async function evaluate(expression) {
 function ownedListenText(pid) {
   if (!pid) return Promise.resolve('')
   const command = process.platform === 'win32'
-    ? ['powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `Get-NetTCPConnection -OwningProcess ${pid} -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $_.LocalAddress }`]]
+    ? ['netstat', ['-ano', '-p', 'tcp']]
     : ['lsof', ['-nP', '-p', String(pid), '-a', '-iTCP', '-sTCP:LISTEN']]
   return new Promise((resolve) => {
     execFile(command[0], command[1], { timeout: 8000, windowsHide: true }, (error, stdout, stderr) => {
@@ -97,11 +97,11 @@ function ownedListenText(pid) {
 }
 async function assertOwnedListeners(pid) {
   const text = await ownedListenText(pid)
-  if (!text.trim()) {
+  const addresses = process.platform === 'win32' ? parseNetstatListeners(text, pid) : parseListenAddresses(text)
+  if (!text.trim() || addresses.length === 0) {
     console.log(JSON.stringify({ listeners: 'unavailable' }))
     return
   }
-  const addresses = parseListenAddresses(text)
   console.log(JSON.stringify({ listeners: addresses }))
   assert.equal(addresses.some(listenAddressEscapesLoopback), false, 'A debug listener is not limited to loopback')
 }

@@ -15,6 +15,7 @@ import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
+import { packagedPtyNodeCandidates } from '../src/shared/ptyProbe'
 import { createStartupTrace, startupFailureDetail, type StartupTrace } from '../src/shared/startupTrace'
 import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
@@ -345,12 +346,11 @@ function traceStartupFiles(): void {
   startupStep = 'files'
   const html = path.join(RENDERER_DIST, 'index.html')
   const config = resolveAppConfigFile(APP_ROOT, process.resourcesPath)
-  const pty = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'node-pty', 'build', 'Release', 'pty.node')
   startupTrace.event('files', {
     preload: fs.existsSync(preloadPath()),
     html: fs.existsSync(html),
     config: fs.existsSync(config),
-    pty: fs.existsSync(pty),
+    pty: packagedPtyNodeCandidates(process.resourcesPath).some((file) => fs.existsSync(file)),
   })
 }
 

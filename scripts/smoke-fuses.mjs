@@ -12,7 +12,8 @@ import {
   pathToFuseFile,
   readFuseStates,
 } from './electron-fuses.mjs'
-import { processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { connectProtocol } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
   collectDiagnosticTails,
@@ -151,22 +152,47 @@ async function expectInspector(executable, profile, prefix, shouldListen) {
   return shouldListen ? 'listening' : 'closed'
 }
 
-// Packaged Electron 45.3.2 drops --inspect from NODE_OPTIONS even when the
-// nodeOptions fuse is on. shell/common/node_bindings.cc keeps only
-// --http-parser and --max-http-header-size. Both binaries must stay closed.
-async function expectNodeOptions(executable, profile) {
+// Packaged Electron keeps only --http-parser and --max-http-header-size.
+// The twin must show that header size through its CLI inspector. The release
+// fuse clears NODE_OPTIONS, which Electron logs when logging is enabled.
+async function headerSizeFromInspector(output, port) {
+  const match = String(output).match(/Debugger listening on (ws:\/\/127\.0\.0\.1:\d+\/\S+)/)
+  const url = match?.[1]
+  if (!url?.startsWith(`ws://127.0.0.1:${port}/`)) return null
+  const driver = await connectProtocol(url)
+  try {
+    await driver.request('Runtime.enable')
+    const value = await driver.evaluate("require('node:http').maxHeaderSize", false)
+    return typeof value === 'number' ? value : null
+  } finally {
+    driver.close()
+  }
+}
+
+async function expectNodeOptions(executable, profile, shouldApply) {
   const port = await freePort()
-  const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile, { NODE_OPTIONS: `--inspect=127.0.0.1:${port}` })
-  await delay(800)
-  if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS process exited before the port check', handle)
-  let seen = false
+  const args = [`--user-data-dir=${profile.userData}`]
+  if (shouldApply) args.push(`--inspect=127.0.0.1:${port}`)
+  const handle = start(executable, launchArgs(profile, args), profile, {
+    NODE_OPTIONS: NODE_OPTIONS_PROBE,
+    ELECTRON_ENABLE_LOGGING: '1',
+  })
+  let headerSize = null
   const deadline = Date.now() + 8000
-  while (await stillRunning(handle) && Date.now() < deadline) {
-    if (await portOpen(port)) { seen = true; break }
+  while (Date.now() < deadline) {
+    if (!await stillRunning(handle) && !shouldApply) break
+    if (shouldApply && !headerSize) {
+      try { headerSize = await headerSizeFromInspector(handle.state.output, port) } catch { headerSize = null }
+      if (headerSize) break
+    }
+    if (!shouldApply && String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) break
     await delay(200)
   }
-  assert.equal(seen, false, `NODE_OPTIONS --inspect opened a port in a packaged app ${JSON.stringify(processExitDetail(handle.state))}`)
-  return 'closed'
+  if (shouldApply && !await stillRunning(handle)) throw earlyExit('NODE_OPTIONS twin exited before the header size could be read', handle)
+  if (!shouldApply && !await stillRunning(handle)) throw earlyExit('NODE_OPTIONS release exited', handle)
+  const outcome = nodeOptionsOutcome({ shouldApply, headerSize: shouldApply ? headerSize : null, output: handle.state.output })
+  if (!outcome) throw earlyExit(`NODE_OPTIONS ${shouldApply ? 'was not applied on the open-fuse twin' : 'was not ignored on the release binary'}`, handle)
+  return outcome
 }
 
 async function expectRunAsNode(executable, profile, shouldRun) {
@@ -220,7 +246,7 @@ await runCase('release-startup', releaseExecutable, 'release', async () => expec
 for (const [executable, open] of [[releaseExecutable, false], [openExecutable, true]]) {
   const role = open ? 'twin' : 'release'
   await runCase('ELECTRON_RUN_AS_NODE', executable, role, async () => expectRunAsNode(executable, await prepareIsolatedCase(caseDir()), open))
-  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareIsolatedCase(caseDir())))
+  await runCase('NODE_OPTIONS', executable, role, async () => expectNodeOptions(executable, await prepareIsolatedCase(caseDir()), open))
   await runCase('--inspect', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir()), '--inspect', open))
   await runCase('--inspect-brk', executable, role, async () => expectInspector(executable, await prepareIsolatedCase(caseDir()), '--inspect-brk', open))
   await runCase('SIGUSR1', executable, role, async () => expectSignal(executable, await prepareIsolatedCase(caseDir()), open))

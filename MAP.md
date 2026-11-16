@@ -84,6 +84,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  Dizionari IT/EN e testi delle scorciatoie
 |       |-- paths.ts                 Abbreviazione visiva dei percorsi
 |       |-- appConfig.ts             Validazione della configurazione centrale
+|       |-- ptyProbe.ts              Percorsi di pty.node, prebuild compresa
 |       |-- startupTrace.ts          Traccia opt-in: percorsi e, se fallisce, nome messaggio stack
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
@@ -158,7 +159,8 @@ Plancia-Comandi/
 |   |-- fuse-smoke-launch.mjs        Stesso profilo di smoke-package, chiusura e coda dei log
 |   |-- check-mac-bundles.mjs        Firma ad hoc e fuse di default del gemello, prima dello smoke
 |   |-- prepare-open-fuse-twin.mjs   Gemello ricavato dal binario finale, fuse riportati ai default
-|   |-- assert-release-fuses.mjs     Lettura dei fuse sul portable, sull'installato e sui formati macOS
+|   |-- assert-release-fuses.mjs     Fuse sull'exe: diretto se ha il sentinel, altrimenti exe estratto dal portable
+|   |-- windows-package-exe.mjs      Estrae plancia-comandi.exe dal wrapper 7z del portable
 |   |-- conpty-orphans.mjs           Chiusura ConPTY con figlio e controllo degli orfani
 |   |-- conpty-orphans.test.ts       Tabella dei processi e rifiuto non gestito
 |   |-- verify-sha256-manifest.mjs   Il manifest nomina i file appena misurati
@@ -329,6 +331,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  IT/EN dictionaries and shortcut labels
 |       |-- paths.ts                 Visual path shortening
 |       |-- appConfig.ts             Central-configuration validation
+|       |-- ptyProbe.ts              pty.node paths, including the prebuild
 |       |-- startupTrace.ts          Opt-in trace: paths and, on failure, name message stack
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
@@ -403,7 +406,8 @@ Plancia-Comandi/
 |   |-- fuse-smoke-launch.mjs        Same profile as smoke-package, tree stop and log tail
 |   |-- check-mac-bundles.mjs        Ad-hoc signature and default twin fuses, before smoke
 |   |-- prepare-open-fuse-twin.mjs   Twin taken from the finished binary, fuses reset to defaults
-|   |-- assert-release-fuses.mjs     Fuse read on portable, installed and macOS formats
+|   |-- assert-release-fuses.mjs     Fuses on the exe: direct when it has the sentinel, otherwise the exe extracted from portable
+|   |-- windows-package-exe.mjs      Extracts plancia-comandi.exe from the portable 7z wrapper
 |   |-- conpty-orphans.mjs           ConPTY close with a child and the orphan check
 |   |-- conpty-orphans.test.ts       Process table and unhandled rejection
 |   |-- verify-sha256-manifest.mjs   The manifest names the files just hashed
