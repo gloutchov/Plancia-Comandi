@@ -27,7 +27,7 @@ function run(command, args) {
 async function inspectAndSmoke(directory, format) {
   const app = discoverMacApp(directory)
   await run(process.execPath, [path.join(scripts, 'inspect-package.mjs'), app.resources, source, version])
-  await run(process.execPath, [path.join(scripts, 'smoke-package.mjs'), app.executable, version])
+  await run(process.execPath, [path.join(scripts, 'smoke-package.mjs'), app.executable, version, 'release'])
   console.log(JSON.stringify({ format, version, inspectionAndSmoke: 'passed' }))
 }
 let mounted = false

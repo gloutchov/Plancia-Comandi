@@ -146,7 +146,12 @@ Plancia-Comandi/
 |   |-- smoke-security.mjs           IPC reale, permessi e CSP sul pacchetto
 |   |-- smoke-macos-formats.mjs      ZIP in percorso con tilde, DMG readonly, ispezione e smoke
 |   |-- smoke-settings.mjs           Smoke M8: guasto salvataggio, avvisi IT/EN e recupero
-|   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto
+|   |-- electron-fuses.mjs           Valori dei nove fuse, gemello aperto e catena SHA-256
+|   |-- electron-fuses.test.ts       Flip su una copia di Electron e legame del manifest
+|   |-- after-pack-fuses.mjs         Copia il gemello e accende i fuse nel pacchetto
+|   |-- smoke-fuses.mjs              Lettura dei fuse e prove negative sul binario di release
+|   |-- verify-sha256-manifest.mjs   Il manifest nomina i file appena misurati
+|   `-- smoke-package.mjs            Smoke nativo isolato di un pacchetto, full o release
 |-- build/
 |   |-- icon.png                     Icona Linux e della finestra, PNG 1024
 |   |-- icon.ico                     Icona Windows, 16, 24, 32, 48, 64, 128 e 256
@@ -191,7 +196,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
 
-Lo smoke imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
+Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
 ### 3. Comandi e verifiche
 
@@ -208,7 +213,7 @@ Lo smoke imposta HOME, appData, userData e sessionData prima del main mediante d
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundle e pacchetto della piattaforma indicata. |
 
-Non esistono script npm lint, typecheck separato o e2e. `scripts/package-macos.mjs` descrive DMG e ZIP ARM64 non firmati. `scripts/package-windows.mjs` passa a electron-builder le opzioni Windows senza una shell. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano Electron e non verificano pacchetti, shell o un canale IPC reale. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1, la scelta di saltare la ricompilazione su Windows, le opzioni di packaging Windows e quelle macOS ARM64.
+Non esistono script npm lint, typecheck separato o e2e. `scripts/package-macos.mjs` descrive DMG e ZIP ARM64 non firmati. `scripts/package-windows.mjs` passa a electron-builder le opzioni Windows senza una shell. `scripts/inspect-package.mjs` confronta i bundle distribuiti con il checkout compilato; `scripts/smoke-package.mjs` verifica il pacchetto sul sistema nativo con dati temporanei e Node.js 24. I test presenti non avviano l'app pacchettizzata e non verificano shell o un canale IPC reale. `electron-fuses.test.ts` copia il binario Electron installato, ne cambia solo il fuse wire e non lo esegue. Coprono la logica pura di stati, viste, quotatura, trascinamento, navigazione, configurazione centrale, file immagine, stringhe CSP, il cancello degli IPC precedenti a M1, la scelta di saltare la ricompilazione su Windows, le opzioni di packaging Windows e quelle macOS ARM64.
 
 La suite M7 avvia worker Node reali con dati sintetici e verifica scadenze, errori, cancellazione e code limitate. `smoke-custom-patterns.mjs`, chiamato dallo smoke nativo per versioni da 0.3.5, verifica app/bridge reattivi durante il caso patologico, fallback, avvisi IT/EN nei due temi e recupero. Le revisioni precedenti non ricevono la fixture patologica perché prive della protezione.
 
@@ -375,7 +380,12 @@ Plancia-Comandi/
 |   |-- smoke-security.mjs           Live IPC, permissions and CSP in packages
 |   |-- smoke-macos-formats.mjs      ZIP in a tilde path, read-only DMG, inspection and smoke
 |   |-- smoke-settings.mjs           M8 smoke: save failure, IT/EN warnings and recovery
-|   `-- smoke-package.mjs            Isolated native package smoke test
+|   |-- electron-fuses.mjs           Nine fuse values, open twin and SHA-256 chain
+|   |-- electron-fuses.test.ts       Flip on an Electron copy and manifest binding
+|   |-- after-pack-fuses.mjs         Copies the twin and flips fuses in the package
+|   |-- smoke-fuses.mjs              Fuse read and negative tests on the release binary
+|   |-- verify-sha256-manifest.mjs   The manifest names the files just hashed
+|   `-- smoke-package.mjs            Isolated native package smoke, full or release
 |-- build/
 |   |-- icon.png                     Linux and window icon, 1024 PNG
 |   |-- icon.ico                     Windows icon, 16, 24, 32, 48, 64, 128 and 256
@@ -420,7 +430,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
 
-Smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
+`full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.7`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
 ### 3. Commands and checks
 
@@ -437,7 +447,7 @@ Smoke sets HOME, appData, userData and sessionData before main through a loopbac
 | `npm run dist` | Bundles and package for the current OS. |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Bundles and package for the selected platform. |
 
-There are no npm lint, separate typecheck or e2e scripts. `scripts/package-macos.mjs` describes the unsigned ARM64 DMG and ZIP. `scripts/package-windows.mjs` passes the Windows options to electron-builder without a shell. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch Electron or verify real packages, shells or a live IPC channel. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1, the choice to skip the Windows rebuild, the Windows packaging options and the macOS ARM64 options.
+There are no npm lint, separate typecheck or e2e scripts. `scripts/package-macos.mjs` describes the unsigned ARM64 DMG and ZIP. `scripts/package-windows.mjs` passes the Windows options to electron-builder without a shell. `scripts/inspect-package.mjs` compares distributed bundles with the built checkout; `scripts/smoke-package.mjs` checks a package on its native OS with temporary data and Node.js 24. Existing tests do not launch the packaged app or verify shells or a live IPC channel. `electron-fuses.test.ts` copies the installed Electron binary, changes only its fuse wire and does not run it. They cover the pure logic of status, views, quoting, drag-and-drop, navigation, central configuration, image files, CSP strings, the gate for IPC that predates M1, the choice to skip the Windows rebuild, the Windows packaging options and the macOS ARM64 options.
 
 The M7 suite launches real Node workers with synthetic data and checks deadlines, errors, cancellation and bounded queues. `smoke-custom-patterns.mjs`, called by native smoke for versions from 0.3.5, checks app/bridge responsiveness during the pathological case, fallback, IT/EN warnings in both themes and recovery. Earlier revisions are not given the pathological fixture because they lack the protection.
 

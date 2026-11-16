@@ -1,6 +1,27 @@
 import assert from 'node:assert/strict'
+import net from 'node:net'
+import os from 'node:os'
 import path from 'node:path'
 import { restoreSmokeWorkerStartup } from './smoke-worker.mjs'
+
+export async function assertLoopbackListener(port) {
+  assert.equal(await canConnect(port, '127.0.0.1'), true, 'Debugging did not accept 127.0.0.1')
+  const other = Object.values(os.networkInterfaces()).flat().find(entry => entry && entry.family === 'IPv4' && !entry.internal)
+  if (!other) return { nonLoopback: 'absent' }
+  assert.equal(await canConnect(port, other.address), false, 'Debugging accepted a non-loopback address')
+  return { nonLoopback: other.address, refused: true }
+}
+
+function canConnect(port, host) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ port, host })
+    const done = (value) => { socket.removeAllListeners(); socket.destroy(); resolve(value) }
+    socket.setTimeout(500)
+    socket.once('connect', () => done(true))
+    socket.once('timeout', () => done(false))
+    socket.once('error', () => done(false))
+  })
+}
 
 export function smokeEnvironment(root, source = process.env, platform = process.platform) {
   const env = Object.fromEntries(Object.entries(source).filter(([key]) =>

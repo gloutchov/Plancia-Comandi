@@ -7,14 +7,16 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 import { smokeSettings } from './smoke-settings.mjs'
-import { smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
+import { assertLoopbackListener, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
-assert(process.argv[2] && expectedVersion, 'Usage: node scripts/smoke-package.mjs <executable> <version>')
+const mode = process.argv[4] ?? 'full'
+assert(process.argv[2] && expectedVersion, 'Usage: node scripts/smoke-package.mjs <executable> <version> [full|release]')
+assert(['full', 'release'].includes(mode), 'Smoke mode must be full or release')
 assert(['darwin', 'win32'].includes(process.platform), 'Run on macOS or Windows')
 await access(executable)
 const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-package-smoke-'))
@@ -36,7 +38,9 @@ assert.notEqual(port, inspectorPort)
 await new Promise((resolve) => server.close(resolve))
 await new Promise((resolve) => mainServer.close(resolve))
 const env = smokeEnvironment(root)
-const child = spawn(executable, [`--inspect-brk=127.0.0.1:${inspectorPort}`, `--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1'], {
+const launchArgs = [`--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1']
+if (mode === 'full') launchArgs.unshift(`--inspect-brk=127.0.0.1:${inspectorPort}`)
+const child = spawn(executable, launchArgs, {
   cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false,
 })
 let exited = false
@@ -84,10 +88,12 @@ async function evaluate(expression) {
   return result.result?.value
 }
 try {
-  main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root, inspectorPort })
-  stageAt('isolated before main')
-  if (hasSecuritySmoke(expectedVersion)) await installSecurityProbes(main, root)
-  await main.resume()
+  if (mode === 'full') {
+    main = await isolateBeforeMain({ diagnostics: () => diagnostics, until, root, inspectorPort })
+    stageAt('isolated before main')
+    if (hasSecuritySmoke(expectedVersion)) await installSecurityProbes(main, root)
+    await main.resume()
+  }
   const page = await until(async () => {
     try {
       const response = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1000) })
@@ -111,6 +117,22 @@ try {
   assert.equal(boot.demo, false)
   assert.equal(boot.cwd, root, 'Refusing to test with non-isolated preferences')
   assert.equal(boot.count, 0)
+  if (mode === 'release') {
+    assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
+    stageAt('loopback debugging port')
+    await assertLoopbackListener(port)
+    const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
+    stageAt('release PTY create')
+    const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke release', shellId, cwd: root })})`)
+    assert.equal(created.ok, true, 'Native PTY session failed to open')
+    sessions.push(created.session.id)
+    stageAt('release session close')
+    await evaluate(`window.plancia.closeSession(${JSON.stringify(created.session.id)})`)
+    sessions.length = 0
+    await until(() => evaluate('window.plancia.boot().then(b => b.sessions.length === 0)'), 'PTY sessions did not close')
+    console.log(JSON.stringify({ smoke: 'passed', mode, platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['isolated preferences', 'preload', 'loopback CDP', 'one native PTY', 'session close'], temporaryRoot: root }))
+    return
+  }
   for (const [locale, theme] of [['it', 'dark'], ['en', 'light']]) {
     stageAt(`preferences ${locale}/${theme} update`)
     await evaluate(`window.plancia.updateSettings(${JSON.stringify({ locale, theme })})`)

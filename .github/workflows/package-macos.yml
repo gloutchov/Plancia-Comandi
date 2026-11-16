@@ -70,12 +70,25 @@ jobs:
             exit 1
           fi
           node tooling/scripts/mac-unpacked-paths.mjs app/release/mac-arm64 > "$RUNNER_TEMP/mac-layout.json"
+      - name: Resolve the open-fuse twin
+        run: node tooling/scripts/mac-unpacked-paths.mjs app/release/mac-arm64-open-fuses > "$RUNNER_TEMP/mac-open-fuses.json"
+      - name: Smoke the open-fuse twin with the full harness
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          executable=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-open-fuses.json")
+          node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION" full
+      - name: Read release fuses and reject Node switches
+        run: |
+          release=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-layout.json")
+          open=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-open-fuses.json")
+          node tooling/scripts/smoke-fuses.mjs "$release" "$open"
       - name: Smoke unpacked macOS application
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: |
           executable=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-layout.json")
-          node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION"
+          node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION" release
       - name: Inspect package contents
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
@@ -97,6 +110,7 @@ jobs:
             exit 1
           fi
           shasum -a 256 "${dmg[0]}" "${zip[0]}" | awk '{print $1 "  " $2}' | sort -k 2 > SHA256SUMS-macOS.txt
+          node ../../tooling/scripts/verify-sha256-manifest.mjs SHA256SUMS-macOS.txt .
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-arm64-${{ inputs.source_sha }}

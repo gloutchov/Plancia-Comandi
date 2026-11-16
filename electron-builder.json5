@@ -3,6 +3,9 @@
   appId: "it.plancia.comandi",
   productName: "Plancia Comandi",
   executableName: "plancia-comandi",
+  // electron-builder 26.18.0's electronFuses key cannot declare the ninth fuse
+  // or strictlyRequireAllFuses. scripts/after-pack-fuses.mjs is the flip.
+  afterPack: "scripts/after-pack-fuses.mjs",
   asar: true,
   asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
   // Windows uses the N-API prebuilds in node-pty. Rebuilding here would call
