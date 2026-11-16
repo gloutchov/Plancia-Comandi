@@ -15,6 +15,7 @@ import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
+import { createStartupTrace, type StartupTrace } from '../src/shared/startupTrace'
 import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
 
@@ -41,6 +42,27 @@ function envText(name: string, legacy: string): string | undefined {
 }
 
 const demoMode = () => envFlag('PLANCIA_DEMO', 'MOLO_DEMO')
+const startupTrace: StartupTrace | null = process.env.PLANCIA_DIAG_STARTUP === '1'
+  ? createStartupTrace(process.env.PLANCIA_DIAG_DIR)
+  : null
+if (startupTrace) {
+  const appExit = app.exit.bind(app)
+  app.exit = ((code?: number) => {
+    startupTrace.event('app.exit', { reason: startupTrace.reason(), code: typeof code === 'number' ? code : null, ready: app.isReady() })
+    return appExit(code)
+  }) as typeof app.exit
+  const processExit = process.exit.bind(process)
+  process.exit = ((code?: number) => {
+    startupTrace.event('process.exit', { reason: startupTrace.reason(), code: typeof code === 'number' ? code : null, ready: app.isReady() })
+    return processExit(code)
+  }) as typeof process.exit
+}
+
+function quitFor(reason: string): void {
+  startupTrace?.setQuitReason(reason)
+  startupTrace?.event('app.quit', { reason, ready: app.isReady() })
+  app.quit()
+}
 
 let win: BrowserWindow | null = null
 let manager: SessionManager | null = null
@@ -246,7 +268,7 @@ async function captureShots(window: BrowserWindow, dir: string): Promise<void> {
   )
   await delay(600)
   fs.writeFileSync(path.join(dir, 'plancia-settings.png'), (await window.capturePage()).toPNG())
-  if (envFlag('PLANCIA_SHOT_EXIT', 'MOLO_SHOT_EXIT')) app.quit()
+  if (envFlag('PLANCIA_SHOT_EXIT', 'MOLO_SHOT_EXIT')) quitFor('shot-exit')
 }
 
 function delay(ms: number): Promise<void> {
@@ -278,6 +300,10 @@ function createWindow(): void {
 
   win.webContents.on('preload-error', (_event, _preload, error) => {
     reportDiagnostic('preload-failed', error)
+    startupTrace?.event('preload-error', { code: error instanceof Error && 'code' in error && typeof error.code === 'string' ? error.code : 'UNKNOWN' })
+  })
+  win.webContents.on('render-process-gone', (_event, details) => {
+    startupTrace?.event('render-process-gone', { reason: details.reason, exitCode: details.exitCode })
   })
   guardNavigation(win)
   win.once('ready-to-show', () => win?.show())
@@ -294,7 +320,32 @@ function createWindow(): void {
   if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })
 }
 
+function traceStartupFiles(): void {
+  if (!startupTrace) return
+  const html = path.join(RENDERER_DIST, 'index.html')
+  const config = resolveAppConfigFile(APP_ROOT, process.resourcesPath)
+  const pty = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'node-pty', 'build', 'Release', 'pty.node')
+  startupTrace.event('paths', {
+    userData: app.getPath('userData'),
+    home: app.getPath('home'),
+    appData: app.getPath('appData'),
+    homeEnv: process.env.HOME ?? '',
+    appDataEnv: process.env.APPDATA ?? '',
+    localAppData: process.env.LOCALAPPDATA ?? '',
+    appPath: app.getAppPath(),
+    dirname: __dirname,
+    resourcesPath: process.resourcesPath,
+  })
+  startupTrace.event('files', {
+    preload: fs.existsSync(preloadPath()),
+    html: fs.existsSync(html),
+    config: fs.existsSync(config),
+    pty: fs.existsSync(pty),
+  })
+}
+
 function start(): void {
+  traceStartupFiles()
   const home = app.getPath('home')
   appConfig = loadAppConfig(resolveAppConfigFile(APP_ROOT, process.resourcesPath))
   configureDiagnostics(app.getPath('userData'), appConfig.diagnostics.maxBytes)
@@ -333,8 +384,9 @@ app.setName(APP_TITLE)
 if (process.platform === 'win32') app.setAppUserModelId('it.plancia.comandi')
 
 const gotLock = app.requestSingleInstanceLock()
+startupTrace?.event('single-instance-lock', { acquired: gotLock, ready: app.isReady() })
 if (!gotLock) {
-  app.quit()
+  quitFor('single-instance-lock')
 } else {
   app.on('second-instance', () => {
     const current = currentWindow()
@@ -348,7 +400,17 @@ if (!gotLock) {
   })
 
   app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+    startupTrace?.event('window-all-closed', { platform: process.platform, windows: BrowserWindow.getAllWindows().length })
+    if (process.platform !== 'darwin') quitFor('window-all-closed')
+  })
+  app.on('child-process-gone', (_event, details) => {
+    startupTrace?.event('child-process-gone', { type: details.type, reason: details.reason, exitCode: details.exitCode })
+  })
+  process.on('uncaughtException', (error) => {
+    startupTrace?.event('uncaughtException', { name: error.name })
+  })
+  process.on('unhandledRejection', (reason) => {
+    startupTrace?.event('unhandledRejection', { name: reason instanceof Error ? reason.name : 'non-error' })
   })
 
   app.on('activate', () => {
@@ -361,6 +423,6 @@ if (!gotLock) {
 
   app.whenReady().then(start).catch((error) => {
     reportDiagnostic('startup-failed', error)
-    app.quit()
+    quitFor('startup-failed')
   })
 }

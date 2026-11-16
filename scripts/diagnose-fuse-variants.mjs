@@ -18,6 +18,8 @@ import {
   collectDiagnosticTails,
   launchArgs,
   prepareIsolatedCase,
+  readStartupTrace,
+  reapAppImages,
   spawnTracked,
   stillRunning,
   stopTracked,
@@ -38,8 +40,9 @@ const variants = [
 ]
 
 async function cleanLaunch(executable) {
+  const reap = await reapAppImages()
   const dir = await mkdtemp(path.join(os.tmpdir(), 'plancia-fuse-variant-'))
-  const profile = await prepareIsolatedCase(dir, { logging: true })
+  const profile = await prepareIsolatedCase(dir, { logging: true, startupTrace: true })
   const started = Date.now()
   const handle = spawnTracked(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile)
   const deadline = Date.now() + STARTUP_HOLD_MS
@@ -48,11 +51,12 @@ async function cleanLaunch(executable) {
   try { alive = await stillRunning(handle) } catch { alive = false }
   const detail = processExitDetail(handle.state)
   const logs = await collectDiagnosticTails([profile.userData, profile.dir]).catch(() => [])
+  const startup = await readStartupTrace(profile.dir)
   try { await stopTracked(handle) } catch (error) {
     detail.stopError = String(error.message || error).slice(0, 300)
   }
   await rm(dir, { recursive: true, force: true })
-  return { outcome: alive ? 'alive' : 'exited', durationMs: Date.now() - started, ...detail, logs }
+  return { outcome: alive ? 'alive' : 'exited', durationMs: Date.now() - started, reap, ...detail, startup, logs }
 }
 
 function runTool(command, args, timeoutMs) {
@@ -97,7 +101,7 @@ async function findInstalledExe(root) {
       return exe
     } catch { /* a helper exe without the archive */ }
   }
-  return found[0] ?? null
+  return null
 }
 
 async function packagedExecutable(role, archive) {
@@ -117,11 +121,35 @@ async function packagedExecutable(role, archive) {
       const installed = await mkdtemp(path.join(os.tmpdir(), 'plancia-installed-'))
       const setup = await runTool(archive, ['/S', `/D=${installed}`], 180000)
       const installedExe = await findInstalledExe(installed)
+      if (installedExe) {
+        const report = { role, source: 'nsis', ...(await readExecutableIntegrity(installedExe)) }
+        await rm(installed, { recursive: true, force: true }).catch(() => {})
+        return report
+      }
       await rm(installed, { recursive: true, force: true }).catch(() => {})
-      if (installedExe) return { role, source: 'nsis', ...(await readExecutableIntegrity(installedExe)) }
       notes.push(`nsis:${setup.code ?? 'error'}`)
     }
-    return { role, source: 'file', notes, ...(await readExecutableIntegrity(archive)) }
+    if (zip) {
+      const nested = []
+      async function walkArchives(dir, depth) {
+        if (depth > 3 || nested.length > 4) return
+        let entries = []
+        try { entries = await readdir(dir, { withFileTypes: true }) } catch { return }
+        for (const entry of entries) {
+          const full = path.join(dir, entry.name)
+          if (entry.isDirectory()) await walkArchives(full, depth + 1)
+          else if (entry.name.toLowerCase().endsWith('.7z')) nested.push(full)
+        }
+      }
+      await walkArchives(extracted, 0)
+      for (const archiveFile of nested) {
+        const dest = `${archiveFile}-unpacked`
+        await runTool(zip, ['x', archiveFile, `-o${dest}`, '-y'], 120000)
+      }
+      const nestedExe = await findInstalledExe(extracted)
+      if (nestedExe) return { role, source: '7z-nested', ...(await readExecutableIntegrity(nestedExe)) }
+    }
+    return { role, source: 'not-found', notes, present: false }
   } catch (error) {
     return { role, present: false, notes, error: String(error.message || error).slice(0, 300) }
   } finally {

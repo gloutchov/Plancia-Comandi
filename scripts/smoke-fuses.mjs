@@ -18,6 +18,8 @@ import {
   collectDiagnosticTails,
   launchArgs,
   prepareIsolatedCase,
+  readStartupTrace,
+  reapAppImages,
   spawnTracked,
   stillRunning,
   stopTracked,
@@ -78,6 +80,7 @@ function earlyExit(message, handle) {
 async function recordFailure(name, binary, error, handle) {
   const detail = handle ? processExitDetail(handle.state) : processExitDetail(null)
   const logs = handle?.profile ? await collectDiagnosticTails([handle.profile.userData, handle.profile.dir]) : []
+  const startup = handle?.profile ? await readStartupTrace(handle.profile.dir) : []
   await writeFile(path.join(root, 'smoke-failure.json'), JSON.stringify({
     case: name,
     binary,
@@ -86,6 +89,7 @@ async function recordFailure(name, binary, error, handle) {
     exitSignal: detail.signal,
     spawnError: detail.spawnError,
     outputTail: detail.outputTail || String(error.message || '').slice(-2000),
+    startup,
     logs,
   }, null, 2))
   console.log(JSON.stringify({ case: name, binary, outcome: 'failed', durationMs: error.durationMs, exitCode: detail.exitCode, signal: detail.signal }))
@@ -94,6 +98,8 @@ async function recordFailure(name, binary, error, handle) {
 async function runCase(name, executable, role, fn) {
   const started = Date.now()
   const binary = `${role}:${path.basename(executable)}`
+  const reap = await reapAppImages()
+  if (reap.before.length) console.log(JSON.stringify({ case: name, binary, reap }))
   let outcome = 'passed'
   let failure = null
   try {
@@ -120,11 +126,13 @@ async function runCase(name, executable, role, fn) {
   console.log(JSON.stringify({ case: name, binary, outcome, durationMs: Date.now() - started }))
 }
 
-async function expectStartup(executable, profile) {
+async function expectStartup(executable, profile, failure) {
   const handle = start(executable, launchArgs(profile, [`--user-data-dir=${profile.userData}`]), profile)
   const deadline = Date.now() + STARTUP_HOLD_MS
   while (!handle.state.exited && Date.now() < deadline) await delay(100)
-  if (!await stillRunning(handle)) throw earlyExit('Release startup failed', handle)
+  const alive = await stillRunning(handle)
+  console.log(JSON.stringify({ case: failure, alive, startup: await readStartupTrace(profile.dir) }))
+  if (!alive) throw earlyExit(failure, handle)
   return 'alive'
 }
 
@@ -206,7 +214,8 @@ assertReleaseFuses(await readFuseStates(releaseExecutable))
 assertDefaultFuses(await readFuseStates(openExecutable))
 assertOnlyFuseWireDiffers(await unsignedBytes(pathToFuseFile(openExecutable)), await unsignedBytes(pathToFuseFile(releaseExecutable)))
 
-await runCase('release-startup', releaseExecutable, 'release', async () => expectStartup(releaseExecutable, await prepareIsolatedCase(caseDir(), { logging: true })))
+await runCase('twin-startup', openExecutable, 'twin', async () => expectStartup(openExecutable, await prepareIsolatedCase(caseDir(), { logging: true, startupTrace: true }), 'Twin startup failed'))
+await runCase('release-startup', releaseExecutable, 'release', async () => expectStartup(releaseExecutable, await prepareIsolatedCase(caseDir(), { logging: true, startupTrace: true }), 'Release startup failed'))
 
 for (const [executable, open] of [[releaseExecutable, false], [openExecutable, true]]) {
   const role = open ? 'twin' : 'release'

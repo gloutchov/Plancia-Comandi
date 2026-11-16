@@ -9,19 +9,23 @@ const LOG_FILES = 6
 const LOG_BYTES = 4096
 
 export function isDiagnosticFile(name) {
-  return /\.(log|dmp)$/i.test(name) || /crash/i.test(name)
+  return /\.(log|dmp)$/i.test(name) || /crash/i.test(name) || name === 'startup.jsonl'
 }
 
 export function launchArgs(profile, args) {
   return profile.logging ? ['--enable-logging', ...args] : args
 }
 
-export async function prepareIsolatedCase(dir, { logging = false } = {}) {
+export async function prepareIsolatedCase(dir, { logging = false, startupTrace = false } = {}) {
   const env = smokeEnvironment(dir)
   // Windows attaches a console when ELECTRON_RUN_AS_NODE is set, even if the
   // runAsNode fuse is off (electron_main_win.cc). Skip that attach for the GUI.
   env.ELECTRON_NO_ATTACH_CONSOLE = '1'
   if (logging) env.ELECTRON_ENABLE_LOGGING = '1'
+  if (startupTrace) {
+    env.PLANCIA_DIAG_STARTUP = '1'
+    env.PLANCIA_DIAG_DIR = dir
+  }
   const userData = path.join(dir, 'user-data')
   await Promise.all([
     ...Object.entries(env)
@@ -29,7 +33,49 @@ export async function prepareIsolatedCase(dir, { logging = false } = {}) {
       .map(([, value]) => mkdir(value, { recursive: true })),
     mkdir(userData, { recursive: true }),
   ])
-  return { dir, env, userData, logging }
+  return { dir, env, userData, logging, startupTrace }
+}
+
+export async function readStartupTrace(dir) {
+  try {
+    const text = await readFile(path.join(dir, 'startup.jsonl'), 'utf8')
+    return text.split('\n').filter(Boolean).slice(-48).map((line) => {
+      try { return JSON.parse(line) } catch { return { raw: line.slice(0, 200) } }
+    })
+  } catch { return [] }
+}
+
+export async function reapAppImages() {
+  const names = new Set(['plancia-comandi.exe', 'plancia-comandi'])
+  const listed = await imagePids(names)
+  for (const pid of listed) {
+    if (process.platform === 'win32') await taskkill(pid)
+    else try { process.kill(pid, 'SIGTERM') } catch { /* already gone */ }
+  }
+  const deadline = Date.now() + 3000
+  let after = listed.length ? await imagePids(names) : []
+  while (after.length && Date.now() < deadline) {
+    await delay(100)
+    after = await imagePids(names)
+  }
+  return { before: listed, after }
+}
+
+async function imagePids(names) {
+  if (process.platform === 'win32') {
+    const text = await execText('powershell.exe', ['-NoProfile', '-Command',
+      "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'plancia-comandi.exe' } | ForEach-Object { $_.ProcessId }"])
+    return [...new Set(text.split(/\s+/).map(Number).filter(pid => Number.isInteger(pid) && pid > 0))]
+  }
+  const text = await execText('ps', ['-eo', 'pid=,args='])
+  const pids = []
+  for (const line of text.split('\n')) {
+    const match = line.trim().match(/^(\d+)\s+(\S+)/)
+    if (!match) continue
+    const name = match[2].split(/[\\/]/).pop()
+    if (names.has(name)) pids.push(Number(match[1]))
+  }
+  return pids
 }
 
 function execText(command, args) {

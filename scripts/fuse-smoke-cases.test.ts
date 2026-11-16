@@ -21,6 +21,7 @@ describe('fuse smoke case outcomes', () => {
   it('keeps Electron logs and crash dumps and skips settings', () => {
     expect(isDiagnosticFile('debug.log')).toBe(true)
     expect(isDiagnosticFile('crashpad.dmp')).toBe(true)
+    expect(isDiagnosticFile('startup.jsonl')).toBe(true)
     expect(isDiagnosticFile('settings.json')).toBe(false)
   })
 })

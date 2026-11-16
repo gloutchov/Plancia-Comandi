@@ -84,6 +84,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  Dizionari IT/EN e testi delle scorciatoie
 |       |-- paths.ts                 Abbreviazione visiva dei percorsi
 |       |-- appConfig.ts             Validazione della configurazione centrale
+|       |-- startupTrace.ts          Traccia di avvio solo con PLANCIA_DIAG_STARTUP=1
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
@@ -328,6 +329,7 @@ Plancia-Comandi/
 |       |-- i18n.ts                  IT/EN dictionaries and shortcut labels
 |       |-- paths.ts                 Visual path shortening
 |       |-- appConfig.ts             Central-configuration validation
+|       |-- startupTrace.ts          Startup trace only when PLANCIA_DIAG_STARTUP=1
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
