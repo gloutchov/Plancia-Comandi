@@ -12,7 +12,7 @@ import {
   pathToFuseFile,
   readFuseStates,
 } from './electron-fuses.mjs'
-import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { connectProtocol, mainInspectorUrl } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
@@ -155,16 +155,22 @@ async function expectInspector(executable, profile, prefix, shouldListen) {
 // Packaged Electron keeps only --http-parser and --max-http-header-size.
 // One inspector connection reads the header size, then the socket is closed
 // and the process is stopped. --inspect stays on the parent command line.
-const NODE_OPTIONS_READ_MS = 8000
+const NODE_OPTIONS_READ_MS = 12000
 
 async function readHeaderSizeAt(url) {
   let driver
   try {
     driver = await connectProtocol(url)
     await driver.request('Runtime.enable')
-    const value = await driver.evaluate("require('node:http').maxHeaderSize", false)
-    if (typeof value !== 'number') return { headerSize: null, error: 'non-number' }
-    return { headerSize: value, error: null }
+    const result = await driver.request('Runtime.evaluate', {
+      expression: HEADER_SIZE_READ,
+      awaitPromise: false,
+      returnByValue: true,
+      includeCommandLineAPI: true,
+    })
+    const read = headerSizeFromEvaluation(result)
+    if (read.description) console.log(read.description)
+    return { headerSize: read.headerSize, error: read.error }
   } catch (error) {
     return { headerSize: null, error: String(error.message || error).slice(0, 300) }
   } finally {

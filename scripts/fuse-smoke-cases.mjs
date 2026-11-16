@@ -12,6 +12,46 @@ export function runAsNodeOutcome({ shouldRun, written, alive }) {
 export const NODE_OPTIONS_PROBE = '--max-http-header-size=8192'
 export const NODE_OPTIONS_HEADER_SIZE = 8192
 export const NODE_OPTIONS_IGNORED = 'NODE_OPTIONS ignored due to disabled nodeOptions fuse.'
+// The inspector global of the Electron main process has process, not require.
+// getBuiltinModule is on process since Node 22.3. Electron 45.3.2 here is Node 24.22.2.
+export const HEADER_SIZE_READ = `(() => {
+  const notes = []
+  try {
+    if (typeof process.getBuiltinModule === 'function') {
+      const http = process.getBuiltinModule('node:http')
+      if (http && typeof http.maxHeaderSize === 'number') return { size: http.maxHeaderSize, via: 'getBuiltinModule' }
+      notes.push('getBuiltinModule returned no size')
+    } else notes.push('getBuiltinModule missing')
+  } catch (error) { notes.push('getBuiltinModule: ' + (error && error.message)) }
+  try {
+    const main = process.mainModule
+    if (main && typeof main.require === 'function') {
+      const http = main.require('http')
+      if (http && typeof http.maxHeaderSize === 'number') return { size: http.maxHeaderSize, via: 'mainModule' }
+      notes.push('mainModule returned no size')
+    } else notes.push('mainModule missing')
+  } catch (error) { notes.push('mainModule: ' + (error && error.message)) }
+  try {
+    const http = require('node:http')
+    if (http && typeof http.maxHeaderSize === 'number') return { size: http.maxHeaderSize, via: 'require' }
+    notes.push('require returned no size')
+  } catch (error) { notes.push('require: ' + (error && error.message)) }
+  return { size: null, error: notes.join('; ') }
+})()`
+
+export function headerSizeFromEvaluation(result) {
+  const details = result?.exceptionDetails
+  if (details) {
+    const description = details.exception?.description
+    const error = typeof description === 'string' && description ? description : JSON.stringify(details)
+    return { headerSize: null, error, description: typeof description === 'string' ? description : null }
+  }
+  const value = result?.result?.value
+  if (typeof value === 'number') return { headerSize: value, error: null, description: null }
+  if (value && typeof value.size === 'number') return { headerSize: value.size, error: null, description: null }
+  if (value && typeof value.error === 'string') return { headerSize: null, error: value.error, description: null }
+  return { headerSize: null, error: 'non-number', description: null }
+}
 
 export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '', alive = true }) {
   const ignored = String(output).includes(NODE_OPTIONS_IGNORED)

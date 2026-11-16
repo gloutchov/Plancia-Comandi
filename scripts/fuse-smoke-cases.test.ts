@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { HEADER_SIZE_READ, NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, headerSizeFromEvaluation, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
@@ -24,6 +24,25 @@ describe('fuse smoke case outcomes', () => {
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: 'closed' })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: NODE_OPTIONS_IGNORED, alive: false })).toBeNull()
+  })
+
+  it('reads the header size without a global require and keeps the full exception text', () => {
+    const builtin = HEADER_SIZE_READ.indexOf('getBuiltinModule')
+    const mainModule = HEADER_SIZE_READ.indexOf('mainModule')
+    const requireCall = HEADER_SIZE_READ.indexOf("require('node:http')")
+    expect(builtin).toBeGreaterThan(-1)
+    expect(builtin).toBeLessThan(mainModule)
+    expect(mainModule).toBeLessThan(requireCall)
+    const description = 'ReferenceError: require is not defined\n    at <anonymous>:1:1'
+    const failed = headerSizeFromEvaluation({
+      exceptionDetails: { exception: { className: 'ReferenceError', description } },
+    })
+    expect(failed.headerSize).toBeNull()
+    expect(failed.description).toBe(description)
+    expect(failed.error).toBe(description)
+    expect(headerSizeFromEvaluation({ result: { value: { size: 8192, via: 'getBuiltinModule' } } })).toEqual({
+      headerSize: 8192, error: null, description: null,
+    })
   })
 
   it('prints the observed header size, error, port and exit when NODE_OPTIONS misses', () => {
