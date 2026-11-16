@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { archiveEntryPath, unexpectedPackageEntry } from './archive-path.mjs'
-import { assertConptyHostFiles } from './conpty-host-files.mjs'
+import { assertConptyHostFiles, packageNeedsConptyHostCheck } from './conpty-host-files.mjs'
 
 const [resourcesArgument, sourceArgument, version] = process.argv.slice(2)
 assert(resourcesArgument && sourceArgument && version, 'Usage: node scripts/inspect-package.mjs <resources-directory> <built-source-directory> <version>')
@@ -33,7 +33,9 @@ function compare(directory) {
 for (const directory of ['dist', 'dist-electron', 'config']) compare(directory)
 assert.deepEqual(fs.readFileSync(path.join(resources, 'config', 'app.config.json')), fs.readFileSync(path.join(source, 'config', 'app.config.json')))
 assert(fs.existsSync(path.join(resources, 'app.asar.unpacked', 'node_modules', 'node-pty')), 'Native PTY is not unpacked')
-const conptyHost = assertConptyHostFiles(resources, source)
+const conptyHost = packageNeedsConptyHostCheck(resources)
+  ? assertConptyHostFiles(resources, source)
+  : { skipped: 'not-windows' }
 // Check loose resources too: a private file outside app.asar is still shipped.
 const loose = []
 function inspectLoose(directory, prefix = '') {

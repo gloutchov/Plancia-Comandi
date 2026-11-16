@@ -20,6 +20,17 @@ export function sourceConptyFile(sourceRoot, relative) {
   return path.join(sourceRoot, ...relative.split('/'))
 }
 
+/**
+ * The inspector knows a macOS package by its resources directory:
+ * `<name>.app/Contents/Resources`. Every other package is identified only by
+ * that directory, so the host running the inspection is the target.
+ */
+export function packageNeedsConptyHostCheck(resourcesDir, platform = process.platform) {
+  const normalized = String(resourcesDir).replace(/\\/g, '/')
+  if (/(^|\/)[^/]+\.app\/Contents\/Resources\/?$/i.test(normalized)) return false
+  return platform === 'win32'
+}
+
 function prebuildsDir(sourceRoot) {
   return path.join(sourceRoot, 'node_modules', 'node-pty', 'prebuilds')
 }
