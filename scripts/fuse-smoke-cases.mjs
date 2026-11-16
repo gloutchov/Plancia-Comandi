@@ -19,6 +19,14 @@ export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = ''
   return ignored && headerSize == null ? 'ignored' : null
 }
 
+export function formatNodeOptionsMiss({ shouldApply, headerSize, readError, port, exitCode, signal, elapsedMs, timeoutMs, expected = NODE_OPTIONS_HEADER_SIZE }) {
+  const exit = signal ? `signal ${signal}` : `exit ${exitCode ?? 'null'}`
+  if (!shouldApply) return `NODE_OPTIONS was not ignored within ${elapsedMs}ms (limit ${timeoutMs}ms), ${exit}`
+  const size = headerSize ?? 'missing'
+  const reason = readError ? ` (${readError})` : ''
+  return `NODE_OPTIONS header size ${size}${reason} on 127.0.0.1:${port} was not ${expected} within ${elapsedMs}ms (limit ${timeoutMs}ms), ${exit}`
+}
+
 export function processExitDetail(state, outputLimit = 2000) {
   const output = String(state?.output || '')
   return {

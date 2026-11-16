@@ -2,7 +2,8 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { readFileSync } from 'node:fs'
+import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
@@ -21,6 +22,30 @@ describe('fuse smoke case outcomes', () => {
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: `warn ${NODE_OPTIONS_IGNORED}` })).toBe('ignored')
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: 'closed' })).toBeNull()
+  })
+
+  it('prints the observed header size, error, port and exit when NODE_OPTIONS misses', () => {
+    const message = formatNodeOptionsMiss({
+      shouldApply: true,
+      headerSize: null,
+      readError: 'Runtime evaluation failed',
+      port: 49284,
+      exitCode: 0,
+      signal: null,
+      elapsedMs: 1001,
+      timeoutMs: 8000,
+    })
+    expect(message).toContain('header size missing')
+    expect(message).toContain('Runtime evaluation failed')
+    expect(message).toContain('127.0.0.1:49284')
+    expect(message).toContain(String(NODE_OPTIONS_HEADER_SIZE))
+    expect(message).toContain('exit 0')
+    expect(message).toContain('1001')
+    expect(message).toContain('8000')
+    const source = readFileSync(new URL('./smoke-fuses.mjs', import.meta.url), 'utf8')
+    expect(source).toContain('NODE_OPTIONS_HEADER_SIZE')
+    expect(source).toContain('formatNodeOptionsMiss')
+    expect(source).toContain('console.log(JSON.stringify({ case: \'NODE_OPTIONS\', headerSize, readError, port, exitCode, signal, elapsedMs }))')
   })
 
   it('keeps the exit code, signal and output of a process that quit', () => {

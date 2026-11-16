@@ -12,7 +12,7 @@ import {
   pathToFuseFile,
   readFuseStates,
 } from './electron-fuses.mjs'
-import { NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { connectProtocol, mainInspectorUrl } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
@@ -181,32 +181,34 @@ async function expectNodeOptions(executable, profile, shouldApply) {
   })
   let headerSize = null
   let readError = null
-  const deadline = Date.now() + NODE_OPTIONS_READ_MS
+  const started = Date.now()
+  const deadline = started + NODE_OPTIONS_READ_MS
   try {
     if (shouldApply) {
-      let url = null
-      while (!url && Date.now() < deadline && await stillRunning(handle)) {
-        url = await mainInspectorUrl(port)
-        if (!url) await delay(100)
+      while (Date.now() < deadline && await stillRunning(handle)) {
+        const url = await mainInspectorUrl(port)
+        if (!url) { await delay(100); continue }
+        const read = await readHeaderSizeAt(url)
+        headerSize = read.headerSize
+        readError = read.error
+        if (headerSize === NODE_OPTIONS_HEADER_SIZE) break
+        await delay(200)
       }
-      if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS twin exited before the inspector listed a node target', handle)
-      if (!url) throw earlyExit(`NODE_OPTIONS inspector did not list a node target on 127.0.0.1:${port} within ${NODE_OPTIONS_READ_MS}ms`, handle)
-      const read = await readHeaderSizeAt(url)
-      headerSize = read.headerSize
-      readError = read.error
     } else {
       while (Date.now() < deadline && await stillRunning(handle) && !String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) await delay(100)
-      if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS release exited', handle)
     }
   } finally {
     await stop(handle)
   }
   const outcome = nodeOptionsOutcome({ shouldApply, headerSize: shouldApply ? headerSize : null, output: handle.state.output })
   if (!outcome) {
-    const detail = shouldApply
-      ? `header size ${headerSize ?? 'missing'}${readError ? ` (${readError})` : ''} on 127.0.0.1:${port} was not ${NODE_OPTIONS_HEADER_SIZE} within ${NODE_OPTIONS_READ_MS}ms`
-      : `was not ignored within ${NODE_OPTIONS_READ_MS}ms`
-    throw earlyExit(`NODE_OPTIONS ${detail}`, handle)
+    const elapsedMs = Date.now() - started
+    const exitCode = handle.state.code
+    const signal = handle.state.signal
+    console.log(JSON.stringify({ case: 'NODE_OPTIONS', headerSize, readError, port, exitCode, signal, elapsedMs }))
+    throw earlyExit(formatNodeOptionsMiss({
+      shouldApply, headerSize, readError, port, exitCode, signal, elapsedMs, timeoutMs: NODE_OPTIONS_READ_MS,
+    }), handle)
   }
   return outcome
 }
