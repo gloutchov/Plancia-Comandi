@@ -135,5 +135,6 @@ jobs:
           path: |
             ${{ runner.temp }}/plancia-package-smoke-*/smoke-failure.json
             ${{ runner.temp }}/plancia-package-smoke-*/runtime-diagnostics.log
+            ${{ runner.temp }}/plancia-fuse-smoke-*/smoke-failure.json
           if-no-files-found: ignore
           retention-days: 7

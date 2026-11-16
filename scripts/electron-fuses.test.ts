@@ -106,6 +106,9 @@ describe('release fuse configuration', () => {
       const smokeSource = readFileSync(smoke, 'utf8')
       expect(smokeSource).not.toContain('expectNodeOptions(executable, open)')
       expect(smokeSource).toContain('durationMs')
+      expect(smokeSource).toContain('smoke-failure.json')
+      expect(smokeSource).toContain('ELECTRON_NO_ATTACH_CONSOLE')
+      expect(smokeSource).not.toContain('if (handle.state.exited) return')
       expect(readFileSync(script, 'utf8')).not.toContain("from '@electron/fuses'")
       expect(readFileSync(smoke, 'utf8')).not.toContain("from '@electron/fuses'")
     } finally {
@@ -134,6 +137,10 @@ describe('release fuse configuration', () => {
     const config = require('node:fs').readFileSync(new URL('../electron-builder.json5', import.meta.url), 'utf8') as string
     expect(config).toContain('scripts/after-pack-fuses.mjs')
     expect(config).not.toContain('electronFuses:')
+    const windows = require('node:fs').readFileSync(new URL('../.github/workflows/package-windows.yml', import.meta.url), 'utf8') as string
+    expect(windows).toContain('check-fuse-wires.mjs')
+    expect(windows).toContain('plancia-fuse-smoke-*/smoke-failure.json')
+    expect(windows).toContain('smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION" release')
   })
 
   it('flips a copy of the Electron binary and changes only the fuse wire', async () => {
