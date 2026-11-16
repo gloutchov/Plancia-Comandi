@@ -16,18 +16,41 @@ export function restoreSmokeWorkerStartup() {
   process.getBuiltinModule('module').syncBuiltinESMExports()
 }
 
-/** Real shared-memory handshake, independent of the parent's event loop.
- * This models ConPTY's output worker while the main waits synchronously.
+/** Real shared-memory handshake. Self-contained so the smoke can serialize it.
+ * Windows ConPTY waits synchronously, so that mode stays blocking.
+ * On macOS the main thread is the run loop that has to schedule the new
+ * worker; blocking it makes a healthy worker look suspended.
  */
-export function smokeWorkerHandshake(options = {}) {
-  const { Worker } = process.getBuiltinModule('worker_threads')
+export function smokeWorkerHandshake(options = {}, mode = process.platform === 'darwin' ? 'yield' : 'block') {
+  const threads = process.getBuiltinModule('worker_threads')
   const shared = new SharedArrayBuffer(4)
   const state = new Int32Array(shared)
-  const worker = new Worker(`const {workerData}=require('node:worker_threads');
+  let error = ''
+  const worker = new threads.Worker(`const {workerData}=require('node:worker_threads');
     const state=new Int32Array(workerData);Atomics.store(state,0,1);Atomics.notify(state,0);`,
   { eval: true, workerData: shared, ...options })
-  const wait = Atomics.wait(state, 0, 0, 1000)
-  const started = Atomics.load(state, 0) === 1
-  void worker.terminate()
-  return { started, wait }
+  worker.on('error', (err) => { error = String(err && err.message || err).slice(0, 200) })
+  const finish = (wait) => {
+    const started = Atomics.load(state, 0) === 1
+    void worker.terminate()
+    return { started, wait, error, worker: threads.Worker.name }
+  }
+  if (mode === 'yield') {
+    return new Promise((resolve) => {
+      const deadline = Date.now() + 1000
+      const tick = () => {
+        if (Atomics.load(state, 0) === 1) resolve(finish('ok'))
+        else if (Date.now() >= deadline) resolve(finish('timed-out'))
+        else setTimeout(tick, 10)
+      }
+      tick()
+    })
+  }
+  return finish(Atomics.wait(state, 0, 0, 1000))
+}
+
+/** In-process helper. The packaged smoke inlines the two serialized functions. */
+export function smokeWorkerReadiness() {
+  restoreSmokeWorkerStartup()
+  return smokeWorkerHandshake()
 }

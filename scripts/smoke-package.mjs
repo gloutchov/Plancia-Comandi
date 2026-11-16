@@ -10,7 +10,7 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { smokeWorkerHandshake } from './smoke-worker.mjs'
+import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -127,7 +127,8 @@ try {
   assert.equal(saved.theme, 'light')
   const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
   stageAt('native worker readiness')
-  assert.equal((await main.evaluate(`(${smokeWorkerHandshake.toString()})()`)).started, true, 'A smoke worker inherited debugger suspension')
+  const readiness = await main.evaluate(`(() => { (${restoreSmokeWorkerStartup.toString()})(); return (${smokeWorkerHandshake.toString()})(); })()`)
+  assert.equal(readiness.started, true, `A smoke worker inherited debugger suspension (${readiness.wait}; ${readiness.worker}; ${readiness.error || 'no worker error'})`)
   for (let i = 0; i < 3; i += 1) {
     stageAt(`native PTY ${i + 1} create`)
     const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: `Smoke ${i + 1}`, shellId, cwd: root })})`)

@@ -6,7 +6,7 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { it } from 'vitest'
 import { connectProtocol, smokeEnvironment } from './smoke-driver.mjs'
-import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
+import { restoreSmokeWorkerStartup, smokeWorkerHandshake, smokeWorkerReadiness } from './smoke-worker.mjs'
 
 it('starts an implicit worker under an attached startup debugger without changing explicit worker options', async () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-smoke-worker-'))
@@ -42,7 +42,7 @@ it('starts an implicit worker under an attached startup debugger without changin
     assert.equal((await driver.evaluate(`(${smokeWorkerHandshake.toString()})()`)).started, true)
     // An explicit debug flag still pauses: the harness must not silently
     // rewrite options intentionally supplied by the caller (M7 uses []).
-    assert.equal((await driver.evaluate(`(${smokeWorkerHandshake.toString()})({execArgv:['--inspect-brk=127.0.0.1:0']})`)).started, false)
+    assert.equal((await driver.evaluate(`(${smokeWorkerHandshake.toString()})({execArgv:['--inspect-brk=127.0.0.1:0']}, 'yield')`)).started, false)
   } finally {
     driver?.close()
     child.kill('SIGTERM')
@@ -50,3 +50,19 @@ it('starts an implicit worker under an attached startup debugger without changin
     rmSync(root, { recursive: true, force: true })
   }
 }, 15000)
+
+it('reinstalls the worker patch and can wait without blocking the run loop', async () => {
+  const threads = process.getBuiltinModule('worker_threads')
+  const original = threads.Worker
+  threads.Worker = original
+  try {
+    const yielded = await smokeWorkerHandshake({}, 'yield')
+    assert.equal(yielded.started, true)
+    threads.Worker = original
+    const readiness = await smokeWorkerReadiness()
+    assert.equal(readiness.started, true)
+    assert.equal(threads.Worker.name, 'SmokeWorker')
+  } finally {
+    threads.Worker = original
+  }
+})
