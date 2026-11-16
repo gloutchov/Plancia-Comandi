@@ -35,6 +35,16 @@ describe('fuse smoke case outcomes', () => {
       expect(existsSync(path.join(dir, 'session-data'))).toBe(true)
       expect(JSON.parse(readFileSync(path.join(profile.userData, 'settings.json'), 'utf8')).lastCwd).toBe(dir)
       expect(launchArgs(profile, [`--user-data-dir=${profile.userData}`])).toEqual([`--user-data-dir=${profile.userData}`])
+      for (const name of ['home', 'app-data', 'local-app-data', 'user-data', 'session-data', 'shell', 'config', 'data', 'cache']) {
+        expect(existsSync(path.join(dir, name))).toBe(true)
+      }
+      if (process.platform === 'win32') {
+        expect(existsSync(path.join(profile.env.USERPROFILE, 'AppData', 'Roaming'))).toBe(true)
+        expect(existsSync(path.join(profile.env.USERPROFILE, 'AppData', 'Local'))).toBe(true)
+        expect(profile.env.HOMEDRIVE).toMatch(/^[A-Za-z]:$/)
+        expect(profile.env.HOMEPATH.startsWith('\\')).toBe(true)
+        expect(profile.env.SystemRoot || profile.env.SYSTEMROOT).toBeTruthy()
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

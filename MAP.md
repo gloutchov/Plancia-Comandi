@@ -138,7 +138,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
-|   |-- smoke-driver.mjs             Profilo isolato condiviso, debugger loopback e isolamento
+|   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
 |   |-- smoke-worker.mjs             Default worker non debug e handshake ConPTY di prova
 |   |-- smoke-worker.test.ts         Regresso con inspector e opzioni worker esplicite
 |   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
@@ -383,7 +383,7 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
-|   |-- smoke-driver.mjs             Shared isolated profile, loopback debugger and isolation
+|   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
 |   |-- smoke-worker.mjs             Non-debug worker defaults and ConPTY handshake fixture
 |   |-- smoke-worker.test.ts         Attached-inspector regression and explicit worker options
 |   |-- smoke-report.mjs             Bounded allowlisted failure metadata

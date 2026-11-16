@@ -40,16 +40,33 @@ function canConnect(port, host) {
   })
 }
 
+const DROPPED_ENV = /^(NODE_OPTIONS|ELECTRON_RUN_AS_NODE|PLANCIA_DEMO|MOLO_DEMO|VITE_DEV_SERVER_URL)$/i
+const SECRET_ENV = /(SECRET|TOKEN|PASSWORD|CREDENTIAL|API_KEY)/i
+
+/** HOMEDRIVE and HOMEPATH for an isolated Windows USERPROFILE, when the path has a drive. */
+export function windowsProfileVars(home) {
+  const match = home.replaceAll('/', '\\').match(/^([A-Za-z]:)(\\.*)$/)
+  if (!match) return null
+  return { HOMEDRIVE: match[1], HOMEPATH: match[2] }
+}
+
 export function smokeEnvironment(root, source = process.env, platform = process.platform) {
-  const env = Object.fromEntries(Object.entries(source).filter(([key]) =>
-    /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR|LANG|LC_ALL|DISPLAY|XAUTHORITY|__CF_USER_TEXT_ENCODING)$/i.test(key)))
+  const env = {}
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value !== 'string' || DROPPED_ENV.test(key) || SECRET_ENV.test(key)) continue
+    env[key] = value
+  }
+  const home = path.join(root, 'home')
   Object.assign(env, {
-    HOME: path.join(root, 'home'), USERPROFILE: path.join(root, 'home'),
+    HOME: home, USERPROFILE: home,
     APPDATA: path.join(root, 'app-data'), LOCALAPPDATA: path.join(root, 'local-app-data'),
     XDG_CONFIG_HOME: path.join(root, 'config'), XDG_DATA_HOME: path.join(root, 'data'), XDG_CACHE_HOME: path.join(root, 'cache'),
     ZDOTDIR: path.join(root, 'shell'), PLANCIA_SMOKE_VALUE: 'OK',
   })
-  if (platform !== 'win32') env.SHELL = '/bin/zsh'
+  if (platform === 'win32') {
+    const profile = windowsProfileVars(home)
+    if (profile) Object.assign(env, profile)
+  } else env.SHELL = '/bin/zsh'
   return env
 }
 
@@ -63,13 +80,18 @@ export function isolatedSmokeSettings(root) {
 }
 
 /** Directories, settings and environment shared by the package smoke and the fuse launches. */
-export async function prepareIsolatedSmokeRoot(root) {
+export async function prepareIsolatedSmokeRoot(root, source = process.env, platform = process.platform) {
   const userData = path.join(root, 'user-data')
   await mkdir(userData, { recursive: true })
   for (const dir of ISOLATED_DIRS) await mkdir(path.join(root, dir), { recursive: true })
+  const env = smokeEnvironment(root, source, platform)
+  if (platform === 'win32') {
+    await mkdir(path.join(env.USERPROFILE, 'AppData', 'Roaming'), { recursive: true })
+    await mkdir(path.join(env.USERPROFILE, 'AppData', 'Local'), { recursive: true })
+  }
   const settings = isolatedSmokeSettings(root)
   await writeFile(path.join(userData, 'settings.json'), JSON.stringify(settings))
-  return { root, userData, env: smokeEnvironment(root), settings }
+  return { root, userData, env, settings }
 }
 
 /** Local inspector/CDP transport; never shipped as an application API. */

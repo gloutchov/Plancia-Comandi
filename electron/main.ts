@@ -15,7 +15,7 @@ import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
-import { createStartupTrace, type StartupTrace } from '../src/shared/startupTrace'
+import { createStartupTrace, startupFailureDetail, type StartupTrace } from '../src/shared/startupTrace'
 import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
 
@@ -66,26 +66,8 @@ function quitFor(reason: string): void {
 
 let startupStep = 'load'
 
-function startupFailureFields(error: unknown): Record<string, string | number | boolean | null> {
-  const detail: Record<string, string | number | boolean | null> = { step: startupStep }
-  if (error instanceof Error) {
-    detail.name = error.name || 'Error'
-    detail.message = error.message
-    if (typeof error.stack === 'string') detail.stack = error.stack
-    const cause = error.cause
-    if (cause instanceof Error) detail.cause = `${cause.name}: ${cause.message}`
-    else if (typeof cause === 'string') detail.cause = cause
-    const code = (error as { code?: unknown }).code
-    if (typeof code === 'string' || typeof code === 'number') detail.code = String(code)
-    return detail
-  }
-  detail.name = 'non-error'
-  if (typeof error === 'string') detail.message = error
-  return detail
-}
-
 function failStartup(error: unknown): void {
-  try { startupTrace?.event('startup-failed', startupFailureFields(error)) } catch { /* quit still has to run */ }
+  try { startupTrace?.event('startup-failed', startupFailureDetail(startupStep, error)) } catch { /* quit still has to run */ }
   reportDiagnostic('startup-failed', error)
   quitFor('startup-failed')
 }

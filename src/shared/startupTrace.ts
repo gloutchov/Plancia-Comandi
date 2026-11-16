@@ -23,6 +23,24 @@ function detailValue(key: string, value: string | number | boolean | null): stri
   return undefined
 }
 
+export function startupFailureDetail(step: string, error: unknown): Record<string, string | number | boolean | null> {
+  const detail: Record<string, string | number | boolean | null> = { step, cause: null, code: 'UNKNOWN' }
+  if (error instanceof Error) {
+    detail.name = error.name || 'Error'
+    detail.message = error.message
+    if (typeof error.stack === 'string') detail.stack = error.stack
+    const cause = error.cause
+    if (cause instanceof Error) detail.cause = `${cause.name}: ${cause.message}`
+    else if (typeof cause === 'string') detail.cause = cause
+    const code = (error as { code?: unknown }).code
+    if (typeof code === 'string' || typeof code === 'number') detail.code = String(code)
+    return detail
+  }
+  detail.name = 'non-error'
+  if (typeof error === 'string') detail.message = error
+  return detail
+}
+
 export function startupLine(name: string, detail: Record<string, string | number | boolean | null> = {}): string {
   const row: Record<string, string | number | boolean | null> = { at: new Date().toISOString(), event: name.slice(0, 80) }
   for (const [key, value] of Object.entries(detail)) {
