@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isTrustedRendererSender } from './ipcSender'
+import { canonicalDocumentUrl, isTrustedRendererSender } from './ipcSender'
 
 const URL = 'file:///synthetic/app.asar/dist/index.html'
 function fixture(url = URL) {
@@ -39,5 +39,20 @@ describe('renderer IPC boundary', () => {
     }
     const { contents, event } = fixture('http://127.0.0.1:47231/')
     expect(isTrustedRendererSender(event, contents, 'http://127.0.0.1:47231')).toBe(true)
+  })
+
+  it('uppercases only a Windows file drive letter and keeps the rest of the URL exact', () => {
+    const lower = 'file:///c:/Users/RUNNER%7E1/app.asar/dist/index.html'
+    const upper = 'file:///C:/Users/RUNNER%7E1/app.asar/dist/index.html'
+    expect(canonicalDocumentUrl(lower + '#terminal', 'win32')).toBe(upper)
+    expect(canonicalDocumentUrl(upper + '#other', 'win32')).toBe(upper)
+    expect(canonicalDocumentUrl(lower + '?kept=1#gone', 'win32')).toBe(upper + '?kept=1')
+    expect(canonicalDocumentUrl(lower, 'linux')).toBe(lower)
+    const { contents, event } = fixture(upper)
+    expect(isTrustedRendererSender(event, contents, lower + '#boot', 'win32')).toBe(true)
+    expect(isTrustedRendererSender(event, contents, lower, 'linux')).toBe(false)
+    expect(isTrustedRendererSender(event, contents, upper + '?kept=1', 'win32')).toBe(false)
+    expect(isTrustedRendererSender(event, contents, 'file:///C:/Users/RUNNER~1/app.asar/dist/index.html', 'win32')).toBe(false)
+    expect(isTrustedRendererSender(event, contents, 'file:///C:/users/RUNNER%7E1/app.asar/dist/index.html', 'win32')).toBe(false)
   })
 })

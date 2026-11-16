@@ -15,7 +15,7 @@ import { installApplicationMenu, registerEditIpc } from './editMenu'
 import { registerLegacyIpc } from './legacyIpc'
 import pkg from '../package.json'
 import { configureDiagnostics, reportDiagnostic } from './diagnostics'
-import { isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
+import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -28,7 +28,8 @@ function devServerUrl(): string | undefined {
 }
 
 function rendererDocumentUrl(): string {
-  return devServerUrl() ?? pathToFileURL(path.join(RENDERER_DIST, 'index.html')).href
+  const raw = devServerUrl() ?? pathToFileURL(path.join(RENDERER_DIST, 'index.html')).href
+  return canonicalDocumentUrl(raw) ?? raw
 }
 
 function envFlag(name: string, legacy: string): boolean {
@@ -287,7 +288,7 @@ function createWindow(): void {
     if (demoMode()) void startDemo()
   })
 
-  // Load the exact URL accepted by IPC, including encoded ~ in Windows 8.3 paths.
+  // Load the exact URL accepted by IPC, including encoded ~ and an uppercase Windows drive letter.
   void win.loadURL(rendererDocumentUrl())
 
   if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })
