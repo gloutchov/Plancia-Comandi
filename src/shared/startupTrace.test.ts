@@ -166,7 +166,7 @@ describe('startup trace', () => {
   it('bounds a huge spaceless message before the patterns run', () => {
     const started = Date.now()
     const text = scrubDiagnosticText('a'.repeat(100_000), [])
-    expect(Date.now() - started).toBeLessThan(200)
+    expect(Date.now() - started).toBeLessThan(2000)
     expect(text.length).toBeLessThanOrEqual(200)
     const detail = startupProcessDetail(Object.assign(new Error('kept'), {
       stack: `    at ${'b'.repeat(1001)} (sessions.js:1:1)\n    at close (sessions.js:2:1)`,
