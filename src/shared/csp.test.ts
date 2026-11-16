@@ -84,6 +84,11 @@ describe('rendererDevServerUrl', () => {
   it('ignores the dev server URL when the app is packaged', () => {
     expect(rendererDevServerUrl(true, 'http://127.0.0.1:47231/')).toBeUndefined()
     expect(rendererDevServerUrl(false, 'http://127.0.0.1:47231/')).toBe('http://127.0.0.1:47231/')
+    expect(rendererDevServerUrl(false, 'http://localhost:47231/')).toBe('http://localhost:47231/')
+    expect(rendererDevServerUrl(false, 'http://[::1]:47231/')).toBe('http://[::1]:47231/')
+    expect(rendererDevServerUrl(false, 'https://example.test/')).toBeUndefined()
+    expect(rendererDevServerUrl(false, 'http://192.168.1.20:47231/')).toBeUndefined()
+    expect(rendererDevServerUrl(false, 'http://user@127.0.0.1:47231/')).toBeUndefined()
     expect(rendererDevServerUrl(false, undefined)).toBeUndefined()
     expect(rendererDevServerUrl(false, '')).toBeUndefined()
   })

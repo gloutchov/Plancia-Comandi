@@ -22,10 +22,9 @@
  * the policy.
  */
 
-/** A packaged app never follows VITE_DEV_SERVER_URL, even if the variable is set. */
+/** A packaged app never follows VITE_DEV_SERVER_URL. Development follows only an HTTP loopback URL. */
 export function rendererDevServerUrl(packaged: boolean, envUrl: string | undefined): string | undefined {
-  if (packaged) return undefined
-  if (!envUrl) return undefined
+  if (packaged || !envUrl || !loopbackHttpOrigin(envUrl)) return undefined
   return envUrl
 }
 
@@ -80,7 +79,9 @@ function loopbackHttpOrigin(value: string): string | null {
     return null
   }
   if (url.protocol !== 'http:') return null
-  if (url.hostname !== '127.0.0.1' && url.hostname !== 'localhost') return null
+  if (url.username || url.password) return null
+  const host = url.hostname.toLowerCase()
+  if (host !== '127.0.0.1' && host !== 'localhost' && host !== '::1' && host !== '[::1]') return null
   if (!url.port) return null
   return url.origin
 }
