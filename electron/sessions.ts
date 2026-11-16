@@ -6,6 +6,7 @@ import type { BrowserWindow } from 'electron'
 import type { IPty } from 'node-pty'
 import type { Terminal } from '@xterm/headless'
 import { listActiveParents } from './children'
+import { closeShellTree, runTaskkill } from '../src/shared/windowsShellClose'
 import { createScreen, readScreen } from './screen'
 import { CustomPatternMatcher } from './customPatterns'
 import { reportDiagnostic } from './diagnostics'
@@ -213,6 +214,8 @@ export class SessionManager {
         rows: 24,
         cwd: directory,
         env: childEnv(),
+        // The shipped conpty.dll does not call child_process.fork on close. runAsNode stays off.
+        ...(process.platform === 'win32' ? { useConptyDll: true } : {}),
       })
       session.pid = session.pty.pid
     } catch (error) {
@@ -281,12 +284,13 @@ export class SessionManager {
       return
     }
     session.closing = true
-    try {
-      session.pty.kill()
-    } catch {
+    const pty = session.pty
+    // IPty.pid is the console shell: WindowsTerminal copies the agent's innerPid into pid.
+    void closeShellTree(process.platform, session.pid ?? pty.pid, () => {
+      pty.kill()
+    }, runTaskkill, process.env.SystemRoot).catch(() => {
       this.remove(id)
-      return
-    }
+    })
     setTimeout(() => {
       if (this.sessions.has(id)) this.remove(id)
     }, 900)

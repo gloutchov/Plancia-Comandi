@@ -5,7 +5,7 @@ import { execFile } from 'node:child_process'
 // -n 90 is longer than the 30s search plus the 15s close wait, so ping is still
 // the same process when the session closes. start /b keeps it in cmd's console.
 export function conptyChildCommand() {
-  return 'start /b ping.exe -n 90 127.0.0.1\r'
+  return 'start /b ping.exe -t 127.0.0.1\r'
 }
 
 export function parseProcessTable(text) {
@@ -32,6 +32,26 @@ function isPlanciaExe(row) {
 /** Electron helpers share the exe name and carry --type=. A relaunched app does not. */
 export function isAppInstance(row) {
   return isPlanciaExe(row) && !/--type=/.test(row.command || '')
+}
+
+export function descendantPids(rows, rootPid) {
+  const children = new Map()
+  for (const row of rows) {
+    const list = children.get(row.ppid) || []
+    list.push(row)
+    children.set(row.ppid, list)
+  }
+  const found = []
+  const queue = [...(children.get(rootPid) || [])]
+  const seen = new Set()
+  while (queue.length) {
+    const row = queue.shift()
+    if (!row || seen.has(row.pid)) continue
+    seen.add(row.pid)
+    found.push(row.pid)
+    queue.push(...(children.get(row.pid) || []))
+  }
+  return found
 }
 
 export function descendantNamed(rows, rootPid, namePattern) {

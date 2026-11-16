@@ -18,6 +18,8 @@ describe.each(['app-builder-lib', '@electron/universal'])('%s glob compatibility
   it('selects native PTY files for unpacking and preserves negation', () => {
     const native = new Minimatch('**/node_modules/node-pty/**/*', { dot: true })
     expect(native.match('node_modules/node-pty/prebuilds/win32-x64/pty.node')).toBe(true)
+    expect(native.match('node_modules/node-pty/prebuilds/win32-x64/conpty/conpty.dll')).toBe(true)
+    expect(native.match('node_modules/node-pty/prebuilds/win32-x64/conpty/OpenConsole.exe')).toBe(true)
     expect(native.match('node_modules/node-pty/build/Release/pty.node')).toBe(true)
     expect(native.match('node_modules/another-module/index.js')).toBe(false)
     const source = new Minimatch('!**/*.map', { dot: true })

@@ -7,7 +7,13 @@
   // or strictlyRequireAllFuses. scripts/after-pack-fuses.mjs is the flip.
   afterPack: "scripts/after-pack-fuses.mjs",
   asar: true,
-  asarUnpack: ["**/node_modules/node-pty/**/*", "**/node_modules/@xterm/headless/**/*"],
+  // The whole node-pty tree is unpacked, including prebuilds/win32-x64/conpty/conpty.dll and OpenConsole.exe.
+  asarUnpack: [
+    "**/node_modules/node-pty/**/*",
+    "**/node_modules/node-pty/prebuilds/win32-x64/conpty/conpty.dll",
+    "**/node_modules/node-pty/prebuilds/win32-x64/conpty/OpenConsole.exe",
+    "**/node_modules/@xterm/headless/**/*",
+  ],
   // Windows uses the N-API prebuilds in node-pty. Rebuilding here would call
   // node-gyp. Linux and macOS are compiled by scripts/install-native.mjs.
   npmRebuild: false,

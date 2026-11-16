@@ -14,7 +14,7 @@ import {
 describe('ConPTY close on the Windows package', () => {
   it('starts a long-running child and records its pid', () => {
     const command = conptyChildCommand()
-    expect(command).toBe('start /b ping.exe -n 90 127.0.0.1\r')
+    expect(command).toBe('start /b ping.exe -t 127.0.0.1\r')
     expect(command).not.toContain('PLANCIA_CHILD_OK')
   })
 

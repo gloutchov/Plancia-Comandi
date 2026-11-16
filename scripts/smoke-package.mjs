@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFile, spawn } from 'node:child_process'
-import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
@@ -10,7 +10,9 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, startupFaultEvents, windowsProcessTable } from './conpty-orphans.mjs'
+import { assertConptyHostFiles } from './conpty-host-files.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, startupFaultEvents, windowsProcessTable } from './conpty-orphans.mjs'
+import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
@@ -21,6 +23,19 @@ assert(process.argv[2] && expectedVersion, 'Usage: node scripts/smoke-package.mj
 assert(['full', 'release'].includes(mode), 'Smoke mode must be full or release')
 assert(['darwin', 'win32'].includes(process.platform), 'Run on macOS or Windows')
 await access(executable)
+if (process.platform === 'win32') {
+  let resources = path.join(path.dirname(executable), 'resources')
+  let extracted = null
+  if (/-portable\.exe$/i.test(path.basename(executable))) {
+    extracted = await extractWindowsElectronExe(executable)
+    resources = path.join(path.dirname(extracted.exe), 'resources')
+  }
+  try {
+    console.log(JSON.stringify({ conptyHost: assertConptyHostFiles(resources, process.cwd()) }))
+  } finally {
+    if (extracted) await rm(extracted.dir, { recursive: true, force: true })
+  }
+}
 const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-package-smoke-'))
 const { userData, env } = await prepareIsolatedSmokeRoot(root)
 env.PLANCIA_DIAG_STARTUP = '1'
@@ -160,8 +175,10 @@ async function windowsConptyCloseCheck(appPid) {
   await until(async () => {
     const rows = parseProcessTable(await windowsProcessTable())
     samples.push(planciaInstanceReport(rows, appPid))
-    return conptyCloseReport(rows, shellRow, ping).clear
+    const report = conptyCloseReport(rows, shellRow, ping)
+    return report.clear && descendantPids(rows, shellPid).length === 0 && !rows.some((row) => row.pid === ping.pid)
   }, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
+  await evaluate('window.plancia.boot().then(b => Boolean(b.version))')
   const extra = [...new Set(samples.flatMap(sample => sample.extra))]
   const peak = samples.reduce((max, sample) => Math.max(max, sample.count), 0)
   console.log(JSON.stringify({ conptyPlancia: { ownPid: appPid, peak, extra } }))
@@ -310,6 +327,9 @@ try {
   if (!exited && child.pid) {
     if (process.platform === 'win32') spawn('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore' })
     else child.kill('SIGTERM')
+    const deadline = Date.now() + 8000
+    while (!exited && Date.now() < deadline) await delay(100)
   }
+  if (!exited) throw new Error('Packaged app did not exit within 8000ms')
   console.log(`Smoke-test files retained at ${root}`)
 }

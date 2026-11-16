@@ -45,7 +45,7 @@ Plancia-Comandi/
 |   |-- clipboardIpc.ts              Lettura e scrittura degli appunti
 |   |-- customPatterns.ts            Worker unico, coda limitata, timeout e fallback M7
 |   |-- customPatternWorker.ts       Programma worker statico incluso nel bundle main
-|   |-- sessions.ts                  Creazione/chiusura PTY, buffer, polling e stati
+|   |-- sessions.ts                  Creazione/chiusura PTY; su Windows useConptyDll e taskkill /T /F prima di pty.kill
 |   |-- settings.ts                  Preferenze, default, validazione e migrazione
 |   |-- settingsFile.ts              Lettura limitata, recupero .bak, blocco scritture e migrazione
 |   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
@@ -128,7 +128,7 @@ Plancia-Comandi/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
 |   |-- check-site.mjs                Controllo landing, dizionari, risorse, CSP e link
 |   |-- site-preferences.test.ts      Test di lingua, tema, storage bloccato e valori invalidi
-|   |-- inspect-package.mjs          Confronto bundle ASAR e contenuti distribuiti
+|   |-- inspect-package.mjs          Confronto bundle ASAR, contenuti distribuiti e hash di conpty.dll e OpenConsole.exe
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
 |   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
 |   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
@@ -292,7 +292,7 @@ Plancia-Comandi/
 |   |-- clipboardIpc.ts              Clipboard reads and writes
 |   |-- customPatterns.ts            Single worker, bounded queue, timeout and M7 fallback
 |   |-- customPatternWorker.ts       Static worker program bundled into main
-|   |-- sessions.ts                  PTY creation/closing, buffers, polling and status
+|   |-- sessions.ts                  PTY creation/closing; on Windows useConptyDll and taskkill /T /F before pty.kill
 |   |-- settings.ts                  Preferences, defaults, validation and migration
 |   |-- settingsFile.ts              Bounded reads, .bak recovery, write protection and migration
 |   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
@@ -375,7 +375,7 @@ Plancia-Comandi/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
 |   |-- check-site.mjs                Landing, dictionary, resource, CSP and link checks
 |   |-- site-preferences.test.ts      Language, theme, blocked storage and invalid-value tests
-|   |-- inspect-package.mjs          ASAR bundle and distributed-content checks
+|   |-- inspect-package.mjs          ASAR bundle, distributed contents and conpty.dll plus OpenConsole.exe hashes
 |   |-- install-native.d.mts        Types for the script, used by the tests
 |   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
 |   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
