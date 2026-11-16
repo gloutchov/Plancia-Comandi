@@ -39,10 +39,11 @@ export function diagnosticHomes(env: NodeJS.ProcessEnv = process.env): string[] 
 }
 
 export function scrubDiagnosticText(text: string, homes: readonly string[] = diagnosticHomes()): string {
-  let value = String(text)
+  let value = String(text).slice(0, 4096)
   value = value.replace(/\b[a-z][a-z0-9+.-]*:\/\/\S+/gi, '<url>')
   value = value.replace(/\b[A-Z][A-Z0-9_]{2,}=\S+/g, '<env>')
   value = value.replace(/\b(?:Bearer|Basic)\s+\S+/gi, '<redacted>')
+  value = value.replace(/\b[\w.-]*(?:pass|pwd|secret|token|key|auth|cookie)[\w.-]*\s*[=:]\s*\S+/gi, '<redacted>')
   value = value.replace(/[A-Za-z0-9_+/=-]{32,}/g, '<redacted>')
   const variants = homes.flatMap(homeVariants).sort((a, b) => b.length - a.length)
   for (const home of variants) value = replaceAllInsensitive(value, home, '<home>')
@@ -100,6 +101,7 @@ function reducedStack(stack: string | undefined, homes: readonly string[]): stri
   if (!stack) return null
   const frames: string[] = []
   for (const line of stack.split('\n')) {
+    if (line.length > 1000) continue
     const match = /^\s*at (?:async )?(?:(.+?) )?\(?(.+):(\d+):\d+\)?\s*$/.exec(line)
     if (!match) continue
     const fn = scrubDiagnosticText((match[1] || 'anonymous').trim(), homes).slice(0, 80)

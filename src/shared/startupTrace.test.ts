@@ -163,6 +163,26 @@ describe('startup trace', () => {
     expect(kept.syscall).toBe('spawn')
   })
 
+  it('bounds a huge spaceless message before the patterns run', () => {
+    const started = Date.now()
+    const text = scrubDiagnosticText('a'.repeat(100_000), [])
+    expect(Date.now() - started).toBeLessThan(200)
+    expect(text.length).toBeLessThanOrEqual(200)
+    const detail = startupProcessDetail(Object.assign(new Error('kept'), {
+      stack: `    at ${'b'.repeat(1001)} (sessions.js:1:1)\n    at close (sessions.js:2:1)`,
+    }), [])
+    expect(String(detail.stack)).toBe('close sessions.js:2')
+    expect(String(detail.stack)).not.toContain('b'.repeat(40))
+  })
+
+  it('redacts assignment-like secret names before path cleanup', () => {
+    const text = scrubDiagnosticText('token=abc --password=x apiKey: abc', [])
+    expect(text).not.toContain('token=abc')
+    expect(text).not.toContain('password=x')
+    expect(text).not.toContain('apiKey: abc')
+    expect(text).toContain('<redacted>')
+  })
+
   it('scrubs function names in frames and limits them to 80 characters', () => {
     const long = 'fn.'.repeat(30)
     const detail = startupProcessDetail(Object.assign(new Error('x'), {
