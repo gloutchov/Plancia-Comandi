@@ -205,6 +205,7 @@ async function expectNodeOptions(executable, profile, shouldApply) {
       }
     } else {
       while (Date.now() < deadline && await stillRunning(handle) && !String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) await delay(100)
+      if (!await stillRunning(handle)) throw earlyExit('NODE_OPTIONS release exited', handle)
     }
   } finally {
     elapsedMs = Date.now() - started

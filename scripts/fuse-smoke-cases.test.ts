@@ -23,6 +23,7 @@ describe('fuse smoke case outcomes', () => {
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: `warn ${NODE_OPTIONS_IGNORED}` })).toBe('ignored')
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: NODE_OPTIONS_HEADER_SIZE, output: NODE_OPTIONS_IGNORED })).toBeNull()
     expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: 'closed' })).toBeNull()
+    expect(nodeOptionsOutcome({ shouldApply: false, headerSize: null, output: NODE_OPTIONS_IGNORED, alive: false })).toBeNull()
   })
 
   it('prints the observed header size, error, port and exit when NODE_OPTIONS misses', () => {

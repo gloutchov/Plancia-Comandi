@@ -13,9 +13,10 @@ export const NODE_OPTIONS_PROBE = '--max-http-header-size=8192'
 export const NODE_OPTIONS_HEADER_SIZE = 8192
 export const NODE_OPTIONS_IGNORED = 'NODE_OPTIONS ignored due to disabled nodeOptions fuse.'
 
-export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '' }) {
+export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = '', alive = true }) {
   const ignored = String(output).includes(NODE_OPTIONS_IGNORED)
   if (shouldApply) return headerSize === NODE_OPTIONS_HEADER_SIZE && !ignored ? `applied:${headerSize}` : null
+  if (!alive) return null
   return ignored && headerSize == null ? 'ignored' : null
 }
 
