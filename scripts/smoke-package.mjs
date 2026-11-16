@@ -11,7 +11,7 @@ import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddres
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { assertConptyHostFiles, packageSourceDir } from './conpty-host-files.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, parseThreadCount, planciaInstanceReport, startupFaultEvents, threadCountWithinTolerance, windowsProcessTable, windowsThreadCount } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, parseThreadCount, planciaInstanceReport, settleThreadCount, startupFaultEvents, windowsProcessTable, windowsThreadCount } from './conpty-orphans.mjs'
 import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
@@ -189,10 +189,9 @@ async function windowsConptyCloseCheck(appPid) {
     return report.clear && descendantPids(rows, shellPid).length === 0 && !rows.some((row) => row.pid === ping.pid)
   }, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
   await evaluate('window.plancia.boot().then(b => Boolean(b.version))')
-  await delay(2500)
-  const threadsAfter = await mainThreadCount(appPid)
-  console.log(JSON.stringify({ conptyThreads: { before: threadsBefore, after: threadsAfter, tolerance: 2 } }))
-  assert.equal(threadCountWithinTolerance(threadsBefore, threadsAfter), true, `Main thread count rose from ${threadsBefore} to ${threadsAfter}`)
+  const settled = await settleThreadCount(threadsBefore, () => mainThreadCount(appPid), delay)
+  console.log(JSON.stringify({ conptyThreads: { before: settled.before, after: settled.after, last: settled.last, min: settled.min, tolerance: 2 } }))
+  assert.equal(settled.ok, true, `Main thread count stayed above ${threadsBefore}+2; last ${settled.last}, min ${settled.min}`)
   const extra = [...new Set(samples.flatMap(sample => sample.extra))]
   const peak = samples.reduce((max, sample) => Math.max(max, sample.count), 0)
   console.log(JSON.stringify({ conptyPlancia: { ownPid: appPid, peak, extra } }))

@@ -29,13 +29,15 @@ describe('unpacked ConPTY host files', () => {
 
   it('resolves the app checkout from the script location, not the working directory', () => {
     const script = pathToFileURL(path.join('/workspace/tooling/scripts/smoke-package.mjs')).href
-    const hasPrebuilds = (file) => file.replaceAll('\\', '/') === '/workspace/app/node_modules/node-pty/prebuilds'
+    const appPrebuilds = path.join(path.resolve('/workspace/app'), 'node_modules', 'node-pty', 'prebuilds')
+    const hasPrebuilds = (file) => file === appPrebuilds
     expect(packageSourceDir(script, {}, hasPrebuilds)).toBe(path.resolve('/workspace/app'))
     const local = pathToFileURL(path.join('/repo/scripts/smoke-package.mjs')).href
-    const localPrebuilds = (file) => file.replaceAll('\\', '/') === '/repo/node_modules/node-pty/prebuilds'
+    const repoPrebuilds = path.join(path.resolve('/repo'), 'node_modules', 'node-pty', 'prebuilds')
+    const localPrebuilds = (file) => file === repoPrebuilds
     expect(packageSourceDir(local, {}, localPrebuilds)).toBe(path.resolve('/repo'))
     const override = path.resolve('/explicit/app')
-    const explicit = (file) => file.replaceAll('\\', '/') === `${override.replaceAll('\\', '/')}/node_modules/node-pty/prebuilds`
+    const explicit = (file) => file === path.join(override, 'node_modules', 'node-pty', 'prebuilds')
     expect(packageSourceDir(script, { PLANCIA_SOURCE_DIR: override }, explicit)).toBe(override)
     expect(() => packageSourceDir(script, {}, () => false)).toThrow(/node_modules\/node-pty\/prebuilds/)
   })

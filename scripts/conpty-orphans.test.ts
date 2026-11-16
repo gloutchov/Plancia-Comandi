@@ -9,6 +9,7 @@ import {
   parseProcessTable,
   parseThreadCount,
   planciaInstanceReport,
+  settleThreadCount,
   startupFaultEvents,
   threadCountWithinTolerance,
 } from './conpty-orphans.mjs'
@@ -69,11 +70,18 @@ describe('ConPTY close on the Windows package', () => {
     expect(mainRejectedFuseClose('The fuse runAsNode is disabled')).toBe(true)
   })
 
-  it('reads a Windows thread count and allows only a small rise', () => {
+  it('reads a Windows thread count and allows only a small rise', async () => {
     expect(parseThreadCount('  14\r\n')).toBe(14)
     expect(parseThreadCount('unavailable')).toBeNull()
     expect(threadCountWithinTolerance(10, 12)).toBe(true)
     expect(threadCountWithinTolerance(10, 13)).toBe(false)
+    const reads = [12, 11, 10]
+    const waits = []
+    const settled = await settleThreadCount(8, async () => reads.shift(), async (ms) => { waits.push(ms) }, { budgetMs: 5000, intervalMs: 500 })
+    expect(settled).toMatchObject({ ok: true, before: 8, after: 10, last: 10, min: 10 })
+    expect(waits).toEqual([500, 500])
+    const stuck = await settleThreadCount(1, async () => 20, async () => {}, { budgetMs: 0, intervalMs: 500 })
+    expect(stuck).toMatchObject({ ok: false, last: 20, min: 20 })
   })
 
   it('prints the cleaned startup fault when the fork check matches', () => {

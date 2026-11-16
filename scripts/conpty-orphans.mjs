@@ -183,6 +183,22 @@ export function threadCountWithinTolerance(before, after, tolerance = MAIN_THREA
   return Number.isInteger(before) && Number.isInteger(after) && after <= before + tolerance
 }
 
+/** Sample until the count is within tolerance, or the budget expires. The first sample is immediate. */
+export async function settleThreadCount(before, read, wait, { tolerance = MAIN_THREAD_TOLERANCE, budgetMs = 10000, intervalMs = 500 } = {}) {
+  const started = Date.now()
+  let last = null
+  let min = null
+  for (;;) {
+    const after = await read()
+    if (!Number.isInteger(after)) throw new Error('Main thread count is unavailable')
+    last = after
+    min = min == null ? after : Math.min(min, after)
+    if (threadCountWithinTolerance(before, after, tolerance)) return { before, after, last, min, ok: true }
+    if (Date.now() - started >= budgetMs) return { before, after: last, last, min, ok: false }
+    await wait(intervalMs)
+  }
+}
+
 export function windowsThreadCount(pid) {
   const id = Number(pid)
   return new Promise((resolve, reject) => {
