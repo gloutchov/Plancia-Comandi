@@ -150,7 +150,9 @@ Plancia-Comandi/
 |   |-- electron-fuses.test.ts       Flip su una copia di Electron e legame del manifest
 |   |-- after-pack-fuses.mjs         Copia il gemello e accende i fuse nel pacchetto
 |   |-- smoke-fuses.mjs              Lettura dei fuse e prove negative sul binario di release
-|   |-- check-mac-bundles.mjs        Firma ad hoc e fuse aperti del gemello, prima dello smoke
+|   |-- check-mac-bundles.mjs        Firma ad hoc e fuse di default del gemello, prima dello smoke
+|   |-- prepare-open-fuse-twin.mjs   Gemello ricavato dal binario finale, fuse riportati ai default
+|   |-- assert-release-fuses.mjs     Lettura dei fuse sul portable, sull'installato e sui formati macOS
 |   |-- conpty-orphans.mjs           Chiusura ConPTY con figlio e controllo degli orfani
 |   |-- conpty-orphans.test.ts       Tabella dei processi e rifiuto non gestito
 |   |-- verify-sha256-manifest.mjs   Il manifest nomina i file appena misurati
@@ -387,7 +389,9 @@ Plancia-Comandi/
 |   |-- electron-fuses.test.ts       Flip on an Electron copy and manifest binding
 |   |-- after-pack-fuses.mjs         Copies the twin and flips fuses in the package
 |   |-- smoke-fuses.mjs              Fuse read and negative tests on the release binary
-|   |-- check-mac-bundles.mjs        Ad-hoc signature and open twin fuses, before smoke
+|   |-- check-mac-bundles.mjs        Ad-hoc signature and default twin fuses, before smoke
+|   |-- prepare-open-fuse-twin.mjs   Twin taken from the finished binary, fuses reset to defaults
+|   |-- assert-release-fuses.mjs     Fuse read on portable, installed and macOS formats
 |   |-- conpty-orphans.mjs           ConPTY close with a child and the orphan check
 |   |-- conpty-orphans.test.ts       Process table and unhandled rejection
 |   |-- verify-sha256-manifest.mjs   The manifest names the files just hashed

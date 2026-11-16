@@ -2,17 +2,20 @@ import { execFile } from 'node:child_process'
 
 // cmd echoes the typed line. A marker inside the command is visible before
 // the child exists, so the child is found from the process list instead.
+// -n 90 is longer than the 30s search plus the 15s close wait, so ping is still
+// the same process when the session closes. start /b keeps it in cmd's console.
 export function conptyChildCommand() {
-  return 'start /b ping.exe -n 60 127.0.0.1\r'
+  return 'start /b ping.exe -n 90 127.0.0.1\r'
 }
 
 export function parseProcessTable(text) {
   const rows = []
   for (const line of String(text).split(/\r?\n/)) {
-    const match = /^\s*(\d+)\s+(\d+)(?:\s+(\S+))?\s*$/.exec(line)
+    const match = /^\s*(\d+)\s+(\d+)(?:\s+(\S+))?(?:\s+(\d+))?\s*$/.exec(line)
     if (!match) continue
     const row = { pid: Number(match[1]), ppid: Number(match[2]) }
     if (match[3]) row.name = match[3]
+    if (match[4]) row.created = match[4]
     rows.push(row)
   }
   return rows
@@ -45,10 +48,17 @@ export function conptyTimeoutDetail({ command, terminal, processes }) {
   }
 }
 
+function sameProcess(row, expected) {
+  if (typeof expected === 'number') return row.pid === expected
+  if (row.pid !== expected.pid) return false
+  return !expected.created || row.created === expected.created
+}
+
 export function conptyCloseReport(rows, shellPid, childPid) {
-  const shellAlive = rows.some(row => row.pid === shellPid)
-  const childAlive = rows.some(row => row.pid === childPid)
-  const childrenOfShell = rows.filter(row => row.ppid === shellPid).map(row => row.pid)
+  const shellId = typeof shellPid === 'number' ? shellPid : shellPid.pid
+  const shellAlive = rows.some(row => sameProcess(row, shellPid))
+  const childAlive = rows.some(row => sameProcess(row, childPid))
+  const childrenOfShell = rows.filter(row => row.ppid === shellId).map(row => row.pid)
   return {
     clear: !shellAlive && !childAlive && childrenOfShell.length === 0,
     shellAlive,
@@ -67,7 +77,7 @@ export function windowsProcessTable() {
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      "Get-CimInstance Win32_Process | ForEach-Object { '{0} {1} {2}' -f $_.ProcessId, $_.ParentProcessId, $_.Name }",
+      "Get-CimInstance Win32_Process | ForEach-Object { '{0} {1} {2} {3}' -f $_.ProcessId, $_.ParentProcessId, $_.Name, $_.CreationDate.ToFileTime() }",
     ], { windowsHide: true, timeout: 15000, maxBuffer: 4_000_000 }, (error, stdout) => {
       if (error) reject(error)
       else resolve(String(stdout))

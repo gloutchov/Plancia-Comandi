@@ -61,6 +61,8 @@ jobs:
       - name: Package unsigned DMG and ZIP
         working-directory: app
         run: node ../tooling/scripts/package-macos-cli.mjs
+      - name: Prepare the open-fuse twin from the finished unpacked app
+        run: node tooling/scripts/prepare-open-fuse-twin.mjs app/release/mac-arm64
       - name: Resolve the unpacked application
         run: |
           shopt -s nullglob

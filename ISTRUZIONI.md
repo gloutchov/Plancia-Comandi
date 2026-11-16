@@ -330,7 +330,7 @@ Per smettere di usare i sorgenti basta interrompere l'app; conserva il checkout 
 
 Dai sorgenti 0.3.7 i permessi web non necessari (per esempio posizione e fotocamera) sono negati automaticamente. Non occorre concederli per usare terminali, copia/incolla o notifiche native. Finestre o documenti estranei non possono usare il bridge privilegiato dell’app; le shell mantengono i permessi dell’utente.
 
-I pacchetti costruiti da questi sorgenti 0.3.8 disattivano l’esecuzione Node da riga di comando e controllano l’integrità dell’archivio interno. `pty.node` e il file `config` restano fuori da quel controllo. Senza firma, chi può modificare il binario può modificare anche il controllo. I pacchetti pubblicati 0.3.7 non lo hanno. Linux non è verificato. La porta di debug usata solo dallo smoke resta su `127.0.0.1`.
+I pacchetti costruiti da questi sorgenti 0.3.8 disattivano l’esecuzione Node da riga di comando e controllano l’integrità dell’archivio interno. `pty.node` e il file `config` restano fuori da quel controllo. Senza firma, chi può modificare il binario può modificare anche il controllo. I pacchetti pubblicati 0.3.7 non lo hanno. Linux non è verificato. Il binario pubblicato accetta ancora `--remote-debugging-port` e `-pipe`: da lì si raggiunge il renderer e si può scrivere nel terminale. È un rischio residuo (I-04), non una funzione dello smoke. Lo smoke, quando usa quella porta, la vincola a `127.0.0.1`.
 
 Plancia Comandi è un terminale locale con i tuoi permessi, senza confinamento a una workspace. Non eseguirlo con privilegi elevati e non considerare il sandbox del renderer una protezione dai comandi digitati. Le shell ereditano quasi tutto l'ambiente del processo, potenzialmente incluse variabili sensibili.
 

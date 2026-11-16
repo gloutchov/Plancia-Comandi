@@ -6,7 +6,7 @@ import net from 'node:net'
 import os from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it } from 'vitest'
-import { assertLoopbackListener, mainInspectorUrl, smokeEnvironment } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl, parseListenAddresses, smokeEnvironment } from './smoke-driver.mjs'
 
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
@@ -18,6 +18,13 @@ describe('native package smoke isolation', () => {
     for (const key of ['HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME', 'ZDOTDIR']) expect(env[key].startsWith(root + path.sep)).toBe(true)
     expect(JSON.stringify(env)).not.toContain('SYNTHETIC_SECRET')
   })
+})
+
+it('reads loopback and wildcard listen addresses', () => {
+  expect(parseListenAddresses('127.0.0.1\n0.0.0.0\nnode 1 user TCP 127.0.0.1:9229 (LISTEN)\n')).toEqual(['127.0.0.1', '0.0.0.0', '127.0.0.1'])
+  expect(listenAddressEscapesLoopback('0.0.0.0')).toBe(true)
+  expect(listenAddressEscapesLoopback('::')).toBe(true)
+  expect(listenAddressEscapesLoopback('127.0.0.1')).toBe(false)
 })
 
 it('accepts a listener on 127.0.0.1 and refuses another local address', async () => {

@@ -71,6 +71,8 @@ jobs:
         run: |
           node ../tooling/scripts/package-windows.mjs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Prepare the open-fuse twin from the finished unpacked app
+        run: node tooling/scripts/prepare-open-fuse-twin.mjs app/release/win-unpacked
       - name: Smoke the open-fuse twin with the full harness
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
@@ -94,10 +96,14 @@ jobs:
           if ($portable.Count -ne 1 -or $setup.Count -ne 1) { throw 'Expected one installer and one portable executable' }
           node tooling/scripts/smoke-package.mjs $portable.FullName "$env:EXPECTED_VERSION" release
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node tooling/scripts/assert-release-fuses.mjs $portable.FullName
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           $destination = Join-Path $env:RUNNER_TEMP 'plancia-installed-smoke'
           $installer = Start-Process -Wait -PassThru -FilePath $setup.FullName -ArgumentList '/S', "/D=$destination"
           if ($installer.ExitCode) { throw 'Silent installation failed' }
           node tooling/scripts/smoke-package.mjs (Join-Path $destination 'plancia-comandi.exe') "$env:EXPECTED_VERSION" release
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node tooling/scripts/assert-release-fuses.mjs (Join-Path $destination 'plancia-comandi.exe')
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node tooling/scripts/inspect-package.mjs (Join-Path $destination 'resources') app "$env:EXPECTED_VERSION"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

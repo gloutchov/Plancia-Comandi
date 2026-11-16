@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
@@ -7,7 +7,7 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { smokeCustomPatterns } from './smoke-custom-patterns.mjs'
 import { smokeSettings } from './smoke-settings.mjs'
-import { assertLoopbackListener, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
+import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, smokeEnvironment, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, parseProcessTable, windowsProcessTable } from './conpty-orphans.mjs'
@@ -91,6 +91,28 @@ async function evaluate(expression) {
   if (result.exceptionDetails) throw new Error('Renderer evaluation failed')
   return result.result?.value
 }
+function ownedListenText(pid) {
+  if (!pid) return Promise.resolve('')
+  const command = process.platform === 'win32'
+    ? ['powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `Get-NetTCPConnection -OwningProcess ${pid} -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $_.LocalAddress }`]]
+    : ['lsof', ['-nP', '-p', String(pid), '-a', '-iTCP', '-sTCP:LISTEN']]
+  return new Promise((resolve) => {
+    execFile(command[0], command[1], { timeout: 8000, windowsHide: true }, (error, stdout, stderr) => {
+      if (error && !stdout) resolve('')
+      else resolve(`${stdout || ''}${stderr || ''}`)
+    })
+  })
+}
+async function assertOwnedListeners(pid) {
+  const text = await ownedListenText(pid)
+  if (!text.trim()) {
+    console.log(JSON.stringify({ listeners: 'unavailable' }))
+    return
+  }
+  const addresses = parseListenAddresses(text)
+  console.log(JSON.stringify({ listeners: addresses }))
+  assert.equal(addresses.some(listenAddressEscapesLoopback), false, 'A debug listener is not limited to loopback')
+}
 async function windowsConptyCloseCheck() {
   if (process.platform !== 'win32') return false
   stageAt('ConPTY child')
@@ -99,17 +121,18 @@ async function windowsConptyCloseCheck() {
   const id = created.session.id
   const shellPid = created.session.pid
   assert.equal(Number.isInteger(shellPid) && shellPid > 0, true, 'ConPTY shell pid missing')
+  const shellRow = parseProcessTable(await windowsProcessTable()).find(row => row.pid === shellPid) || { pid: shellPid }
   sessions.push(id)
   const command = conptyChildCommand()
   await evaluate(`window.plancia.write(${JSON.stringify(id)}, ${JSON.stringify(command)})`)
-  const childPid = await waitForConptyChild(id, shellPid, command)
-  assert.equal(Number.isInteger(childPid) && childPid > 0, true, 'ConPTY child pid missing')
+  const child = await waitForConptyChild(id, shellPid, command)
+  assert.equal(Number.isInteger(child.pid) && child.pid > 0, true, 'ConPTY child pid missing')
   stageAt('ConPTY close')
   await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`)
   const index = sessions.indexOf(id)
   if (index >= 0) sessions.splice(index, 1)
   await until(() => evaluate(`window.plancia.boot().then(b => !b.sessions.some(s => s.id === ${JSON.stringify(id)}))`), 'ConPTY session did not close')
-  await until(async () => conptyCloseReport(parseProcessTable(await windowsProcessTable()), shellPid, childPid).clear, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
+  await until(async () => conptyCloseReport(parseProcessTable(await windowsProcessTable()), shellRow, child).clear, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
   assert.equal(mainRejectedFuseClose(diagnostics), false, 'Main process reported a fork or unhandled rejection while closing ConPTY')
   return true
 }
@@ -119,13 +142,13 @@ async function waitForConptyChild(id, shellPid, command) {
   while (Date.now() < deadline) {
     processes = await windowsProcessTable()
     const child = descendantNamed(parseProcessTable(processes), shellPid, /ping/i)
-    if (child) return child.pid
+    if (child) return child
     await delay(200)
   }
   const terminal = await evaluate(`window.plancia.subscribe(${JSON.stringify(id)}).then(s => s.data)`).catch(() => '')
   failureDetail = JSON.stringify(conptyTimeoutDetail({ command, terminal, processes }))
   console.error(failureDetail)
-  throw new Error('ConPTY child did not appear')
+  throw new Error(`ConPTY child did not appear within 30s: ${failureDetail}`)
 }
 try {
   if (mode === 'full') {
@@ -161,6 +184,7 @@ try {
     assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
     stageAt('loopback debugging port')
     await assertLoopbackListener(port)
+    await assertOwnedListeners(child.pid)
     const checks = ['isolated preferences', 'preload', 'loopback CDP']
     if (await windowsConptyCloseCheck()) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
     else {

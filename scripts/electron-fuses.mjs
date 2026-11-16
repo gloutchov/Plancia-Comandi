@@ -1,8 +1,39 @@
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cp, readdir, readFile } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
+import { cp, readdir, readFile, readlink } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import path from 'node:path'
-import { FuseState, FuseV1Options, FuseVersion, flipFuses, getCurrentFuseWire } from '@electron/fuses'
+import { fileURLToPath } from 'node:url'
+
+let fusesModule
+
+export function resolveAppPackageJson(start = process.cwd()) {
+  const seeds = [start, path.dirname(fileURLToPath(import.meta.url))]
+  const seen = new Set()
+  for (const seed of seeds) {
+    let dir = path.resolve(seed)
+    for (let depth = 0; depth < 8; depth += 1) {
+      if (seen.has(dir)) break
+      seen.add(dir)
+      for (const file of [path.join(dir, 'package.json'), path.join(dir, 'app', 'package.json')]) {
+        if (!existsSync(file)) continue
+        const pkg = JSON.parse(readFileSync(file, 'utf8'))
+        const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+        if (deps['@electron/fuses']) return file
+      }
+      const parent = path.dirname(dir)
+      if (parent === dir) break
+      dir = parent
+    }
+  }
+  throw new Error('Cannot resolve @electron/fuses from an app package.json')
+}
+
+export function loadFuses(start) {
+  if (!fusesModule) fusesModule = createRequire(resolveAppPackageJson(start))('@electron/fuses')
+  return fusesModule
+}
 
 export const executableName = 'plancia-comandi'
 const sentinel = Buffer.from('dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX')
@@ -10,6 +41,7 @@ const sentinel = Buffer.from('dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX')
 // Electron 45.3.2 carries nine fuses. @electron/fuses 1.8.0, which
 // electron-builder 26.18.0 imports, stops at eight, so the flip lives here.
 export function releaseFuseConfig() {
+  const { FuseVersion, FuseV1Options } = loadFuses()
   return {
     version: FuseVersion.V1,
     resetAdHocDarwinSignature: true,
@@ -26,13 +58,40 @@ export function releaseFuseConfig() {
   }
 }
 
-export function decidedFuseStates() {
-  const config = releaseFuseConfig()
+function fuseStatesFrom(config) {
+  const { FuseState, FuseV1Options } = loadFuses()
   const states = {}
   for (let index = 0; index <= FuseV1Options.WasmTrapHandlers; index += 1) {
     states[index] = config[index] ? FuseState.ENABLE : FuseState.DISABLE
   }
   return states
+}
+
+export function decidedFuseStates() {
+  return fuseStatesFrom(releaseFuseConfig())
+}
+
+// Wire read from the unpacked Electron 45.3.2 binary before any flip.
+export function defaultFuseConfig() {
+  const { FuseVersion, FuseV1Options } = loadFuses()
+  return {
+    version: FuseVersion.V1,
+    resetAdHocDarwinSignature: true,
+    strictlyRequireAllFuses: true,
+    [FuseV1Options.RunAsNode]: true,
+    [FuseV1Options.EnableCookieEncryption]: false,
+    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: true,
+    [FuseV1Options.EnableNodeCliInspectArguments]: true,
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: false,
+    [FuseV1Options.OnlyLoadAppFromAsar]: false,
+    [FuseV1Options.LoadBrowserProcessSpecificV8Snapshot]: false,
+    [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+    [FuseV1Options.WasmTrapHandlers]: true,
+  }
+}
+
+export function defaultFuseStates() {
+  return fuseStatesFrom(defaultFuseConfig())
 }
 
 export function twinDirectory(appOutDir) {
@@ -65,22 +124,59 @@ function runTool(command, args) {
 
 // Node's fs.cp rewrites a relative symlink to an absolute path in the source.
 // The twin would then load the release framework after the fuse flip.
+export async function copyBundle(src, dest) {
+  if (process.platform === 'darwin') await runTool('ditto', [src, dest])
+  else await cp(src, dest, { recursive: true, verbatimSymlinks: true, dereference: false, errorOnExist: true, force: false })
+  return dest
+}
+
 export async function copyOpenFuseTwin(appOutDir) {
-  const twin = twinDirectory(appOutDir)
-  if (process.platform === 'darwin') {
-    await runTool('ditto', [appOutDir, twin])
-    const apps = (await readdir(twin)).filter(name => name.endsWith('.app'))
-    if (apps.length !== 1) throw new Error('Expected one macOS app in the open-fuse twin')
-    await runTool('codesign', ['--force', '--deep', '--sign', '-', path.join(twin, apps[0])])
-  } else {
-    await cp(appOutDir, twin, { recursive: true, verbatimSymlinks: true, dereference: false, errorOnExist: true, force: false })
+  return copyBundle(appOutDir, twinDirectory(appOutDir))
+}
+
+export async function symlinksOutside(root) {
+  const outside = []
+  async function walk(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isSymbolicLink()) {
+        const target = await readlink(full)
+        const resolved = path.resolve(path.dirname(full), target)
+        const relative = path.relative(root, resolved)
+        if (relative.startsWith('..') || path.isAbsolute(relative)) outside.push({ link: path.relative(root, full), target })
+      } else if (entry.isDirectory()) await walk(full)
+    }
   }
-  return twin
+  await walk(root)
+  return outside
+}
+
+export async function frameworkLinks(root) {
+  const links = []
+  async function walk(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isSymbolicLink() && full.includes(`${path.sep}Electron Framework.framework${path.sep}`)) {
+        links.push({ link: path.relative(root, full), target: await readlink(full) })
+      } else if (entry.isDirectory()) await walk(full)
+    }
+  }
+  await walk(root)
+  return links
 }
 
 export function assertTwinStillOpen(states) {
+  const { FuseState, FuseV1Options } = loadFuses()
   if (states[FuseV1Options.RunAsNode] !== FuseState.ENABLE) throw new Error('Open-fuse twin has runAsNode disabled')
   if (states[FuseV1Options.EnableNodeCliInspectArguments] !== FuseState.ENABLE) throw new Error('Open-fuse twin has nodeCliInspect disabled')
+}
+
+export function assertDefaultFuses(states) {
+  const expected = defaultFuseStates()
+  const { FuseV1Options } = loadFuses()
+  for (const [index, state] of Object.entries(expected)) {
+    if (states[Number(index)] !== state) throw new Error(`Open-fuse twin ${FuseV1Options[index]} is ${states[Number(index)]}, expected default ${state}`)
+  }
 }
 
 export function appBundlePath(executable) {
@@ -90,13 +186,17 @@ export function appBundlePath(executable) {
   return parts.slice(0, index + 1).join(path.sep)
 }
 
+export function pathToFuseFile(target) {
+  return loadFuses().pathToFuseFile(target)
+}
+
 export async function applyReleaseFuses(target) {
-  await flipFuses(target, releaseFuseConfig())
+  await loadFuses().flipFuses(target, releaseFuseConfig())
   return readFuseStates(target)
 }
 
 export async function readFuseStates(target) {
-  const wire = await getCurrentFuseWire(target)
+  const wire = await loadFuses().getCurrentFuseWire(target)
   const states = {}
   for (const key of Object.keys(wire)) {
     if (key === 'version') continue
@@ -106,12 +206,31 @@ export async function readFuseStates(target) {
 }
 
 export function assertReleaseFuses(states) {
+  const { FuseV1Options } = loadFuses()
   const expected = decidedFuseStates()
   for (const [index, state] of Object.entries(expected)) {
     if (states[Number(index)] !== state) {
       throw new Error(`Fuse ${FuseV1Options[index]} is ${states[Number(index)]}, expected ${state}`)
     }
   }
+}
+
+export async function prepareOpenFuseTwin(finalDir) {
+  const twin = await copyOpenFuseTwin(finalDir)
+  const outside = await symlinksOutside(twin)
+  const links = await frameworkLinks(twin)
+  console.log(JSON.stringify({ twin: path.basename(twin), frameworkLinks: links, symlinksOutside: outside.length }))
+  if (outside.length) throw new Error('Open-fuse twin has a symlink that points outside its directory')
+  const entries = await readdir(twin)
+  const target = fuseTarget(twin, process.platform, entries)
+  await loadFuses().flipFuses(target, defaultFuseConfig())
+  if (process.platform === 'darwin') {
+    const apps = entries.filter(name => name.endsWith('.app'))
+    if (apps.length !== 1) throw new Error('Expected one macOS app in the open-fuse twin')
+    await runTool('codesign', ['--force', '--deep', '--sign', '-', path.join(twin, apps[0])])
+  }
+  assertDefaultFuses(await readFuseStates(target))
+  return twin
 }
 
 export function fuseStateSpans(buffer) {

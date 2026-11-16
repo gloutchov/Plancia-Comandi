@@ -10,13 +10,13 @@ import {
 describe('ConPTY close on the Windows package', () => {
   it('starts a long-running child and records its pid', () => {
     const command = conptyChildCommand()
-    expect(command).toBe('start /b ping.exe -n 60 127.0.0.1\r')
+    expect(command).toBe('start /b ping.exe -n 90 127.0.0.1\r')
     expect(command).not.toContain('PLANCIA_CHILD_OK')
   })
 
   it('finds a ping descendant of the shell', () => {
-    const rows = parseProcessTable('10 1 cmd.exe\n21 10 ping.exe\n30 1 other.exe\n')
-    expect(descendantNamed(rows, 10, /ping/i)).toEqual({ pid: 21, ppid: 10, name: 'ping.exe' })
+    const rows = parseProcessTable('10 1 cmd.exe 100\n21 10 ping.exe 200\n30 1 other.exe 300\n')
+    expect(descendantNamed(rows, 10, /ping/i)).toEqual({ pid: 21, ppid: 10, name: 'ping.exe', created: '200' })
     expect(descendantNamed(rows, 99, /ping/i)).toBeNull()
   })
 

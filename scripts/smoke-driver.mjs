@@ -4,6 +4,22 @@ import os from 'node:os'
 import path from 'node:path'
 import { restoreSmokeWorkerStartup } from './smoke-worker.mjs'
 
+export function parseListenAddresses(text) {
+  const found = []
+  for (const raw of String(text).split(/\r?\n/)) {
+    const line = raw.trim()
+    if (!line || line.startsWith('LocalAddress') || line.startsWith('COMMAND')) continue
+    if (/^(?:\*|0\.0\.0\.0|::|\[::\]|\d+\.\d+\.\d+\.\d+)$/.test(line)) found.push(line.replace(/^\[|\]$/g, ''))
+    const match = line.match(/(\*|0\.0\.0\.0|\[::\]|::|\d+\.\d+\.\d+\.\d+):\d+\s+\(LISTEN\)/i)
+    if (match) found.push(match[1].replace(/^\[|\]$/g, ''))
+  }
+  return found
+}
+
+export function listenAddressEscapesLoopback(address) {
+  return address === '*' || address === '0.0.0.0' || address === '::'
+}
+
 export async function assertLoopbackListener(port) {
   assert.equal(await canConnect(port, '127.0.0.1'), true, 'Debugging did not accept 127.0.0.1')
   const other = Object.values(os.networkInterfaces()).flat().find(entry => entry && entry.family === 'IPv4' && !entry.internal)

@@ -330,7 +330,7 @@ To stop using source, stop the app; retain the checkout if it contains changes o
 
 From version 0.3.7 source, unnecessary web permissions (for example location and camera) are denied automatically. They are not needed for terminals, copy/paste or native notifications. Foreign windows or documents cannot use the app’s privileged bridge; shells retain the user’s permissions.
 
-Packages built from these 0.3.8 sources turn off command-line Node execution and check the integrity of the internal archive. `pty.node` and the `config` file stay outside that check. Without a signature, whoever can modify the binary can modify the check too. The published 0.3.7 packages do not have it. Linux is not verified. The debug port used only by smoke stays on `127.0.0.1`.
+Packages built from these 0.3.8 sources turn off command-line Node execution and check the integrity of the internal archive. `pty.node` and the `config` file stay outside that check. Without a signature, whoever can modify the binary can modify the check too. The published 0.3.7 packages do not have it. Linux is not verified. The published binary still accepts `--remote-debugging-port` and `-pipe`: from there the renderer can be reached and the terminal can be written. That is a residual risk (I-04), not a smoke-only feature. When smoke uses that port, it binds it to `127.0.0.1`.
 
 Plancia Comandi is a local terminal running with your permissions, without workspace confinement. Do not run it with elevated privileges or treat the renderer sandbox as protection against typed commands. Shells inherit almost the entire process environment, potentially including sensitive variables.
 

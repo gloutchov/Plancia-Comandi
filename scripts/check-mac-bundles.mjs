@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { appBundlePath, assertReleaseFuses, assertTwinStillOpen, readFuseStates } from './electron-fuses.mjs'
+import { appBundlePath, assertDefaultFuses, assertReleaseFuses, readFuseStates } from './electron-fuses.mjs'
 
 const releaseExecutable = process.argv[2]
 const twinExecutable = process.argv[3]
@@ -22,7 +22,7 @@ function verifySignature(bundle) {
 const releaseStates = await readFuseStates(releaseExecutable)
 const twinStates = await readFuseStates(twinExecutable)
 assertReleaseFuses(releaseStates)
-assertTwinStillOpen(twinStates)
+assertDefaultFuses(twinStates)
 const bundles = [appBundlePath(releaseExecutable), appBundlePath(twinExecutable)]
 const signatures = []
 for (const bundle of bundles) {

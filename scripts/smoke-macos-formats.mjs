@@ -4,6 +4,7 @@ import { mkdir, mkdtemp } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { assertReleaseFuses, readFuseStates } from './electron-fuses.mjs'
 import { discoverMacApp } from './package-macos.mjs'
 
 const [releaseArgument, sourceArgument, version] = process.argv.slice(2)
@@ -26,6 +27,7 @@ function run(command, args) {
 }
 async function inspectAndSmoke(directory, format) {
   const app = discoverMacApp(directory)
+  assertReleaseFuses(await readFuseStates(app.executable))
   await run(process.execPath, [path.join(scripts, 'inspect-package.mjs'), app.resources, source, version])
   await run(process.execPath, [path.join(scripts, 'smoke-package.mjs'), app.executable, version, 'release'])
   console.log(JSON.stringify({ format, version, inspectionAndSmoke: 'passed' }))

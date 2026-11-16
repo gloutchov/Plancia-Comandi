@@ -1,5 +1,8 @@
-import { createRequire } from 'node:module'
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { copyFile, lstat, mkdir, mkdtemp, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { FuseState, FuseV1Options, FuseVersion, flipFuses } from '@electron/fuses'
@@ -9,10 +12,14 @@ import {
   assertOnlyFuseWireDiffers,
   appBundlePath,
   assertReleaseFuses,
+  assertDefaultFuses,
   assertTwinStillOpen,
   assetDigestMatches,
   copyOpenFuseTwin,
   decidedFuseStates,
+  loadFuses,
+  prepareOpenFuseTwin,
+  resolveAppPackageJson,
   manifestLine,
   readFuseStates,
   releaseFuseConfig,
@@ -40,6 +47,28 @@ describe('release fuse configuration', () => {
     expect(Object.keys(decidedFuseStates())).toHaveLength(9)
   })
 
+  it('default wire matches the unpacked Electron binary', async () => {
+    assertDefaultFuses(await readFuseStates(electronBinary))
+  })
+
+  it.skipIf(process.platform === 'darwin')('resets the finished binary, so only the fuse wire differs', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-prepare-'))
+    const finalDir = path.join(root, 'final')
+    await mkdir(finalDir)
+    const name = process.platform === 'win32' ? 'plancia-comandi.exe' : 'plancia-comandi'
+    const release = path.join(finalDir, name)
+    await copyFile(electronBinary, release)
+    try {
+      await flipFuses(release, releaseFuseConfig())
+      await prepareOpenFuseTwin(finalDir)
+      const twin = path.join(`${finalDir}-open-fuses`, name)
+      assertDefaultFuses(await readFuseStates(twin))
+      assertOnlyFuseWireDiffers(await readFile(twin), await readFile(release))
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 60000)
+
   it.skipIf(process.platform === 'win32')('keeps a relative framework symlink inside the twin', async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-twin-link-'))
     const src = path.join(root, 'src')
@@ -53,6 +82,26 @@ describe('release fuse configuration', () => {
       expect((await lstat(path.join(twin, 'Versions', 'Current'))).isSymbolicLink()).toBe(true)
     } finally {
       await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it('resolves @electron/fuses from the app package when the working directory has none', () => {
+    const empty = mkdtempSync(path.join(os.tmpdir(), 'plancia-tooling-'))
+    const script = fileURLToPath(new URL('./electron-fuses.mjs', import.meta.url))
+    const verify = fileURLToPath(new URL('./verify-sha256-manifest.mjs', import.meta.url))
+    const smoke = fileURLToPath(new URL('./smoke-fuses.mjs', import.meta.url))
+    try {
+      expect(resolveAppPackageJson(empty)).toMatch(/package\.json$/)
+      expect(loadFuses(empty).pathToFuseFile).toBeTypeOf('function')
+      for (const file of [verify, smoke]) {
+        const loaded = spawnSync(process.execPath, ['--input-type=module', '-e', `import ${JSON.stringify(file)}`], { cwd: empty, encoding: 'utf8' })
+        expect(loaded.stderr).toContain('Usage:')
+        expect(loaded.stderr).not.toContain('Cannot find package')
+      }
+      expect(readFileSync(script, 'utf8')).not.toContain("from '@electron/fuses'")
+      expect(readFileSync(smoke, 'utf8')).not.toContain("from '@electron/fuses'")
+    } finally {
+      rmSync(empty, { recursive: true, force: true })
     }
   })
 
