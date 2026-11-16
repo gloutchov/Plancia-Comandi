@@ -12,7 +12,7 @@ import {
   pathToFuseFile,
   readFuseStates,
 } from './electron-fuses.mjs'
-import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, NODE_OPTIONS_PROBE, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { connectProtocol, mainInspectorUrl } from './smoke-driver.mjs'
 import {
   STARTUP_HOLD_MS,
@@ -158,8 +158,9 @@ async function expectInspector(executable, profile, prefix, shouldListen) {
 const NODE_OPTIONS_READ_MS = 8000
 
 async function readHeaderSizeAt(url) {
-  const driver = await connectProtocol(url)
+  let driver
   try {
+    driver = await connectProtocol(url)
     await driver.request('Runtime.enable')
     const value = await driver.evaluate("require('node:http').maxHeaderSize", false)
     if (typeof value !== 'number') return { headerSize: null, error: 'non-number' }
@@ -167,7 +168,7 @@ async function readHeaderSizeAt(url) {
   } catch (error) {
     return { headerSize: null, error: String(error.message || error).slice(0, 300) }
   } finally {
-    driver.close()
+    driver?.close()
   }
 }
 
@@ -183,10 +184,18 @@ async function expectNodeOptions(executable, profile, shouldApply) {
   let readError = null
   const started = Date.now()
   const deadline = started + NODE_OPTIONS_READ_MS
+  let elapsedMs = 0
   try {
     if (shouldApply) {
       while (Date.now() < deadline && await stillRunning(handle)) {
-        const url = await mainInspectorUrl(port)
+        let url = null
+        try {
+          url = await mainInspectorUrl(port)
+        } catch (error) {
+          readError = String(error.message || error).slice(0, 300)
+          await delay(200)
+          continue
+        }
         if (!url) { await delay(100); continue }
         const read = await readHeaderSizeAt(url)
         headerSize = read.headerSize
@@ -198,15 +207,14 @@ async function expectNodeOptions(executable, profile, shouldApply) {
       while (Date.now() < deadline && await stillRunning(handle) && !String(handle.state.output).includes(NODE_OPTIONS_IGNORED)) await delay(100)
     }
   } finally {
+    elapsedMs = Date.now() - started
     await stop(handle)
   }
   const outcome = nodeOptionsOutcome({ shouldApply, headerSize: shouldApply ? headerSize : null, output: handle.state.output })
   if (!outcome) {
-    const elapsedMs = Date.now() - started
     const exitCode = handle.state.code
     const signal = handle.state.signal
-    console.log(JSON.stringify({ case: 'NODE_OPTIONS', headerSize, readError, port, exitCode, signal, elapsedMs }))
-    throw earlyExit(formatNodeOptionsMiss({
+    throw earlyExit(reportNodeOptionsMiss({
       shouldApply, headerSize, readError, port, exitCode, signal, elapsedMs, timeoutMs: NODE_OPTIONS_READ_MS,
     }), handle)
   }

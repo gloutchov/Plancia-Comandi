@@ -1,9 +1,10 @@
+import { spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
+import { NODE_OPTIONS_HEADER_SIZE, NODE_OPTIONS_IGNORED, formatNodeOptionsMiss, nodeOptionsOutcome, processExitDetail, reportNodeOptionsMiss, runAsNodeOutcome } from './fuse-smoke-cases.mjs'
 import { isDiagnosticFile, launchArgs, prepareIsolatedCase } from './fuse-smoke-launch.mjs'
 
 describe('fuse smoke case outcomes', () => {
@@ -42,10 +43,32 @@ describe('fuse smoke case outcomes', () => {
     expect(message).toContain('exit 0')
     expect(message).toContain('1001')
     expect(message).toContain('8000')
-    const source = readFileSync(new URL('./smoke-fuses.mjs', import.meta.url), 'utf8')
-    expect(source).toContain('NODE_OPTIONS_HEADER_SIZE')
-    expect(source).toContain('formatNodeOptionsMiss')
-    expect(source).toContain('console.log(JSON.stringify({ case: \'NODE_OPTIONS\', headerSize, readError, port, exitCode, signal, elapsedMs }))')
+    const seen = []
+    const write = console.log
+    console.log = (line) => { seen.push(String(line)) }
+    let reported
+    try {
+      reported = reportNodeOptionsMiss({
+        shouldApply: true,
+        headerSize: null,
+        readError: 'socket refused',
+        port: 49284,
+        exitCode: 0,
+        signal: null,
+        elapsedMs: 1001,
+        timeoutMs: 8000,
+      })
+    } finally {
+      console.log = write
+    }
+    expect(JSON.parse(seen[0])).toEqual({
+      case: 'NODE_OPTIONS', headerSize: null, readError: 'socket refused', port: 49284, exitCode: 0, signal: null, elapsedMs: 1001,
+    })
+    expect(reported).toBe(formatNodeOptionsMiss({
+      shouldApply: true, headerSize: null, readError: 'socket refused', port: 49284, exitCode: 0, signal: null, elapsedMs: 1001, timeoutMs: 8000,
+    }))
+    const check = spawnSync(process.execPath, ['--check', fileURLToPath(new URL('./smoke-fuses.mjs', import.meta.url))], { encoding: 'utf8' })
+    expect(check.status, check.stderr).toBe(0)
   })
 
   it('keeps the exit code, signal and output of a process that quit', () => {

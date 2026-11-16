@@ -19,6 +19,19 @@ export function nodeOptionsOutcome({ shouldApply, headerSize = null, output = ''
   return ignored && headerSize == null ? 'ignored' : null
 }
 
+export function reportNodeOptionsMiss(detail) {
+  console.log(JSON.stringify({
+    case: 'NODE_OPTIONS',
+    headerSize: detail.headerSize ?? null,
+    readError: detail.readError ?? null,
+    port: detail.port,
+    exitCode: detail.exitCode ?? null,
+    signal: detail.signal ?? null,
+    elapsedMs: detail.elapsedMs,
+  }))
+  return formatNodeOptionsMiss(detail)
+}
+
 export function formatNodeOptionsMiss({ shouldApply, headerSize, readError, port, exitCode, signal, elapsedMs, timeoutMs, expected = NODE_OPTIONS_HEADER_SIZE }) {
   const exit = signal ? `signal ${signal}` : `exit ${exitCode ?? 'null'}`
   if (!shouldApply) return `NODE_OPTIONS was not ignored within ${elapsedMs}ms (limit ${timeoutMs}ms), ${exit}`
