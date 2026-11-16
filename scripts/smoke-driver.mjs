@@ -53,7 +53,7 @@ function canConnect(port, host) {
 
 // Inherited names the packaged process may see. Profile, secrets and diagnostic
 // flags are not in this list: the smoke sets HOME and the Windows profile itself.
-const SMOKE_ENV = /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR|LANG|LC_ALL|DISPLAY|XAUTHORITY|__CF_USER_TEXT_ENCODING)$/i
+const SMOKE_ENV = /^(PATH|SystemRoot|WINDIR|COMSPEC|PATHEXT|TEMP|TMP|TMPDIR|LANG|LC_ALL|DISPLAY|XAUTHORITY|__CF_USER_TEXT_ENCODING|SystemDrive|ProgramData|ProgramFiles|ProgramFiles\(x86\)|CommonProgramFiles|PROCESSOR_ARCHITECTURE|NUMBER_OF_PROCESSORS|OS|USERNAME|USERDOMAIN|USER|LOGNAME|SHELL)$/i
 
 /** HOMEDRIVE and HOMEPATH for an isolated Windows USERPROFILE, when the path has a drive. */
 export function windowsProfileVars(home) {
@@ -77,7 +77,7 @@ export function smokeEnvironment(root, source = process.env, platform = process.
   if (platform === 'win32') {
     const profile = windowsProfileVars(home)
     if (profile) Object.assign(env, profile)
-  } else env.SHELL = '/bin/zsh'
+  } else if (!env.SHELL) env.SHELL = '/bin/zsh'
   return env
 }
 

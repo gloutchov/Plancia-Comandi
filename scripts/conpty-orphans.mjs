@@ -11,14 +11,27 @@ export function conptyChildCommand() {
 export function parseProcessTable(text) {
   const rows = []
   for (const line of String(text).split(/\r?\n/)) {
-    const match = /^\s*(\d+)\s+(\d+)(?:\s+(\S+))?(?:\s+(\d+))?\s*$/.exec(line)
+    const tab = line.indexOf('\t')
+    const head = tab === -1 ? line : line.slice(0, tab)
+    const command = tab === -1 ? '' : line.slice(tab + 1)
+    const match = /^\s*(\d+)\s+(\d+)(?:\s+(\S+))?(?:\s+(\d+))?\s*$/.exec(head)
     if (!match) continue
     const row = { pid: Number(match[1]), ppid: Number(match[2]) }
     if (match[3]) row.name = match[3]
     if (match[4]) row.created = match[4]
+    if (command) row.command = command
     rows.push(row)
   }
   return rows
+}
+
+function isPlanciaExe(row) {
+  return /plancia-comandi\.exe$/i.test(row.name || '')
+}
+
+/** Electron helpers share the exe name and carry --type=. A relaunched app does not. */
+export function isAppInstance(row) {
+  return isPlanciaExe(row) && !/--type=/.test(row.command || '')
 }
 
 export function descendantNamed(rows, rootPid, namePattern) {
@@ -68,37 +81,56 @@ export function conptyCloseReport(rows, shellPid, childPid) {
 }
 
 export function planciaInstanceReport(rows, ownPid) {
-  const named = rows.filter(row => /plancia-comandi\.exe$/i.test(row.name || ''))
+  const apps = rows.filter(isAppInstance)
   return {
-    count: named.length,
+    count: apps.length,
     ownPid,
-    extra: named.filter(row => row.pid !== ownPid).map(row => row.pid),
+    extra: apps.filter(row => row.pid !== ownPid).map(row => row.pid),
   }
 }
 
-/** Pid of the extracted app. The portable wrapper's own pid is not a listener owner. */
-export function packagedListenerPid(rows, wrapperPid) {
-  const name = (row) => /plancia-comandi\.exe$/i.test(row.name || '')
+function childMap(rows) {
   const children = new Map()
   for (const row of rows) {
     const list = children.get(row.ppid) || []
     list.push(row)
     children.set(row.ppid, list)
   }
-  const under = []
-  const queue = [...(children.get(wrapperPid) || [])]
+  return children
+}
+
+function descendants(rows, rootPid) {
+  const children = childMap(rows)
+  const found = []
+  const queue = [...(children.get(rootPid) || [])]
   const seen = new Set()
   while (queue.length) {
     const row = queue.shift()
     if (!row || seen.has(row.pid)) continue
     seen.add(row.pid)
-    if (name(row)) under.push(row.pid)
+    found.push(row)
     queue.push(...(children.get(row.pid) || []))
   }
-  if (under.length === 1) return under[0]
-  const named = rows.filter(name).map(row => row.pid)
-  if (under.length === 0 && named.length === 1) return named[0]
+  return found
+}
+
+/** Pid of the extracted main. Helpers with --type= are not candidates. */
+export function packagedListenerPid(rows, wrapperPid) {
+  const under = descendants(rows, wrapperPid).filter(isAppInstance)
+  const roots = under.filter(row => !under.some(other => other.pid === row.ppid))
+  if (roots.length === 1) return roots[0].pid
+  if (under.length === 1) return under[0].pid
+  const named = rows.filter(isAppInstance)
+  if (under.length === 0 && named.length === 1) return named[0].pid
   return null
+}
+
+/** Main plus its plancia-comandi.exe helpers. CDP may listen on the browser process. */
+export function packagedListenerPids(rows, wrapperPid) {
+  const main = packagedListenerPid(rows, wrapperPid)
+  if (!main) return []
+  const helpers = descendants(rows, main).filter(isPlanciaExe).map(row => row.pid)
+  return [main, ...helpers]
 }
 
 export function mainRejectedFuseClose(diagnostics) {
@@ -111,7 +143,7 @@ export function windowsProcessTable() {
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      "Get-CimInstance Win32_Process | ForEach-Object { '{0} {1} {2} {3}' -f $_.ProcessId, $_.ParentProcessId, $_.Name, $_.CreationDate.ToFileTime() }",
+      "Get-CimInstance Win32_Process | ForEach-Object { \"{0} {1} {2} {3}`t{4}\" -f $_.ProcessId, $_.ParentProcessId, $_.Name, $_.CreationDate.ToFileTime(), $_.CommandLine }",
     ], { windowsHide: true, timeout: 15000, maxBuffer: 4_000_000 }, (error, stdout) => {
       if (error) reject(error)
       else resolve(String(stdout))

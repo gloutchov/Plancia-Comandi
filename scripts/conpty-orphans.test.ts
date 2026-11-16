@@ -5,6 +5,7 @@ import {
   descendantNamed,
   mainRejectedFuseClose,
   packagedListenerPid,
+  packagedListenerPids,
   parseProcessTable,
   planciaInstanceReport,
 } from './conpty-orphans.mjs'
@@ -46,6 +47,17 @@ describe('ConPTY close on the Windows package', () => {
     expect(packagedListenerPid(rows, 5)).toBe(9)
     expect(packagedListenerPid(parseProcessTable('9 1 plancia-comandi.exe 2\n'), 5)).toBe(9)
     expect(packagedListenerPid(parseProcessTable('9 1 plancia-comandi.exe 2\n40 1 plancia-comandi.exe 4\n'), 5)).toBeNull()
+    const launched = [
+      '5 1 portable.exe 1\tportable.exe',
+      '9 5 plancia-comandi.exe 2\tC:\\app\\plancia-comandi.exe',
+      '11 9 plancia-comandi.exe 3\tC:\\app\\plancia-comandi.exe --type=renderer',
+      '12 9 plancia-comandi.exe 4\tC:\\app\\plancia-comandi.exe --type=gpu-process',
+      '40 9 plancia-comandi.exe 5\tC:\\app\\plancia-comandi.exe --user-data-dir=C:\\tmp',
+    ].join('\n')
+    const tree = parseProcessTable(launched)
+    expect(planciaInstanceReport(tree, 9)).toEqual({ count: 2, ownPid: 9, extra: [40] })
+    expect(packagedListenerPid(tree, 5)).toBe(9)
+    expect(packagedListenerPids(tree, 5)).toEqual([9, 11, 12, 40])
   })
 
   it('flags an unhandled rejection or a fuse fork failure in the main log', () => {

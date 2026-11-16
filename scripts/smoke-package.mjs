@@ -10,7 +10,7 @@ import { smokeSettings } from './smoke-settings.mjs'
 import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddresses, parseNetstatListeners, prepareIsolatedSmokeRoot, isolateBeforeMain } from './smoke-driver.mjs'
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, parseProcessTable, planciaInstanceReport, windowsProcessTable } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, planciaInstanceReport, windowsProcessTable } from './conpty-orphans.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 
@@ -100,23 +100,33 @@ function ownedListenText(pid) {
 }
 const PORTABLE_LISTENER_GAP = 'portable CDP listeners not measured'
 
-async function assertOwnedListeners(pid, portable = false) {
-  const text = await ownedListenText(pid)
-  const addresses = process.platform === 'win32' ? parseNetstatListeners(text, pid) : parseListenAddresses(text)
-  if (!text.trim() || addresses.length === 0) {
+async function assertOwnedListeners(pids, portable = false) {
+  const list = (Array.isArray(pids) ? pids : [pids]).filter(pid => Number.isInteger(pid) && pid > 0)
+  if (list.length === 0) return
+  let addresses = []
+  let anyText = false
+  if (process.platform === 'win32') {
+    const text = await ownedListenText(list[0])
+    anyText = Boolean(text.trim())
+    addresses = [...new Set(list.flatMap(pid => parseNetstatListeners(text, pid)))]
+  } else {
+    const texts = await Promise.all(list.map(ownedListenText))
+    anyText = texts.some(text => text.trim())
+    addresses = [...new Set(texts.flatMap(parseListenAddresses))]
+  }
+  if (!anyText || addresses.length === 0) {
     console.log(portable ? PORTABLE_LISTENER_GAP : JSON.stringify({ listeners: 'unavailable' }))
     return
   }
   console.log(JSON.stringify({ listeners: addresses }))
   assert.equal(addresses.some(listenAddressEscapesLoopback), false, 'A debug listener is not limited to loopback')
 }
-async function portableAppPid() {
-  if (process.platform !== 'win32' || !/-portable\.exe$/i.test(path.basename(executable))) return child.pid
-  let rows = []
-  try { rows = parseProcessTable(await windowsProcessTable()) } catch { rows = [] }
-  const pid = packagedListenerPid(rows, child.pid)
-  if (!pid) console.log(PORTABLE_LISTENER_GAP)
-  return pid
+function portableWrapper() {
+  return process.platform === 'win32' && /-portable\.exe$/i.test(path.basename(executable))
+}
+async function portableProcessRows() {
+  if (!portableWrapper()) return []
+  try { return parseProcessTable(await windowsProcessTable()) } catch { return [] }
 }
 async function assertNoStartupCrash() {
   const events = startupCrashEvents(await readStartupTrace(root))
@@ -124,6 +134,7 @@ async function assertNoStartupCrash() {
 }
 async function windowsConptyCloseCheck(appPid) {
   if (process.platform !== 'win32') return false
+  assert.equal(Number.isInteger(appPid) && appPid > 0, true, 'ConPTY check has no extracted plancia-comandi main pid')
   stageAt('ConPTY child')
   const created = await evaluate(`window.plancia.createSession(${JSON.stringify({ name: 'Smoke ConPTY', shellId: 'cmd', cwd: root })})`)
   assert.equal(created.ok, true, 'ConPTY session failed to open')
@@ -203,10 +214,13 @@ try {
     assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
     stageAt('loopback debugging port')
     await assertLoopbackListener(port)
-    const listenerPid = await portableAppPid()
-    if (listenerPid) await assertOwnedListeners(listenerPid, listenerPid !== child.pid)
+    const portableRows = await portableProcessRows()
+    const mainPid = portableWrapper() ? packagedListenerPid(portableRows, child.pid) : child.pid
+    const listenerPids = portableWrapper() ? packagedListenerPids(portableRows, child.pid) : [child.pid]
+    if (portableWrapper() && !mainPid) console.log(PORTABLE_LISTENER_GAP)
+    if (listenerPids.length) await assertOwnedListeners(listenerPids, portableWrapper())
     const checks = ['isolated preferences', 'preload', 'loopback CDP']
-    if (await windowsConptyCloseCheck(child.pid)) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
+    if (await windowsConptyCloseCheck(mainPid)) checks.push('ConPTY child close', 'no orphan', 'no fork rejection')
     else {
       const shellId = process.platform === 'win32' ? 'cmd' : 'zsh'
       stageAt('release PTY create')
@@ -264,7 +278,10 @@ try {
   const settingsChecked = await smokeSettings({ evaluate, until, request, root, userData, expectedVersion })
   stageAt('IPC CSP and permissions')
   const security = hasSecuritySmoke(expectedVersion) ? await smokeSecurity({ main, evaluate, request, until, root, userData, sessions }) : null
-  const conptyChecked = await windowsConptyCloseCheck(child.pid)
+  const fullRows = await portableProcessRows()
+  const fullMainPid = portableWrapper() ? packagedListenerPid(fullRows, child.pid) : child.pid
+  if (portableWrapper() && !fullMainPid) console.log(PORTABLE_LISTENER_GAP)
+  const conptyChecked = await windowsConptyCloseCheck(fullMainPid)
   stageAt('session close')
   for (const session of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(session)})`)
   sessions.length = 0

@@ -11,9 +11,12 @@ import { assertLoopbackListener, listenAddressEscapesLoopback, mainInspectorUrl,
 describe('native package smoke isolation', () => {
   it.each(['darwin', 'win32'])('drops inherited secrets, auth and profile flags on %s', platform => {
     const root = path.resolve('synthetic-profile')
-    const source = { PATH: '/runtime', HOME: '/private', APPDATA: '/private', USERPROFILE: '/private', OPENAI_API_KEY: 'SYNTHETIC_SECRET', NODE_OPTIONS: '--require private.js', ELECTRON_RUN_AS_NODE: '1', PLANCIA_DEMO: '1', VITE_DEV_SERVER_URL: 'https://untrusted.test/', SSH_AUTH_SOCK: '/tmp/agent.sock', AWS_ACCESS_KEY_ID: 'AKIA', AWS_SECRET_ACCESS_KEY: 'secret', PLANCIA_DEVTOOLS: '1', PLANCIA_DIAG_STARTUP: '1', PLANCIA_DIAG_DIR: '/tmp/diag', CUSTOM_KEY: 'value' }
+    const source = { PATH: '/runtime', HOME: '/private', APPDATA: '/private', USERPROFILE: '/private', USER: 'runner', LOGNAME: 'runner', SHELL: '/bin/bash', OPENAI_API_KEY: 'SYNTHETIC_SECRET', NODE_OPTIONS: '--require private.js', ELECTRON_RUN_AS_NODE: '1', PLANCIA_DEMO: '1', VITE_DEV_SERVER_URL: 'https://untrusted.test/', SSH_AUTH_SOCK: '/tmp/agent.sock', AWS_ACCESS_KEY_ID: 'AKIA', AWS_SECRET_ACCESS_KEY: 'secret', PLANCIA_DEVTOOLS: '1', PLANCIA_DIAG_STARTUP: '1', PLANCIA_DIAG_DIR: '/tmp/diag', CUSTOM_KEY: 'value' }
     const env = smokeEnvironment(root, source, platform)
     expect(env.PATH).toBe('/runtime')
+    expect(env.USER).toBe('runner')
+    expect(env.LOGNAME).toBe('runner')
+    expect(env.SHELL).toBe('/bin/bash')
     for (const key of ['OPENAI_API_KEY', 'NODE_OPTIONS', 'ELECTRON_RUN_AS_NODE', 'PLANCIA_DEMO', 'VITE_DEV_SERVER_URL', 'SSH_AUTH_SOCK', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'PLANCIA_DEVTOOLS', 'PLANCIA_DIAG_STARTUP', 'PLANCIA_DIAG_DIR', 'CUSTOM_KEY']) expect(env[key]).toBeUndefined()
     for (const key of ['HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME', 'ZDOTDIR']) expect(env[key].startsWith(root + path.sep)).toBe(true)
     expect(JSON.stringify(env)).not.toContain('SYNTHETIC_SECRET')
@@ -29,6 +32,19 @@ describe('native package smoke isolation', () => {
       TMP: 'C:\\Windows\\Temp',
       ComSpec: 'C:\\Windows\\System32\\cmd.exe',
       PATHEXT: '.COM;.EXE',
+      SystemDrive: 'C:',
+      ProgramData: 'C:\\ProgramData',
+      ProgramFiles: 'C:\\Program Files',
+      'ProgramFiles(x86)': 'C:\\Program Files (x86)',
+      CommonProgramFiles: 'C:\\Program Files\\Common Files',
+      PROCESSOR_ARCHITECTURE: 'AMD64',
+      NUMBER_OF_PROCESSORS: '2',
+      OS: 'Windows_NT',
+      USERNAME: 'runner',
+      USERDOMAIN: 'WORKGROUP',
+      USER: 'runner',
+      LOGNAME: 'runner',
+      SHELL: 'C:\\Windows\\System32\\cmd.exe',
       HOMEDRIVE: 'C:',
       HOMEPATH: '\\Users\\runner',
       SSH_AUTH_SOCK: '/tmp/agent.sock',
@@ -50,6 +66,19 @@ describe('native package smoke isolation', () => {
     expect(env.TMP).toBe('C:\\Windows\\Temp')
     expect(env.ComSpec).toBe('C:\\Windows\\System32\\cmd.exe')
     expect(env.PATHEXT).toBe('.COM;.EXE')
+    expect(env.SystemDrive).toBe('C:')
+    expect(env.ProgramData).toBe('C:\\ProgramData')
+    expect(env.ProgramFiles).toBe('C:\\Program Files')
+    expect(env['ProgramFiles(x86)']).toBe('C:\\Program Files (x86)')
+    expect(env.CommonProgramFiles).toBe('C:\\Program Files\\Common Files')
+    expect(env.PROCESSOR_ARCHITECTURE).toBe('AMD64')
+    expect(env.NUMBER_OF_PROCESSORS).toBe('2')
+    expect(env.OS).toBe('Windows_NT')
+    expect(env.USERNAME).toBe('runner')
+    expect(env.USERDOMAIN).toBe('WORKGROUP')
+    expect(env.USER).toBe('runner')
+    expect(env.LOGNAME).toBe('runner')
+    expect(env.SHELL).toBe('C:\\Windows\\System32\\cmd.exe')
     expect(env.SSH_AUTH_SOCK).toBeUndefined()
     expect(env.AWS_PROFILE).toBeUndefined()
     expect(env.PLANCIA_DEVTOOLS).toBeUndefined()

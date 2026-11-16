@@ -20,6 +20,7 @@ import {
   launchArgs,
   prepareIsolatedCase,
   readStartupTrace,
+  startupCrashEvents,
   reapAppImages,
   spawnTracked,
   stillRunning,
@@ -132,8 +133,11 @@ async function expectStartup(executable, profile, failure) {
   const deadline = Date.now() + STARTUP_HOLD_MS
   while (!handle.state.exited && Date.now() < deadline) await delay(100)
   const alive = await stillRunning(handle)
-  const diagnostic = startupDiagnostic(alive, failure, await readStartupTrace(profile.dir))
-  if (diagnostic) console.log(JSON.stringify(diagnostic))
+  const trace = await readStartupTrace(profile.dir)
+  const crashes = startupCrashEvents(trace)
+  const diagnostic = startupDiagnostic(alive, failure, trace)
+  if (diagnostic || crashes.length) console.log(JSON.stringify(diagnostic ? { ...diagnostic, ...(crashes.length ? { crashes } : {}) } : { case: failure, alive, startup: trace, crashes }))
+  assert.equal(crashes.length, 0, `startup.jsonl recorded ${crashes.join(',')}`)
   if (!alive) throw earlyExit(failure, handle)
   return 'alive'
 }
@@ -240,6 +244,12 @@ async function expectRunAsNode(executable, profile, shouldRun) {
   try { written = (await readFile(marker, 'utf8')) === 'ran' } catch { written = false }
   const alive = await stillRunning(handle)
   const outcome = runAsNodeOutcome({ shouldRun, written, alive })
+  if (outcome === 'blocked') {
+    const trace = await readStartupTrace(profile.dir)
+    const crashes = startupCrashEvents(trace)
+    if (crashes.length) console.log(JSON.stringify({ case: 'ELECTRON_RUN_AS_NODE', alive, startup: trace, crashes }))
+    assert.equal(crashes.length, 0, `startup.jsonl recorded ${crashes.join(',')}`)
+  }
   if (!outcome) throw earlyExit(`ELECTRON_RUN_AS_NODE ${shouldRun ? 'did not run' : 'exited before the app stayed up'}`, handle)
   return outcome
 }
