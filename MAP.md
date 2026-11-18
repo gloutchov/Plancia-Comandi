@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.8**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.9**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -50,6 +50,7 @@ Plancia-Comandi/
 |   |-- settingsFile.ts              Lettura limitata, recupero .bak, blocco scritture e migrazione
 |   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
 |   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
+|   |-- startupFailure.ts            Avviso nativo IT/EN, diagnostica consentita e uscita 1
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
 |   |-- children.ts                  Snapshot dei processi figli e timeout
 |   `-- screen.ts                    Parser terminale headless per lo schermo
@@ -85,7 +86,10 @@ Plancia-Comandi/
 |       |-- paths.ts                 Abbreviazione visiva dei percorsi
 |       |-- appConfig.ts             Validazione della configurazione centrale
 |       |-- ptyProbe.ts              Percorsi di pty.node, prebuild compresa
-|       |-- startupTrace.ts          Traccia opt-in: percorsi e, se fallisce, nome messaggio stack
+|       |-- startupTrace.ts          Traccia opt-in solo in sviluppo
+|       |-- developmentOptions.ts    Dieci variabili ignorate nei pacchetti
+|       |-- developmentOptions.test.ts Matrice sviluppo/pacchetto e alias
+|       |-- startupFailure.test.ts   Lingue, privacy e uscita anche dopo errori degli effetti
 |       |-- appConfig.test.ts        Test della configurazione e dei default
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
@@ -140,6 +144,9 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
+|   |-- smoke-development-flags.mjs  Sonde delle dieci variabili, senza bypass nel prodotto
+|   |-- smoke-development-flags.test.ts Soglia versione e rilevamento scritture vietate
+|   |-- smoke-startup-failure.mjs    Guasti sintetici sul gemello: IT/EN, fallback, stderr e uscita 1
 |   |-- smoke-worker.mjs             Default worker non debug e handshake ConPTY di prova
 |   |-- smoke-worker.test.ts         Regresso con inspector e opzioni worker esplicite
 |   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
@@ -209,9 +216,11 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
 
-Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.8`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
+Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.9`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
 ### 3. Comandi e verifiche
+
+Da 0.3.9 `smoke-package.mjs` prova automaticamente le dieci variabili di sviluppo impostate, anche sul binario con fuse chiusi; `--development-flags` forza la prova nel solo harness. Sul gemello lo smoke prova anche il blocco effettivo di `openDevTools` e l’assenza della voce menu. `node scripts/smoke-startup-failure.mjs <eseguibile-gemello> 0.3.9` inietta guasti sintetici solo tramite debugger: controlla dialoghi IT/EN, fallback italiano, stderr senza testo grezzo e uscita 1. La chiamata nativa del dialogo è intercettata, non è una verifica visiva. I workflow manuali esistenti eseguono queste prove senza nuove attivazioni automatiche. Lo smoke Windows fotografa PID e tempo di creazione delle istanze già presenti prima del lancio: le preserva ed esclude solo quelle identità dal conteggio dei nuovi processi; PID riutilizzati restano rilevati.
 
 | Comando | Responsabilità |
 | --- | --- |
@@ -249,7 +258,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.8** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.9** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -297,6 +306,7 @@ Plancia-Comandi/
 |   |-- settingsFile.ts              Bounded reads, .bak recovery, write protection and migration
 |   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
 |   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
+|   |-- startupFailure.ts            Native IT/EN error, allowlisted diagnostics and exit 1
 |   |-- shells.ts                    Platform shell detection
 |   |-- children.ts                  Child-process snapshots and timeouts
 |   `-- screen.ts                    Headless terminal screen parser
@@ -332,7 +342,10 @@ Plancia-Comandi/
 |       |-- paths.ts                 Visual path shortening
 |       |-- appConfig.ts             Central-configuration validation
 |       |-- ptyProbe.ts              pty.node paths, including the prebuild
-|       |-- startupTrace.ts          Opt-in trace: paths and, on failure, name message stack
+|       |-- startupTrace.ts          Development-only opt-in trace
+|       |-- developmentOptions.ts    Ten variables ignored in packages
+|       |-- developmentOptions.test.ts Development/package matrix and aliases
+|       |-- startupFailure.test.ts   Locales, privacy and exit after effect failures
 |       |-- appConfig.test.ts        Configuration and default tests
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
@@ -387,6 +400,9 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
+|   |-- smoke-development-flags.mjs  Ten-variable probes with no product bypass
+|   |-- smoke-development-flags.test.ts Version threshold and forbidden output detection
+|   |-- smoke-startup-failure.mjs    Synthetic twin failures: IT/EN, fallback, stderr and exit 1
 |   |-- smoke-worker.mjs             Non-debug worker defaults and ConPTY handshake fixture
 |   |-- smoke-worker.test.ts         Attached-inspector regression and explicit worker options
 |   |-- smoke-report.mjs             Bounded allowlisted failure metadata
@@ -456,9 +472,11 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
 
-`full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.8`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
+`full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.9`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
 ### 3. Commands and checks
+
+From 0.3.9 `smoke-package.mjs` automatically sets and tests all ten development variables, including on the closed-fuse binary; `--development-flags` forces the check only in the harness. Twin smoke also tests that `openDevTools` has no effect and the menu action is absent. `node scripts/smoke-startup-failure.mjs <twin-executable> 0.3.9` injects synthetic failures only through the debugger: IT/EN dialogs, Italian fallback, stderr without raw text and exit 1. The native dialog call is intercepted, not visually verified. Existing manual workflows run these checks without new automatic triggers. Windows smoke records prelaunch instance PIDs and creation times: it preserves them and excludes only those identities from new-process counts; reused PIDs remain detectable.
 
 | Command | Responsibility |
 | --- | --- |

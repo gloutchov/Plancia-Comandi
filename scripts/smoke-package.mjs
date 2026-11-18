@@ -11,17 +11,20 @@ import { assertLoopbackListener, listenAddressEscapesLoopback, parseListenAddres
 import { hasSecuritySmoke, installSecurityProbes, smokeSecurity } from './smoke-security.mjs'
 import { smokeFailureMetadata } from './smoke-report.mjs'
 import { assertConptyHostFiles, packageSourceDir } from './conpty-host-files.mjs'
-import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, parseThreadCount, planciaInstanceReport, settleThreadCount, startupFaultEvents, windowsProcessTable, windowsThreadCount } from './conpty-orphans.mjs'
+import { conptyChildCommand, conptyCloseReport, conptyTimeoutDetail, descendantNamed, descendantPids, isAppInstance, mainRejectedFuseClose, packagedListenerPid, packagedListenerPids, parseProcessTable, parseThreadCount, planciaInstanceReport, settleThreadCount, startupFaultEvents, windowsProcessTable, windowsThreadCount } from './conpty-orphans.mjs'
 import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 import { SMOKE_BUDGET_MS, smokeBudgetExpired, smokeBudgetMessage, smokeUsesWindowsConptyChecks } from './smoke-package-guard.mjs'
+import { hasDevelopmentSmoke, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
 const mode = process.argv[4] ?? 'full'
-assert(process.argv[2] && expectedVersion, 'Usage: node scripts/smoke-package.mjs <executable> <version> [full|release]')
+assert(process.argv[2] && expectedVersion, 'Usage: node scripts/smoke-package.mjs <executable> <version> [full|release] [--development-flags]')
 assert(['full', 'release'].includes(mode), 'Smoke mode must be full or release')
+const developmentSmoke = hasDevelopmentSmoke(expectedVersion) || process.argv.slice(5).includes('--development-flags')
+assert(process.argv.slice(5).every(arg => arg === '--development-flags'), 'Unknown smoke option')
 assert(['darwin', 'win32'].includes(process.platform), 'Run on macOS or Windows')
 await access(executable)
 if (process.platform === 'win32') {
@@ -41,6 +44,7 @@ const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'pl
 const { userData, env } = await prepareIsolatedSmokeRoot(root)
 env.PLANCIA_DIAG_STARTUP = '1'
 env.PLANCIA_DIAG_DIR = root
+if (developmentSmoke) Object.assign(env, developmentSmokeEnvironment(root))
 const server = net.createServer()
 await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve))
 const port = server.address().port
@@ -52,6 +56,10 @@ await new Promise((resolve) => server.close(resolve))
 await new Promise((resolve) => mainServer.close(resolve))
 const launchArgs = [`--user-data-dir=${userData}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1']
 if (mode === 'full') launchArgs.unshift(`--inspect-brk=127.0.0.1:${inspectorPort}`)
+// Preserve personal apps: only instances present before this launch, with the
+// same pid AND creation time, are excluded from the new-fork check.
+const preexistingInstances = process.platform === 'win32'
+  ? parseProcessTable(await windowsProcessTable()).filter(isAppInstance).map(({ pid, created }) => ({ pid, created })) : []
 const child = spawn(executable, launchArgs, {
   cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false,
 })
@@ -206,7 +214,7 @@ async function windowsConptyCloseCheck(appPid) {
   const samples = []
   await until(async () => {
     const rows = parseProcessTable(await windowsProcessTable())
-    samples.push(planciaInstanceReport(rows, appPid))
+    samples.push(planciaInstanceReport(rows, appPid, preexistingInstances))
     const report = conptyCloseReport(rows, shellRow, ping)
     return report.clear && descendantPids(rows, shellPid).length === 0 && !rows.some((row) => row.pid === ping.pid)
   }, 'ConPTY close left the shell, its child, or another child of the shell', 15000)
@@ -277,6 +285,29 @@ try {
   assert.equal(boot.demo, false)
   assert.equal(boot.cwd, root, 'Refusing to test with non-isolated preferences')
   assert.equal(boot.count, 0)
+  if (developmentSmoke) {
+    stageAt('packaged development controls')
+    await delay(1200)
+    assert.equal(await evaluate('window.plancia.boot().then(b => b.demo === false && b.sessions.length === 0)'), true, 'Packaged demo started')
+    assertNoDevelopmentFiles(root)
+    if (main) {
+      const controls = await main.evaluate(`(() => {
+        const { BrowserWindow, Menu } = __smokeElectron;
+        const windows = BrowserWindow.getAllWindows().filter(w => w.webContents.getURL() === ${JSON.stringify(page.url)});
+        const menuHasDevtools = menu => Boolean(menu?.items.some(item => item.role?.toLowerCase() === 'toggledevtools' || menuHasDevtools(item.submenu)));
+        globalThis.__m18DevtoolsOpened = 0;
+        for (const window of windows) {
+          window.webContents.on('devtools-opened', () => { __m18DevtoolsOpened++; });
+          window.webContents.openDevTools({ mode: 'detach' });
+        }
+        return { count: windows.length, menu: menuHasDevtools(Menu.getApplicationMenu()) };
+      })()`)
+      assert.deepEqual(controls, { count: 1, menu: false })
+      await delay(500)
+      assert.equal(await main.evaluate(`__m18DevtoolsOpened === 0 && __smokeElectron.BrowserWindow.getAllWindows().every(w => !w.webContents.isDevToolsOpened())`), true, 'Packaged DevTools opened')
+    }
+    console.log(JSON.stringify({ developmentControls: 'blocked', variables: 10, mode }))
+  }
   if (mode === 'release') {
     assert(String(page.webSocketDebuggerUrl).startsWith(`ws://127.0.0.1:${port}/`), 'Renderer debugging left 127.0.0.1')
     stageAt('loopback debugging port')
@@ -366,6 +397,9 @@ try {
   await writeFile(path.join(root, 'runtime-diagnostics.log'), diagnostics)
 } finally {
   clearTimeout(budgetTimer)
+  if (developmentSmoke) {
+    try { assertNoDevelopmentFiles(root) } catch (error) { smokeError ??= error }
+  }
   main?.close()
   if (socket?.readyState === WebSocket.OPEN) {
     for (const id of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`).catch(() => {})

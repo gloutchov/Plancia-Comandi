@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.8**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.9**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -46,9 +46,11 @@ Dalla versione 0.3.6, se compare un avviso sulle preferenze, le modifiche posson
 
 Dai sorgenti 0.3.7 i permessi web non necessari (per esempio posizione e fotocamera) sono negati automaticamente. Non occorre concederli per usare terminali, copia/incolla o notifiche native. Finestre o documenti estranei non possono usare il bridge privilegiato dell’app; le shell mantengono i permessi dell’utente.
 
+Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabilitati. Un errore gestito di avvio mostra `STARTUP_FAILED` in un avviso nativo; chiudilo e riprova.
+
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.8**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.9**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 
@@ -91,3 +93,5 @@ In release 0.3.6, a custom-pattern warning means standard detection continues. T
 From version 0.3.6, a preference warning may mean changes apply only to the session. Close the app before manual recovery; retain `settings.json.bak` and consult the [manual](INSTRUCTIONS.md#6-configuration). Local logs contain only allowlisted metadata; no remote upload.
 
 From version 0.3.7 source, unnecessary web permissions (for example location and camera) are denied automatically. They are not needed for terminals, copy/paste or native notifications. Foreign windows or documents cannot use the app’s privileged bridge; shells retain the user’s permissions.
+
+In 0.3.9 packages the demo, DevTools, screenshots and development tracing are disabled. A handled startup failure shows `STARTUP_FAILED` in a native dialog; close it and retry.

@@ -79,6 +79,10 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked-open-fuses/plancia-comandi.exe "$env:EXPECTED_VERSION" full
+      - name: Check safe startup failures on the packaged twin
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: node tooling/scripts/smoke-startup-failure.mjs app/release/win-unpacked-open-fuses/plancia-comandi.exe "$env:EXPECTED_VERSION"
       - name: Probe one release fuse at a time
         run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/win-unpacked "$env:RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches

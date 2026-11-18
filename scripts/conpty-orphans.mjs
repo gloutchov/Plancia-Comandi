@@ -100,8 +100,9 @@ export function conptyCloseReport(rows, shellPid, childPid) {
   }
 }
 
-export function planciaInstanceReport(rows, ownPid) {
-  const apps = rows.filter(isAppInstance)
+export function planciaInstanceReport(rows, ownPid, preexisting = []) {
+  const apps = rows.filter(row => isAppInstance(row) && !preexisting.some(before =>
+    before.created && sameProcess(row, before)))
   return {
     count: apps.length,
     ownPid,

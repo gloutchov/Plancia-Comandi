@@ -19,6 +19,8 @@ import { packagedPtyNodeCandidates } from '../src/shared/ptyProbe'
 import { createStartupTrace, installStartupProcessHandlers, startupFailureDetail, type StartupTrace } from '../src/shared/startupTrace'
 import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } from '../src/shared/ipcSender'
 import { denyRendererPermissions } from './permissions'
+import { developmentOptions } from '../src/shared/developmentOptions'
+import { showStartupFailure } from './startupFailure'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
@@ -34,17 +36,10 @@ function rendererDocumentUrl(): string {
   return canonicalDocumentUrl(raw) ?? raw
 }
 
-function envFlag(name: string, legacy: string): boolean {
-  return process.env[name] === '1' || process.env[legacy] === '1'
-}
-
-function envText(name: string, legacy: string): string | undefined {
-  return process.env[name] || process.env[legacy]
-}
-
-const demoMode = () => envFlag('PLANCIA_DEMO', 'MOLO_DEMO')
-const startupTrace: StartupTrace | null = process.env.PLANCIA_DIAG_STARTUP === '1'
-  ? createStartupTrace(process.env.PLANCIA_DIAG_DIR)
+const development = developmentOptions(app.isPackaged, process.env)
+const demoMode = () => development.demo
+const startupTrace: StartupTrace | null = development.startupTrace
+  ? createStartupTrace(development.startupTraceDir)
   : null
 if (startupTrace) {
   const appExit = app.exit.bind(app)
@@ -67,11 +62,19 @@ function quitFor(reason: string): void {
 }
 
 let startupStep = 'load'
+let startupFailed = false
 
 function failStartup(error: unknown): void {
+  if (startupFailed) return
+  startupFailed = true
   try { startupTrace?.event('startup-failed', startupFailureDetail(startupStep, error)) } catch { /* quit still has to run */ }
-  reportDiagnostic('startup-failed', error)
-  quitFor('startup-failed')
+  showStartupFailure(settings?.data.locale ?? 'it', error, {
+    stderr: (line) => { process.stderr.write(line) },
+    showErrorBox: (title, content) => dialog.showErrorBox(title, content),
+    exit: (code) => {
+      try { manager?.dispose() } finally { app.exit(code) }
+    },
+  })
 }
 
 let win: BrowserWindow | null = null
@@ -260,7 +263,7 @@ async function startDemo(): Promise<void> {
   if (shellSession.ok) {
     manager.write(shellSession.session.id, 'clear\n')
   }
-  const shotDir = envText('PLANCIA_SHOT_DIR', 'MOLO_SHOT_DIR')
+  const shotDir = development.shotDir
   if (shotDir && win) await captureShots(win, shotDir)
 }
 
@@ -278,7 +281,7 @@ async function captureShots(window: BrowserWindow, dir: string): Promise<void> {
   )
   await delay(600)
   fs.writeFileSync(path.join(dir, 'plancia-settings.png'), (await window.capturePage()).toPNG())
-  if (envFlag('PLANCIA_SHOT_EXIT', 'MOLO_SHOT_EXIT')) quitFor('shot-exit')
+  if (development.shotExit) quitFor('shot-exit')
 }
 
 function delay(ms: number): Promise<void> {
@@ -305,6 +308,7 @@ function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      devTools: !app.isPackaged,
     },
   })
 
@@ -325,9 +329,9 @@ function createWindow(): void {
   })
 
   // Load the exact URL accepted by IPC, including encoded ~ and an uppercase Windows drive letter.
-  void win.loadURL(rendererDocumentUrl())
+  void win.loadURL(rendererDocumentUrl()).catch(failStartup)
 
-  if (envFlag('PLANCIA_DEVTOOLS', 'MOLO_DEVTOOLS')) win.webContents.openDevTools({ mode: 'detach' })
+  if (development.devtools) win.webContents.openDevTools({ mode: 'detach' })
 }
 
 function traceStartupFiles(): void {

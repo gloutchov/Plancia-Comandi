@@ -70,6 +70,15 @@ describe('ConPTY close on the Windows package', () => {
     expect(mainRejectedFuseClose('The fuse runAsNode is disabled')).toBe(true)
   })
 
+  it('preserves preexisting apps while still detecting a new instance or a reused pid', () => {
+    const before = [{ pid: 40, created: '100' }]
+    const rows = parseProcessTable('9 1 plancia-comandi.exe 200\n40 1 plancia-comandi.exe 100\n50 9 plancia-comandi.exe 300\n')
+    expect(planciaInstanceReport(rows, 9, before)).toEqual({ count: 2, ownPid: 9, extra: [50] })
+    const reused = parseProcessTable('9 1 plancia-comandi.exe 200\n40 1 plancia-comandi.exe 400\n')
+    expect(planciaInstanceReport(reused, 9, before).extra).toEqual([40])
+    expect(planciaInstanceReport(rows, 9, [{ pid: 40 }]).extra).toEqual([40, 50])
+  })
+
   it('reads a Windows thread count and allows only a small rise', async () => {
     expect(parseThreadCount('  14\r\n')).toBe(14)
     expect(parseThreadCount('unavailable')).toBeNull()

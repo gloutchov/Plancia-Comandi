@@ -85,6 +85,7 @@ jobs:
         run: |
           executable=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).executable)" "$RUNNER_TEMP/mac-open-fuses.json")
           node tooling/scripts/smoke-package.mjs "$executable" "$EXPECTED_VERSION" full
+          node tooling/scripts/smoke-startup-failure.mjs "$executable" "$EXPECTED_VERSION"
       - name: Probe one release fuse at a time
         run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/mac-arm64 "$RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches
