@@ -4,11 +4,11 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.9 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. La release pubblicata è la [0.3.8](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.8), con i fuse C27, pacchetti Windows x64/macOS ARM64 e checksum SHA-256. M18 nei sorgenti 0.3.9 disabilita nei pacchetti DevTools, demo, screenshot e traccia di sviluppo; gli errori di avvio gestiti mostrano una finestra nativa IT/EN e chiudono con codice 1. La 0.3.9 è in verifica locale, non è una release pubblicata. I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.9 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. La release pubblicata è la [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9), con i fuse C27, pacchetti Windows x64/macOS ARM64 e checksum SHA-256. C18 nella release 0.3.9 disabilita nei pacchetti DevTools, demo, screenshot e traccia di sviluppo; gli errori di avvio gestiti mostrano una finestra nativa IT/EN e chiudono con codice 1. C18 è chiusa sul commit `f505304`, con pacchetti Windows x64/macOS ARM64 e checksum verificati. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.8](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.8) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -174,11 +174,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.9 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. The published release is [0.3.8](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.8), with C27 fuses, Windows x64/macOS ARM64 packages and SHA-256 checksums. M18 in 0.3.9 source disables packaged DevTools, demo, screenshots and development tracing; handled startup failures show a native IT/EN dialog and exit with code 1. Version 0.3.9 is under local verification, not a published release. Tools used in terminals are installed separately.
+**Source version 0.3.9 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. The published release is [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9), with C27 fuses, Windows x64/macOS ARM64 packages and SHA-256 checksums. C18 in release 0.3.9 disables packaged DevTools, demo, screenshots and development tracing; handled startup failures show a native IT/EN dialog and exit with code 1. C18 is closed at `f505304`, with verified Windows x64/macOS ARM64 packages and checksums. Tools used in terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.8](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.8) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
