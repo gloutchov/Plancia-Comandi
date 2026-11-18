@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { showStartupFailure } from '../../electron/startupFailure'
 import { reportDiagnostic } from '../../electron/diagnostics'
 
@@ -7,6 +7,8 @@ vi.mock('../../electron/diagnostics', async (original) => ({
 }))
 
 describe('native startup failure', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
   it.each(['it', 'en'] as const)('reports a static %s dialog, safe stderr metadata and exit 1', (locale) => {
     const effects = { stderr: vi.fn(), showErrorBox: vi.fn(), exit: vi.fn() }
     const error = Object.assign(new Error('SECRET /private/profile/settings.json'), { code: 'EACCES', syscall: 'open' })
@@ -20,6 +22,8 @@ describe('native startup failure', () => {
     expect(content).toContain('STARTUP_FAILED')
     expect(content).toContain(locale === 'it' ? 'Chiudi' : 'Close')
     expect(line + title + content).not.toMatch(/SECRET|private|settings\.json/)
+    expect(effects.exit).not.toHaveBeenCalled()
+    vi.runOnlyPendingTimers()
     expect(effects.exit).toHaveBeenCalledExactlyOnceWith(1)
     expect(effects.showErrorBox.mock.invocationCallOrder[0]).toBeLessThan(effects.exit.mock.invocationCallOrder[0])
   })
@@ -35,6 +39,8 @@ describe('native startup failure', () => {
     })
     expect(() => showStartupFailure('it', error, effects)).not.toThrow()
     expect(effects.showErrorBox).toHaveBeenCalledOnce()
+    expect(effects.exit).not.toHaveBeenCalled()
+    vi.runOnlyPendingTimers()
     expect(effects.exit).toHaveBeenCalledExactlyOnceWith(1)
   })
 })

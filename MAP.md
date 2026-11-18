@@ -50,7 +50,7 @@ Plancia-Comandi/
 |   |-- settingsFile.ts              Lettura limitata, recupero .bak, blocco scritture e migrazione
 |   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
 |   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
-|   |-- startupFailure.ts            Avviso nativo IT/EN, diagnostica consentita e uscita 1
+|   |-- startupFailure.ts            Avviso IT/EN, diagnostica consentita e uscita 1 differita
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
 |   |-- children.ts                  Snapshot dei processi figli e timeout
 |   `-- screen.ts                    Parser terminale headless per lo schermo
@@ -146,7 +146,7 @@ Plancia-Comandi/
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
 |   |-- smoke-development-flags.mjs  Sonde delle dieci variabili, senza bypass nel prodotto
 |   |-- smoke-development-flags.test.ts Soglia versione e rilevamento scritture vietate
-|   |-- smoke-startup-failure.mjs    Guasti sintetici sul gemello: IT/EN, fallback, stderr e uscita 1
+|   |-- smoke-startup-failure.mjs    Guasti sintetici: IT/EN, 10 casi precoci Windows, stderr e uscita 1
 |   |-- smoke-worker.mjs             Default worker non debug e handshake ConPTY di prova
 |   |-- smoke-worker.test.ts         Regresso con inspector e opzioni worker esplicite
 |   |-- smoke-report.mjs             Report di errore con metadati consentiti e limitati
@@ -306,7 +306,7 @@ Plancia-Comandi/
 |   |-- settingsFile.ts              Bounded reads, .bak recovery, write protection and migration
 |   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
 |   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
-|   |-- startupFailure.ts            Native IT/EN error, allowlisted diagnostics and exit 1
+|   |-- startupFailure.ts            IT/EN error, allowlisted diagnostics and deferred exit 1
 |   |-- shells.ts                    Platform shell detection
 |   |-- children.ts                  Child-process snapshots and timeouts
 |   `-- screen.ts                    Headless terminal screen parser
@@ -402,7 +402,7 @@ Plancia-Comandi/
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
 |   |-- smoke-development-flags.mjs  Ten-variable probes with no product bypass
 |   |-- smoke-development-flags.test.ts Version threshold and forbidden output detection
-|   |-- smoke-startup-failure.mjs    Synthetic twin failures: IT/EN, fallback, stderr and exit 1
+|   |-- smoke-startup-failure.mjs    Synthetic failures: IT/EN, 10 early Windows cases, stderr and exit 1
 |   |-- smoke-worker.mjs             Non-debug worker defaults and ConPTY handshake fixture
 |   |-- smoke-worker.test.ts         Attached-inspector regression and explicit worker options
 |   |-- smoke-report.mjs             Bounded allowlisted failure metadata

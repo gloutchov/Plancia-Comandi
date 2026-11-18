@@ -12,7 +12,9 @@ const [argument, version] = process.argv.slice(2)
 assert(argument && version, 'Usage: node scripts/smoke-startup-failure.mjs <open-fuse-twin-executable> <version>')
 if (hasDevelopmentSmoke(version)) {
   const executable = path.resolve(argument)
-  for (const [locale, phase] of [['it', 'renderer'], ['en', 'renderer'], ['it', 'early']]) {
+  const cases = [['it', 'renderer'], ['en', 'renderer'],
+    ...Array.from({ length: process.platform === 'win32' ? 10 : 1 }, () => ['it', 'early'])]
+  for (const [locale, phase] of cases) {
     const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-startup-failure-'))
     const profile = await prepareIsolatedSmokeRoot(root)
     await writeFile(path.join(profile.userData, 'settings.json'), JSON.stringify({ ...profile.settings, locale }))
@@ -61,6 +63,11 @@ if (hasDevelopmentSmoke(version)) {
       await main.resume().catch(() => { /* exit may close the debugger during resume */ })
       main.close()
       await until(() => exited, 'Startup failure did not exit')
+      if (exitCode !== 1) {
+        const dialogWritten = await readFile(path.join(root, 'dialog.json')).then(() => true, () => false)
+        console.log(JSON.stringify({ startupFailure: 'failed', locale, phase, exitCode, dialogWritten,
+          diagnosticWritten: /"event":"startup-failed"/.test(output) }))
+      }
       assert.equal(exitCode, 1)
       const dialog = JSON.parse(await readFile(path.join(root, 'dialog.json'), 'utf8'))
       assert(dialog.title.includes(locale === 'it' ? 'Errore di avvio' : 'Startup error'))

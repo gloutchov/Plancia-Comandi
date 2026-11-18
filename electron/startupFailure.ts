@@ -19,6 +19,8 @@ export function showStartupFailure(locale: Locale, error: unknown, effects: Fail
   } catch {
     // A native dialog failure must not expose another raw error or prevent exit.
   } finally {
-    effects.exit(1)
+    // On Windows, exiting directly from whenReady can race Chromium's startup
+    // before its main loop has an exit-code slot (electron/electron#55011).
+    setTimeout(() => effects.exit(1), 0)
   }
 }
