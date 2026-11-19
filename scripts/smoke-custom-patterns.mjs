@@ -7,6 +7,7 @@ export async function smokeCustomPatterns({ evaluate, until, request, sessions, 
   const [major, minor, patch] = expectedVersion.split(/[.-]/).map(Number)
   // The packaging workflow can also be used to rebuild older source revisions.
   if (major === 0 && (minor < 3 || (minor === 3 && patch < 5))) return false
+  const liveSettings = major > 0 || minor > 3 || (minor === 3 && patch >= 10)
   const first = sessions[0], second = sessions[1]
   await evaluate(`document.querySelectorAll('.session')[0].click(); window.plancia.resize(${JSON.stringify(first)}, 120, 24)`)
   const status = { extraIdlePatterns: [], extraBusyPatterns: ['(a+)+$'], extraAttentionPatterns: [] }
@@ -26,17 +27,24 @@ export async function smokeCustomPatterns({ evaluate, until, request, sessions, 
   await evaluate(`window.plancia.write(${JSON.stringify(second)}, ${JSON.stringify(alive)})`)
   await until(() => evaluate(`window.plancia.subscribe(${JSON.stringify(second)}).then(s => s.data.includes('PLANCIA_REGEX_BRIDGE_ALIVE'))`), 'Another PTY stopped while custom regexes timed out')
   await until(() => evaluate(`window.plancia.boot().then(b => b.sessions.some(s => s.id === ${JSON.stringify(second)} && s.phase === 'idle' && s.patternWarning === 'timeout'))`), 'Default detection did not continue after timeout')
+  if (liveSettings) await evaluate('globalThis.__patternSmokeTerminals = [...document.querySelectorAll(".xterm")]; true')
   for (const locale of ['it', 'en']) {
     for (const theme of ['light', 'dark']) {
       await evaluate(`window.plancia.updateSettings(${JSON.stringify({ locale, theme })})`)
-      // Direct bridge calls update the main model. The normal settings dialog
-      // also updates React state; reload here to follow the existing smoke flow.
-      await request('Page.reload')
+      // Current sources publish settings:updated to React. Reloading a live
+      // renderer replays historical DA/OSC into its still-running synthetic
+      // shells. Keep the legacy path only when testing pre-M28 packages.
+      if (!liveSettings) await request('Page.reload')
       const expected = locale === 'it' ? 'Rilevamento standard attivo.' : 'Standard detection is active.'
       await until(async () => {
         try { return await evaluate(`document.documentElement.lang === '${locale}' && document.documentElement.dataset.theme === '${theme}' && document.querySelector('[data-testid="pattern-warning"]')?.textContent.includes(${JSON.stringify(expected)})`) }
         catch { return false }
       }, 'Localized pattern warning did not update')
+      if (liveSettings) assert.equal(await evaluate(`(() => {
+        const terminals = [...document.querySelectorAll('.xterm')];
+        return terminals.length > 0 && terminals.length === __patternSmokeTerminals.length &&
+          terminals.every((terminal, index) => terminal === __patternSmokeTerminals[index]);
+      })()`), true, 'Theme or locale change remounted a live terminal')
       const visible = await evaluate(`(() => {
         const p = document.querySelector('[data-testid="pattern-warning"]'), b = p.getBoundingClientRect();
         return { readable: p.scrollWidth <= p.clientWidth && b.width > 100 && b.height > 15, overflow: document.documentElement.scrollWidth > innerWidth,
@@ -52,6 +60,7 @@ export async function smokeCustomPatterns({ evaluate, until, request, sessions, 
       }
     }
   }
+  if (liveSettings) await evaluate('delete globalThis.__patternSmokeTerminals')
   await evaluate(`window.plancia.updateSettings(${JSON.stringify({ status: { extraIdlePatterns: ['['], extraBusyPatterns: [], extraAttentionPatterns: [] } })})`)
   await until(() => evaluate(`window.plancia.boot().then(b => b.sessions.some(s => s.patternWarning === 'invalid'))`), 'Invalid regex warning missing')
   const marker = 'ZX_CUSTOM_SIGNAL_7319'

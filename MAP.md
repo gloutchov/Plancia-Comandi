@@ -207,7 +207,7 @@ Plancia-Comandi/
 
 ### 2. Flusso e responsabilità
 
-M28 mantiene tutti i terminali montati, nascondendo solo i riquadri non selezionati. `terminalStream.ts` ordina snapshot iniziale e chunk in arrivo; non filtra input o risposte di protocollo. Un terminale viene distrutto alla chiusura della sua sessione. Dopo la build, `node scripts/smoke-terminal-stream.mjs` prova il renderer con un bridge sintetico, senza shell, dati o appunti reali. Lo smoke full del pacchetto aggiunge `smoke-terminal-protocol.mjs`, con una sonda Node locale su PTY isolata.
+M28 mantiene tutti i terminali montati, nascondendo solo i riquadri non selezionati. `terminalStream.ts` ordina snapshot iniziale e chunk in arrivo; non filtra input o risposte di protocollo. Un terminale viene distrutto alla chiusura della sua sessione. Dopo la build, `node scripts/smoke-terminal-stream.mjs` prova il renderer con un bridge sintetico, senza shell, dati o appunti reali. Lo smoke full del pacchetto aggiunge `smoke-terminal-protocol.mjs`, con una sonda Node locale su PTY isolata. Da 0.3.10 lo smoke dei pattern verifica lingua e tema tramite `settings:updated` e controlla l'identità dei terminali, senza ricaricare il renderer sulle PTY aperte; conserva il percorso con reload per i vecchi pacchetti.
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
 
@@ -470,7 +470,7 @@ Plancia-Comandi/
 
 ### 2. Flow and responsibilities
 
-M28 keeps all terminals mounted, hiding only unselected panes. `terminalStream.ts` orders the initial snapshot and incoming chunks; it does not filter input or protocol replies. Closing a session destroys its terminal. After building, `node scripts/smoke-terminal-stream.mjs` tests the renderer with a synthetic bridge, without real shells, data or clipboard. Full package smoke also runs `smoke-terminal-protocol.mjs`, with a local Node probe on an isolated PTY.
+M28 keeps all terminals mounted, hiding only unselected panes. `terminalStream.ts` orders the initial snapshot and incoming chunks; it does not filter input or protocol replies. Closing a session destroys its terminal. After building, `node scripts/smoke-terminal-stream.mjs` tests the renderer with a synthetic bridge, without real shells, data or clipboard. Full package smoke also runs `smoke-terminal-protocol.mjs`, with a local Node probe on an isolated PTY. From 0.3.10 the pattern smoke checks locale and theme through `settings:updated` and verifies terminal identity, without reloading the renderer over open PTYs; it retains the reload path for older packages.
 
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
 
