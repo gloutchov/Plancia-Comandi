@@ -4,11 +4,11 @@
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.10 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** Il runtime resta Electron 45.3.2. La release pubblicata è la [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9), con i fuse C27, pacchetti Windows x64/macOS ARM64 e checksum SHA-256. C18 nella release 0.3.9 disabilita nei pacchetti DevTools, demo, screenshot e traccia di sviluppo; gli errori di avvio gestiti mostrano una finestra nativa IT/EN e chiudono con codice 1. C18 è chiusa sul commit `f505304`, con pacchetti Windows x64/macOS ARM64 e checksum verificati. I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.10 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) include la correzione C28 delle risposte DA/OSC duplicate al cambio sessione/vista, pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -99,7 +99,7 @@ Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale
 
 ### 5. Sviluppo e verifiche
 
-**M28 in revisione locale — sorgenti 0.3.10, non pubblicati.** Cambiare sessione o vista mantiene lo stesso terminale, evitando nuove risposte a vecchie richieste DA/OSC nel prompt o nell’input delle CLI. Snapshot e output in arrivo vengono applicati in ordine. La release pubblicata e i download della landing restano 0.3.9. Verifiche e limiti nel [piano](PLAN.md).
+**C28 pubblicata, 19 novembre 2026 — release 0.3.10.** Cambio sessione e vista conservano lo stesso terminale, con snapshot e output concorrente ordinati. Commit `593394a79aadd0e5e33a9acc25962a99f421fc72`, [Windows 44544442665](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44544442665) e [macOS ARM64 44544449320](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44544449320) verificati. Windows: 474 test riusciti/4 POSIX saltati, PowerShell 5.1/7 e scompattato/portable/app installata; macOS: build e smoke nativi di scompattato/DMG/ZIP. Portable finale provato anche su Windows locale con profilo sintetico. Quattro pacchetti non firmati e due manifest SHA-256 nella [release pubblicata](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10), riscaricati e confrontati con i digest verificati. Verifiche e limiti nel [piano](PLAN.md).
 
 **C9 completata, 16 novembre 2026 — release 0.3.7.** I 16 canali in ingresso accettano solo la finestra dell’app, il suo frame principale e l’URL esatto del documento previsto; frame mancanti, eliminati o estranei e payload non validi sono rifiutati. I permessi Chromium sono negati sia nei controlli sia nelle richieste; copia/incolla e notifiche native continuano attraverso il main. Suite macOS: 378 test riusciti, 2 PowerShell nativi saltati; build riuscita. ZIP estratto e DMG ARM64 in sola lettura: ispezione e smoke reali con profili isolati prima del main, IPC negativi, CSP, navigazione/popup e permessi negati. La [run Windows 43823173153](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43823173153) sul commit `3c3fb5efef8053df0514b44ef32f85ee723b0077` è verde, portable e app installata compresi. C9 è pubblicata nella [release 0.3.7](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.7). Dettagli nel [piano](PLAN.md).
 
@@ -122,7 +122,7 @@ C13 aggiunge test dei percorsi per PowerShell: su Windows `npm test -- src/share
 
 C14, 15 novembre 2026: 274 test locali riusciti e 2 PowerShell nativi saltati su macOS; 17 confronti fish 4.9.3 riusciti. La [run Windows 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) ha superato 46 casi per ciascuno dei motori PowerShell 5.1.26100.33648 e 7.6.9 e verificato app scompattata, portable e installata. DMG montato in sola lettura e ZIP macOS ARM64 estratto sono stati ispezionati e provati fuori dal checkout, con profili isolati prima del main. Tutti i sei allegati sono stati riscaricati e confrontati con SHA-256 e digest GitHub; gli archivi sorgente ZIP/TAR coincidono con i 118 file del commit rilasciato. Non è una prova personale su PC Windows, Linux, macOS Intel o Gatekeeper su download in quarantena.
 
-La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link pubblici ai pacchetti 0.3.6. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
+La landing di presentazione è in [`docs/index.html`](docs/index.html), con IT/EN, tema automatico e manuale, galleria delle sei catture C3 e link ai pacchetti verificati 0.3.10. La milestone C4 ne registra verifiche e pubblicazione. Per controllarla dal checkout:
 
 ```bash
 npm run check:site
@@ -176,11 +176,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.10 · early development · macOS, Windows and Linux targets · Apache-2.0.** The runtime remains Electron 45.3.2. The published release is [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9), with C27 fuses, Windows x64/macOS ARM64 packages and SHA-256 checksums. C18 in release 0.3.9 disables packaged DevTools, demo, screenshots and development tracing; handled startup failures show a native IT/EN dialog and exit with code 1. C18 is closed at `f505304`, with verified Windows x64/macOS ARM64 packages and checksums. Tools used in terminals are installed separately.
+**Source version 0.3.10 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) includes the C28 fix for duplicate DA/OSC replies on session/view changes, Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.9](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.9) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
@@ -271,7 +271,7 @@ Preferences also store the last used folder. Terminal output remains in the app'
 
 ### 5. Development and checks
 
-**M28 under local review — unpublished 0.3.10 sources.** Switching sessions or views keeps the same terminal, preventing fresh replies to historical DA/OSC queries from entering the shell prompt or CLI input. The snapshot and incoming output are applied in order. The published release and landing downloads remain 0.3.9. Checks and limitations are in the [plan](PLAN.md).
+**C28 published, 19 November 2026 — release 0.3.10.** Session and view changes preserve the same terminal, with ordered snapshot and concurrent output. Commit `593394a79aadd0e5e33a9acc25962a99f421fc72`, [Windows 44544442665](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44544442665) and [macOS ARM64 44544449320](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44544449320) verified. Windows: 474 tests passed/4 POSIX skips, PowerShell 5.1/7 and unpacked/portable/installed app; macOS: native build/smoke of unpacked/DMG/ZIP. The final portable also passed local Windows smoke with a synthetic profile. Four unsigned packages and two SHA-256 manifests in the [published release](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10), downloaded again and compared with verified digests. Checks and limits in the [plan](PLAN.md).
 
 **C9 completed, 16 November 2026 — release 0.3.7.** All 16 inbound channels accept only the app window, its main frame and the exact expected document URL; missing, disposed or foreign frames and invalid payloads are rejected. Chromium permissions are denied for both checks and requests; native copy/paste and notifications continue through main. macOS suite: 378 tests passed, 2 native PowerShell tests skipped; build passed. Extracted ZIP and read-only ARM64 DMG: inspection and live smoke with profiles isolated before main, negative IPC, CSP, navigation/popup and denied permissions. [Windows run 43823173153](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43823173153) at commit `3c3fb5efef8053df0514b44ef32f85ee723b0077` is green, including portable and installed. C9 is published in [release 0.3.7](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.7). Details in the [plan](PLAN.md).
 
@@ -294,7 +294,7 @@ C13 adds PowerShell path tests: on Windows, `npm test -- src/shared/shellQuote.n
 
 C14, 15 November 2026: 274 local tests passed and 2 native PowerShell tests skipped on macOS; 17 fish 4.9.3 comparisons passed. [Windows run 43697244486](https://github.com/gloutchov/Plancia-Comandi/actions/runs/43697244486) passed 46 cases per engine, PowerShell 5.1.26100.33648 and 7.6.9, and checked the unpacked, portable and installed app. The read-only mounted DMG and extracted macOS ARM64 ZIP were inspected and tested outside the checkout, with profiles isolated before main. All six assets were downloaded again and compared with SHA-256 and GitHub digests; ZIP/TAR source archives match the released commit’s 118 files. This does not establish a personal Windows PC, Linux, Intel macOS or Gatekeeper check on quarantined downloads.
 
-The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and public links to the 0.3.6 packages. Milestone C4 records its checks and publication. To check it from the checkout:
+The presentation landing page is in [`docs/index.html`](docs/index.html), with IT/EN, automatic and manual theme, the six C3 screenshots and links to the verified 0.3.10 packages. Milestone C4 records its checks and publication. To check it from the checkout:
 
 ```bash
 npm run check:site
