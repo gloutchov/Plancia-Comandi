@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.9**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.10**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -62,6 +62,8 @@ Plancia-Comandi/
 |   |-- termTheme.ts                 Palette dei terminali
 |   |-- shortcuts.ts                 Riconoscimento delle scorciatoie
 |   |-- shortcuts.test.ts            Test di copia, incolla e Ctrl+C
+|   |-- terminalStream.ts            Ordine snapshot/output e deduplica per sequenza M28
+|   |-- terminalStream.test.ts       Race di parsing, query frammentate, input e chiusura
 |   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
 |   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
 |   |-- terminalEdit.powershell.test.ts Test dei percorsi Unicode in drop e immagini incollate
@@ -143,6 +145,9 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
+|   |-- fixtures/                    Main/preload statici per lo smoke renderer M28
+|   |-- smoke-terminal-stream.mjs    Renderer reale, bridge sintetico, DA/OSC e viste
+|   |-- smoke-terminal-protocol.mjs  Query DA/OSC su PTY nativa nello smoke full da 0.3.10
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
 |   |-- smoke-development-flags.mjs  Sonde delle dieci variabili, senza bypass nel prodotto
 |   |-- smoke-development-flags.test.ts Soglia versione e rilevamento scritture vietate
@@ -202,6 +207,8 @@ Plancia-Comandi/
 
 ### 2. Flusso e responsabilità
 
+M28 mantiene tutti i terminali montati, nascondendo solo i riquadri non selezionati. `terminalStream.ts` ordina snapshot iniziale e chunk in arrivo; non filtra input o risposte di protocollo. Un terminale viene distrutto alla chiusura della sua sessione. Dopo la build, `node scripts/smoke-terminal-stream.mjs` prova il renderer con un bridge sintetico, senza shell, dati o appunti reali. Lo smoke full del pacchetto aggiunge `smoke-terminal-protocol.mjs`, con una sonda Node locale su PTY isolata.
+
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
 
 M7 invia solo porzioni limitate dello schermo a un singolo worker Node per le regex personalizzate; le regole integrate restano nel main. `customPatterns.ts` coalesca le richieste per sessione, cancella i lavori alla chiusura e sospende un profilo che supera il budget. Il main riceve solo i fatti di matching; la UI riceve i consueti metadati di stato e un codice di avviso localizzato. I quattro limiti `statusPatterns` sono validati da `appConfig.ts`; non servono nuovi file worker nel pacchetto perché il programma statico è incluso in main.js.
@@ -216,7 +223,7 @@ La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari 
 
 M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
 
-Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.9`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
+Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
 ### 3. Comandi e verifiche
 
@@ -258,7 +265,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.9** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.10** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -318,6 +325,8 @@ Plancia-Comandi/
 |   |-- termTheme.ts                 Terminal palettes
 |   |-- shortcuts.ts                 Shortcut recognition
 |   |-- shortcuts.test.ts            Copy, paste and Ctrl+C tests
+|   |-- terminalStream.ts            M28 snapshot/output ordering and sequence deduplication
+|   |-- terminalStream.test.ts       Parsing race, fragmented queries, input and disposal
 |   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
 |   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
 |   |-- terminalEdit.powershell.test.ts Unicode drop and pasted-image path tests
@@ -399,6 +408,9 @@ Plancia-Comandi/
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
+|   |-- fixtures/                    Static main/preload for the M28 renderer smoke
+|   |-- smoke-terminal-stream.mjs    Real renderer, synthetic bridge, DA/OSC and views
+|   |-- smoke-terminal-protocol.mjs  Native PTY DA/OSC queries in full smoke from 0.3.10
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
 |   |-- smoke-development-flags.mjs  Ten-variable probes with no product bypass
 |   |-- smoke-development-flags.test.ts Version threshold and forbidden output detection
@@ -458,6 +470,8 @@ Plancia-Comandi/
 
 ### 2. Flow and responsibilities
 
+M28 keeps all terminals mounted, hiding only unselected panes. `terminalStream.ts` orders the initial snapshot and incoming chunks; it does not filter input or protocol replies. Closing a session destroys its terminal. After building, `node scripts/smoke-terminal-stream.mjs` tests the renderer with a synthetic bridge, without real shells, data or clipboard. Full package smoke also runs `smoke-terminal-protocol.mjs`, with a local Node probe on an isolated PTY.
+
 `src/main.tsx` mounts `App.tsx`. UI uses the contract in `src/env.d.ts`; `electron/preload.ts` exposes specific operations. `electron/main.ts` registers handlers and delegates to settings, shells and sessions. `sessions.ts` collects output, titles, screen and child-process facts and invokes pure `status.ts` logic. Main publishes updates to the UI.
 
 M7 sends only bounded screen regions to one Node worker for custom regexes; built-in rules stay in main. `customPatterns.ts` coalesces requests per session, cancels jobs on close and suspends a profile that exceeds its budget. Main receives only matching facts; UI receives the usual status metadata and a localized warning code. The four `statusPatterns` limits are validated by `appConfig.ts`; no additional worker files are needed in the package because the static program is bundled into main.js.
@@ -472,7 +486,7 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
 
-`full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.9`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
+`full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
 ### 3. Commands and checks
 

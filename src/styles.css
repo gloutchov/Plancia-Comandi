@@ -359,6 +359,7 @@ button {
 }
 
 .tile.is-active { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.tile[hidden] { display: none; }
 
 .tile-bar {
   display: flex;

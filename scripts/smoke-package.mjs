@@ -17,6 +17,7 @@ import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 import { SMOKE_BUDGET_MS, smokeBudgetExpired, smokeBudgetMessage, smokeUsesWindowsConptyChecks } from './smoke-package-guard.mjs'
 import { hasDevelopmentSmoke, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
+import { smokeTerminalProtocol } from './smoke-terminal-protocol.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
 const expectedVersion = process.argv[3]
@@ -370,6 +371,8 @@ try {
     await until(() => evaluate(`document.querySelector('.tiles')?.dataset.layout === '${layout}'`), 'Layout did not update')
   }
   assert.equal(await evaluate('document.querySelectorAll(".xterm").length > 0'), true)
+  stageAt('terminal protocol regression')
+  const protocolChecked = await smokeTerminalProtocol({ main, evaluate, until, root, sessions, expectedVersion })
   stageAt('custom pattern regression')
   const patternsChecked = await smokeCustomPatterns({ evaluate, until, request, sessions, root, expectedVersion })
   stageAt('settings failure regression')
@@ -387,7 +390,7 @@ try {
   assert(!/preload error|ERR_MODULE_NOT_FOUND|Cannot find module|NODE_MODULE_VERSION|UnhandledPromiseRejection/i.test(diagnostics), 'Packaged runtime reported a module/preload error')
   assertNoForkRejection('Main process reported a fork or unhandled rejection')
   await assertNoStartupCrash()
-  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
+  console.log(JSON.stringify({ smoke: 'passed', platform: process.platform, arch: process.arch, version: expectedVersion, checks: ['early HOME/appData/userData/sessionData isolation', 'isolated preferences', 'preload', 'IT/EN', 'light/dark', 'native PTY', 'four layouts', 'session close', ...(protocolChecked ? ['native DA/OSC replies without replay'] : []), ...(conptyChecked ? ['ConPTY child close', 'no orphan', 'no fork rejection'] : []), ...(patternsChecked ? ['bounded custom regexes', 'bridge responsiveness', 'pattern fallback and recovery'] : []), ...(settingsChecked ? ['protected settings failure', 'localized storage warning', 'save recovery'] : [])], security, temporaryRoot: root }))
   }
 } catch (error) {
   smokeError = error

@@ -7,6 +7,7 @@ import type { RuntimeLimits } from '../shared/appConfig'
 import { appShortcut, isCopyKey, isPasteKey, isPlainCtrlC, plainCtrlCAction, type KeyLike } from '../shortcuts'
 import { TerminalMenu } from './TerminalMenu'
 import { dropIntoTerminal, pasteIntoTerminal, registerTerminalEdit, writeClipboardText } from '../terminalEdit'
+import { TerminalStream } from '../terminalStream'
 
 const FONT = '"JetBrains Mono", "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace'
 
@@ -16,6 +17,7 @@ export function TerminalView({
   theme,
   fontSize,
   active,
+  visible,
   platform,
   limits,
   fitToken,
@@ -30,6 +32,7 @@ export function TerminalView({
   theme: ITheme
   fontSize: number
   active: boolean
+  visible: boolean
   platform: string
   limits: RuntimeLimits
   fitToken: string
@@ -46,11 +49,15 @@ export function TerminalView({
   const escapeRef = useRef(onEscape)
   const shellRef = useRef(shellId)
   const limitsRef = useRef(limits)
+  const visibleRef = useRef(visible)
+  const activeRef = useRef(active)
   const [menu, setMenu] = useState<{ x: number; y: number; selection: string } | null>(null)
   shortcutRef.current = onShortcut
   escapeRef.current = onEscape
   shellRef.current = shellId
   limitsRef.current = limits
+  visibleRef.current = visible
+  activeRef.current = active
 
   useEffect(() => {
     const host = hostRef.current
@@ -82,23 +89,9 @@ export function TerminalView({
     fitRef.current = fit
 
     let disposed = false
-    let ready = false
-    let seq = 0
-    const queue: Array<{ seq: number; data: string }> = []
-
-    const writeLive = (chunkSeq: number, data: string) => {
-      if (chunkSeq <= seq) return
-      seq = chunkSeq
-      term.write(data)
-    }
-
+    const stream = new TerminalStream(term)
     const unsubscribe = bridge.onData((chunk) => {
-      if (chunk.id !== sessionId) return
-      if (!ready) {
-        queue.push(chunk)
-        return
-      }
-      writeLive(chunk.seq, chunk.data)
+      if (chunk.id === sessionId) stream.push(chunk)
     })
 
     term.onData((data) => bridge.write(sessionId, data))
@@ -142,7 +135,7 @@ export function TerminalView({
     })
 
     const publishSize = () => {
-      if (disposed) return
+      if (disposed || !visibleRef.current) return
       if (host.clientWidth < 2 || host.clientHeight < 2) return
       try {
         fit.fit()
@@ -159,14 +152,10 @@ export function TerminalView({
       publishSize()
       void bridge.subscribe(sessionId).then((snapshot) => {
         if (disposed) return
-        seq = snapshot.seq
-        ready = true
-        term.write(snapshot.data, () => {
+        stream.restore(snapshot, () => {
           if (disposed) return
-          for (const chunk of queue) writeLive(chunk.seq, chunk.data)
-          queue.length = 0
           publishSize()
-          if (active) term.focus()
+          if (activeRef.current && visibleRef.current) term.focus()
         })
       })
     })
@@ -182,6 +171,7 @@ export function TerminalView({
 
     return () => {
       disposed = true
+      stream.dispose()
       cancelAnimationFrame(frame)
       observer.disconnect()
       unsubscribe()
@@ -203,7 +193,7 @@ export function TerminalView({
   useEffect(() => {
     const term = termRef.current
     const fit = fitRef.current
-    if (!term || !fit) return
+    if (!term || !fit || !visible) return
     term.options.fontSize = fontSize
     try {
       fit.fit()
@@ -211,12 +201,12 @@ export function TerminalView({
     } catch {
       // Font changes can arrive before the pane has a size.
     }
-  }, [fontSize, sessionId])
+  }, [fontSize, sessionId, visible])
 
   useEffect(() => {
     const term = termRef.current
     const fit = fitRef.current
-    if (!term || !fit) return
+    if (!term || !fit || !visible) return
     let inner = 0
     const outer = requestAnimationFrame(() => {
       try {
@@ -248,11 +238,12 @@ export function TerminalView({
       cancelAnimationFrame(inner)
       window.removeEventListener('resize', onResize)
     }
-  }, [fitToken, sessionId])
+  }, [fitToken, sessionId, visible])
 
   useEffect(() => {
-    if (active) termRef.current?.focus()
-  }, [active])
+    if (active && visible) termRef.current?.focus()
+    if (!visible) setMenu(null)
+  }, [active, visible])
 
   return (
     <div

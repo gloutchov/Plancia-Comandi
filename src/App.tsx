@@ -139,6 +139,9 @@ function Workspace({ boot }: { boot: BootInfo }) {
     layoutCapacity(displayed),
   )
   const visibleIds = new Set(slots.filter((id): id is string => id !== null))
+  // Keep one terminal/parser/subscription alive per session. Replaying old
+  // DA/OSC queries when a pane remounts sends stale replies to the shell/CLI.
+  const panes = [...slots, ...sessions.filter(session => !visibleIds.has(session.id)).map(session => session.id)]
   const countRef = useRef(sessions.length)
 
   useEffect(() => {
@@ -360,13 +363,13 @@ function Workspace({ boot }: { boot: BootInfo }) {
           </div>
         ) : (
           <div className="tiles" data-layout={displayed}>
-            {slots.map((id, index) => {
+            {panes.map((id, index) => {
               if (!id) return <div key={`empty-${index}`} className="tile tile-empty" aria-hidden="true" />
               const session = sessions.find((item) => item.id === id)
               if (!session) return null
               const active = id === focusedId
               return (
-                <section key={id} className={cx('tile', active && 'is-active', `tone-${session.phase}`)}>
+                <section key={id} hidden={!visibleIds.has(id)} className={cx('tile', active && 'is-active', `tone-${session.phase}`)}>
                   <header className="tile-bar">
                     <i className={cx('dot', `is-${session.phase}`)} />
                     <strong>{sessionName(session)}</strong>
@@ -378,6 +381,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
                     theme={termTheme}
                     fontSize={settings.fontSize}
                     active={active && !newOpen && !settingsOpen && !pendingClose}
+                    visible={visibleIds.has(id)}
                     platform={boot.platform}
                     limits={boot.limits}
                     fitToken={displayed}

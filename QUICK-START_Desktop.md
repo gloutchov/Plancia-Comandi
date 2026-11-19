@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.9**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.10**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -50,7 +50,7 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.9**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.10**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 
