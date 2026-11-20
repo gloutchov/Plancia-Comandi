@@ -41,7 +41,7 @@ Plancia-Comandi/
 |   |-- permissions.ts              Negazione di controlli e richieste Chromium
 |   |-- legacyIpc.ts                 Registrazione dei canali IPC precedenti a M1
 |   |-- preload.ts                   Bridge API dedicato al renderer
-|   |-- editMenu.ts                  Menu Modifica e comandi di editing
+|   |-- editMenu.ts                  Menu applicazione, editing e Vista senza reload/DevTools
 |   |-- clipboardIpc.ts              Lettura e scrittura degli appunti
 |   |-- customPatterns.ts            Worker unico, coda limitata, timeout e fallback M7
 |   |-- customPatternWorker.ts       Programma worker statico incluso nel bundle main
@@ -118,6 +118,7 @@ Plancia-Comandi/
 |       |-- diagnosticMessages.ts    Codici di avviso ed errori senza testo nativo nella UI
 |       |-- textLimit.ts             Taglio del testo senza spezzare un'emoji
 |       |-- textLimit.test.ts        Test dell'emoji a cavallo del limite
+|       |-- applicationMenu.test.ts Test menu IT/EN, tre piattaforme e modalità sviluppo/pacchetto
 |       |-- nativeInstall.test.ts    Test della scelta prebuild Windows o ricompilazione
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
@@ -208,6 +209,8 @@ Plancia-Comandi/
 `.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. La landing C4 è in `docs/`, con sorgente di pubblicazione `main:/docs`. Non è aggiunto un workflow al repository: il deploy Pages gestito da GitHub sarà necessario dopo le approvazioni. `.nojekyll` conserva i file statici; le risorse usano percorsi relativi. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
+
+Il ritocco M31 al menu usa un sottomenu Vista esplicito in `editMenu.ts`, con zoom e schermo intero, senza reload, forceReload o toggleDevTools in sviluppo e nei pacchetti. `applicationMenu.test.ts` verifica IT/EN, ricostruzione del menu, tre piattaforme e scorciatoie Copia/Incolla. Da 0.3.12 lo smoke completo del gemello controlla anche l’assenza di entrambi i comandi di reload; mantiene il controllo storico DevTools per i vecchi pacchetti.
 
 M31 (sorgenti 0.3.12) estende il trascinamento alla `.toolbar` solo su macOS, con `no-drag` per gruppo delle viste e sovrapposizioni. `node scripts/smoke-window-chrome.mjs .` verifica otto combinazioni IT/EN, temi e larghezze 860/1280 con la fixture C28 e cinque sessioni sintetiche. Un argomento opzionale indica il renderer o `app.asar`; `--interactive` mantiene aperta la finestra per input nativo. `native-window.json` registra al massimo 1000 posizioni/stati reali della BrowserWindow, senza contenuti. Il controllo automatico di CSS, layout e dialoghi non certifica lo spostamento né un dispositivo fisico. I workflow manuali esistenti eseguono la sonda dopo la build; in caso di errore conservano report, coordinate e cattura sintetica per sette giorni.
 
@@ -314,7 +317,7 @@ Plancia-Comandi/
 |   |-- permissions.ts              Denies Chromium permission checks and requests
 |   |-- legacyIpc.ts                 Registration of the IPC channels that predate M1
 |   |-- preload.ts                   Dedicated renderer API bridge
-|   |-- editMenu.ts                  Edit menu and editing commands
+|   |-- editMenu.ts                  Application menu, editing and View without reload/DevTools
 |   |-- clipboardIpc.ts              Clipboard reads and writes
 |   |-- customPatterns.ts            Single worker, bounded queue, timeout and M7 fallback
 |   |-- customPatternWorker.ts       Static worker program bundled into main
@@ -391,6 +394,7 @@ Plancia-Comandi/
 |       |-- diagnosticMessages.ts    Warning/error codes without native text in UI
 |       |-- textLimit.ts             Text cut that does not split an emoji
 |       |-- textLimit.test.ts        Test of an emoji straddling the limit
+|       |-- applicationMenu.test.ts IT/EN menu tests, three platforms and source/package modes
 |       |-- nativeInstall.test.ts    Test of the Windows prebuild or rebuild choice
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
@@ -481,6 +485,8 @@ Plancia-Comandi/
 `.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. The C4 landing is in `docs/`, with `main:/docs` as the publishing source. No repository workflow is added: GitHub’s managed Pages deployment will be necessary after approvals. `.nojekyll` preserves static files; assets use relative paths. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
+
+The M31 menu adjustment uses an explicit View submenu in `editMenu.ts`, retaining zoom and full screen without reload, forceReload or toggleDevTools in development and packages. `applicationMenu.test.ts` checks IT/EN, menu reinstallation, three platforms and Copy/Paste shortcuts. From 0.3.12 full twin smoke also checks that both reload commands are absent; older packages retain the historical DevTools check.
 
 M31 (source 0.3.12) extends dragging to `.toolbar` on macOS only, with `no-drag` for view controls and overlays. `node scripts/smoke-window-chrome.mjs .` checks eight IT/EN, theme and 860/1280-width combinations with the C28 fixture and five synthetic sessions. An optional argument selects the renderer or `app.asar`; `--interactive` keeps the window open for native input. `native-window.json` records at most 1000 real BrowserWindow positions/states without content. Automatic CSS, layout and dialog checks do not certify movement or a physical device. Existing manual workflows run the probe after building; on failure they retain the report, positions and synthetic capture for seven days.
 

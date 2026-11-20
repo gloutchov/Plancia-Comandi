@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { BrowserWindow, ipcMain, Menu } from 'electron'
 import { translate, type MessageKey } from '../src/shared/i18n'
 import type { Locale } from '../src/shared/types'
 import type { IpcSenderEvent } from '../src/shared/ipcSender'
@@ -82,11 +82,10 @@ export function installApplicationMenu(locale: Locale, getWindow: () => BrowserW
         item(t('menuSelectAll'), selectAll, 'selectAll', getWindow),
       ],
     },
-    app.isPackaged ? { role: 'viewMenu', submenu: [
-      { role: 'reload' }, { role: 'forceReload' }, { type: 'separator' },
+    { role: 'viewMenu', submenu: [
       { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' },
       { type: 'separator' }, { role: 'togglefullscreen' },
-    ] } : { role: 'viewMenu' },
+    ] },
     { role: 'windowMenu' },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))

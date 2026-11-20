@@ -9,6 +9,13 @@ export function hasDevelopmentSmoke(version) {
   return major > 0 || minor > 3 || (minor === 3 && patch >= 9)
 }
 
+export function hasRestrictedViewMenu(version) {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version)
+  if (!match) return false
+  const [major, minor, patch] = match.slice(1).map(Number)
+  return major > 0 || minor > 3 || (minor === 3 && patch >= 12)
+}
+
 /** Only the disposable test process receives these flags. There is no app bypass. */
 export function developmentSmokeEnvironment(root) {
   return {

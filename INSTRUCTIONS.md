@@ -272,7 +272,7 @@ Example without secrets:
 | Paste | Command+V | Ctrl+Shift+V |
 | Interrupt the command | Control+C | Ctrl+C with no selection |
 
-On macOS the menu bar has **Edit**, with **Undo**, **Redo**, **Cut**, **Copy**, **Paste** and **Select All**. The labels follow the app language. The **View** and **Window** menus stay Electron's standard menus and follow the system language. On Windows and Linux the bar opens with Alt; **Copy** and **Paste** use Ctrl+Shift+C and Ctrl+Shift+V, so Ctrl+C stays available for the command.
+On macOS the menu bar has **Edit**, with **Undo**, **Redo**, **Cut**, **Copy**, **Paste** and **Select All**. The labels follow the app language. The **View** menu retains zoom and full screen; **Reload**, **Force Reload** and **Toggle Developer Tools** are removed, along with their menu shortcuts, both in packages and during `npm run dev`. **View** and **Window** follow the system language. Restart `npm run dev` to apply source updates. On Windows and Linux the bar opens with Alt; **Copy** and **Paste** use Ctrl+Shift+C and Ctrl+Shift+V, so Ctrl+C stays available for the command.
 
 Right-clicking the terminal opens **Copy** and **Paste**. **Copy** is disabled when nothing is selected. Copy and paste use the system clipboard. Paste uses xterm.js: if the program in the terminal has enabled bracketed paste, the text arrives as one block; otherwise text on several lines can run line by line. Always check what you paste. A paste burst far beyond ordinary use can insert the same text twice when the second signal arrives after the app has already forgotten the first.
 

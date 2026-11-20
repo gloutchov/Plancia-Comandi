@@ -16,7 +16,7 @@ import { extractWindowsElectronExe } from './windows-package-exe.mjs'
 import { readStartupTrace, startupCrashEvents } from './fuse-smoke-launch.mjs'
 import { restoreSmokeWorkerStartup, smokeWorkerHandshake } from './smoke-worker.mjs'
 import { SMOKE_BUDGET_MS, smokeBudgetExpired, smokeBudgetMessage, smokeUsesWindowsConptyChecks } from './smoke-package-guard.mjs'
-import { hasDevelopmentSmoke, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
+import { hasDevelopmentSmoke, hasRestrictedViewMenu, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
 import { smokeTerminalProtocol } from './smoke-terminal-protocol.mjs'
 
 const executable = path.resolve(process.argv[2] ?? '')
@@ -295,13 +295,14 @@ try {
       const controls = await main.evaluate(`(() => {
         const { BrowserWindow, Menu } = __smokeElectron;
         const windows = BrowserWindow.getAllWindows().filter(w => w.webContents.getURL() === ${JSON.stringify(page.url)});
-        const menuHasDevtools = menu => Boolean(menu?.items.some(item => item.role?.toLowerCase() === 'toggledevtools' || menuHasDevtools(item.submenu)));
+        const forbiddenMenuRoles = ${JSON.stringify(hasRestrictedViewMenu(expectedVersion) ? ['toggledevtools', 'reload', 'forcereload'] : ['toggledevtools'])};
+        const menuHasDevelopmentActions = menu => Boolean(menu?.items.some(item => forbiddenMenuRoles.includes(item.role?.toLowerCase()) || menuHasDevelopmentActions(item.submenu)));
         globalThis.__m18DevtoolsOpened = 0;
         for (const window of windows) {
           window.webContents.on('devtools-opened', () => { __m18DevtoolsOpened++; });
           window.webContents.openDevTools({ mode: 'detach' });
         }
-        return { count: windows.length, menu: menuHasDevtools(Menu.getApplicationMenu()) };
+        return { count: windows.length, menu: menuHasDevelopmentActions(Menu.getApplicationMenu()) };
       })()`)
       assert.deepEqual(controls, { count: 1, menu: false })
       await delay(500)

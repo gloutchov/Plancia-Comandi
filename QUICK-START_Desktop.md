@@ -6,7 +6,7 @@ Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpa
 
 Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.12**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
-Nei sorgenti 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema.
+Nei sorgenti 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
 **Sommario**
 
@@ -58,7 +58,7 @@ From release 0.3.11, scroll available history with the wheel/trackpad or by drag
 
 This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.12**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
-In source 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar.
+In source 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 
 **Contents**
 

@@ -2,9 +2,14 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { hasDevelopmentSmoke, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
+import { hasDevelopmentSmoke, hasRestrictedViewMenu, developmentSmokeEnvironment, assertNoDevelopmentFiles } from './smoke-development-flags.mjs'
 
 describe('packaged development-control smoke', () => {
+  it('checks reload removal from 0.3.12 while retaining legacy-package smoke support', () => {
+    for (const version of ['0.3.9', '0.3.11', '0.2.99', 'invalid']) expect(hasRestrictedViewMenu(version)).toBe(false)
+    for (const version of ['0.3.12', '0.3.13', '0.3.100', '0.4.0', '1.0.0']) expect(hasRestrictedViewMenu(version)).toBe(true)
+  })
+
   it('starts at 0.3.9 and tests all ten variables in isolated directories', () => {
     for (const version of ['0.3.8', '0.2.9', 'invalid']) expect(hasDevelopmentSmoke(version)).toBe(false)
     for (const version of ['0.3.9', '0.3.10', '0.4.0', '1.0.0']) expect(hasDevelopmentSmoke(version)).toBe(true)
