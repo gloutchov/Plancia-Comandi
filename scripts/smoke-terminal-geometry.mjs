@@ -77,7 +77,7 @@ try {
     const shot = await driver.request('Page.captureScreenshot')
     await writeFile(path.join(root, name + '.png'), Buffer.from(shot.data, 'base64'))
   }
-  const scroll = async label => {
+  const scroll = async (label, insetOverride) => {
     await evaluate("document.querySelector('.tile:not([hidden]) .xterm-viewport').scrollTop = 1e9")
     await settle()
     const before = (await metrics())[0]
@@ -93,15 +93,25 @@ try {
       await evaluate("document.querySelector('.tile:not([hidden]) .xterm-viewport').scrollTop = 1e9")
       await settle()
       const x = before.viewport.right - barWidth / 2
-      const thumbHeight = Math.max(20, before.clientHeight ** 2 / before.scrollHeight)
-      const y = before.viewport.bottom - thumbHeight / 2
+      // Windows reserves the ends of the native track for arrow buttons.
+      // The viewport's full height is not the draggable track's height.
+      const trackInset = insetOverride ?? (process.platform === 'win32' ? barWidth : 0)
+      const trackHeight = before.clientHeight - 2 * trackInset
+      const thumbHeight = Math.max(20, trackHeight * before.clientHeight / before.scrollHeight)
+      const y = before.viewport.bottom - trackInset - thumbHeight / 2
       const targetY = before.viewport.y + before.clientHeight / 2
       await driver.request('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y })
       await driver.request('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 })
+      await settle()
+      const pressed = (await metrics())[0]
       await driver.request('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y: targetY, button: 'left', buttons: 1 })
+      await settle()
       await driver.request('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y: targetY, button: 'left', clickCount: 1 })
       await settle()
       const dragged = (await metrics())[0]
+      results.push({ label: label + '-drag', barWidth, trackInset, thumbHeight, x, y, targetY,
+        beforeTop: before.scrollTop, pressedTop: pressed.scrollTop, draggedTop: dragged.scrollTop })
+      assert(Math.abs(pressed.scrollTop - before.scrollTop) < 1, label + ': press paged the track instead of grabbing the thumb')
       assert(dragged.scrollTop < before.scrollTop - 100 && dragged.sample !== before.sample, label + ': dragging the thumb did not move displayed history')
     }
     results.push({ label: label + '-scroll', wheel: true, thumb: barWidth > 0 ? 'passed' : 'overlay-without-persistent-thumb' })
@@ -126,6 +136,15 @@ try {
   await screenshot('initial-single')
   await checkGeometry('initial-single')
   await scroll('initial-single')
+  // Reproduce end controls on macOS too, keeping the measured scrollbar width.
+  const insetBarWidth = (await metrics())[0].viewport.width - (await metrics())[0].clientWidth
+  await evaluate(`globalThis.insetStyle = document.createElement('style'); insetStyle.textContent =
+    '.xterm-viewport::-webkit-scrollbar { width: ${insetBarWidth}px; } .xterm-viewport::-webkit-scrollbar-track { margin-block: 22px; } .xterm-viewport::-webkit-scrollbar-thumb { background: #888; }'; document.head.append(insetStyle)`)
+  await settle()
+  await checkGeometry('emulated-inset-scrollbar')
+  await scroll('emulated-inset-scrollbar', 22)
+  await screenshot('inset-scrollbar')
+  await evaluate('insetStyle.remove()')
   // A hidden terminal must not publish a zero-size PTY, including during font changes.
   await evaluate('globalThis.originalTerminals = [...document.querySelectorAll(".xterm")]')
   const prior = await evaluate('terminalProbe.report()')
@@ -213,6 +232,7 @@ try {
   results.push({ label: 'explicit-tile-pair', passed: true })
   await click('[data-testid="layout-single"]')
   await click('.session:nth-child(1)')
+  await settle()
   await click('[data-testid="layout-grid"]')
   await settle()
   await evaluate(`globalThis.overlayStyle = document.createElement('style'); overlayStyle.textContent = '.xterm-viewport::-webkit-scrollbar { width: 0px; }'; document.head.append(overlayStyle)`)
@@ -287,6 +307,7 @@ try {
     if (shot) await writeFile(path.join(root, 'failure.png'), Buffer.from(shot.data, 'base64'))
   }
   await writeFile(path.join(root, 'report.json'), JSON.stringify({ error: String(error), results }, null, 2))
+  console.error(JSON.stringify({ geometryFailure: String(error), drags: results.filter(result => result.label.endsWith('-drag')) }))
   console.error('Geometry evidence: ' + root)
   throw error
 } finally {
