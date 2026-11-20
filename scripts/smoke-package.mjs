@@ -340,6 +340,10 @@ try {
   for (const [locale, theme] of [['it', 'dark'], ['en', 'light']]) {
     stageAt(`preferences ${locale}/${theme} update`)
     await evaluate(`window.plancia.updateSettings(${JSON.stringify({ locale, theme })})`)
+    if (hasRestrictedViewMenu(expectedVersion)) {
+      const menuLabels = await main.evaluate(`__smokeElectron.Menu.getApplicationMenu().items.filter(item => ['viewmenu', 'windowmenu'].includes(item.role?.toLowerCase())).map(item => item.label)`)
+      assert.deepEqual(menuLabels, locale === 'it' ? ['Vista', 'Finestra'] : ['View', 'Window'], 'Menu did not follow the app language without a reload')
+    }
     stageAt(`preferences ${locale}/${theme} reload`)
     await request('Page.reload')
     stageAt(`preferences ${locale}/${theme} render`)

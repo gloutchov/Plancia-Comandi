@@ -59,7 +59,7 @@ function item(label: string, accelerator: string | undefined, command: EditComma
 }
 
 export function installApplicationMenu(locale: Locale, getWindow: () => BrowserWindow | null): void {
-  const t = (key: MessageKey) => translate(locale, key)
+  const t = (key: MessageKey) => translate(locale, key, { app: translate(locale, 'appName') })
   const darwin = process.platform === 'darwin'
   const undo = darwin ? 'Command+Z' : undefined
   const redo = darwin ? 'Shift+Command+Z' : undefined
@@ -67,8 +67,22 @@ export function installApplicationMenu(locale: Locale, getWindow: () => BrowserW
   const selectAll = darwin ? 'Command+A' : undefined
   const copy = darwin ? 'Command+C' : 'Ctrl+Shift+C'
   const paste = darwin ? 'Command+V' : 'Ctrl+Shift+V'
+  const appMenu: Electron.MenuItemConstructorOptions = {
+    role: 'appMenu', label: t('appName'),
+    submenu: [
+      { role: 'about', label: t('menuAbout') },
+      { type: 'separator' },
+      { role: 'services', label: t('menuServices') },
+      { type: 'separator' },
+      { role: 'hide', label: t('menuHide') },
+      { role: 'hideOthers', label: t('menuHideOthers') },
+      { role: 'unhide', label: t('menuShowAll') },
+      { type: 'separator' },
+      { role: 'quit', label: t('menuQuit') },
+    ],
+  }
   const template: Electron.MenuItemConstructorOptions[] = [
-    ...(darwin ? [{ role: 'appMenu' as const }] : []),
+    ...(darwin ? [appMenu] : []),
     {
       label: t('menuEdit'),
       submenu: [
@@ -82,11 +96,20 @@ export function installApplicationMenu(locale: Locale, getWindow: () => BrowserW
         item(t('menuSelectAll'), selectAll, 'selectAll', getWindow),
       ],
     },
-    { role: 'viewMenu', submenu: [
-      { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' },
-      { type: 'separator' }, { role: 'togglefullscreen' },
+    { role: 'viewMenu', label: t('menuView'), submenu: [
+      { role: 'resetZoom', label: t('menuResetZoom') },
+      { role: 'zoomIn', label: t('menuZoomIn') },
+      { role: 'zoomOut', label: t('menuZoomOut') },
+      { type: 'separator' }, { role: 'togglefullscreen', label: t('menuFullScreen') },
     ] },
-    { role: 'windowMenu' },
+    { role: 'windowMenu', label: t('menuWindow'), submenu: [
+      { role: 'minimize', label: t('menuMinimize') },
+      ...(darwin ? [
+        { role: 'zoom' as const, label: t('menuZoom') },
+        { type: 'separator' as const },
+        { role: 'front' as const, label: t('menuFront') },
+      ] : [{ role: 'close' as const, label: t('menuClose') }]),
+    ] },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }

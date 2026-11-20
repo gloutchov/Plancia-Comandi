@@ -19,6 +19,45 @@ afterEach(() => {
 })
 
 describe('application menu', () => {
+  it.each(['darwin', 'win32', 'linux'] as const)('localizes all built-in commands on %s when the app language changes', platform => {
+    Object.defineProperty(process, 'platform', { ...platformDescriptor, value: platform })
+    const flatten = (items: Electron.MenuItemConstructorOptions[]): Electron.MenuItemConstructorOptions[] =>
+      items.flatMap(item => [item, ...(Array.isArray(item.submenu) ? flatten(item.submenu) : [])])
+    for (const locale of ['it', 'en', 'it'] as const) {
+      installApplicationMenu(locale, () => null)
+      const items = flatten(mock.build.mock.lastCall![0])
+      const roles = new Map(items.filter(item => item.role).map(item => [item.role?.toLowerCase(), item.label]))
+      const labels = locale === 'it' ? {
+        viewmenu: 'Vista', resetzoom: 'Dimensioni reali', zoomin: 'Ingrandisci', zoomout: 'Riduci',
+        togglefullscreen: 'Attiva/disattiva schermo intero', windowmenu: 'Finestra', minimize: 'Riduci a icona',
+      } : {
+        viewmenu: 'View', resetzoom: 'Actual Size', zoomin: 'Zoom In', zoomout: 'Zoom Out',
+        togglefullscreen: 'Toggle Full Screen', windowmenu: 'Window', minimize: 'Minimize',
+      }
+      for (const [role, label] of Object.entries(labels)) expect(roles.get(role)).toBe(label)
+      if (platform === 'darwin') {
+        const macLabels = locale === 'it' ? {
+          appmenu: 'Plancia Comandi', about: 'Informazioni su Plancia Comandi', services: 'Servizi',
+          hide: 'Nascondi Plancia Comandi', hideothers: 'Nascondi altre', unhide: 'Mostra tutte',
+          quit: 'Esci da Plancia Comandi', zoom: 'Ingrandisci finestra', front: 'Porta tutto in primo piano',
+        } : {
+          appmenu: 'Plancia Comandi', about: 'About Plancia Comandi', services: 'Services',
+          hide: 'Hide Plancia Comandi', hideothers: 'Hide Others', unhide: 'Show All',
+          quit: 'Quit Plancia Comandi', zoom: 'Zoom', front: 'Bring All to Front',
+        }
+        for (const [role, label] of Object.entries(macLabels)) expect(roles.get(role)).toBe(label)
+        expect(roles.has('close')).toBe(false)
+      } else {
+        expect(roles.get('close')).toBe(locale === 'it' ? 'Chiudi finestra' : 'Close Window')
+        expect(roles.has('appmenu')).toBe(false)
+      }
+      for (const item of items.filter(item => item.type !== 'separator')) {
+        expect(item.label).toBeTruthy()
+        expect(item.label).not.toContain('{app}')
+      }
+    }
+  })
+
   it.each(['darwin', 'win32', 'linux'] as const)('excludes reload and DevTools on %s after installation and language changes', platform => {
     Object.defineProperty(process, 'platform', { value: platform })
     for (const packaged of [false, true]) {
