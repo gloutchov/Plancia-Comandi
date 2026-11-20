@@ -60,6 +60,12 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node node_modules/node-pty/scripts/post-install.js
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Resolve the source executable name including spaces
+        working-directory: app
+        run: |
+          $appExe = node ../tooling/scripts/configured-windows-exe.mjs electron-builder.json5
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "PLANCIA_APP_EXE=$appExe" >> $env:GITHUB_ENV
       - name: Verify full suite including native PowerShell 5.1 and 7 quoting
         working-directory: app
         run: npm test
@@ -79,24 +85,32 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Prepare the open-fuse twin from the finished unpacked app
         run: node tooling/scripts/prepare-open-fuse-twin.mjs app/release/win-unpacked
+      - name: Verify initial system language and preserved overrides on the twin
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          if ([version]$env:EXPECTED_VERSION -ge [version]'0.3.13') {
+            node tooling/scripts/smoke-initial-locale.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE)
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
       - name: Read release and twin fuse wires
-        run: node tooling/scripts/check-fuse-wires.mjs app/release/win-unpacked/plancia-comandi.exe app/release/win-unpacked-open-fuses/plancia-comandi.exe
+        run: node tooling/scripts/check-fuse-wires.mjs (Join-Path 'app/release/win-unpacked' $env:PLANCIA_APP_EXE) (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE)
       - name: Smoke the open-fuse twin with the full harness
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
-        run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked-open-fuses/plancia-comandi.exe "$env:EXPECTED_VERSION" full
+        run: node tooling/scripts/smoke-package.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION" full
       - name: Check safe startup failures on the packaged twin
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
-        run: node tooling/scripts/smoke-startup-failure.mjs app/release/win-unpacked-open-fuses/plancia-comandi.exe "$env:EXPECTED_VERSION"
+        run: node tooling/scripts/smoke-startup-failure.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION"
       - name: Probe one release fuse at a time
         run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/win-unpacked "$env:RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches
-        run: node tooling/scripts/smoke-fuses.mjs app/release/win-unpacked/plancia-comandi.exe app/release/win-unpacked-open-fuses/plancia-comandi.exe
+        run: node tooling/scripts/smoke-fuses.mjs (Join-Path 'app/release/win-unpacked' $env:PLANCIA_APP_EXE) (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE)
       - name: Smoke unpacked Windows package
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
-        run: node tooling/scripts/smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION" release
+        run: node tooling/scripts/smoke-package.mjs (Join-Path 'app/release/win-unpacked' $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION" release
       - name: Inspect package contents
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
@@ -108,6 +122,10 @@ jobs:
           $portable = Get-ChildItem app/release/PlanciaComandi-win-*-portable.exe
           $setup = Get-ChildItem app/release/PlanciaComandi-win-*-setup.exe
           if ($portable.Count -ne 1 -or $setup.Count -ne 1) { throw 'Expected one installer and one portable executable' }
+          if ([version]$env:EXPECTED_VERSION -ge [version]'0.3.13') {
+            & tooling/scripts/smoke-windows-name-upgrade.ps1 -Setup $setup.FullName -ExpectedVersion $env:EXPECTED_VERSION
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
           node tooling/scripts/smoke-package.mjs $portable.FullName "$env:EXPECTED_VERSION" release
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node tooling/scripts/assert-release-fuses.mjs $portable.FullName
@@ -115,9 +133,9 @@ jobs:
           $destination = Join-Path $env:RUNNER_TEMP 'plancia-installed-smoke'
           $installer = Start-Process -Wait -PassThru -FilePath $setup.FullName -ArgumentList '/S', "/D=$destination"
           if ($installer.ExitCode) { throw 'Silent installation failed' }
-          node tooling/scripts/smoke-package.mjs (Join-Path $destination 'plancia-comandi.exe') "$env:EXPECTED_VERSION" release
+          node tooling/scripts/smoke-package.mjs (Join-Path $destination $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION" release
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          node tooling/scripts/assert-release-fuses.mjs (Join-Path $destination 'plancia-comandi.exe')
+          node tooling/scripts/assert-release-fuses.mjs (Join-Path $destination $env:PLANCIA_APP_EXE)
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node tooling/scripts/inspect-package.mjs (Join-Path $destination 'resources') app "$env:EXPECTED_VERSION"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
@@ -141,7 +159,10 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-fuse-variants-${{ inputs.source_sha }}
-          path: ${{ runner.temp }}/plancia-fuse-variants/variants.json
+          path: |
+            ${{ runner.temp }}/plancia-fuse-variants/variants.json
+            ${{ runner.temp }}/plancia-initial-locale-*/report.json
+            ${{ runner.temp }}/plancia-name-upgrade-*/report.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Retain bounded smoke failure metadata
@@ -158,5 +179,7 @@ jobs:
             ${{ runner.temp }}/plancia-window-chrome-*/report.json
             ${{ runner.temp }}/plancia-window-chrome-*/native-window.json
             ${{ runner.temp }}/plancia-window-chrome-*/failure.png
+            ${{ runner.temp }}/plancia-initial-locale-*/*/failure.json
+            ${{ runner.temp }}/plancia-initial-locale-*/*/failure.png
           if-no-files-found: ignore
           retention-days: 7

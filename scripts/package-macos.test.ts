@@ -84,12 +84,22 @@ describe('MAC_APP_NAME', () => {
     const JSON5 = requireJson5('json5') as { parse: (text: string) => { executableName: string } }
     const config = JSON5.parse(readFileSync(new URL('../electron-builder.json5', import.meta.url), 'utf8'))
     expect(MAC_APP_NAME).toBe(`${config.executableName}.app`)
-    expect(() => assertConfiguredMacAppName('Other.app')).toThrow(/expected plancia-comandi.app/)
+    expect(() => assertConfiguredMacAppName('Other.app')).toThrow(/expected Plancia Comandi.app/)
     expect(assertConfiguredMacAppName(MAC_APP_NAME)).toBe(MAC_APP_NAME)
   })
 })
 
 describe('discoverMacApp', () => {
+  it('keeps historical release inspection compatible with the legacy bundle name', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-mac-legacy-'))
+    const contents = path.join(root, 'plancia-comandi.app', 'Contents')
+    mkdirSync(contents, { recursive: true })
+    writeFileSync(path.join(contents, 'Info.plist'), '<key>CFBundleExecutable</key><string>plancia-comandi</string>')
+    try {
+      expect(discoverMacApp(root).app).toBe(path.join(root, 'plancia-comandi.app'))
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
   it('reads CFBundleExecutable from the one unpacked bundle', () => {
     const root = mkdtempSync(path.join(os.tmpdir(), 'plancia-mac-app-'))
     const contents = path.join(root, MAC_APP_NAME, 'Contents')

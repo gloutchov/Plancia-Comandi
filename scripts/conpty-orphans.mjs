@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process'
+import { isWindowsAppExe } from './packaged-app-names.mjs'
 
 // cmd echoes the typed line. A marker inside the command is visible before
 // the child exists, so the child is found from the process list instead.
@@ -14,7 +15,7 @@ export function parseProcessTable(text) {
     const tab = line.indexOf('\t')
     const head = tab === -1 ? line : line.slice(0, tab)
     const command = tab === -1 ? '' : line.slice(tab + 1)
-    const match = /^\s*(\d+)\s+(\d+)(?:\s+(\S+))?(?:\s+(\d+))?\s*$/.exec(head)
+    const match = /^\s*(\d+)\s+(\d+)(?:\s+(.+?))?(?:\s+(\d+))?\s*$/.exec(head)
     if (!match) continue
     const row = { pid: Number(match[1]), ppid: Number(match[2]) }
     if (match[3]) row.name = match[3]
@@ -26,7 +27,7 @@ export function parseProcessTable(text) {
 }
 
 function isPlanciaExe(row) {
-  return /plancia-comandi\.exe$/i.test(row.name || '')
+  return isWindowsAppExe(row.name || '')
 }
 
 /** Electron helpers share the exe name and carry --type=. A relaunched app does not. */

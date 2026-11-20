@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process'
+import { isWindowsAppExe } from './packaged-app-names.mjs'
 import { access, mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -40,7 +41,7 @@ const variants = [
 ]
 
 async function cleanLaunch(executable) {
-  const reap = await reapAppImages()
+  const reap = await reapAppImages(executable)
   const dir = await mkdtemp(path.join(os.tmpdir(), 'plancia-fuse-variant-'))
   const profile = await prepareIsolatedCase(dir, { startupTrace: true })
   const started = Date.now()
@@ -91,7 +92,7 @@ async function findInstalledExe(root) {
     for (const entry of entries) {
       const full = path.join(dir, entry.name)
       if (entry.isDirectory()) await walk(full, depth + 1)
-      else if (entry.name.toLowerCase() === 'plancia-comandi.exe') found.push(full)
+      else if (isWindowsAppExe(entry.name)) found.push(full)
     }
   }
   await walk(root, 0)

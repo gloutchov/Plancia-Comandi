@@ -2,9 +2,11 @@
 
 ## Italiano
 
+M33 (sorgenti 0.3.13, in verifica) unifica nome **Plancia Comandi**, icona Windows e lingua iniziale: italiano se la prima lingua preferita è italiana, inglese altrimenti; una scelta salvata prevale. Per aggiornare i vecchi nomi senza duplicare l’app vedi [i pacchetti e l’aggiornamento](ISTRUZIONI.md#23-pacchetti-compilati). Download pubblici ancora 0.3.12.
+
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.12**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.13**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. I menu seguono subito la lingua IT/EN scelta nell’app; i contenuti di Servizi e i dialoghi di macOS restano gestiti dal sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
@@ -25,7 +27,7 @@ npm run dev
 
 La landing statica in `docs/` presenta funzioni, shell apribili per piattaforma (inclusa fish), download e manuali; ha sorgenti predisposti per GitHub Pages (C4). Non crea terminali nel browser.
 
-Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone del terminale. Il primo avvio usa l'italiano e il tema del sistema.
+Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone del terminale. Il primo avvio segue la prima lingua preferita dal sistema (italiano per `it`, inglese altrimenti) e il tema del sistema; una preferenza salvata prevale.
 
 ### 2. Aprire e affiancare terminali
 
@@ -54,9 +56,11 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
+M33 (source 0.3.13, under verification) unifies the **Plancia Comandi** name, Windows icon and initial language: Italian if the primary preferred language is Italian, English otherwise; a saved choice takes precedence. To update old names without duplicate apps see [packages and updating](INSTRUCTIONS.md#23-prebuilt-packages). Public downloads remain at 0.3.12.
+
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.12**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.13**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. Menus immediately follow the IT/EN language chosen in the app; Services contents and macOS dialogs remain managed by the system. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 
@@ -77,7 +81,7 @@ npm run dev
 
 The static landing page in `docs/` presents features, launchable shells by platform (including fish), downloads and manuals; its source is prepared for GitHub Pages (C4). It does not create browser terminals.
 
-Use the desktop window that opens. The development website in a browser has no terminal access. The first start uses Italian and the system theme; open **Impostazioni** and choose **English** to switch language.
+Use the desktop window that opens. The development website in a browser has no terminal access. The first start follows the primary preferred system language (Italian for `it`, English otherwise) and system theme; saved preferences take precedence. Use **Settings** to change language.
 
 ### 2. Open and tile terminals
 

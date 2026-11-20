@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { access, mkdtemp, readdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { isWindowsAppExe } from './packaged-app-names.mjs'
 
 function runTool(command, args, timeoutMs) {
   return new Promise((resolve) => {
@@ -35,7 +36,7 @@ async function findAppExe(root) {
     for (const entry of entries) {
       const full = path.join(dir, entry.name)
       if (entry.isDirectory()) await walk(full, depth + 1)
-      else if (entry.name.toLowerCase() === 'plancia-comandi.exe') found.push(full)
+      else if (isWindowsAppExe(entry.name)) found.push(full)
     }
   }
   await walk(root, 0)

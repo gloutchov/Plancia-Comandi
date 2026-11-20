@@ -44,7 +44,20 @@ describe('ConPTY close on the Windows package', () => {
     expect(conptyCloseReport([{ pid: 40, ppid: 10 }], 10, 20).childrenOfShell).toEqual([40])
   })
 
-  it('counts plancia-comandi instances and finds the extracted portable process', () => {
+  it('handles the spaced app name, helpers, preexisting instances and a portable wrapper', () => {
+    const rows = parseProcessTable([
+      '5 1 portable.exe 1',
+      '9 5 Plancia Comandi.exe 2\t"C:\\App With Spaces\\Plancia Comandi.exe"',
+      '11 9 Plancia Comandi.exe 3\t"C:\\App With Spaces\\Plancia Comandi.exe" --type=renderer',
+      '40 1 plancia-comandi.exe 4\tC:\\old\\plancia-comandi.exe',
+    ].join('\n'))
+    expect(rows[1]).toMatchObject({ pid: 9, ppid: 5, name: 'Plancia Comandi.exe', created: '2' })
+    expect(packagedListenerPid(rows, 5)).toBe(9)
+    expect(packagedListenerPids(rows, 5)).toEqual([9, 11])
+    expect(planciaInstanceReport(rows, 9, [rows[3]]).extra).toEqual([])
+  })
+
+  it('counts legacy plancia-comandi instances and finds the extracted portable process', () => {
     const rows = parseProcessTable('5 1 portable.exe 1\n9 5 plancia-comandi.exe 2\n21 9 ping.exe 3\n')
     expect(planciaInstanceReport(rows, 9)).toEqual({ count: 1, ownPid: 9, extra: [] })
     expect(planciaInstanceReport(parseProcessTable('9 1 plancia-comandi.exe 2\n40 1 plancia-comandi.exe 4\n'), 9).extra).toEqual([40])

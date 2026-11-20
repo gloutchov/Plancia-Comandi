@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { SessionManager } from './sessions'
 import { SettingsStore } from './settings'
+import { detectInitialLocale } from './initialLocale'
 import { defaultShellId, detectShells } from './shells'
 import type { BootInfo, ShellChoice, ThemeSetting } from '../src/shared/types'
 import { loadAppConfig, resolveAppConfigFile, runtimeLimits, validateAppConfig, type AppConfig } from '../src/shared/appConfig'
@@ -302,7 +303,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     titleBarStyle: darwin ? 'hiddenInset' : 'default',
     trafficLightPosition: darwin ? { x: 16, y: 18 } : undefined,
-    icon: path.join(APP_ROOT, 'build', 'icon.png'),
+    icon: path.join(APP_ROOT, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     webPreferences: {
       preload: preloadPath(),
       contextIsolation: true,
@@ -373,6 +374,7 @@ function start(): void {
   startupStep = 'settings'
   settings = new SettingsStore(home, {
     userData: app.getPath('userData'), appData: app.getPath('appData'), maxBytes: appConfig.settings.maxBytes,
+    initialLocale: detectInitialLocale(app),
   })
   startupStep = 'theme'
   if (demoMode()) nativeTheme.themeSource = 'dark'

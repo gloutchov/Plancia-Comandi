@@ -2,11 +2,13 @@
 
 ## Italiano
 
+**M33 in verifica locale, sorgenti 0.3.13:** nome installato **Plancia Comandi**, ICO ufficiale per la finestra Windows e lingua iniziale di sistema con preferenze conservate. M34/M35 assorbite; M32 resta successiva. I download pubblici restano alla 0.3.12 fino al completamento delle verifiche e approvazioni.
+
 La release 0.3.12 completa C31: barra superiore macOS trascinabile dal titolo e dagli spazi liberi, pulsanti delle viste cliccabili, menu coerenti con la lingua IT/EN dell’app e senza Reload, Force Reload o Toggle Developer Tools. Pacchetti Windows x64 e macOS ARM64, verifiche e checksum sono pubblicati.
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.3.12 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12) include C31 per trascinamento macOS e menu coerenti, eredita C29 per scorrimento e selezione stabile dei riquadri, conserva le garanzie C28 al cambio sessione/vista e offre pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.13 (M33 in verifica) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12) include C31 per trascinamento macOS e menu coerenti, eredita C29 per scorrimento e selezione stabile dei riquadri, conserva le garanzie C28 al cambio sessione/vista e offre pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -33,7 +35,7 @@ Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e pref
 
 Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
 
-Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. La lingua iniziale è italiana; il rilevamento automatico della lingua di sistema non è ancora implementato. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
+Il rilevamento è euristico, pensato soprattutto per le schermate di Codex CLI: non legge lo stato interno dei programmi. Non sostituisce il controllo del terminale. Da 0.3.13, senza una lingua valida già salvata, la prima lingua preferita dal sistema determina l’interfaccia: italiano per `it`, inglese negli altri casi. La scelta manuale resta prioritaria; la schermata prima del caricamento delle preferenze usa ancora l’italiano. Le sessioni non vengono ripristinate dopo l'uscita dall'app.
 
 ![Vista affiancata nel tema chiaro](docs/screenshots/plancia-light.png)
 
@@ -180,11 +182,13 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
+**M33 under local verification, source 0.3.13:** installed name **Plancia Comandi**, official ICO for the Windows window and initial system language with saved preferences preserved. M34/M35 absorbed; M32 remains next. Public downloads stay at 0.3.12 until verification and approvals are complete.
+
 Release 0.3.12 completes C31: macOS top bar draggable by its title and free space, clickable view buttons, menus matching the app IT/EN language and no Reload, Force Reload or Toggle Developer Tools. Windows x64 and macOS ARM64 packages, checks and checksums are published.
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.3.12 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12) includes C31 for macOS dragging and consistent menus, inherits C29 scrolling and stable pane selection, preserves C28 session/view guarantees and provides Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
+**Source 0.3.13 (M33 under verification) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12) includes C31 for macOS dragging and consistent menus, inherits C29 scrolling and stable pane selection, preserves C28 session/view guarantees and provides Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -211,7 +215,7 @@ Screenshots of source version 0.3.1 on Windows, using demonstration data and iso
 
 Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Command Prompt** and **Git Bash** on Windows; **Login shell**, **zsh**, **bash** and **fish** on macOS/Linux, when present in detected locations. The landing shows the same list by platform.
 
-Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. The initial language is Italian; automatic system-language detection is not implemented yet. Sessions are not restored after quitting the app.
+Detection is heuristic and mainly designed around Codex CLI screens: it does not read programs' internal state. Check the terminal itself. From 0.3.13, without a valid saved language, the first preferred system language determines the interface: Italian for `it`, English otherwise. Manual selection takes precedence; the screen before preferences load still uses Italian. Sessions are not restored after quitting the app.
 
 ![Side-by-side view in the light theme](docs/screenshots/plancia-light-en.png)
 

@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.12**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.13**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -64,6 +64,10 @@ Dopo avere verificato il file per il tuo sistema e la tua architettura, segui le
 
 La distribuzione prevista è non firmata. Gatekeeper e SmartScreen possono mostrare avvisi. Verifica origine e checksum prima di seguire le procedure di apertura previste dal sistema; non disattivare le protezioni globali. Firma, notarizzazione e aggiornamenti automatici non sono configurati.
 
+Nei pacchetti 0.3.13 in verifica, l’app è **Plancia Comandi.app** su macOS e **Plancia Comandi.exe** nella cartella Windows. I nomi degli archivi `PlanciaComandi-…` restano senza spazi. La finestra Windows usa l’ICO ufficiale, incluso nel pacchetto; l’icona incorporata nell’EXE e l’identificativo dell’app sono conservati. La conferma visiva Windows (finestra, barra delle applicazioni e Alt+Tab) resta necessaria.
+
+**Aggiornamento ai nomi 0.3.13:** chiudi l’app. Su macOS, se hai `plancia-comandi.app`, rinominala **Plancia Comandi.app** nella stessa cartella prima di copiarvi la nuova app e scegliere la sostituzione: evita di lasciare due bundle affiancati. Su Windows usa il nuovo installer nella cartella esistente; l’identificativo NSIS rimane uguale. Un collegamento creato a mano o fissato alla barra può puntare ancora al vecchio EXE: controllane la destinazione e ricrealo dalla nuova installazione se necessario, senza azzerare le cache del sistema. Il portable non gestisce collegamenti. `settings.json` resta nella cartella dati **Plancia Comandi**, con lingua e tema conservati. Non eliminare quella cartella per cambiare nome.
+
 ### 2.4 Compilare ed eseguire su Linux
 
 Su Linux non è stata testata di persona.
@@ -103,7 +107,7 @@ Se il checkout esiste già, non clonarlo di nuovo: esegui gli ultimi quattro com
 
 Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
 
-La lingua iniziale è italiana anche sui sistemi non italiani. In **Impostazioni** puoi scegliere **Italiano** o **English**. Il tema iniziale segue il sistema; puoi forzare **Chiaro** o **Scuro**. Le preferenze restano salvate.
+Da 0.3.13, al primo avvio senza una lingua valida salvata, l’app usa la prima lingua preferita del sistema: italiano per `it`, `it-IT` o `it-CH`, inglese per le altre lingue (per esempio `en-GB` o `pt-BR`). Se l’elenco non è disponibile usa il locale applicativo e infine l’inglese. In **Impostazioni** puoi scegliere **Italiano** o **English**: una preferenza già salvata prevale anche dopo un aggiornamento o un cambio della lingua di sistema. Il tema iniziale segue il sistema; puoi forzare **Chiaro** o **Scuro**. La schermata di caricamento precedente alla lettura delle preferenze resta italiana.
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema.
 
@@ -165,7 +169,7 @@ Il file centrale delle preferenze utente è `settings.json` nella directory rest
 | Windows | `%APPDATA%/Plancia Comandi/settings.json` |
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, oppure `~/.config/Plancia Comandi/settings.json` |
 
-Sono salvati `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` e `status`. Tema iniziale `system`, lingua `it`, vista `single`, avvisi entrambi attivi, motivo nascosto. `layout` accetta `single`, `split`, `stack` o `grid`; un valore sconosciuto torna a `single`. L'ultima shell e cartella sono riutilizzate per nuove sessioni; un identificatore di shell non disponibile ripiega sulla prima scelta rilevata. Le shell Unix vengono avviate come login shell (`-l`); su Windows la scelta iniziale è Windows PowerShell con `-NoLogo`.
+Sono salvati `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` e `status`. Tema iniziale `system`, lingua ricavata dal sistema (`it` oppure `en`), vista `single`, avvisi entrambi attivi, motivo nascosto. `layout` accetta `single`, `split`, `stack` o `grid`; un valore sconosciuto torna a `single`. L'ultima shell e cartella sono riutilizzate per nuove sessioni; un identificatore di shell non disponibile ripiega sulla prima scelta rilevata. Le shell Unix vengono avviate come login shell (`-l`); su Windows la scelta iniziale è Windows PowerShell con `-NoLogo`.
 
 **Recupero delle preferenze dalla versione 0.3.6**
 

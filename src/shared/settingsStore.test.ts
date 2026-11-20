@@ -10,7 +10,7 @@ import { configureDiagnostics } from '../../electron/diagnostics'
 import type { AppSettings } from './types'
 
 let root: string
-let options: { userData: string; appData: string; maxBytes: number }
+let options: { userData: string; appData: string; maxBytes: number; initialLocale: 'it' }
 const file = () => path.join(options.userData, 'settings.json')
 function put(value: string, target = file()): void {
   fs.mkdirSync(path.dirname(target), { recursive: true })
@@ -22,7 +22,7 @@ function denied(): Error { return Object.assign(new Error('/Users/private TOKEN=
 
 beforeEach(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'plancia-settings-test-'))
-  options = { userData: path.join(root, 'profile'), appData: path.join(root, 'app-data'), maxBytes: 262_144 }
+  options = { userData: path.join(root, 'profile'), appData: path.join(root, 'app-data'), maxBytes: 262_144, initialLocale: 'it' }
   configureDiagnostics(path.join(root, 'logs'), 4096)
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 })

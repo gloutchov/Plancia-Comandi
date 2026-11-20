@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.12** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.13** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -44,6 +44,8 @@ Non inserire segreti in JSON, esempi, log o repository. Per una futura integrazi
 La landing C4 in `docs/` è una pagina statica separata dall'app. Carica script, fogli di stile, icona e screenshot dalla propria origine; non usa analytics, font esterni, API remote o accesso a PTY e filesystem. I collegamenti a GitHub, download e sito dell'autore sono navigazioni deliberate. La CSP nel meta blocca connessioni script (`connect-src 'none'`), frame e oggetti, e ammette script, stili e immagini solo dalla stessa origine; non costituisce un header `frame-ancestors` né un controllo sulle shell. La pubblicazione su GitHub Pages segue i controlli di C4; il normale hosting HTTPS tratta i metadati delle richieste secondo le policy di GitHub.
 
 ### 3. Persistenza, logging e privacy
+
+M33/0.3.13 legge solo le lingue preferite dal sistema dopo ready (fallback al locale applicativo e poi `en`); non registra né invia l’elenco o la regione. La lingua valida salvata prevale e solo il valore applicativo `it`/`en` rimane nelle preferenze. La rinomina dell’eseguibile/bundle conserva `appId` e `app.setName`, quindi non richiede migrazione o cancellazione di `settings.json`. L’ICO Windows è una risorsa statica ufficiale nell’ASAR. Le sonde di primo avvio sono esterne su gemelli e profili sintetici, senza nuovi flag, IPC, accessi di rete o permessi del prodotto. Il harness fuse limita la pulizia al percorso assoluto dell’eseguibile di prova e preserva i PID presenti alla prima verifica: non termina app omonime altrove. La sonda di upgrade Windows è bloccata fuori dai runner GitHub ospitati, rifiuta installazioni/preferenze preesistenti e scarica via HTTPS il solo installer pubblico 0.3.1, verificandone il digest SHA-256 prima dell’esecuzione. Usa registro e profilo sintetici dell’ambiente effimero e conserva le preferenze anche dopo la rimozione.
 
 | Dato / superficie | Comportamento attuale |
 | --- | --- |
@@ -229,7 +231,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.12** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.13** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -271,6 +273,8 @@ Do not place secrets in JSON, examples, logs or the repository. A future AI inte
 The C4 landing in `docs/` is a static page separate from the app. It loads scripts, stylesheets, the icon and screenshots from its own origin; it uses no analytics, external fonts, remote APIs or PTY/filesystem access. Links to GitHub, downloads and the author's website are deliberate navigations. The meta CSP blocks script connections (`connect-src 'none'`), frames and objects, and permits scripts, styles and images only from the same origin; it is not a `frame-ancestors` header or a restriction on shells. GitHub Pages publication follows the C4 reviews; normal HTTPS hosting processes request metadata under GitHub's policies.
 
 ### 3. Persistence, logging and privacy
+
+M33/0.3.13 reads only preferred system languages after ready (falling back to the application locale and then `en`); it neither logs nor sends the list or region. A valid saved language takes precedence, and only the app value `it`/`en` remains in preferences. Renaming the executable/bundle preserves `appId` and `app.setName`, requiring no migration or deletion of `settings.json`. The Windows ICO is an official static ASAR resource. First-launch probes are external on twins and synthetic profiles, adding no product flags, IPC, network access or permissions. The fuse harness scopes cleanup to the absolute probe executable path and preserves PIDs present at its first check: it does not terminate same-named apps elsewhere. The Windows upgrade probe is blocked outside GitHub-hosted runners, refuses preexisting installations/preferences and downloads only the public 0.3.1 installer over HTTPS, verifying its SHA-256 digest before execution. It uses the disposable environment’s synthetic registry/profile and preserves preferences after removal too.
 
 | Data / surface | Current behavior |
 | --- | --- |

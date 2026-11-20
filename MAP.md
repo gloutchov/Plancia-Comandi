@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.12**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.13**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -47,6 +47,7 @@ Plancia-Comandi/
 |   |-- customPatternWorker.ts       Programma worker statico incluso nel bundle main
 |   |-- sessions.ts                  Creazione/chiusura PTY; su Windows useConptyDll e taskkill /T /F prima di pty.kill
 |   |-- settings.ts                  Preferenze, default, validazione e migrazione
+|   |-- initialLocale.ts             Prima lingua di sistema, fallback EN e override salvato
 |   |-- settingsFile.ts              Lettura limitata, recupero .bak, blocco scritture e migrazione
 |   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
 |   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
@@ -114,6 +115,7 @@ Plancia-Comandi/
 |       |-- settingsForm.ts          Numeri del dialogo e aggiornamento delle impostazioni
 |       |-- settingsForm.test.ts     Test di 1e400 e di un aggiornamento nullo
 |       |-- settingsStore.test.ts    File temporanei, corruzione, limiti, guasti e interruzioni reali
+|       |-- initialLocale.test.ts    Lingue di sistema, ripieghi e preferenze persistenti isolate
 |       |-- diagnostics.test.ts      Redazione, rotazione, errori PTY/IPC e testi localizzati
 |       |-- diagnosticMessages.ts    Codici di avviso ed errori senza testo nativo nella UI
 |       |-- textLimit.ts             Taglio del testo senza spezzare un'emoji
@@ -141,6 +143,10 @@ Plancia-Comandi/
 |   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
 |   |-- package-macos-cli.mjs        Avvio di electron-builder per macOS
 |   |-- package-macos.mjs            Opzioni macOS arm64, DMG e ZIP, senza firma
+|   |-- packaged-app-names.mjs       Nomi con spazio e compatibilità dei lettori storici
+|   |-- packaged-app-names.test.ts   Nomi reali del builder, ICO e selezione del binario fuse
+|   |-- configured-windows-exe.mjs   Nome EXE dal checkout sorgenti per il workflow Windows
+|   |-- smoke-windows-name-upgrade.ps1  Solo runner ospitato: upgrade 0.3.1, nomi, collegamenti, rimozione e preferenze
 |   |-- package-macos.test.ts        Test delle opzioni e del percorso dell'app
 |   |-- package-windows.mjs          Opzioni Windows per electron-builder, senza shell
 |   |-- package-windows.test.ts      Test dei booleani e dei nomi degli artifact
@@ -149,6 +155,7 @@ Plancia-Comandi/
 |   |-- fixtures/                    Main/preload statici per lo smoke renderer M28
 |   |-- smoke-terminal-geometry.mjs  M29: geometria, rotella, barra, viste/font e buffer sintetici
 |   |-- smoke-window-chrome.mjs     M31: regioni drag/no-drag e controlli; prova nativa interattiva
+|   |-- smoke-initial-locale.mjs    M33: otto primi avvii reali su gemello, lingue/temi e override
 |   |-- window-chrome-regions.mjs    Asserzioni CSS distinte macOS/Windows, senza input nativo
 |   |-- window-chrome-regions.test.ts Test regressione Windows e casi negativi dei controlli
 |   |-- smoke-terminal-stream.mjs    Renderer reale, bridge sintetico, DA/OSC e viste
@@ -174,10 +181,11 @@ Plancia-Comandi/
 |   |-- diagnose-fuse-variants.mjs   Avvio pulito con un fuse acceso e lettura INTEGRITY
 |   |-- asar-integrity-resource.mjs  Risorsa Windows INTEGRITY e hash dell'header ASAR
 |   |-- fuse-smoke-launch.mjs        Stesso profilo di smoke-package, chiusura e coda dei log
+|   |-- fuse-smoke-launch.test.ts   Pulizia limitata al binario di prova, istanze esistenti preservate
 |   |-- check-mac-bundles.mjs        Firma ad hoc e fuse di default del gemello, prima dello smoke
 |   |-- prepare-open-fuse-twin.mjs   Gemello ricavato dal binario finale, fuse riportati ai default
 |   |-- assert-release-fuses.mjs     Fuse sull'exe: diretto se ha il sentinel, altrimenti exe estratto dal portable
-|   |-- windows-package-exe.mjs      Estrae plancia-comandi.exe dal wrapper 7z del portable
+|   |-- windows-package-exe.mjs      Estrae EXE attuale o storico dal wrapper 7z del portable
 |   |-- conpty-orphans.mjs           Chiusura ConPTY con figlio e controllo degli orfani
 |   |-- conpty-orphans.test.ts       Tabella dei processi e rifiuto non gestito
 |   |-- verify-sha256-manifest.mjs   Il manifest nomina i file appena misurati
@@ -212,6 +220,8 @@ Plancia-Comandi/
 
 ### 2. Flusso e responsabilità
 
+M33 (sorgenti 0.3.13, in verifica) unifica nome, icona Windows e lingua iniziale. `initialLocale.ts` consulta la prima lingua preferita dopo ready; `SettingsStore` conserva un valore valido già salvato. `build/icon.ico` entra nell’ASAR e viene selezionato da BrowserWindow su Windows. I lettori dei pacchetti riconoscono i nomi attuali con spazio e quelli storici; il workflow risolve il nome dal checkout sorgenti dopo l’installazione e prova otto avvii sul gemello con fuse aperti. La prova Windows di upgrade 0.3.1 controlla SHA-256 del vecchio installer, stessa voce NSIS, EXE e collegamenti con spazio, rimozione e preferenze sintetiche; è bloccata fuori dai runner GitHub ospitati. La pulizia fuse usa il percorso esatto e preserva i PID preesistenti. Nessun nuovo workflow o canale IPC.
+
 Il ritocco M31 al menu usa un sottomenu Vista esplicito in `editMenu.ts`, con zoom e schermo intero, senza reload, forceReload o toggleDevTools in sviluppo e nei pacchetti. `editMenu.ts` usa sottomenu espliciti anche per appMenu e windowMenu, mantenendo ruoli e scorciatoie native; tutte le etichette sono nei dizionari IT/EN. `settings:update` reinstalla il menu nella lingua scelta, senza ricaricare il renderer. `applicationMenu.test.ts` verifica tutte le etichette IT/EN, ricostruzione del menu, tre piattaforme e scorciatoie Copia/Incolla. Da 0.3.12 lo smoke completo del gemello controlla anche l’assenza di entrambi i comandi di reload; mantiene il controllo storico DevTools per i vecchi pacchetti. Lo smoke verifica Vista/Finestra dopo ogni cambio lingua prima di qualsiasi reload.
 
 M31 (sorgenti 0.3.12) estende il trascinamento alla `.toolbar` solo su macOS, con `no-drag` per gruppo delle viste e sovrapposizioni. `node scripts/smoke-window-chrome.mjs .` verifica otto combinazioni IT/EN, temi e larghezze 860/1280 con la fixture C28 e cinque sessioni sintetiche. Un argomento opzionale indica il renderer o `app.asar`; `--interactive` mantiene aperta la finestra per input nativo. `native-window.json` registra al massimo 1000 posizioni/stati reali della BrowserWindow, senza contenuti. Le asserzioni in `window-chrome-regions.mjs` richiedono `no-drag` per gruppo e pulsanti macOS; sulla barra Windows non trascinabile ammettono `none` o `no-drag`, rifiutando sempre `drag` nei controlli. I casi negativi impediscono di perdere questa distinzione. La sonda salva sotto `RUNNER_TEMP` quando disponibile, così i report sono inclusi negli artifact di errore. Il controllo automatico di CSS, layout e dialoghi non certifica lo spostamento né un dispositivo fisico. I workflow manuali esistenti eseguono la sonda dopo la build; in caso di errore conservano report, coordinate e cattura sintetica per sette giorni.
@@ -230,7 +240,7 @@ La landing elenca le shell per piattaforma, compresa fish, con testi IT/EN in `i
 
 La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; gli script classici differiti caricano `i18n.js` prima di `site.js` per testi, attributi e galleria, anche nell'apertura diretta dell'HTML. Le due chiavi di localStorage appartengono al sito e non a `settings.json`. Il controllo strutturale verifica anche sintassi e riferimenti agli elementi della UI.
 
-La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; il rilevamento automatico della lingua resta la proposta P2. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
+La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; la lingua iniziale è rilevata da M33, mentre le altre parti di P2 restano proposte. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
 M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/migrazione), `privateFile` (scrittura e backup) e `diagnostics` (metadati). I due nuovi limiti sono in `settings.maxBytes` e `diagnostics.maxBytes`. L’evento main→UI `settings:warning` non espone percorsi o contenuti e non aggiunge comandi privilegiati. I test interrompono worker reali durante scrittura/rename; lo smoke da 0.3.6 usa un guasto reale del profilo sintetico nei due temi e lingue.
 
@@ -282,7 +292,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.12** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.13** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -327,6 +337,7 @@ Plancia-Comandi/
 |   |-- customPatternWorker.ts       Static worker program bundled into main
 |   |-- sessions.ts                  PTY creation/closing; on Windows useConptyDll and taskkill /T /F before pty.kill
 |   |-- settings.ts                  Preferences, defaults, validation and migration
+|   |-- initialLocale.ts             Primary system language, EN fallback and saved override
 |   |-- settingsFile.ts              Bounded reads, .bak recovery, write protection and migration
 |   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
 |   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
@@ -394,6 +405,7 @@ Plancia-Comandi/
 |       |-- settingsForm.ts          Dialog numbers and a settings update
 |       |-- settingsForm.test.ts     Tests for 1e400 and a null update
 |       |-- settingsStore.test.ts    Temporary files, corruption, bounds, failures and real interruption
+|       |-- initialLocale.test.ts    System languages, fallbacks and isolated saved preferences
 |       |-- diagnostics.test.ts      Redaction, rotation, PTY/IPC failures and localized messages
 |       |-- diagnosticMessages.ts    Warning/error codes without native text in UI
 |       |-- textLimit.ts             Text cut that does not split an emoji
@@ -421,6 +433,10 @@ Plancia-Comandi/
 |   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
 |   |-- package-macos-cli.mjs        Starts electron-builder for macOS
 |   |-- package-macos.mjs            Unsigned macOS arm64 DMG and ZIP options
+|   |-- packaged-app-names.mjs       Spaced names and historical-reader compatibility
+|   |-- packaged-app-names.test.ts   Actual builder names, ICO and fuse-binary selection
+|   |-- configured-windows-exe.mjs   EXE name from source checkout for the Windows workflow
+|   |-- smoke-windows-name-upgrade.ps1  Hosted runner only: 0.3.1 upgrade, names, shortcuts, removal and preferences
 |   |-- package-macos.test.ts        Options and app-path tests
 |   |-- package-windows.mjs          Windows electron-builder options, no shell
 |   |-- package-windows.test.ts      Tests of the booleans and artifact names
@@ -429,6 +445,7 @@ Plancia-Comandi/
 |   |-- fixtures/                    Static main/preload for the M28 renderer smoke
 |   |-- smoke-terminal-geometry.mjs  M29: geometry, wheel, thumb, views/fonts and synthetic buffers
 |   |-- smoke-window-chrome.mjs     M31: drag/no-drag regions and controls; interactive native check
+|   |-- smoke-initial-locale.mjs    M33: eight real twin launches, languages/themes and overrides
 |   |-- window-chrome-regions.mjs    Separate macOS/Windows CSS assertions, no native input
 |   |-- window-chrome-regions.test.ts Windows regression and negative control-region cases
 |   |-- smoke-terminal-stream.mjs    Real renderer, synthetic bridge, DA/OSC and views
@@ -454,10 +471,11 @@ Plancia-Comandi/
 |   |-- diagnose-fuse-variants.mjs   Clean launch with one fuse on, and the INTEGRITY read
 |   |-- asar-integrity-resource.mjs  Windows INTEGRITY resource and ASAR header hash
 |   |-- fuse-smoke-launch.mjs        Same profile as smoke-package, tree stop and log tail
+|   |-- fuse-smoke-launch.test.ts   Cleanup scoped to the probe binary, existing instances preserved
 |   |-- check-mac-bundles.mjs        Ad-hoc signature and default twin fuses, before smoke
 |   |-- prepare-open-fuse-twin.mjs   Twin taken from the finished binary, fuses reset to defaults
 |   |-- assert-release-fuses.mjs     Fuses on the exe: direct when it has the sentinel, otherwise the exe extracted from portable
-|   |-- windows-package-exe.mjs      Extracts plancia-comandi.exe from the portable 7z wrapper
+|   |-- windows-package-exe.mjs      Extracts current or legacy EXE from the portable 7z wrapper
 |   |-- conpty-orphans.mjs           ConPTY close with a child and the orphan check
 |   |-- conpty-orphans.test.ts       Process table and unhandled rejection
 |   |-- verify-sha256-manifest.mjs   The manifest names the files just hashed
@@ -492,6 +510,8 @@ Plancia-Comandi/
 
 ### 2. Flow and responsibilities
 
+M33 (source 0.3.13, under verification) unifies the name, Windows icon and initial language. `initialLocale.ts` reads the primary preferred language after ready; `SettingsStore` preserves a valid saved value. `build/icon.ico` is packaged in ASAR and selected by BrowserWindow on Windows. Package readers recognize current spaced and historical names; the workflow resolves the name from the source checkout after installation and checks eight launches on the open-fuse twin. The Windows 0.3.1 upgrade probe checks the old installer SHA-256, the same NSIS entry, spaced EXE and shortcut names, removal and synthetic preferences; it is blocked outside GitHub-hosted runners. Fuse cleanup uses the exact path and preserves preexisting PIDs. No new workflow or IPC channel.
+
 The M31 menu adjustment uses an explicit View submenu in `editMenu.ts`, retaining zoom and full screen without reload, forceReload or toggleDevTools in development and packages. `editMenu.ts` also uses explicit appMenu and windowMenu submenus, preserving native roles and shortcuts; all labels are in the IT/EN dictionaries. `settings:update` reinstalls the menu in the chosen language without reloading the renderer. `applicationMenu.test.ts` checks all IT/EN labels, menu reinstallation, three platforms and Copy/Paste shortcuts. From 0.3.12 full twin smoke also checks that both reload commands are absent; older packages retain the historical DevTools check. Smoke checks View/Window after each language change before any reload.
 
 M31 (source 0.3.12) extends dragging to `.toolbar` on macOS only, with `no-drag` for view controls and overlays. `node scripts/smoke-window-chrome.mjs .` checks eight IT/EN, theme and 860/1280-width combinations with the C28 fixture and five synthetic sessions. An optional argument selects the renderer or `app.asar`; `--interactive` keeps the window open for native input. `native-window.json` records at most 1000 real BrowserWindow positions/states without content. Assertions in `window-chrome-regions.mjs` require `no-drag` for macOS groups/buttons; the non-draggable Windows toolbar accepts `none` or `no-drag`, always rejecting `drag` on controls. Negative cases preserve this distinction. The probe writes below `RUNNER_TEMP` when available so reports are included in failure artifacts. Automatic CSS, layout and dialog checks do not certify movement or a physical device. Existing manual workflows run the probe after building; on failure they retain the report, positions and synthetic capture for seven days.
@@ -510,7 +530,7 @@ The landing lists shells by platform, including fish, with IT/EN text in `i18n.j
 
 The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; deferred classic scripts load `i18n.js` before `site.js` for text, attributes and the gallery, including when opening the HTML directly. Its two localStorage keys belong to the site rather than `settings.json`. The structural check also validates syntax and references to UI elements.
 
-UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; automatic language detection remains proposal P2. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
+UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; M33 detects the initial language, while other P2 work remains proposed. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
 

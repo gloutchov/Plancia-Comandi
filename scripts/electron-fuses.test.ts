@@ -170,7 +170,7 @@ describe('release fuse configuration', () => {
     expect(windows).toContain('diagnose-fuse-variants.mjs')
     expect(windows).toContain('plancia-fuse-variants/variants.json')
     expect(windows).toContain('plancia-fuse-smoke-*/smoke-failure.json')
-    expect(windows).toContain('smoke-package.mjs app/release/win-unpacked/plancia-comandi.exe "$env:EXPECTED_VERSION" release')
+    expect(windows).toContain('smoke-package.mjs (Join-Path \'app/release/win-unpacked\' $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION" release')
   })
 
   it('flips a copy of the Electron binary and changes only the fuse wire', async () => {

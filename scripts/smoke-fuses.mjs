@@ -101,7 +101,7 @@ async function recordFailure(name, binary, error, handle, reap) {
 async function runCase(name, executable, role, fn) {
   const started = Date.now()
   const binary = `${role}:${path.basename(executable)}`
-  const reap = await reapAppImages()
+  const reap = await reapAppImages(executable)
   let outcome = 'passed'
   let failure = null
   try {

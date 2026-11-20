@@ -31,6 +31,11 @@ function compare(directory) {
   }
 }
 for (const directory of ['dist', 'dist-electron', 'config']) compare(directory)
+const buildConfig = require('json5').parse(fs.readFileSync(path.join(source, 'electron-builder.json5'), 'utf8'))
+const iconAssets = (buildConfig.files ?? []).filter(entry => typeof entry === 'string' && /^build\/icon\.(png|ico)$/.test(entry))
+for (const relative of iconAssets) {
+  assert.deepEqual(asar.extractFile(archive, relative), fs.readFileSync(path.join(source, relative)), `Packaged icon differs: ${relative}`)
+}
 assert.deepEqual(fs.readFileSync(path.join(resources, 'config', 'app.config.json')), fs.readFileSync(path.join(source, 'config', 'app.config.json')))
 assert(fs.existsSync(path.join(resources, 'app.asar.unpacked', 'node_modules', 'node-pty')), 'Native PTY is not unpacked')
 const conptyHost = packageNeedsConptyHostCheck(resources)
@@ -49,4 +54,4 @@ function inspectLoose(directory, prefix = '') {
 inspectLoose(resources)
 const looseProblem = unexpectedPackageEntry(loose, developmentPackages)
 assert.equal(looseProblem, null, looseProblem ?? undefined)
-console.log(JSON.stringify({ inspection: 'passed', version, comparedBundles: compared, entries: entries.length, looseFiles: loose.length, developmentPackagesExcluded: developmentPackages.length, conptyHost }))
+console.log(JSON.stringify({ inspection: 'passed', version, comparedBundles: compared, iconAssets, entries: entries.length, looseFiles: loose.length, developmentPackagesExcluded: developmentPackages.length, conptyHost }))

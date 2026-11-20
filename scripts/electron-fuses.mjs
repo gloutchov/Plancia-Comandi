@@ -58,7 +58,7 @@ export function loadFuses(start) {
   return fusesModule
 }
 
-export const executableName = 'plancia-comandi'
+export const executableName = 'plancia-comandi' // Linux command name stays unchanged.
 const sentinel = Buffer.from('dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX')
 
 // Electron 45.3.2 carries nine fuses. @electron/fuses 1.8.0, which
@@ -140,8 +140,12 @@ export function fuseTarget(appOutDir, platform, entries) {
     if (apps.length !== 1) throw new Error('Expected one macOS app bundle before flipping fuses')
     return path.join(appOutDir, apps[0])
   }
-  const suffix = platform === 'win32' ? '.exe' : ''
-  return path.join(appOutDir, `${executableName}${suffix}`)
+  if (platform === 'win32') {
+    const executables = entries.filter(name => /^(Plancia Comandi|plancia-comandi)\.exe$/i.test(name))
+    if (executables.length !== 1) throw new Error('Expected one Windows app executable before flipping fuses')
+    return path.join(appOutDir, executables[0])
+  }
+  return path.join(appOutDir, executableName)
 }
 
 function runTool(command, args) {

@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.12**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.13**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -64,6 +64,10 @@ After verifying the file for your OS and architecture, follow release notes: on 
 
 Distribution is expected to be unsigned. Gatekeeper and SmartScreen may display warnings. Verify origin and checksum before following the OS opening procedure; do not disable global protections. Signing, notarization and automatic updates are not configured.
 
+In the 0.3.13 packages under verification, the app is **Plancia Comandi.app** on macOS and **Plancia Comandi.exe** in the Windows folder. Archive names `PlanciaComandi-…` stay without spaces. The Windows window uses the packaged official ICO; the embedded EXE icon and application identifier are preserved. Native Windows visual confirmation (window, taskbar and Alt+Tab) is still required.
+
+**Updating to the 0.3.13 names:** quit the app. On macOS, if you have `plancia-comandi.app`, rename it **Plancia Comandi.app** in the same folder before copying the new app there and choosing replacement: avoid keeping two bundles side by side. On Windows use the new installer in the existing folder; the NSIS identifier stays the same. A manually created or pinned shortcut may still target the old EXE: check its target and recreate it from the new installation if needed, without resetting system caches. The portable does not manage shortcuts. `settings.json` stays in the **Plancia Comandi** data folder, preserving language and theme. Do not delete that folder to change the app name.
+
 ### 2.4 Build and run on Linux
 
 It has not been tested in person on Linux.
@@ -103,7 +107,7 @@ If the checkout already exists, do not clone it again: run the last four command
 
 Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Command Prompt** and **Git Bash** on Windows; **Login shell**, **zsh**, **bash** and **fish** on macOS/Linux, when present in detected locations. The landing shows the same list by platform.
 
-The initial language is Italian even on non-Italian systems. Open **Impostazioni** to choose **Italiano** or **English**. The initial theme follows the system; you can force **Light** or **Dark** in **Settings**. Preferences remain saved.
+From 0.3.13, on first launch without a valid saved language, the app uses the first preferred system language: Italian for `it`, `it-IT` or `it-CH`, English for other languages (such as `en-GB` or `pt-BR`). If the list is unavailable it uses the application locale and finally English. Open **Settings** to choose **Italiano** or **English**: an existing saved preference takes precedence after an update or a system-language change too. The initial theme follows the system; you can force **Light** or **Dark**. The loading screen before preferences are read remains Italian.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar.
 
@@ -165,7 +169,7 @@ The central user preferences file is `settings.json` in the directory Electron r
 | Windows | `%APPDATA%/Plancia Comandi/settings.json` |
 | Linux | `$XDG_CONFIG_HOME/Plancia Comandi/settings.json`, otherwise `~/.config/Plancia Comandi/settings.json` |
 
-Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language `it`, layout `single`, both alerts enabled, reasons hidden. `layout` accepts `single`, `split`, `stack` or `grid`; an unknown value falls back to `single`. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
+Saved fields are `theme`, `locale`, `layout`, `fontSize`, `notifyDesktop`, `notifyBadge`, `showReasons`, `lastShellId`, `lastCwd` and `status`. Initial theme `system`, language derived from the system (`it` or `en`), layout `single`, both alerts enabled, reasons hidden. `layout` accepts `single`, `split`, `stack` or `grid`; an unknown value falls back to `single`. The last shell and folder are reused for new sessions; an unavailable shell identifier falls back to the first detected choice. Unix shells start as login shells (`-l`); the initial Windows choice is Windows PowerShell with `-NoLogo`.
 
 **Preference recovery from version 0.3.6**
 

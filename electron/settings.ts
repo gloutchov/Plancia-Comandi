@@ -7,10 +7,10 @@ const THEMES: ThemeSetting[] = ['system', 'light', 'dark']
 const LOCALES: Locale[] = ['it', 'en']
 const LAYOUTS: LayoutMode[] = ['single', 'split', 'stack', 'grid']
 
-export function defaultSettings(home: string): AppSettings {
+export function defaultSettings(home: string, initialLocale: Locale = 'en'): AppSettings {
   return {
     theme: 'system',
-    locale: 'it',
+    locale: initialLocale,
     layout: 'single',
     fontSize: 14,
     notifyDesktop: true,
@@ -44,8 +44,8 @@ function asFont(value: unknown): number {
   return Math.min(22, Math.max(11, Math.round(size)))
 }
 
-export function sanitizeSettings(input: Partial<AppSettings> | null | undefined, home: string): AppSettings {
-  const base = defaultSettings(home)
+export function sanitizeSettings(input: Partial<AppSettings> | null | undefined, home: string, initialLocale: Locale = 'en'): AppSettings {
+  const base = defaultSettings(home, initialLocale)
   const source = input ?? {}
   let lastCwd = typeof source.lastCwd === 'string' && source.lastCwd.trim() ? source.lastCwd.trim() : base.lastCwd
   try {
@@ -72,12 +72,14 @@ export class SettingsStore {
   data: AppSettings
   private home: string
   private storage: SettingsFile
+  private initialLocale: Locale
 
-  constructor(home: string, options: { userData: string; appData: string; maxBytes: number }) {
+  constructor(home: string, options: { userData: string; appData: string; maxBytes: number; initialLocale?: Locale }) {
     this.home = home
+    this.initialLocale = options.initialLocale ?? 'en'
     this.storage = new SettingsFile(options)
     this.file = this.storage.file
-    this.data = sanitizeSettings(this.storage.read() as Partial<AppSettings> | null, home)
+    this.data = sanitizeSettings(this.storage.read() as Partial<AppSettings> | null, home, this.initialLocale)
     if (this.storage.migrationPending) this.save()
   }
 
@@ -93,6 +95,7 @@ export class SettingsStore {
         status: { ...this.data.status, ...(patch.status ?? {}) },
       },
       this.home,
+      this.initialLocale,
     )
     this.save()
     return this.data

@@ -1,9 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { MAC_APP_NAME, LEGACY_MAC_APP_NAME } from './packaged-app-names.mjs'
 
 // electron-builder 26.18.0 sets productFilename from executableName
 // (app-builder-lib appInfo.js) and names the bundle `${productFilename}.app`.
-export const MAC_APP_NAME = 'plancia-comandi.app'
+export { MAC_APP_NAME }
 
 // electron-builder.json5 already asks for dmg and zip with identity null.
 // arm64 matches the pinned macos-15 runner, which is Apple Silicon.
@@ -58,7 +59,8 @@ export function macBundlePaths(pathModule, unpackedDir, appName, executableName)
 }
 
 export function discoverMacApp(unpackedDir, fsImpl = fs, pathModule = path) {
-  const appName = assertConfiguredMacAppName(requireSingleAppBundle(fsImpl.readdirSync(unpackedDir)))
+  const appName = requireSingleAppBundle(fsImpl.readdirSync(unpackedDir))
+  if (appName !== LEGACY_MAC_APP_NAME) assertConfiguredMacAppName(appName)
   const plistPath = pathModule.join(unpackedDir, appName, 'Contents', 'Info.plist')
   const executableName = readCfBundleExecutable(fsImpl.readFileSync(plistPath, 'utf8'))
   return macBundlePaths(pathModule, unpackedDir, appName, executableName)

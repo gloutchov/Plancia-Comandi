@@ -41,37 +41,29 @@ export async function readStartupTrace(dir) {
   } catch { return [] }
 }
 
-export async function reapAppImages() {
-  const names = new Set(['plancia-comandi.exe', 'plancia-comandi'])
-  const listed = await imagePids(names)
+const preexistingByExecutable = new Map()
+
+/** Reap only this probe's exact executable, preserving instances present at
+ * its first call. Name-based cleanup can terminate a personal app or another
+ * simultaneous probe, especially now that the app name contains spaces. */
+export async function reapAppImages(executable) {
+  if (!path.isAbsolute(executable)) throw new Error('An absolute probe executable is required')
+  const key = process.platform === 'win32' ? executable.toLowerCase() : executable
+  const current = await appPids(executable)
+  if (!preexistingByExecutable.has(key)) preexistingByExecutable.set(key, new Set(current))
+  const preexisting = preexistingByExecutable.get(key)
+  const listed = current.filter(pid => !preexisting.has(pid))
   for (const pid of listed) {
     if (process.platform === 'win32') await taskkill(pid)
     else try { process.kill(pid, 'SIGTERM') } catch { /* already gone */ }
   }
   const deadline = Date.now() + 3000
-  let after = listed.length ? await imagePids(names) : []
+  let after = listed.length ? (await appPids(executable)).filter(pid => !preexisting.has(pid)) : []
   while (after.length && Date.now() < deadline) {
     await delay(100)
-    after = await imagePids(names)
+    after = (await appPids(executable)).filter(pid => !preexisting.has(pid))
   }
-  return { before: listed, after }
-}
-
-async function imagePids(names) {
-  if (process.platform === 'win32') {
-    const text = await execText('powershell.exe', ['-NoProfile', '-Command',
-      "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'plancia-comandi.exe' } | ForEach-Object { $_.ProcessId }"])
-    return [...new Set(text.split(/\s+/).map(Number).filter(pid => Number.isInteger(pid) && pid > 0))]
-  }
-  const text = await execText('ps', ['-eo', 'pid=,args='])
-  const pids = []
-  for (const line of text.split('\n')) {
-    const match = line.trim().match(/^(\d+)\s+(\S+)/)
-    if (!match) continue
-    const name = match[2].split(/[\\/]/).pop()
-    if (names.has(name)) pids.push(Number(match[1]))
-  }
-  return pids
+  return { before: listed, after, preserved: [...preexisting] }
 }
 
 function execText(command, args) {
