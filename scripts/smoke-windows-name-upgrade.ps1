@@ -23,8 +23,10 @@ function Install-App([string]$file) {
   if ($process.ExitCode) { throw "Installer failed: $($process.ExitCode)" }
 }
 function Installed-Records {
+  # NSIS defaults to "${productName} ${version}" in Apps & Features.
+  # Keep the unversioned form too so the preexisting-install guard stays safe.
   @(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
-    Where-Object { $_.DisplayName -eq 'Plancia Comandi' })
+    Where-Object { $_.DisplayName -eq 'Plancia Comandi' -or $_.DisplayName -like 'Plancia Comandi *' })
 }
 function Shortcut-Targets {
   $shell = New-Object -ComObject WScript.Shell
@@ -48,13 +50,13 @@ $settingsHash = (Get-FileHash $settings -Algorithm SHA256).Hash
 Install-App $legacy
 if (-not (Test-Path (Join-Path $destination 'plancia-comandi.exe'))) { throw 'Missing legacy executable' }
 $before = @(Installed-Records)
-if ($before.Count -ne 1 -or $before[0].DisplayVersion -ne '0.3.1') { throw 'Legacy registration differs' }
+if ($before.Count -ne 1 -or $before[0].DisplayVersion -ne '0.3.1' -or $before[0].DisplayName -ne 'Plancia Comandi 0.3.1') { throw 'Legacy registration differs' }
 $registryKey = $before[0].PSChildName
 Install-App (Resolve-Path $Setup).Path
 $exe = Join-Path $destination 'Plancia Comandi.exe'
 if (-not (Test-Path $exe) -or (Test-Path (Join-Path $destination 'plancia-comandi.exe'))) { throw 'Duplicate or missing app executable after upgrade' }
 $after = @(Installed-Records)
-if ($after.Count -ne 1 -or $after[0].PSChildName -ne $registryKey -or $after[0].DisplayVersion -ne $ExpectedVersion) { throw 'Upgrade changed registration identity or left duplicates' }
+if ($after.Count -ne 1 -or $after[0].PSChildName -ne $registryKey -or $after[0].DisplayVersion -ne $ExpectedVersion -or $after[0].DisplayName -ne "Plancia Comandi $ExpectedVersion") { throw 'Upgrade changed registration identity or left duplicates' }
 $metadata = (Get-Item $exe).VersionInfo
 if ($metadata.ProductName -ne 'Plancia Comandi' -or $metadata.FileDescription -ne 'Plancia Comandi') { throw 'Windows product metadata differs' }
 $targets = @(Shortcut-Targets)
