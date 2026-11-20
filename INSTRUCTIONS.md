@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.11**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.12**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -104,6 +104,8 @@ If the checkout already exists, do not clone it again: run the last four command
 Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Command Prompt** and **Git Bash** on Windows; **Login shell**, **zsh**, **bash** and **fish** on macOS/Linux, when present in detected locations. The landing shows the same list by platform.
 
 The initial language is Italian even on non-Italian systems. Open **Impostazioni** to choose **Italiano** or **English**. The initial theme follows the system; you can force **Light** or **Dark** in **Settings**. Preferences remain saved.
+
+In source 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar.
 
 ## 4. Sessions and views
 

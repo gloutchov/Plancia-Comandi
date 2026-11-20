@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+const fs = require('node:fs')
 const path = require('node:path')
 
 const [project, root, port] = process.argv.slice(2)
@@ -10,6 +11,8 @@ app.commandLine.appendSwitch('remote-debugging-port', port)
 const query = '\x1b[c\x1b]10;?\x07\x1b]11;?\x1b\\'
 // Geometry/focus smoke also covers a full grid and a session outside that grid.
 const sessionCount = process.argv[5] === '5' ? 5 : 3
+// External M31 fixture only: native chrome and position evidence, never packaged.
+const windowChrome = ['window-chrome', 'window-chrome-hidden'].includes(process.argv[6])
 const sessions = Array.from({ length: sessionCount }, (_, i) => i + 1).map(index => ({
   id: `00000000-0000-4000-8000-00000000000${index}`, index, name: `Synthetic ${index}`,
   autoName: false, shellId: 'synthetic', labelKey: 'shellPowerShell', cwd: root,
@@ -53,12 +56,28 @@ ipcMain.handle('probe:remove', (_event, id) => {
   win.webContents.send('probe:sessions', sessions)
 })
 app.whenReady().then(async () => {
-  win = new BrowserWindow({ width: 1280, height: 820, show: true, webPreferences: {
-    preload: path.join(__dirname, 'terminal-stream-preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true,
-    backgroundThrottling: false,
-  } })
+  win = new BrowserWindow({
+    width: 1280, height: 820, show: process.argv[6] !== 'window-chrome-hidden',
+    ...(windowChrome ? { minWidth: 860, minHeight: 560 } : {}),
+    ...(windowChrome && process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 16, y: 18 } } : {}),
+    webPreferences: {
+      preload: path.join(__dirname, 'terminal-stream-preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true,
+      backgroundThrottling: false,
+    },
+  })
   win.webContents.session.setPermissionRequestHandler((_wc, _permission, callback) => callback(false))
   win.webContents.session.setPermissionCheckHandler(() => false)
+  if (windowChrome) {
+    const positions = []
+    const record = () => {
+      if (win.isDestroyed()) return
+      positions.push({ bounds: win.getBounds(), minimized: win.isMinimized(), maximized: win.isMaximized(), fullscreen: win.isFullScreen() })
+      if (positions.length > 1000) positions.shift()
+      fs.writeFileSync(path.join(root, 'native-window.json'), JSON.stringify(positions, null, 2))
+    }
+    for (const event of ['move', 'resize', 'minimize', 'restore', 'enter-full-screen', 'leave-full-screen']) win.on(event, record)
+    record()
+  }
   await win.loadFile(path.join(project, 'dist', 'index.html'))
 })
 app.on('window-all-closed', () => app.quit())

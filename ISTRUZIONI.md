@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.11**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.12**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -104,6 +104,8 @@ Se il checkout esiste già, non clonarlo di nuovo: esegui gli ultimi quattro com
 Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
 
 La lingua iniziale è italiana anche sui sistemi non italiani. In **Impostazioni** puoi scegliere **Italiano** o **English**. Il tema iniziale segue il sistema; puoi forzare **Chiaro** o **Scuro**. Le preferenze restano salvate.
+
+Nei sorgenti 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema.
 
 ## 4. Sessioni e viste
 

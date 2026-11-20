@@ -61,6 +61,9 @@ jobs:
       - name: Verify terminal scrolling and geometry with a synthetic bridge
         working-directory: app
         run: node ../tooling/scripts/smoke-terminal-geometry.mjs .
+      - name: Verify window chrome and interactive exclusions
+        working-directory: app
+        run: node ../tooling/scripts/smoke-window-chrome.mjs .
       - name: Package unsigned DMG and ZIP
         working-directory: app
         run: node ../tooling/scripts/package-macos-cli.mjs
@@ -150,5 +153,8 @@ jobs:
             ${{ runner.temp }}/plancia-package-smoke-*/smoke-failure.json
             ${{ runner.temp }}/plancia-package-smoke-*/runtime-diagnostics.log
             ${{ runner.temp }}/plancia-fuse-smoke-*/smoke-failure.json
+            ${{ runner.temp }}/plancia-window-chrome-*/report.json
+            ${{ runner.temp }}/plancia-window-chrome-*/native-window.json
+            ${{ runner.temp }}/plancia-window-chrome-*/failure.png
           if-no-files-found: ignore
           retention-days: 7

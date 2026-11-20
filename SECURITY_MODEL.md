@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.11** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.12** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -72,6 +72,8 @@ Non è configurato un servizio di invio crash report nei sorgenti. Questo non es
 Le catture documentali di M3 usano HOME, appData e userData temporanei impostati da un lanciatore di prova prima del caricamento del main, ambiente filtrato e un terminale dimostrativo generato su PTY nativa. Non avviano shell utente, CLI AI né letture degli appunti. I PNG sono catture reali del renderer di produzione, senza ritocchi; provenienza e SHA-256 sono in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron e IPC
+
+**M31, sorgenti 0.3.12.** Cambiano solo le regioni di trascinamento del renderer macOS. Cornice nativa, pulsanti di sistema, IPC, permessi, rete, shell, storage e gestione dei segreti restano invariati. Controlli delle viste e sovrapposizioni sono esclusi dall’area trascinabile. La sonda `smoke-window-chrome.mjs` riusa bridge sintetico C28, profili isolati e CDP loopback; il modo interattivo aggiunge il chrome nativo nella sola fixture esterna, mai nei pacchetti. Non crea shell né legge appunti o profili personali. Catture/report contengono solo fixture; `native-window.json` contiene al massimo 1000 coordinate/stati della finestra di prova, non dati delle sessioni. In caso di errore i workflow manuali conservano queste sole evidenze per sette giorni. Il controllo CSS non sostituisce la verifica del movimento reale con input nativo.
 
 **C29, release 0.3.11.** Le correzioni di geometria e selezione restano nel renderer; l’ancoraggio del gruppo è solo stato UI in memoria, senza nuova persistenza. IPC, permessi, limiti e parsing non cambiano. La sonda esterna `smoke-terminal-geometry.mjs` riusa la fixture C28, il trasporto CDP su loopback e profili sintetici isolati prima dell’avvio. Verifica barra e celle con dati sintetici, senza creare shell, accedere agli appunti reali o usare credenziali/CLI AI. Lo smoke dei pacchetti può richiedere `Browser.close` solo sulla connessione CDP dell’app temporanea posseduta dalla prova, prima del segnale di terminazione. Non introduce flag, API di prova o dipendenze nel prodotto. Le catture contengono solo i dati della fixture. In locale restano nelle directory temporanee; in caso di fallimento Windows il workflow manuale carica su GitHub il report JSON e `failure.png` della sola fixture, con conservazione di sette giorni. Coordinate e posizioni della barra sono metadata sintetici, senza dati di terminali personali. DPI, barra overlay e tracciato con estremità riservate sono emulati: non attestano hardware, Windows o ogni comportamento di Codex CLI.
 
@@ -225,7 +227,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.11** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.12** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -295,6 +297,8 @@ No crash-report upload service is configured in the source. This does not exclud
 M3 documentation captures use temporary HOME, appData and userData paths set by a test launcher before loading main, a filtered environment and a generated demonstration terminal over a native PTY. They do not launch user shells or AI CLIs, or read the clipboard. The PNGs are unmodified captures of the production renderer; provenance and SHA-256 are in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron and IPC
+
+**M31, source 0.3.12.** Only the macOS renderer’s draggable regions change. Native frame, system buttons, IPC, permissions, networking, shells, storage and secret handling remain unchanged. View controls and overlays are excluded from the draggable area. `smoke-window-chrome.mjs` reuses the C28 synthetic bridge, isolated profiles and loopback CDP; interactive mode adds native chrome only to the external fixture, never to packages. It creates no shells and reads no real clipboard or personal profiles. Captures/reports contain fixture data only; `native-window.json` contains at most 1000 test-window coordinates/states, not session data. On failure manual workflows retain only these files for seven days. CSS checks do not replace real movement verification through native input.
 
 **C29, release 0.3.11.** Geometry and selection fixes stay in the renderer; the group anchor is only in-memory UI state, with no new persistence. IPC, permissions, limits and parsing are unchanged. External `smoke-terminal-geometry.mjs` reuses the C28 fixture, loopback CDP transport and synthetic profiles isolated before startup. It verifies the scrollbar and cells with synthetic data, without creating shells, accessing the real clipboard or using credentials/AI CLIs. Package smoke may request `Browser.close` only on the CDP connection belonging to its owned temporary app, before the termination signal. It adds no product flags, test APIs or dependencies. Captures contain only fixture data. Local captures remain in temporary directories; on Windows failure the manual workflow uploads the fixture-only JSON report and `failure.png` to GitHub, retained for seven days. Scrollbar coordinates and positions are synthetic metadata, without personal terminal data. DPI, overlay bars and inset tracks are emulated: they do not attest hardware, Windows or every Codex CLI behavior.
 

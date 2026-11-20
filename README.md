@@ -2,11 +2,11 @@
 
 ## Italiano
 
-La release 0.3.11 completa C29, con M30 assorbita: scorrimento del terminale corretto e selezione dei riquadri visibili senza spostarli, con bordo attivo più evidente. Pacchetti Windows x64 e macOS ARM64, verifiche e checksum sono pubblicati.
+Nei sorgenti 0.3.12, M31 rende trascinabile su macOS la barra superiore con il titolo della sessione e gli spazi liberi, mantenendo cliccabili i controlli delle viste. La milestone è in verifica locale; la release pubblicata resta 0.3.11.
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.3.11 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.11](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.11) include C29 per scorrimento e selezione stabile dei riquadri, conserva le garanzie C28 al cambio sessione/vista e offre pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.12 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.11](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.11) include C29 per scorrimento e selezione stabile dei riquadri, conserva le garanzie C28 al cambio sessione/vista e offre pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -178,11 +178,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-Release 0.3.11 completes C29, with M30 absorbed: corrected terminal scrolling and visible-pane selection without repositioning, with a clearer active border. Windows x64 and macOS ARM64 packages, checks and checksums are published.
+In source 0.3.12, M31 makes the macOS top bar draggable by its session title and free space, while view controls remain clickable. The milestone is under local verification; the published release remains 0.3.11.
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.3.11 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.11](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.11) includes C29 for scrolling and stable pane selection, preserves C28 session/view guarantees and provides Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
+**Source version 0.3.12 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.11](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.11) includes C29 for scrolling and stable pane selection, preserves C28 session/view guarantees and provides Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 

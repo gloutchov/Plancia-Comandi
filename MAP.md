@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.11**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.12**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -147,6 +147,7 @@ Plancia-Comandi/
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
 |   |-- fixtures/                    Main/preload statici per lo smoke renderer M28
 |   |-- smoke-terminal-geometry.mjs  M29: geometria, rotella, barra, viste/font e buffer sintetici
+|   |-- smoke-window-chrome.mjs     M31: regioni drag/no-drag e controlli; prova nativa interattiva
 |   |-- smoke-terminal-stream.mjs    Renderer reale, bridge sintetico, DA/OSC e viste
 |   |-- smoke-terminal-protocol.mjs  Query DA/OSC su PTY nativa nello smoke full da 0.3.10
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
@@ -207,6 +208,8 @@ Plancia-Comandi/
 `.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. La landing C4 è in `docs/`, con sorgente di pubblicazione `main:/docs`. Non è aggiunto un workflow al repository: il deploy Pages gestito da GitHub sarà necessario dopo le approvazioni. `.nojekyll` conserva i file statici; le risorse usano percorsi relativi. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
 ### 2. Flusso e responsabilità
+
+M31 (sorgenti 0.3.12) estende il trascinamento alla `.toolbar` solo su macOS, con `no-drag` per gruppo delle viste e sovrapposizioni. `node scripts/smoke-window-chrome.mjs .` verifica otto combinazioni IT/EN, temi e larghezze 860/1280 con la fixture C28 e cinque sessioni sintetiche. Un argomento opzionale indica il renderer o `app.asar`; `--interactive` mantiene aperta la finestra per input nativo. `native-window.json` registra al massimo 1000 posizioni/stati reali della BrowserWindow, senza contenuti. Il controllo automatico di CSS, layout e dialoghi non certifica lo spostamento né un dispositivo fisico. I workflow manuali esistenti eseguono la sonda dopo la build; in caso di errore conservano report, coordinate e cattura sintetica per sette giorni.
 
 C29, già M29, assorbe M30. `App` separa la sessione attiva dall’ancoraggio del gruppo: attivare un riquadro visibile conserva posizione e dimensioni, con outline interno di 2 px; `overflow: clip` impedisce al campo nascosto di far scorrere il telaio e il titolo. Affiancate e Incolonnate mantengono la coppia; sessioni nascoste selezionate e Affianca possono scegliere un nuovo gruppo. `TerminalView` apre xterm in `.term-surface`, senza padding; il contenitore esterno conserva il padding e la radice xterm segue l’altezza delle righe. Dopo la build, `node scripts/smoke-terminal-geometry.mjs .` verifica il renderer Electron con la fixture esterna C28, dati e profili sintetici: geometria delle celle, focus e posizioni con cinque sessioni sintetiche, destinazione della tastiera e bordo, rotella e trascinamento reale della barra via CDP, viste/font/lingue/temi, buffer e DPI emulato. Nessun accesso a shell, appunti o dati personali; non sostituisce una prova fisica di mouse/trackpad o Codex CLI. Un terzo argomento opzionale indica un `app.asar` per provare il renderer distribuito. La sonda tiene conto dei controlli alle estremità della barra Windows e verifica anche un tracciato con estremità riservate emulato su macOS; la pressione deve afferrare il cursore senza paginare prima del trascinamento. Registra coordinate e posizioni di scorrimento. I workflow di packaging manuali eseguono la stessa regressione dopo la build; in caso di errore quello Windows conserva report JSON e cattura della sola fixture per sette giorni. Il test fuse macOS individua il framework con `pathToFuseFile`; lo smoke dei pacchetti richiede la chiusura CDP dell’app di prova prima del fallback SIGTERM.
 
@@ -272,7 +275,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.11** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.12** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -417,6 +420,7 @@ Plancia-Comandi/
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
 |   |-- fixtures/                    Static main/preload for the M28 renderer smoke
 |   |-- smoke-terminal-geometry.mjs  M29: geometry, wheel, thumb, views/fonts and synthetic buffers
+|   |-- smoke-window-chrome.mjs     M31: drag/no-drag regions and controls; interactive native check
 |   |-- smoke-terminal-stream.mjs    Real renderer, synthetic bridge, DA/OSC and views
 |   |-- smoke-terminal-protocol.mjs  Native PTY DA/OSC queries in full smoke from 0.3.10
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
@@ -477,6 +481,8 @@ Plancia-Comandi/
 `.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. The C4 landing is in `docs/`, with `main:/docs` as the publishing source. No repository workflow is added: GitHub’s managed Pages deployment will be necessary after approvals. `.nojekyll` preserves static files; assets use relative paths. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
+
+M31 (source 0.3.12) extends dragging to `.toolbar` on macOS only, with `no-drag` for view controls and overlays. `node scripts/smoke-window-chrome.mjs .` checks eight IT/EN, theme and 860/1280-width combinations with the C28 fixture and five synthetic sessions. An optional argument selects the renderer or `app.asar`; `--interactive` keeps the window open for native input. `native-window.json` records at most 1000 real BrowserWindow positions/states without content. Automatic CSS, layout and dialog checks do not certify movement or a physical device. Existing manual workflows run the probe after building; on failure they retain the report, positions and synthetic capture for seven days.
 
 C29, formerly M29, absorbs M30. `App` separates the active session from the group anchor: activating a visible pane preserves position and size, with a 2 px internal outline; `overflow: clip` prevents the hidden input from scrolling the frame and title. Side by side and Stacked keep their pair; selecting hidden sessions and Tile can choose a new group. `TerminalView` opens xterm in a padding-free `.term-surface`; the outer container keeps its padding and the xterm root follows row height. After building, `node scripts/smoke-terminal-geometry.mjs .` verifies the Electron renderer with the external C28 fixture, synthetic data and profiles: cell geometry, focus and positions with five synthetic sessions, keyboard destination and border, wheel and actual thumb dragging through CDP, views/fonts/locales/themes, buffers and emulated DPI. No shell, clipboard or personal-data access; this does not replace a physical mouse/trackpad or Codex CLI check. An optional third argument points to an `app.asar` to test the distributed renderer. The probe accounts for controls at the ends of the Windows scrollbar and also tests an inset track emulated on macOS; pressing must grab the thumb without paging before dragging. It records coordinates and scroll positions. Manual packaging workflows run the same regression after building; on failure the Windows workflow retains the JSON report and fixture-only capture for seven days. The macOS fuse test locates the framework with `pathToFuseFile`; package smoke requests CDP closure of the test app before the SIGTERM fallback.
 

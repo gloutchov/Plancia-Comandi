@@ -311,6 +311,23 @@ button {
   padding: 0 4px;
 }
 
+/* macOS hides the native title bar. Keep its replacement draggable while
+   controls and modal backdrops continue receiving pointer events. */
+.app.is-darwin .toolbar {
+  -webkit-app-region: drag;
+}
+
+.app.is-darwin .toolbar,
+.app.is-darwin .brand {
+  user-select: none;
+}
+
+.app.is-darwin .toolbar .segmented,
+.app.is-darwin .overlay,
+.app.is-darwin .scrim {
+  -webkit-app-region: no-drag;
+}
+
 .toolbar-title {
   flex: 1;
   min-width: 0;
