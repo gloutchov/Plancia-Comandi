@@ -2,7 +2,7 @@
 
 ## Italiano
 
-M33 (sorgenti 0.3.13, in verifica) unifica nome **Plancia Comandi**, icona Windows e lingua iniziale: italiano se la prima lingua preferita è italiana, inglese altrimenti; una scelta salvata prevale. Per aggiornare i vecchi nomi senza duplicare l’app vedi [i pacchetti e l’aggiornamento](ISTRUZIONI.md#23-pacchetti-compilati). Download pubblici ancora 0.3.12.
+C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows e lingua iniziale: italiano per la prima lingua preferita italiana, inglese altrimenti; una scelta salvata prevale. Per aggiornare senza duplicare l’app vedi [pacchetti e aggiornamento](ISTRUZIONI.md#23-pacchetti-compilati). [Download e SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verificati; controllo visivo nativo Windows rimandato con autorizzazione e dichiarato nelle note.
 
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
@@ -56,7 +56,7 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
-M33 (source 0.3.13, under verification) unifies the **Plancia Comandi** name, Windows icon and initial language: Italian if the primary preferred language is Italian, English otherwise; a saved choice takes precedence. To update old names without duplicate apps see [packages and updating](INSTRUCTIONS.md#23-prebuilt-packages). Public downloads remain at 0.3.12.
+C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon resource and initial language: Italian for a primary preferred Italian language, English otherwise; a saved choice takes precedence. To update without duplicate apps see [packages and updating](INSTRUCTIONS.md#23-prebuilt-packages). [Downloads and SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verified; native Windows visual checks explicitly deferred and disclosed in the notes.
 
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
