@@ -103,6 +103,16 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
         run: node tooling/scripts/smoke-startup-failure.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE) "$env:EXPECTED_VERSION"
+      - name: Verify legacy upgrade before installer integrity probes
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          if ([version]$env:EXPECTED_VERSION -ge [version]'0.3.13') {
+            $upgradeSetup = @(Get-ChildItem app/release/PlanciaComandi-win-*-setup.exe)
+            if ($upgradeSetup.Count -ne 1) { throw 'Expected one upgrade installer' }
+            & tooling/scripts/smoke-windows-name-upgrade.ps1 -Setup $upgradeSetup[0].FullName -ExpectedVersion $env:EXPECTED_VERSION
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
       - name: Probe one release fuse at a time
         run: node tooling/scripts/diagnose-fuse-variants.mjs app/release/win-unpacked "$env:RUNNER_TEMP/plancia-fuse-variants/variants.json"
       - name: Read release fuses and reject Node switches
@@ -122,10 +132,6 @@ jobs:
           $portable = Get-ChildItem app/release/PlanciaComandi-win-*-portable.exe
           $setup = Get-ChildItem app/release/PlanciaComandi-win-*-setup.exe
           if ($portable.Count -ne 1 -or $setup.Count -ne 1) { throw 'Expected one installer and one portable executable' }
-          if ([version]$env:EXPECTED_VERSION -ge [version]'0.3.13') {
-            & tooling/scripts/smoke-windows-name-upgrade.ps1 -Setup $setup.FullName -ExpectedVersion $env:EXPECTED_VERSION
-            if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          }
           node tooling/scripts/smoke-package.mjs $portable.FullName "$env:EXPECTED_VERSION" release
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           node tooling/scripts/assert-release-fuses.mjs $portable.FullName
