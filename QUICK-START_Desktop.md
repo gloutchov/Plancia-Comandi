@@ -2,7 +2,9 @@
 
 ## Italiano
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.10**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Nei sorgenti 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
+
+Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.11**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 **Sommario**
 
@@ -50,7 +52,9 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.10**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+In source 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
+
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.11**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 **Contents**
 

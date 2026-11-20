@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.10**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura di Plancia Comandi **0.3.11**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -146,6 +146,7 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      API pubbliche minimatch dei due consumer di packaging
 |   |-- smoke-custom-patterns.mjs    Smoke M7 del pacchetto: timeout, avvisi, bridge e recupero
 |   |-- fixtures/                    Main/preload statici per lo smoke renderer M28
+|   |-- smoke-terminal-geometry.mjs  M29: geometria, rotella, barra, viste/font e buffer sintetici
 |   |-- smoke-terminal-stream.mjs    Renderer reale, bridge sintetico, DA/OSC e viste
 |   |-- smoke-terminal-protocol.mjs  Query DA/OSC su PTY nativa nello smoke full da 0.3.10
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
@@ -207,6 +208,8 @@ Plancia-Comandi/
 
 ### 2. Flusso e responsabilità
 
+M29 assorbe M30. `TerminalView` apre xterm in `.term-surface`, senza padding; il contenitore esterno conserva il padding e la radice xterm segue l’altezza delle righe. Dopo la build, `node scripts/smoke-terminal-geometry.mjs .` verifica il renderer Electron con la fixture esterna C28, dati e profili sintetici: geometria delle celle, rotella e trascinamento reale della barra via CDP, viste/font/lingue/temi, buffer e DPI emulato. Nessun accesso a shell, appunti o dati personali; non sostituisce una prova fisica di mouse/trackpad o Codex CLI. Un terzo argomento opzionale indica un `app.asar` per provare il renderer distribuito. I workflow di packaging manuali eseguono la stessa regressione dopo la build. Il test fuse macOS individua il framework con `pathToFuseFile`; lo smoke dei pacchetti richiede la chiusura CDP dell’app di prova prima del fallback SIGTERM.
+
 C28 mantiene tutti i terminali montati, nascondendo solo i riquadri non selezionati. `terminalStream.ts` ordina snapshot iniziale e chunk in arrivo; non filtra input o risposte di protocollo. Un terminale viene distrutto alla chiusura della sua sessione. Dopo la build, `node scripts/smoke-terminal-stream.mjs` prova il renderer con un bridge sintetico, senza shell, dati o appunti reali. Lo smoke full del pacchetto aggiunge `smoke-terminal-protocol.mjs`, con una sonda Node locale su PTY isolata. Da 0.3.10 lo smoke dei pattern verifica lingua e tema tramite `settings:updated` e controlla l'identità dei terminali, senza ricaricare il renderer sulle PTY aperte; conserva il percorso con reload per i vecchi pacchetti.
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
@@ -267,7 +270,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.10** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.11** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -411,6 +414,7 @@ Plancia-Comandi/
 |   |-- packaging-globs.test.ts      Public minimatch APIs of both packaging consumers
 |   |-- smoke-custom-patterns.mjs    M7 package smoke: timeout, warnings, bridge and recovery
 |   |-- fixtures/                    Static main/preload for the M28 renderer smoke
+|   |-- smoke-terminal-geometry.mjs  M29: geometry, wheel, thumb, views/fonts and synthetic buffers
 |   |-- smoke-terminal-stream.mjs    Real renderer, synthetic bridge, DA/OSC and views
 |   |-- smoke-terminal-protocol.mjs  Native PTY DA/OSC queries in full smoke from 0.3.10
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
@@ -471,6 +475,8 @@ Plancia-Comandi/
 `.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. The C4 landing is in `docs/`, with `main:/docs` as the publishing source. No repository workflow is added: GitHub’s managed Pages deployment will be necessary after approvals. `.nojekyll` preserves static files; assets use relative paths. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
 ### 2. Flow and responsibilities
+
+M29 absorbs M30. `TerminalView` opens xterm in a padding-free `.term-surface`; the outer container keeps its padding and the xterm root follows row height. After building, `node scripts/smoke-terminal-geometry.mjs .` verifies the Electron renderer with the external C28 fixture, synthetic data and profiles: cell geometry, wheel and actual thumb dragging through CDP, views/fonts/locales/themes, buffers and emulated DPI. No shell, clipboard or personal-data access; this does not replace a physical mouse/trackpad or Codex CLI check. An optional third argument points to an `app.asar` to test the distributed renderer. Manual packaging workflows run the same regression after building. The macOS fuse test locates the framework with `pathToFuseFile`; package smoke requests CDP closure of the test app before the SIGTERM fallback.
 
 C28 keeps all terminals mounted, hiding only unselected panes. `terminalStream.ts` orders the initial snapshot and incoming chunks; it does not filter input or protocol replies. Closing a session destroys its terminal. After building, `node scripts/smoke-terminal-stream.mjs` tests the renderer with a synthetic bridge, without real shells, data or clipboard. Full package smoke also runs `smoke-terminal-protocol.mjs`, with a local Node probe on an isolated PTY. From 0.3.10 the pattern smoke checks locale and theme through `settings:updated` and verifies terminal identity, without reloading the renderer over open PTYs; it retains the reload path for older packages.
 

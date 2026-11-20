@@ -58,6 +58,9 @@ jobs:
       - name: TypeScript and production build
         working-directory: app
         run: npm run build
+      - name: Verify terminal scrolling and geometry with a synthetic bridge
+        working-directory: app
+        run: node ../tooling/scripts/smoke-terminal-geometry.mjs .
       - name: Package unsigned DMG and ZIP
         working-directory: app
         run: node ../tooling/scripts/package-macos-cli.mjs

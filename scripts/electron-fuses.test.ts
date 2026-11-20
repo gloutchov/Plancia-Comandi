@@ -22,6 +22,7 @@ import {
   hasFuseSentinel,
   loadFuses,
   portableFuseDecision,
+  pathToFuseFile,
   prepareOpenFuseTwin,
   resolveAppPackageJson,
   manifestLine,
@@ -32,7 +33,8 @@ import {
 } from './electron-fuses.mjs'
 
 const require = createRequire(new URL('../package.json', import.meta.url))
-const electronBinary = require('electron') as string
+// On macOS the fuse wire is in Electron Framework, not the small app launcher.
+const electronBinary = pathToFuseFile(require('electron') as string)
 
 describe('release fuse configuration', () => {
   it('declares every Electron 45 fuse, with cookie encryption off', () => {

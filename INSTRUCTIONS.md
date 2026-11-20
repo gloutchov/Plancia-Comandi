@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.10**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.11**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -121,6 +121,10 @@ You can keep up to **12 sessions**, including exited sessions that have not been
 - **Close:** click **×** in its row. **Working** or **Action** states trigger a confirmation; other states close immediately. The terminal process is stopped.
 
 From version 0.3.10, switching sessions or views preserves the terminal and its displayed output. Hidden sessions continue parsing output; returning to a session must not insert historical control replies into the shell prompt or CLI input. Closing the session releases its terminal. Native Windows/macOS smoke uses synthetic PTY programs; it does not certify every possible Codex CLI scenario. Personal feedback does not separately detail both scenarios, versions or platforms. See C28 checks and limits in [PLAN.md](PLAN.md).
+
+In source 0.3.11, M29 also includes the M30 requirement. With history available, use the wheel/trackpad or drag the vertical thumb: scrolling works in **One** without switching layouts. Text and cursor remain inside the display area after view, font or window-size changes. An inactive bar is normal when no history exists. Full-screen CLIs may use an alternate buffer without scrollback; scrolling then depends on the CLI’s own commands. Synthetic checks and limits of real-system testing are recorded in [PLAN.md](PLAN.md). The published release remains 0.3.10 until M29 is approved and published.
+
+xterm 5 limitation: after large resizes, an alternate buffer activated later can retain the previous view’s row capacity. The local probe retained 22 extra rows; more output did not grow that buffer. The app does not add history to the full-screen program.
 
 An exited process remains visible as **Exited** with its exit code. Read its output before closing the session. Open a new session to restart work.
 

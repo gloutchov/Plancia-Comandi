@@ -403,6 +403,10 @@ try {
   if (developmentSmoke) {
     try { assertNoDevelopmentFiles(root) } catch (error) { smokeError ??= error }
   }
+  // Ask the owned test app to quit before falling back to an OS signal.
+  if (process.platform === 'darwin' && !exited && socket?.readyState === WebSocket.OPEN) {
+    await request('Browser.close').catch(() => {})
+  }
   main?.close()
   if (socket?.readyState === WebSocket.OPEN) {
     for (const id of sessions) await evaluate(`window.plancia.closeSession(${JSON.stringify(id)})`).catch(() => {})

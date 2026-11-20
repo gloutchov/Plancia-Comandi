@@ -247,7 +247,6 @@ export function TerminalView({
 
   return (
     <div
-      ref={hostRef}
       className="term-host"
       onMouseDownCapture={(event) => {
         if (event.button === 2) event.stopPropagation()
@@ -281,6 +280,8 @@ export function TerminalView({
         setMenu({ x: event.clientX, y: event.clientY, selection: term.getSelection() })
       }}
     >
+      {/* FitAddon measures its direct parent. Keep that surface free of padding. */}
+      <div ref={hostRef} className="term-surface" />
       {menu ? (
         <TerminalMenu
           x={menu.x}

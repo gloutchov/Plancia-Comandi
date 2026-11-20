@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.10**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.11**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -121,6 +121,10 @@ Puoi tenere fino a **12 sessioni**, contando anche quelle terminate ma non ancor
 - **Chiudere:** premi **×** nella riga. Se lo stato è **Al lavoro** o **Azione**, compare una conferma; negli altri stati la chiusura è immediata. Il processo del terminale viene interrotto.
 
 Dalla versione 0.3.10, passare a un’altra sessione o cambiare vista conserva il terminale e il suo output già visualizzato. Anche le sessioni nascoste continuano a elaborare l’output; tornare a una sessione non deve inserire vecchie risposte di controllo nel prompt o nell’input della CLI. La chiusura della sessione libera il terminale. Gli smoke nativi Windows/macOS usano programmi sintetici su PTY; non certificano ogni possibile scenario di Codex CLI. Il riscontro personale non dettaglia separatamente i due scenari né versioni e piattaforme. Consulta verifiche e limiti C28 in [PLAN.md](PLAN.md).
+
+Nei sorgenti 0.3.11, M29 include anche il requisito M30. Con cronologia disponibile, usa la rotella/il trackpad oppure trascina la barra verticale: lo scorrimento funziona già in **Una**, senza passare a un’altra vista. Il testo e il cursore restano nell’area utile dopo un cambio vista, font o dimensione della finestra. Una barra inattiva è normale quando non c’è cronologia. Le CLI a schermo intero possono usare un buffer alternativo senza scrollback; lo scorrimento dipende allora dai comandi della CLI. Le verifiche sintetiche e i limiti delle prove su sistemi reali sono in [PLAN.md](PLAN.md). La release pubblicata resta 0.3.10 finché M29 non è approvata e pubblicata.
+
+Limite xterm 5: dopo grandi ridimensionamenti, un buffer alternativo attivato in seguito può conservare la capacità di righe della vista precedente. Nella sonda locale sono rimaste 22 righe extra; altro output non aumenta quel buffer. L’app non aggiunge una cronologia al programma a schermo intero.
 
 Un processo uscito lascia visibile **Terminata** con il codice di uscita. Puoi leggere l'output prima di chiudere la sessione. Per riavviare il lavoro apri una nuova sessione.
 

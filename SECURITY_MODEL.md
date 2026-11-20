@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.10** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.11** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -72,6 +72,8 @@ Non è configurato un servizio di invio crash report nei sorgenti. Questo non es
 Le catture documentali di M3 usano HOME, appData e userData temporanei impostati da un lanciatore di prova prima del caricamento del main, ambiente filtrato e un terminale dimostrativo generato su PTY nativa. Non avviano shell utente, CLI AI né letture degli appunti. I PNG sono catture reali del renderer di produzione, senza ritocchi; provenienza e SHA-256 sono in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron e IPC
+
+**M29, sorgenti 0.3.11.** La correzione di geometria resta nel renderer; IPC, permessi, limiti e parsing non cambiano. La sonda esterna `smoke-terminal-geometry.mjs` riusa la fixture C28, il trasporto CDP su loopback e profili sintetici isolati prima dell’avvio. Verifica barra e celle con dati sintetici, senza creare shell, accedere agli appunti reali o usare credenziali/CLI AI. Lo smoke dei pacchetti può richiedere `Browser.close` solo sulla connessione CDP dell’app temporanea posseduta dalla prova, prima del segnale di terminazione. Non introduce flag, API di prova o dipendenze nel prodotto. Le catture contengono solo i dati della fixture e restano nelle directory temporanee locali. DPI e barra overlay sono emulati: non attestano hardware, Windows o ogni comportamento di Codex CLI.
 
 **C28, release 0.3.10 verificata.** Il renderer conserva una sola istanza xterm e una sola sottoscrizione per ciascuna delle massimo 12 sessioni, comprese quelle nascoste; sono rilasciate alla chiusura della sessione. Il replay iniziale viene applicato una sola volta e i chunk successivi attendono la fine del parsing dello snapshot, scartando solo duplicati di sequenza già inclusi. Il cambio di sessione/vista non ripete le query DA/OSC storiche. Lo scrollback resta di 8000 righe per terminale; conservare anche quelli nascosti può aumentare la memoria usata dal renderer. I terminali nascosti restano in memoria e rispondono alle nuove richieste di protocollo con le ultime dimensioni valide; nessun resize a dimensione zero è inviato. Non si filtrano escape o input utente e non cambiano IPC, privilegi, storage o rete. Le sonde esterne usano solo bridge, output, profili e PTY sintetici; nessuna API di prova entra nel prodotto.
 
@@ -221,7 +223,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.10** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.11** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -291,6 +293,8 @@ No crash-report upload service is configured in the source. This does not exclud
 M3 documentation captures use temporary HOME, appData and userData paths set by a test launcher before loading main, a filtered environment and a generated demonstration terminal over a native PTY. They do not launch user shells or AI CLIs, or read the clipboard. The PNGs are unmodified captures of the production renderer; provenance and SHA-256 are in [capture.json](docs/screenshots/capture.json).
 
 ### 4. Electron and IPC
+
+**M29, source 0.3.11.** The geometry fix stays in the renderer; IPC, permissions, limits and parsing are unchanged. External `smoke-terminal-geometry.mjs` reuses the C28 fixture, loopback CDP transport and synthetic profiles isolated before startup. It verifies the scrollbar and cells with synthetic data, without creating shells, accessing the real clipboard or using credentials/AI CLIs. Package smoke may request `Browser.close` only on the CDP connection belonging to its owned temporary app, before the termination signal. It adds no product flags, test APIs or dependencies. Captures contain only fixture data and remain in local temporary directories. DPI and overlay bars are emulated: they do not attest hardware, Windows or every Codex CLI behavior.
 
 **C28, verified release 0.3.10.** The renderer retains one xterm instance and one subscription for each of at most 12 sessions, including hidden ones; closing a session releases both. The initial replay is applied once and subsequent chunks wait until the snapshot finishes parsing, discarding only sequence duplicates already included. Session/view changes do not repeat historical DA/OSC queries. Scrollback remains 8000 lines per terminal; retaining hidden terminals can increase renderer memory use. Hidden terminals remain in memory and answer fresh protocol queries at their last valid size; no zero-size resize is sent. Escape sequences and user input are not filtered; IPC, privileges, storage and networking do not change. External probes use only synthetic bridges, output, profiles and PTYs; no test API is shipped in the product.
 

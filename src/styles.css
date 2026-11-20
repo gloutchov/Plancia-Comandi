@@ -388,7 +388,8 @@ button {
   background: var(--term-bg);
 }
 
-.term-host .xterm { height: 100%; }
+/* FitAddon measures this unpadded parent; xterm keeps its intrinsic row height. */
+.term-surface { height: 100%; min-width: 0; }
 .term-host .xterm-viewport { background: transparent !important; }
 
 .exit-banner {

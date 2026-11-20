@@ -2,9 +2,11 @@
 
 ## Italiano
 
+I sorgenti 0.3.11 includono M29, che assorbe M30: area del terminale misurata senza padding e barra libera dalle celle. La milestone è pronta per il primo controllo del commit, con 475 test, regressione geometrica e pacchetti macOS verificati localmente; la release pubblicata resta 0.3.10.
+
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione sorgenti 0.3.10 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) include la correzione C28 delle risposte DA/OSC duplicate al cambio sessione/vista, pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
+**Versione sorgenti 0.3.11 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) include la correzione C28 delle risposte DA/OSC duplicate al cambio sessione/vista, pacchetti Windows x64/macOS ARM64 e checksum SHA-256 verificati. Il runtime resta Electron 45.3.2; restano i fuse C27 e le protezioni C18 su DevTools, variabili di sviluppo ed errori di avvio. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -174,9 +176,11 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
+Source 0.3.11 includes M29, absorbing M30: terminal area measured without padding and scrollbar kept clear of cells. The milestone is ready for first commit review, with 475 tests, geometry regression and macOS packages locally verified; the published release remains 0.3.10.
+
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source version 0.3.10 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) includes the C28 fix for duplicate DA/OSC replies on session/view changes, Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
+**Source version 0.3.11 · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10) includes the C28 fix for duplicate DA/OSC replies on session/view changes, Windows x64/macOS ARM64 packages and verified SHA-256 checksums. The runtime remains Electron 45.3.2; C27 fuses and C18 controls for DevTools, development variables and startup failures remain. Tools used in terminals are installed separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
