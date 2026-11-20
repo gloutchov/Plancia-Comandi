@@ -109,13 +109,13 @@ The initial language is Italian even on non-Italian systems. Open **Impostazioni
 
 You can keep up to **12 sessions**, including exited sessions that have not been closed. At the limit, close one before creating another.
 
-- **Select:** click a sidebar row or inside a visible terminal. Typing goes to the active session.
+- **Select:** click a sidebar row, terminal title or terminal content. A thicker colored border identifies the active session, which receives keyboard input. In multiple views, activating an already visible pane preserves its position and the positions of the others.
 - **Rename:** click the **Rename** pencil or double-click the name. Press Enter or move focus away to save; Esc cancels. Names are limited to 80 characters.
 - **One:** a square icon. Shows only the selected session.
-- **Side by side:** an icon of two rectangles next to each other. Shows the selected session and the next one. The button is disabled when only one session is open; the tooltip says to open at least two.
+- **Side by side:** an icon of two rectangles next to each other. On opening, shows the selected session and the next one. The button is disabled when only one session is open; the tooltip says to open at least two.
 - **Stacked:** an icon of two rectangles, one above the other. Shows the same two sessions, one above the other. This button is also disabled with only one session.
 - **Grid:** an icon of four squares. Available from three sessions upward. With three sessions the fourth pane stays empty. Below three sessions the button is disabled and the tooltip asks you to open at least three.
-- **Which sessions you see:** the first pane is the selected session. The others follow the sidebar order. At the end of the list, counting continues from the top. A session is not shown twice.
+- **Which sessions you see:** opening a multiple view starts the group at the selected session and follows sidebar order, wrapping after the last session. A session is not shown twice. Clicking an already visible pane, or its sidebar row, changes only the active session. Switching between Side by side and Stacked preserves the pair and its order. Selecting a hidden session in the sidebar shows a new group starting at that session; the **Tile** command also explicitly chooses a new pair.
 - **Remembered view:** the choice stays saved. If too few sessions are open, you see **One** and the chosen view's button is disabled; when there are enough sessions, that view comes back on its own. If you close sessions until the view is no longer possible, the choice becomes **One** and is saved that way.
 - **Tile:** the columns icon in a row, or Command-click on macOS and Ctrl-click on the other systems, selects that session and switches to **Side by side** when at least one other session exists. With only one session the button is disabled.
 - **Close:** click **×** in its row. **Working** or **Action** states trigger a confirmation; other states close immediately. The terminal process is stopped.

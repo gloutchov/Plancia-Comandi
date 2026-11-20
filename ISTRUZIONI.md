@@ -109,13 +109,13 @@ La lingua iniziale è italiana anche sui sistemi non italiani. In **Impostazioni
 
 Puoi tenere fino a **12 sessioni**, contando anche quelle terminate ma non ancora chiuse. Se raggiungi il limite, chiudine una prima di crearne un'altra.
 
-- **Selezionare:** clicca una riga nella barra laterale o dentro un terminale visibile. La tastiera è indirizzata alla sessione attiva.
+- **Selezionare:** clicca una riga nella barra laterale, il titolo o il contenuto di un terminale. Il bordo colorato più spesso indica la sessione attiva, a cui è indirizzata la tastiera. Nelle viste multiple, attivare un riquadro già visibile conserva la sua posizione e quella degli altri.
 - **Rinominare:** premi la matita **Rinomina** o fai doppio clic sul nome. Premi Invio o sposta il focus per salvare; Esc annulla. Il nome è limitato a 80 caratteri.
 - **Vista Una:** icona di un quadrato. Mostra solo la sessione selezionata.
-- **Vista Affiancate:** icona di due rettangoli affiancati. Mostra la sessione selezionata e la successiva. Il pulsante è disattivato se c'è una sola sessione; il tooltip dice di aprirne almeno due.
+- **Vista Affiancate:** icona di due rettangoli affiancati. All’apertura mostra la sessione selezionata e la successiva. Il pulsante è disattivato se c'è una sola sessione; il tooltip dice di aprirne almeno due.
 - **Vista Incolonnate:** icona di due rettangoli uno sopra l'altro. Mostra le stesse due sessioni, una sopra l'altra. Anche questo pulsante è disattivato con una sola sessione.
 - **Vista Griglia:** icona di quattro quadrati. Si attiva da tre sessioni in su. Con tre sessioni il quarto riquadro resta vuoto. Sotto le tre sessioni il pulsante è disattivato e il tooltip chiede di aprirne almeno tre.
-- **Quali sessioni si vedono:** il primo riquadro è la sessione selezionata. Gli altri seguono l'ordine della barra laterale. Arrivati in fondo all'elenco, si ricomincia dall'inizio. Una sessione non compare due volte.
+- **Quali sessioni si vedono:** quando apri una vista multipla, il gruppo parte dalla sessione selezionata e segue l’ordine della barra laterale, ricominciando dall’inizio dopo l’ultima. Una sessione non compare due volte. Cliccare un riquadro già visibile, o la sua riga nella barra laterale, cambia solo la sessione attiva. Affiancate e Incolonnate conservano la coppia e l’ordine passando dall’una all’altra. Se scegli nella barra laterale una sessione nascosta, viene mostrato un nuovo gruppo che parte da quella sessione; anche il comando **Affianca** sceglie esplicitamente una nuova coppia.
 - **Vista ricordata:** la scelta resta salvata. Se le sessioni aperte non bastano, vedi **Una** e il pulsante della vista scelta è disattivato; quando le sessioni diventano sufficienti, quella vista torna da sola. Se invece chiudi sessioni e la vista non è più possibile, la scelta diventa **Una** e viene salvata così.
 - **Affianca:** l'icona delle colonne nella riga, oppure Command-clic su macOS o Ctrl-clic sugli altri sistemi, seleziona quella sessione e passa ad **Affiancate**, se esiste almeno un'altra sessione. Con una sola sessione il pulsante è disattivato.
 - **Chiudere:** premi **×** nella riga. Se lo stato è **Al lavoro** o **Azione**, compare una conferma; negli altri stati la chiusura è immediata. Il processo del terminale viene interrotto.

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-I sorgenti 0.3.11 includono M29, che assorbe M30: area del terminale misurata senza padding e barra libera dalle celle. La milestone è pronta per il primo controllo del commit, con 475 test, regressione geometrica e pacchetti macOS verificati localmente; la release pubblicata resta 0.3.10.
+I sorgenti 0.3.11 includono M29, che assorbe M30: area del terminale misurata senza padding, barra libera dalle celle e selezione dei riquadri visibili senza spostarli, con bordo attivo più evidente. La milestone è pronta per il primo controllo del commit, con 475 test, regressione geometrica e pacchetti macOS verificati localmente; la release pubblicata resta 0.3.10.
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
@@ -176,7 +176,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-Source 0.3.11 includes M29, absorbing M30: terminal area measured without padding and scrollbar kept clear of cells. The milestone is ready for first commit review, with 475 tests, geometry regression and macOS packages locally verified; the published release remains 0.3.10.
+Source 0.3.11 includes M29, absorbing M30: terminal area measured without padding, scrollbar kept clear of cells and visible-pane selection without repositioning, with a clearer active border. The milestone is ready for first commit review, with 475 tests, geometry regression and macOS packages locally verified; the published release remains 0.3.10.
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 

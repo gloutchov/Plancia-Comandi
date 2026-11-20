@@ -61,6 +61,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const [sessions, setSessions] = useState<SessionInfo[]>(boot.sessions)
   const [systemDark, setSystemDark] = useState(boot.systemDark)
   const [focusedId, setFocusedId] = useState<string | null>(boot.sessions[0]?.id ?? null)
+  const [viewAnchorId, setViewAnchorId] = useState<string | null>(boot.sessions[0]?.id ?? null)
   const [layout, setLayoutState] = useState<LayoutMode>(boot.settings.layout)
   const [newOpen, setNewOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -135,10 +136,17 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const displayed = displayedLayout(layout, sessions.length)
   const slots = selectVisibleSessions(
     sessions.map((session) => session.id),
-    focusedId,
+    displayed === 'single' ? focusedId : viewAnchorId,
     layoutCapacity(displayed),
   )
   const visibleIds = new Set(slots.filter((id): id is string => id !== null))
+  const focusIsVisible = focusedId !== null && visibleIds.has(focusedId)
+  const focusExists = focused !== null
+  useEffect(() => {
+    // Selecting an already visible pane changes focus, not the group's anchor.
+    // A hidden session selected in the sidebar still needs to be brought into view.
+    if (focusExists && !focusIsVisible) setViewAnchorId(focusedId)
+  }, [focusedId, focusIsVisible, focusExists])
   // Keep one terminal/parser/subscription alive per session. Replaying old
   // DA/OSC queries when a pane remounts sends stale replies to the shell/CLI.
   const panes = [...slots, ...sessions.filter(session => !visibleIds.has(session.id)).map(session => session.id)]
@@ -166,8 +174,9 @@ function Workspace({ boot }: { boot: BootInfo }) {
     })
   }
 
-  function setLayout(mode: LayoutMode) {
+  function setLayout(mode: LayoutMode, anchorId = focusedId) {
     if (displayedLayout(mode, sessions.length) !== mode) return
+    if (displayed === 'single' && mode !== 'single') setViewAnchorId(anchorId)
     setLayoutState(mode)
     saveSettings({ layout: mode })
   }
@@ -175,7 +184,8 @@ function Workspace({ boot }: { boot: BootInfo }) {
   function showSideBySide(id: string) {
     if (sessions.length < 2) return
     setFocusedId(id)
-    setLayout('split')
+    setViewAnchorId(id)
+    setLayout('split', id)
   }
 
   function requestClose(session: SessionInfo) {
@@ -369,7 +379,14 @@ function Workspace({ boot }: { boot: BootInfo }) {
               if (!session) return null
               const active = id === focusedId
               return (
-                <section key={id} hidden={!visibleIds.has(id)} className={cx('tile', active && 'is-active', `tone-${session.phase}`)}>
+                <section
+                  key={id}
+                  data-session-id={id}
+                  hidden={!visibleIds.has(id)}
+                  className={cx('tile', active && 'is-active', `tone-${session.phase}`)}
+                  onMouseDown={() => setFocusedId(id)}
+                  onFocusCapture={() => setFocusedId(id)}
+                >
                   <header className="tile-bar">
                     <i className={cx('dot', `is-${session.phase}`)} />
                     <strong>{sessionName(session)}</strong>

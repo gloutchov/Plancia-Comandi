@@ -19,7 +19,7 @@ const port = server.address().port
 await new Promise(resolve => server.close(resolve))
 const electron = path.join(project, 'node_modules', 'electron', 'dist', process.platform === 'win32' ? 'electron.exe' : 'Electron.app/Contents/MacOS/Electron')
 const fixture = fileURLToPath(new URL('./fixtures/terminal-stream-main.cjs', import.meta.url))
-const child = spawn(electron, [fixture, renderer, root, String(port)], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, timeout: 120000 })
+const child = spawn(electron, [fixture, renderer, root, String(port), '5'], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, timeout: 120000 })
 let exited = false
 let diagnostic = ''
 for (const stream of [child.stdout, child.stderr]) stream.on('data', data => { diagnostic = (diagnostic + data).slice(-4000) })
@@ -106,10 +106,10 @@ try {
     }
     results.push({ label: label + '-scroll', wheel: true, thumb: barWidth > 0 ? 'passed' : 'overlay-without-persistent-thumb' })
   }
-  const ids = [1, 2, 3].map(i => `00000000-0000-4000-8000-00000000000${i}`)
+  const ids = [1, 2, 3, 4, 5].map(i => `00000000-0000-4000-8000-00000000000${i}`)
   const emit = (id, data) => evaluate(`terminalProbe.emit(${JSON.stringify(id)}, ${JSON.stringify(data)})`)
   await until(() => evaluate('document.querySelector(".xterm-rows")?.children.length > 0'), 'terminal')
-  await until(async () => (await evaluate('terminalProbe.report()')).subscriptions.length === 3, 'subscriptions')
+  await until(async () => (await evaluate('terminalProbe.report()')).subscriptions.length === ids.length, 'subscriptions')
   await settle()
   const empty = (await metrics())[0]
   assert(empty.scrollHeight - empty.clientHeight < 2, 'Empty normal buffer gained artificial history')
@@ -145,6 +145,76 @@ try {
     await checkGeometry(mode)
     await scroll(mode)
   }
+  const panePositions = () => evaluate(`Array.from(document.querySelectorAll('.tile:not([hidden])[data-session-id]'), tile => {
+    const r = tile.getBoundingClientRect();
+    return { id: tile.dataset.sessionId, x: r.x, y: r.y, width: r.width, height: r.height,
+      headerY: tile.querySelector('.tile-bar').getBoundingClientRect().y,
+      screenY: tile.querySelector('.xterm-screen').getBoundingClientRect().y, scrollTop: tile.scrollTop };
+  })`)
+  for (const locale of ['it', 'en']) for (const theme of ['light', 'dark']) {
+    await evaluate(`plancia.updateSettings(${JSON.stringify({ locale, theme })})`)
+    for (const mode of ['split', 'stack', 'grid']) {
+      await click('[data-testid="layout-single"]')
+      await click('.session:nth-child(1)')
+      await click(`[data-testid="layout-${mode}"]`)
+      await settle()
+      const before = await panePositions()
+      const target = before.at(-1)
+      const priorResizes = (await evaluate('terminalProbe.report()')).resizes.length
+      // Native mouse input inside the last pane must change focus, not its slot.
+      const x = target.x + 30
+      const y = target.y + 60
+      await driver.request('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 })
+      await driver.request('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 })
+      await settle()
+      assert.deepEqual(await panePositions(), before, 'Focusing a pane changed its position or the visible group')
+      assert.equal(await evaluate('document.querySelector(".tile.is-active").dataset.sessionId'), target.id)
+      assert.equal(await evaluate('getComputedStyle(document.querySelector(".tile.is-active")).outlineWidth'), '2px')
+      assert.equal((await evaluate('terminalProbe.report()')).resizes.length, priorResizes, 'Active border resized a PTY')
+      if (mode === 'split') {
+        await click('[data-testid="layout-stack"]')
+        await settle()
+        assert.deepEqual((await panePositions()).map(pane => pane.id), before.map(pane => pane.id), 'Changing between two-pane layouts replaced a pane')
+        assert.equal(await evaluate('document.querySelector(".tile.is-active").dataset.sessionId'), target.id)
+        await click('[data-testid="layout-split"]')
+        await settle()
+        assert.deepEqual(await panePositions(), before)
+      }
+      const text = `focus-${locale}-${theme}-${mode}`
+      await driver.request('Input.insertText', { text })
+      await until(async () => (await evaluate('terminalProbe.report()')).writes.some(w => w.id === target.id && w.data === text), 'input to selected pane')
+      assert(!(await evaluate('terminalProbe.report()')).writes.some(w => w.id !== target.id && w.data === text), 'Input reached another pane')
+      await settle()
+      assert.deepEqual(await panePositions(), before, 'Typing scrolled a pane frame or hid its header')
+      // Header, sidebar and the already selected layout must also preserve slots.
+      await driver.request('Input.dispatchMouseEvent', { type: 'mousePressed', x: before[0].x + 30, y: before[0].y + 15, button: 'left', clickCount: 1 })
+      await driver.request('Input.dispatchMouseEvent', { type: 'mouseReleased', x: before[0].x + 30, y: before[0].y + 15, button: 'left', clickCount: 1 })
+      await settle()
+      assert.equal(await evaluate('document.querySelector(".tile.is-active").dataset.sessionId'), before[0].id)
+      await click(`.session:nth-child(${ids.indexOf(target.id) + 1})`)
+      await click(`[data-testid="layout-${mode}"]`)
+      await settle()
+      assert.deepEqual(await panePositions(), before)
+      await screenshot(`focus-${locale}-${theme}-${mode}`)
+      const hidden = ids.find(id => !before.some(pane => pane.id === id))
+      await click(`.session:nth-child(${ids.indexOf(hidden) + 1})`)
+      await settle()
+      const next = await panePositions()
+      assert(next.some(pane => pane.id === hidden), 'Selecting a hidden session did not show it')
+      assert.equal(new Set(next.map(pane => pane.id)).size, before.length)
+      results.push({ label: `stable-focus-${locale}-${theme}-${mode}`, slots: before, active: target.id, hiddenSelection: hidden })
+    }
+  }
+  // Explicit Tile remains an intentional way to choose a new pair.
+  await click('.session:nth-child(5) .pin')
+  await settle()
+  assert.equal(await evaluate('document.querySelector(".tiles").dataset.layout'), 'split')
+  assert.deepEqual((await panePositions()).map(pane => pane.id), [ids[4], ids[0]])
+  results.push({ label: 'explicit-tile-pair', passed: true })
+  await click('[data-testid="layout-single"]')
+  await click('.session:nth-child(1)')
+  await click('[data-testid="layout-grid"]')
+  await settle()
   await evaluate(`globalThis.overlayStyle = document.createElement('style'); overlayStyle.textContent = '.xterm-viewport::-webkit-scrollbar { width: 0px; }'; document.head.append(overlayStyle)`)
   await settle()
   await checkGeometry('emulated-overlay-scrollbar')
@@ -207,7 +277,7 @@ try {
   await settle()
   await scroll('normal-buffer-restored')
   assert(await evaluate('originalTerminals.every(term => term.isConnected)'), 'Terminal remounted')
-  assert.equal((await evaluate('terminalProbe.report()')).subscriptions.length, 3, 'Terminal resubscribed')
+  assert.equal((await evaluate('terminalProbe.report()')).subscriptions.length, ids.length, 'Terminal resubscribed')
   assert((await evaluate('terminalProbe.report()')).resizes.every(r => r.cols > 1 && r.rows > 0), 'Zero-size PTY')
   await writeFile(path.join(root, 'report.json'), JSON.stringify({ platform: process.platform, results }, null, 2))
   console.log(JSON.stringify({ smoke: 'terminal-geometry-passed', platform: process.platform, root, scenarios: results.length }))

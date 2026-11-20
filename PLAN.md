@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento corrente:** M29 — Scorrimento e dimensionamento del terminale, avviata da Glauco il 20 novembre 2026 con assorbimento esplicito di M30. Branch locale `milestone/29-terminal-scrolling-sizing`, da main `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; identità privata e checkpoint remoto C28 `593394a79aadd0e5e33a9acc25962a99f421fc72` verificati. M30 non ha esecuzione, checkpoint o release separati; M31–M43 restano pianificate. Sorgenti 0.3.11, release patch proposta al controllo finale; nessun push o tag autorizzato da questo avvio.
+**Intervento corrente:** M29 — Scorrimento, dimensionamento e selezione del terminale, avviata da Glauco il 20 novembre 2026 con assorbimento esplicito di M30. Branch locale `milestone/29-terminal-scrolling-sizing`, da main `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; identità privata e checkpoint remoto C28 `593394a79aadd0e5e33a9acc25962a99f421fc72` verificati. M30 non ha esecuzione, checkpoint o release separati; M31–M43 restano pianificate. Sorgenti 0.3.11, release patch proposta al controllo finale; nessun push o tag autorizzato da questo avvio.
 
 **Ultima milestone pubblicata:** C28 chiusa e pubblicata il 19 novembre 2026 sul commit finale approvato `593394a79aadd0e5e33a9acc25962a99f421fc72`. [Release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10), ID `451478580`, pubblicata alle 15:46:28 (Europe/Rome), latest, non draft/non prerelease. Quattro binari e due manifest riscaricati e verificati; tag annotati `milestone/C28` e `v0.3.10` sul medesimo commit. PR #16 unita con fast-forward; Windows `44544442665`, macOS `44544449320` e Pages `44546246599` verdi. Branch milestone rimosso localmente e sul remoto dopo le verifiche. Il consuntivo documentale e i link della landing sono presenti nel main di partenza `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; nessuna modifica applicativa, incremento, tag o release aggiuntiva. M29 avviata il 20 novembre; M30 assorbita e M31–M43 non avviate.
 
@@ -24,6 +24,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [4.10 Verifiche C18](#410-verifiche-c18-già-m18--18-novembre-2026)
 - [4.11 Verifiche C28](#411-verifiche-c28-già-m28--19-novembre-2026)
 - [4.12 Verifiche locali M29](#412-verifiche-locali-m29-con-m30-assorbita--20-novembre-2026)
+- [4.13 Selezione stabile dei riquadri](#413-estensione-m29--selezione-stabile-dei-riquadri)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
 
 ### 1. Base e intervento corrente
@@ -239,7 +240,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | --- | --- | --- | --- | --- |
 | 1 | C18, già M18 — DevTools e demo solo fuori dal pacchetto | M18 | PC-10 / R11-04 | `v0.3.9` |
 | 2 | C28 — Risposte di controllo visibili nel prompt e in Codex CLI | Nuova | 0.3.8 #1–2 | `v0.3.10` |
-| 3 | M29 — Scorrimento e dimensionamento (assorbe M30) | Nuova | 0.3.8 #4 | `v0.3.11` |
+| 3 | M29 — Scorrimento, dimensionamento e selezione (assorbe M30) | Nuova | 0.3.8 #4 | `v0.3.11` |
 | — | M30 — Assorbita in M29 | Nuova | 0.3.8 #3 | Nessuna separata |
 | 4 | M31 — Finestra macOS trascinabile | M12 | Desktop | `v0.3.12` |
 | 5 | M32 — Polling dei processi figli su Windows | M15 | PC-06 | `v0.3.13` |
@@ -278,18 +279,19 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Checkpoint e versione previsti | `milestone/C28` e `v0.3.10` pubblicati e verificati su `593394a79aadd0e5e33a9acc25962a99f421fc72`; incremento `+0.0.1` e release patch per il bugfix confermati da Glauco. |
 | Stato | `C28`, già M28, chiusa e pubblicata sul commit finale approvato `593394a79aadd0e5e33a9acc25962a99f421fc72`. Windows: 474 test riusciti/4 POSIX saltati, PowerShell 5.1/7, full smoke, installer/portable/installata verificati; macOS: build e smoke nativi di scompattato/DMG/ZIP. Artifact/digest verificati; main, checkpoint, tag 0.3.10 e release pubblicati; branch milestone rimosso. Consuntivo e limiti in 4.11; M29–M43 non avviate. |
 
-| Campo | M29 — Scorrimento e dimensionamento del terminale (assorbe M30) |
+| Campo | M29 — Scorrimento, dimensionamento e selezione del terminale (assorbe M30) |
 | --- | --- |
-| Numero e obiettivo | M29 — Scorrimento disponibile dalla prima vista Una e testo contenuto nell’area utile, con due criteri di accettazione distinti. M30 è assorbita su richiesta esplicita di Glauco del 20 novembre 2026. |
+| Numero e obiettivo | M29 — Scorrimento disponibile dalla prima vista Una e testo contenuto nell’area utile, con criteri distinti per scorrimento, area utile e selezione. M30 è assorbita su richiesta esplicita di Glauco del 20 novembre 2026. |
 | Segnalazioni | Release 0.3.8, punti 3–4 del 18 novembre: barra inutilizzabile in Una finché non si cambia layout e testo sovrapposto alla barra, soprattutto in Codex CLI. |
 | Attività | Riprodurre sulla 0.3.10, distinguendo scrollback normale e buffer alternativo. Misurare celle, viewport, padding e dimensioni PTY; correggere il contenitore misurato da FitAddon senza ricreare i terminali C28. |
 | Accettazione — scorrimento | Con cronologia disponibile, rotella e trascinamento della barra funzionano dalla prima vista Una e dopo sessioni nascoste, cambi vista, font e resize. Nessuno scrollback applicativo aggiunto al buffer alternativo; capacità residua di xterm dopo resize registrata tra i limiti. |
 | Accettazione — area utile | Ultima colonna, cursore, selezione e righe lunghe/Unicode restano leggibili senza invadere la barra o tagliare celle. Dimensioni PTY coerenti nelle quattro viste; nessun resize a zero delle sessioni nascoste. |
-| Test richiesti | Regressione sul renderer Electron reale con bridge sintetico: geometria, rotella, trascinamento, sessione prima nascosta, quattro viste, IT/EN, temi, font, dimensioni desktop e DPI emulato, buffer normale/alternativo, regressione C28. Suite/build e pacchetto macOS ARM64 isolato; Windows x64 dopo approvazione del commit con workflow necessario. Mouse/trackpad fisici e Codex CLI reale vanno riportati come verificati o omessi. |
+| Accettazione — selezione | Richiesta aggiuntiva di Glauco del 20 novembre: in Affiancate, Incolonnate e Griglia attivare un riquadro visibile non cambia gruppo, posizione, dimensioni o titolo. Bordo attivo interno di 2 px senza resize PTY e tastiera solo sulla sessione scelta. Affiancate↔Incolonnate preserva coppia e ordine; scegliere una sessione nascosta o Affianca può cambiare il gruppo. |
+| Test richiesti | Regressione sul renderer Electron reale con bridge sintetico: geometria, rotella, trascinamento, sessione prima nascosta, quattro viste, IT/EN, temi, font, dimensioni desktop e DPI emulato, buffer normale/alternativo, regressione C28. Suite/build e pacchetto macOS ARM64 isolato; Windows x64 dopo approvazione del commit con workflow necessario. Include click/titoli/righe laterali, gruppo fermo, nessun resize al focus e destinazione della tastiera con cinque sessioni sintetiche. Mouse/trackpad fisici e Codex CLI reale vanno riportati come verificati o omessi. |
 | Documentazione | README, manuali IT/EN, quick start, MAP, PLAN, AGENTS e modello di sicurezza per confini della sonda; nessuna API di prova nel prodotto. |
 | Dipendenza e branch | C28 remoto verificato e avvio esplicito ricevuto; `milestone/29-terminal-scrolling-sizing`. M31 dipende da C29. Nessun C30 o tag versione separato per M30. |
 | Checkpoint e versione previsti | `milestone/C29`, sorgenti `0.3.11`; incremento `+0.0.1` e release patch da confermare al controllo. Le versioni successive restano indicative e scalano di una patch; numeri milestone invariati. |
-| Stato | `M29`, implementata e verificata localmente; pronta per il primo controllo del commit. Non approvata né pubblicata; Windows e prova personale pendenti. Esiti in 4.12. |
+| Stato | `M29`, implementata e verificata localmente; pronta per il primo controllo del commit. Non approvata né pubblicata; Windows e prova personale pendenti. Esiti in 4.12 e 4.13. |
 
 | Campo | M30 — Area utile del terminale: assorbita in M29 |
 | --- | --- |
@@ -794,6 +796,17 @@ Per una patch senza voce `M`, non inventare una milestone: si applicano congelam
 - [ ] Primo controllo personale dell’hash locale e conferma della release patch proposta 0.3.11; poi passaggio M29→C29 in nuovo commit e secondo controllo esplicito. Nessun push, merge, tag, release o rimozione del branch prima delle approvazioni e dei controlli richiesti. M31 non avviata.
 - [x] Evidenze e diff in `out/m29/`; cache, pacchetti e temporanei preservati. Nessuna cancellazione dei file dell’utente; eventuale pulizia richiede conferma separata.
 
+#### 4.13 Estensione M29 — selezione stabile dei riquadri
+
+Glauco ha riferito che la prima correzione provata con `npm run dev` funziona correttamente. Nella stessa sessione del 20 novembre 2026 ha richiesto di eliminare lo spostamento del riquadro cliccato in posizione principale e di evidenziare quello attivo. L’estensione resta in M29/0.3.11; il commit precedentemente congelato `c3ccde5530d350de670cf51375290ac2eff39bce` non è più il commit finale da approvare. Nessuna approvazione è presunta per le modifiche successive.
+
+- [x] Focus e ancoraggio del gruppo separati in `App`. Click sul contenuto, sul titolo o sulla riga di una sessione già visibile seleziona solo quella sessione, senza riordinare il gruppo. Affiancate↔Incolonnate conserva coppia, ordine e selezione. Selezione di una sessione nascosta e comando Affianca continuano a portarla in vista scegliendo un gruppo esplicito. Ancoraggio solo in memoria, nessun nuovo storage o IPC.
+- [x] Bordo attivo con outline interno di 2 px nel colore accent del tema, senza modificare dimensioni dei riquadri o inviare resize alla PTY. Il telaio usa `overflow: clip`: la prova estesa ha riprodotto uno scorrimento involontario di 123,5 px del telaio durante la digitazione nel campo nascosto di xterm, che poteva nascondere il titolo. Il telaio non è più uno scroll container; la viewport del terminale conserva la propria cronologia scorrevole.
+- [x] Regressione estesa a cinque sessioni sintetiche, così la Griglia ha quattro riquadri pieni e una sessione nascosta. 183 scenari sul renderer compilato riusciti: posizioni e titoli invariati al click e alla digitazione, bordo senza resize, input solo alla sessione scelta, header e sidebar, cambio Affiancate↔Incolonnate, pulsante del layout già selezionato, selezione nascosta e Affianca. IT/EN e chiaro/scuro verificati, oltre alla matrice geometrica precedente. La fixture C28 mantiene tre sessioni per default e la sua regressione è riuscita.
+- [x] Suite finale 475 riusciti/3 saltati per gli stessi limiti della sezione 4.12; build riuscita con avviso bundle noto. Manuali IT/EN, README, quick start, MAP, AGENTS e modello aggiornati per posizione, bordo e stato del gruppo. Versione 0.3.11 invariata, nessuna nuova dipendenza.
+- [x] Anche i 183 scenari sul renderer dell’ASAR finale sono riusciti. Nuovi DMG/ZIP in `/private/tmp/plancia-m29-focus-packages-UrGBCN`, ispezione e smoke dei formati riusciti, uscita e smontaggio verificati; SHA-256 riletti. Per il confronto è stata creata una copia byte-identica dei sette file compilati escludendo solo `.DS_Store`, metadato Finder locale assente dal pacchetto: originale preservato. Evidenze in `out/m29/focus/`. I pacchetti della prima implementazione restano preservati separatamente.
+- [ ] Nuovo primo controllo del commit finale, prova personale dell’estensione, Windows x64 e pubblicazione ancora pendenti secondo la procedura di revisione. M29 resta M; M31 non avviata. Nessun push, merge, tag, release o rimozione di branch eseguito.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -802,7 +815,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work:** M29 — Terminal scrolling and sizing, started by Glauco on 20 November 2026 with M30 explicitly absorbed. Local branch `milestone/29-terminal-scrolling-sizing`, from main `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; private identity and remote C28 checkpoint `593394a79aadd0e5e33a9acc25962a99f421fc72` verified. M30 has no separate execution, checkpoint or release; M31–M43 remain planned. Source 0.3.11, patch release proposed at final review; this kickoff authorizes no push or tags.
+**Current work:** M29 — Terminal scrolling, sizing and selection, started by Glauco on 20 November 2026 with M30 explicitly absorbed. Local branch `milestone/29-terminal-scrolling-sizing`, from main `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; private identity and remote C28 checkpoint `593394a79aadd0e5e33a9acc25962a99f421fc72` verified. M30 has no separate execution, checkpoint or release; M31–M43 remain planned. Source 0.3.11, patch release proposed at final review; this kickoff authorizes no push or tags.
 
 **Last published milestone:** C28 closed and published on 19 November 2026 at final approved commit `593394a79aadd0e5e33a9acc25962a99f421fc72`. [Release 0.3.10](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.10), ID `451478580`, published at 15:46:28 (Europe/Rome), latest, neither draft nor prerelease. Four binaries and two manifests downloaded again and verified; annotated `milestone/C28` and `v0.3.10` tags at the same commit. PR #16 fast-forward merged; Windows `44544442665`, macOS `44544449320` and Pages `44546246599` green. Milestone branch removed locally and remotely after checks. The documentation closeout and landing links are present in baseline main `7207423cebd3bbe26c8c48e325c08ea23e2d3ed9`; no application change, extra increment, tag or release. M29 started on 20 November; M30 absorbed and M31–M43 not started.
 
@@ -824,6 +837,7 @@ This plan records the existing Plancia Comandi baseline and future work. Publish
 - [4.10 C18 verification](#410-c18-verification-formerly-m18--18-november-2026)
 - [4.11 C28 checks](#411-c28-checks-formerly-m28--19-november-2026)
 - [4.12 Local M29 checks](#412-local-m29-checks-with-m30-absorbed--20-november-2026)
+- [4.13 Stable pane selection](#413-m29-extension--stable-pane-selection)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
 
 ### 1. Baseline and current work
@@ -1039,7 +1053,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | --- | --- | --- | --- | --- |
 | 1 | C18, formerly M18 — DevTools and demo only outside the package | M18 | PC-10 / R11-04 | `v0.3.9` |
 | 2 | C28 — Control replies visible in the shell prompt and Codex CLI | New | 0.3.8 #1–2 | `v0.3.10` |
-| 3 | M29 — Scrolling and sizing (absorbs M30) | New | 0.3.8 #4 | `v0.3.11` |
+| 3 | M29 — Scrolling, sizing and selection (absorbs M30) | New | 0.3.8 #4 | `v0.3.11` |
 | — | M30 — Absorbed into M29 | New | 0.3.8 #3 | No separate release |
 | 4 | M31 — Draggable macOS window | M12 | Desktop | `v0.3.12` |
 | 5 | M32 — Windows child-process polling | M15 | PC-06 | `v0.3.13` |
@@ -1078,18 +1092,19 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Planned checkpoint and version | `milestone/C28` and `v0.3.10` published and verified at `593394a79aadd0e5e33a9acc25962a99f421fc72`; `+0.0.1` increment and patch release for the bugfix confirmed by Glauco. |
 | Status | `C28`, formerly M28, closed and published at final approved commit `593394a79aadd0e5e33a9acc25962a99f421fc72`. Windows: 474 tests passed/4 POSIX skips, PowerShell 5.1/7, full smoke, verified installer/portable/installed app; macOS: native build/smoke of unpacked/DMG/ZIP. Artifacts/digests verified; main, checkpoint, 0.3.10 tag and release published; milestone branch removed. Closeout and limits in 4.11; M29–M43 not started. |
 
-| Field | M29 — Terminal scrolling and sizing (absorbs M30) |
+| Field | M29 — Terminal scrolling, sizing and selection (absorbs M30) |
 | --- | --- |
-| Number and goal | M29 — Scrolling from the first One view and text contained within the display area, with two separate acceptance criteria. M30 absorbed at Glauco’s explicit request on 20 November 2026. |
+| Number and goal | M29 — Scrolling from the first One view and text contained within the display area, with separate criteria for scrolling, display area and selection. M30 absorbed at Glauco’s explicit request on 20 November 2026. |
 | Reports | Release 0.3.8, items 3–4 of 18 November: unusable scrollbar in One until a layout change, and text overlapping the bar, especially in Codex CLI. |
 | Tasks | Reproduce on 0.3.10, distinguishing normal scrollback and the alternate buffer. Measure cells, viewport, padding and PTY dimensions; correct the parent measured by FitAddon without recreating C28 terminals. |
 | Acceptance — scrolling | With history available, wheel and thumb dragging work from the first One view and after hidden sessions, view/font changes and resizing. No application scrollback added to the alternate buffer; xterm capacity retained after resizing recorded among limitations. |
 | Acceptance — display area | Last column, cursor, selection and long/Unicode lines remain readable without overlapping the bar or clipping cells. Consistent PTY dimensions in all four views; no zero-size hidden-session resize. |
-| Required tests | Real Electron renderer regression with synthetic bridge: geometry, wheel, thumb dragging, previously hidden session, four views, IT/EN, themes, fonts, desktop sizes and emulated DPI, normal/alternate buffers, C28 regression. Suite/build and isolated macOS ARM64 package; Windows x64 through the necessary workflow after commit approval. Physical mouse/trackpad and real Codex CLI checks must be recorded as run or omitted. |
+| Acceptance — selection | Glauco’s additional request on 20 November: in Side by side, Stacked and Grid, activating a visible pane preserves its group, position, size and title. Internal 2 px active outline without a PTY resize; keyboard input only to the selected session. Side by side↔Stacked preserves the pair and order; selecting a hidden session or Tile can change the group. |
+| Required tests | Real Electron renderer regression with synthetic bridge: geometry, wheel, thumb dragging, previously hidden session, four views, IT/EN, themes, fonts, desktop sizes and emulated DPI, normal/alternate buffers, C28 regression. Suite/build and isolated macOS ARM64 package; Windows x64 through the necessary workflow after commit approval. Includes content/header/sidebar clicks, stable groups, no focus resize and keyboard destination with five synthetic sessions. Physical mouse/trackpad and real Codex CLI checks must be recorded as run or omitted. |
 | Documentation | README, IT/EN manuals, quick start, MAP, PLAN, AGENTS and security model for probe boundaries; no product test API. |
 | Dependency and branch | Remote C28 verified and explicit kickoff received; `milestone/29-terminal-scrolling-sizing`. M31 depends on C29. No separate C30 or version tag for M30. |
 | Planned checkpoint and version | `milestone/C29`, source `0.3.11`; increment `+0.0.1` and patch release to confirm at review. Subsequent versions stay indicative and shift down one patch; milestone numbers stay unchanged. |
-| Status | `M29`, implemented and locally verified; ready for first commit review. Neither approved nor published; Windows and personal checks pending. Results in 4.12. |
+| Status | `M29`, implemented and locally verified; ready for first commit review. Neither approved nor published; Windows and personal checks pending. Results in 4.12 and 4.13. |
 
 | Field | M30 — Terminal display area: absorbed into M29 |
 | --- | --- |
@@ -1593,6 +1608,17 @@ For a patch without an `M` entry, do not invent a milestone: freezing, final-com
 - [ ] Physical mouse/trackpad, real Codex CLI, Windows x64 and PowerShell 5.1/7: not run on this Mac. DPI/overlay are emulated. Windows requires the existing workflow after hash approval; macOS CI is unnecessary because local native packaging/smoke is available. Linux, Intel macOS and Gatekeeper quarantine unverified.
 - [ ] First personal review of the local hash and confirmation of proposed patch release 0.3.11; then M29→C29 in a new commit and a second explicit review. No push, merge, tags, release or branch removal before required approvals/checks. M31 not started.
 - [x] Evidence and diff in `out/m29/`; cache, packages and temporary files retained. No user files deleted; cleanup requires separate confirmation.
+
+#### 4.13 M29 extension — stable pane selection
+
+Glauco reported that the first fix tested with `npm run dev` works correctly. In the same session on 20 November 2026 he requested removing the clicked pane’s promotion to the primary position and highlighting the active one. This extension stays in M29/0.3.11; previously frozen commit `c3ccde5530d350de670cf51375290ac2eff39bce` is no longer the final commit for approval. No approval is presumed for subsequent changes.
+
+- [x] Focus and group anchor separated in `App`. Clicking content, title or sidebar row of an already visible session selects only that session, without reordering the group. Side by side↔Stacked preserves pair, order and selection. Selecting a hidden session and Tile still bring it into view by explicitly choosing a group. Anchor kept in memory only, no new storage or IPC.
+- [x] Active pane uses an internal 2 px outline in the theme’s accent color, without changing pane dimensions or sending a PTY resize. Its frame uses `overflow: clip`: the extended probe reproduced 123.5 px of unintended frame scrolling while typing into xterm’s hidden input, potentially hiding the title. The frame is no longer a scroll container; the terminal viewport retains its scrollable history.
+- [x] Regression extended to five synthetic sessions, giving Grid four filled panes and one hidden session. 183 scenarios passed on the built renderer: positions/titles unchanged on click and typing, border without resize, input only to the selected session, headers/sidebar, Side by side↔Stacked, clicking the current layout button, hidden selection and Tile. IT/EN and light/dark checked, plus the previous geometry matrix. The C28 fixture keeps three sessions by default and its regression passed.
+- [x] Final suite 475 passed/3 skipped for the same limitations as 4.12; build passed with the known bundle warning. IT/EN manuals, README, quick start, MAP, AGENTS and model updated for position, border and group state. Version 0.3.11 unchanged, no new dependency.
+- [x] The 183 scenarios also passed on the final ASAR renderer. New DMG/ZIP in `/private/tmp/plancia-m29-focus-packages-UrGBCN`, successful format inspection/smoke, verified exit and detachment; SHA-256 read back. Comparison used a byte-identical copy of seven built files excluding only `.DS_Store`, local Finder metadata absent from the package: original retained. Evidence in `out/m29/focus/`. First-implementation packages remain preserved separately.
+- [ ] Renewed first review of the final commit, personal test of the extension, Windows x64 and publication remain pending under the review procedure. M29 remains M; M31 not started. No push, merge, tags, release or branch deletion performed.
 
 ### 5. Versions, CI and distribution
 

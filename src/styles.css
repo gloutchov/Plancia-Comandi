@@ -354,11 +354,16 @@ button {
   background: var(--term-bg);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  overflow: hidden;
+  /* The hidden xterm input must not scroll the pane frame when typing. */
+  overflow: clip;
   box-shadow: var(--shadow);
 }
 
-.tile.is-active { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.tile.is-active {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 .tile[hidden] { display: none; }
 
 .tile-bar {

@@ -8,7 +8,9 @@ for (const [name, dir] of Object.entries({ home: 'home', appData: 'app-data', us
 app.commandLine.appendSwitch('remote-debugging-address', '127.0.0.1')
 app.commandLine.appendSwitch('remote-debugging-port', port)
 const query = '\x1b[c\x1b]10;?\x07\x1b]11;?\x1b\\'
-const sessions = [1, 2, 3].map(index => ({
+// Geometry/focus smoke also covers a full grid and a session outside that grid.
+const sessionCount = process.argv[5] === '5' ? 5 : 3
+const sessions = Array.from({ length: sessionCount }, (_, i) => i + 1).map(index => ({
   id: `00000000-0000-4000-8000-00000000000${index}`, index, name: `Synthetic ${index}`,
   autoName: false, shellId: 'synthetic', labelKey: 'shellPowerShell', cwd: root,
   pid: null, phase: 'idle', reason: 'quiet', badge: false, exitCode: null, createdAt: 0,

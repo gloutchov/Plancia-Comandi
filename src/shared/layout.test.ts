@@ -39,7 +39,7 @@ describe('layout availability', () => {
 })
 
 describe('selectVisibleSessions', () => {
-  it('starts at the focused session and wraps without repeating', () => {
+  it('starts at the view anchor and wraps without repeating', () => {
     expect(selectVisibleSessions(ids, 'c', layoutCapacity('split'))).toEqual(['c', 'd'])
     expect(selectVisibleSessions(ids, 'e', layoutCapacity('stack'))).toEqual(['e', 'a'])
     expect(selectVisibleSessions(ids, 'd', layoutCapacity('grid'))).toEqual(['d', 'e', 'a', 'b'])
@@ -49,7 +49,7 @@ describe('selectVisibleSessions', () => {
     expect(selectVisibleSessions(['a', 'b', 'c'], 'b', 4)).toEqual(['b', 'c', 'a', null])
   })
 
-  it('fills a single pane with the focused session', () => {
+  it('fills a single pane with the supplied session', () => {
     expect(selectVisibleSessions(ids, 'b', 1)).toEqual(['b'])
     expect(selectVisibleSessions(ids, 'missing', 1)).toEqual(['a'])
     expect(selectVisibleSessions([], 'a', 4)).toEqual([null, null, null, null])

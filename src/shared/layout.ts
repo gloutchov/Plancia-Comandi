@@ -43,13 +43,13 @@ export function nextLayout(current: LayoutMode, sessionCount: number): LayoutMod
 }
 
 /**
- * Panes start at the focused session and continue in sidebar order, wrapping
+ * Panes start at the view anchor and continue in sidebar order, wrapping
  * to the top of the list. A session is never repeated. Slots that cannot be
  * filled are null: with three sessions the 2×2 grid leaves the fourth pane empty.
  */
 export function selectVisibleSessions(
   orderedIds: readonly string[],
-  focusedId: string | null,
+  anchorId: string | null,
   capacity: number,
 ): Array<string | null> {
   if (capacity <= 0) return []
@@ -58,7 +58,7 @@ export function selectVisibleSessions(
     while (slots.length < capacity) slots.push(null)
     return slots
   }
-  const start = focusedId ? orderedIds.indexOf(focusedId) : 0
+  const start = anchorId ? orderedIds.indexOf(anchorId) : 0
   const origin = start >= 0 ? start : 0
   const seen = new Set<string>()
   for (let step = 0; step < orderedIds.length && slots.length < capacity; step += 1) {
