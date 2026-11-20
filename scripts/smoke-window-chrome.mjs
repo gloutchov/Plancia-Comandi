@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { connectProtocol, prepareIsolatedSmokeRoot } from './smoke-driver.mjs'
+import { assertWindowChromeRegions } from './window-chrome-regions.mjs'
 
 // External fixture only: CSS/interaction regression does not prove native movement.
 // --interactive keeps the isolated window open for physical/native input testing;
@@ -18,7 +19,7 @@ const positional = args.filter(arg => arg !== '--interactive')
 assert(positional.length <= 2, 'Usage: node scripts/smoke-window-chrome.mjs [built-project] [renderer-or-app.asar] [--interactive]')
 const project = path.resolve(positional[0] ?? '.')
 const rendererPath = path.resolve(positional[1] ?? project)
-const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-window-chrome-'))
+const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-window-chrome-'))
 const { env } = await prepareIsolatedSmokeRoot(root)
 const server = net.createServer()
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
@@ -71,15 +72,7 @@ try {
           terminals: [...document.querySelectorAll('.term-host')].map(region),
           sessions: [...document.querySelectorAll('.session')].map(region) };
       })()`)
-      assert.equal(regions.platform, process.platform)
-      assert.equal(regions.toolbar, process.platform === 'darwin' ? 'drag' : 'none')
-      if (process.platform === 'darwin') {
-        assert.equal(regions.title, 'drag')
-        assert.equal(regions.group, 'no-drag')
-      }
-      assert(regions.buttons.every(region => region === 'no-drag'))
-      assert(regions.terminals.every(region => region !== 'drag'))
-      assert(regions.sessions.every(region => region !== 'drag'))
+      assertWindowChromeRegions(regions, process.platform)
       // Check logical controls as well; native pointer exclusion is checked separately.
       await evaluate('document.querySelector("[data-testid=layout-split]").click()')
       await settle()
