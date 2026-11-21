@@ -30,6 +30,7 @@ Plancia-Comandi/
 |-- .gitignore                       Esclusioni per output, dipendenze, log, ambienti e chiavi private
 |-- electron-builder.json5           Target e contenuti dei pacchetti
 |-- vite.config.ts                   Server locale, CSP di sviluppo e bundle main/preload/renderer
+|-- vite.site.config.ts              Anteprima landing separata da plugin e CSP Electron
 |-- vitest.config.ts                 Unit test in ambiente Node
 |-- tsconfig.json                    Controllo TypeScript applicativo
 |-- tsconfig.node.json               Configurazione TypeScript per Vite
@@ -140,6 +141,7 @@ Plancia-Comandi/
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
 |   |-- check-site.mjs                Controllo landing, CNAME/metadati, dizionari, risorse, CSP e link
+|   |-- site-releases.test.ts        Test metadati latest, errori, limiti e fallback della landing
 |   |-- site-preferences.test.ts      Test di lingua, tema, storage bloccato e valori invalidi
 |   |-- inspect-package.mjs          Confronto bundle ASAR, contenuti distribuiti e hash di conpty.dll e OpenConsole.exe
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
@@ -205,6 +207,7 @@ Plancia-Comandi/
     |-- site.css                     Layout responsive, temi e controlli accessibili
     |-- preferences.js               Lingua e tema prima del primo rendering
     |-- i18n.js                      Dizionari della landing IT/EN
+    |-- releases.js                  Metadati pubblici latest limitati e stato sicuro dei download
     |-- site.js                      Galleria, traduzioni, link al manuale e comandi
     |-- .nojekyll                    Pubblicazione statica senza trasformazioni Jekyll
     |-- assets/
@@ -245,6 +248,8 @@ Il workflow Windows manuale esegue la suite completa, inclusi i confronti nativi
 La landing elenca le shell per piattaforma, compresa fish, con testi IT/EN in `i18n.js` e layout responsivo in `site.css`.
 
 La landing è indipendente dalla UI Electron: `preferences.js` applica lingua e tema prima del primo rendering; gli script classici differiti caricano `i18n.js` prima di `site.js` per testi, attributi e galleria, anche nell'apertura diretta dell'HTML. Le due chiavi di localStorage appartengono al sito e non a `settings.json`. Il controllo strutturale verifica anche sintassi e riferimenti agli elementi della UI.
+
+La landing segue automaticamente l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): legge solo i metadati pubblici GitHub all’apertura e aggiorna insieme versione, quattro pacchetti e due checksum. Se la richiesta fallisce o JavaScript è disabilitato, i collegamenti aprono la pagina dell’ultima release. Non servono account o credenziali; non vengono inviati contenuti dei terminali. L’anteprima usa `vite.site.config.ts`, separata dalla configurazione Electron.
 
 La UI non importa `node-pty` né accede direttamente al filesystem. I dizionari condivisi mantengono le chiavi inglesi allineate a quelle italiane tramite TypeScript. La schermata di avvio usa il dizionario italiano finché le preferenze non sono caricate; la lingua iniziale è rilevata da M33, mentre le altre parti di P2 restano proposte. `src/shared/csp.ts` descrive la policy del renderer; Vite la inietta nell'HTML e il main la ripete sugli header delle risposte dell'app. `src/shared/legacyIpc.ts` decide se un messaggio precedente a M1 può raggiungere sessioni, impostazioni, dialoghi o la shell. La mappa delle responsabilità non implica che tutti i confini di sicurezza siano completi: vedere [SECURITY_MODEL.md](SECURITY_MODEL.md).
 
@@ -330,6 +335,7 @@ Plancia-Comandi/
 |-- .gitignore                       Output, dependency, log, environment and private-key exclusions
 |-- electron-builder.json5           Package targets and contents
 |-- vite.config.ts                   Local server, development CSP and main/preload/renderer bundles
+|-- vite.site.config.ts              Static landing preview, isolated from Electron plugins and CSP
 |-- vitest.config.ts                 Unit tests in a Node environment
 |-- tsconfig.json                    Application TypeScript checking
 |-- tsconfig.node.json               TypeScript configuration for Vite
@@ -440,6 +446,7 @@ Plancia-Comandi/
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
 |   |-- check-site.mjs                Landing, CNAME/metadata, dictionary, resource, CSP and link checks
+|   |-- site-releases.test.ts        Latest metadata validation, errors, bounds and fallback tests
 |   |-- site-preferences.test.ts      Language, theme, blocked storage and invalid-value tests
 |   |-- inspect-package.mjs          ASAR bundle, distributed contents and conpty.dll plus OpenConsole.exe hashes
 |   |-- install-native.d.mts        Types for the script, used by the tests
@@ -505,6 +512,7 @@ Plancia-Comandi/
     |-- site.css                     Responsive layout, themes and accessible controls
     |-- preferences.js               Language and theme before first paint
     |-- i18n.js                      IT/EN landing dictionaries
+    |-- releases.js                  Bounded public latest-release metadata and safe download state
     |-- site.js                      Gallery, translations, manual links and controls
     |-- .nojekyll                    Static publication without Jekyll transformation
     |-- assets/
@@ -545,6 +553,8 @@ The manual Windows workflow runs the full suite, including native PowerShell 5.1
 The landing lists shells by platform, including fish, with IT/EN text in `i18n.js` and responsive layout in `site.css`.
 
 The landing is independent of the Electron UI: `preferences.js` applies language and theme before first paint; deferred classic scripts load `i18n.js` before `site.js` for text, attributes and the gallery, including when opening the HTML directly. Its two localStorage keys belong to the site rather than `settings.json`. The structural check also validates syntax and references to UI elements.
+
+The landing automatically follows the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): it reads only public GitHub metadata on page load and updates the version, four packages and two checksums together. If the request fails or JavaScript is disabled, links open the latest release page. No account or credentials are needed; terminal contents are not sent. Preview uses `vite.site.config.ts`, separate from the Electron configuration.
 
 UI does not import `node-pty` or directly access the filesystem. Shared dictionaries use TypeScript to align English keys with Italian ones. The startup screen uses the Italian dictionary until preferences load; M33 detects the initial language, while other P2 work remains proposed. `src/shared/csp.ts` describes the renderer policy; Vite injects it into the HTML and main repeats it on the app response headers. `src/shared/legacyIpc.ts` decides whether a pre-M1 message may reach sessions, settings, dialogs or the shell. Responsibility separation does not mean all security boundaries are complete: see [SECURITY_MODEL.md](SECURITY_MODEL.md).
 

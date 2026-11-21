@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "preview:site": "vite preview --outDir docs --base=/Plancia-Comandi/ --host 127.0.0.1 --port 4174 --strictPort",
+    "preview:site": "vite preview --config vite.site.config.ts --outDir docs",
     "check:site": "node scripts/check-site.mjs",
     "dist": "vite build && electron-builder",
     "dist:mac": "vite build && electron-builder --mac",

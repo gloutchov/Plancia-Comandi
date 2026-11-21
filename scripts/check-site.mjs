@@ -28,15 +28,16 @@ for (const [, value] of html.matchAll(/\b(?:src|href)="([^"]+)"/g)) {
   assert(new URL(value, 'http://127.0.0.1:4174/Plancia-Comandi/').pathname.startsWith('/Plancia-Comandi/'))
   localResources++
 }
-for (const name of ['site.js', 'preferences.js', 'i18n.js']) {
+for (const name of ['site.js', 'preferences.js', 'i18n.js', 'releases.js']) {
   const source = fs.readFileSync(path.join(site, name), 'utf8')
   new vm.Script(source, { filename: name })
-  assert(!/\b(?:eval|fetch)\s*\(|\binnerHTML\b/.test(source), `${name}: unexpected remote or HTML execution`)
+  assert(!/\beval\s*\(|\binnerHTML\b/.test(source), `${name}: unexpected HTML execution`)
+  if (name !== 'releases.js') assert(!/\bfetch\s*\(/.test(source), `${name}: unexpected remote request`)
   for (const [, id] of source.matchAll(/document\.querySelector\(['"]#([^'"]+)['"]\)/g)) assert(ids.includes(id), `${name}: missing UI element #${id}`)
 }
-assert.match(html, /<script defer src="\.\/i18n\.js"><\/script>\s*<script defer src="\.\/site\.js"><\/script>/, 'Load dictionaries before controls, including file previews')
+assert.match(html, /<script defer src="\.\/i18n\.js"><\/script>\s*<script defer src="\.\/releases\.js"><\/script>\s*<script defer src="\.\/site\.js"><\/script>/, 'Load dictionaries and release state before controls, including file previews')
 assert(!/\bon\w+\s*=|<script\b(?![^>]*\bsrc=)/i.test(html), 'Unexpected inline script or handler')
-assert(html.includes("connect-src 'none'"))
+assert.equal(/connect-src ([^;"\n]+)/.exec(html)?.[1], 'https://api.github.com', 'Allow only the public GitHub API for release metadata')
 assert(html.includes("script-src 'self'"))
 assert(fs.existsSync(path.join(site, '.nojekyll')))
 const cnamePath = path.join(site, 'CNAME')
@@ -53,12 +54,13 @@ for (const locale of ['it', 'en']) {
 for (const name of ['icon.png', 'icon.ico']) assert.deepEqual(fs.readFileSync(path.join(site, 'assets', name)), fs.readFileSync(path.join(root, 'build', name)))
 for (const locale of ['it', 'en']) for (const view of ['dark', 'light', 'settings']) assert(fs.statSync(path.join(site, 'screenshots', `plancia-${view}${locale === 'en' ? '-en' : ''}.png`)).isFile())
 
-const release = /data-release="([^"]+)"/.exec(html)?.[1]
-assert.match(release, /^\d+\.\d+\.\d+$/)
-const downloads = [...html.matchAll(/href="(https:\/\/github\.com\/gloutchov\/Plancia-Comandi\/releases\/download\/[^\"]+)"/g)].map(m => m[1])
+const release = /data-release-source="([^"]+)"/.exec(html)?.[1]
+assert.equal(release, 'github-latest')
+const latest = 'https://github.com/gloutchov/Plancia-Comandi/releases/latest'
+const downloads = [...html.matchAll(/href="([^"]+)" data-download="([^"]+)"/g)]
 assert.equal(downloads.length, 6)
-for (const url of downloads) assert(url.includes(`/v${release}/`), 'Release URL version differs')
-assert.equal(downloads.filter(url => url.endsWith('.exe')).length, 2)
-assert.equal(downloads.filter(url => url.endsWith('.dmg') || url.endsWith('.zip')).length, 2)
-assert.equal(downloads.filter(url => /SHA256SUMS-.*\.txt$/.test(url)).length, 2)
-console.log(JSON.stringify({ site: 'passed', release, publication, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'classic script syntax and order', 'UI element references', 'local scripts/styles', 'CSP', 'no inline handlers', 'publication metadata', 'canonical icons', 'IT/EN parity'] }))
+assert.deepEqual(downloads.map(match => match[2]).sort(), ['macChecksums', 'macDmg', 'macZip', 'windowsChecksums', 'windowsPortable', 'windowsSetup'].sort())
+for (const [, url] of downloads) assert.equal(url, latest, 'No-JavaScript fallback must follow latest')
+assert(!/releases\/(?:tag|download)\/v\d/.test(html), 'Landing must not pin a release')
+assert(html.includes(`class="release-link" href="${latest}"`))
+console.log(JSON.stringify({ site: 'passed', release, publication, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'classic script syntax and order', 'UI element references', 'local scripts/styles', 'GitHub-only metadata CSP', 'latest release fallback', 'no inline handlers', 'publication metadata', 'canonical icons', 'IT/EN parity'] }))

@@ -2,11 +2,13 @@
 
 ## Italiano
 
+Per i pacchetti usa la landing o l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): versione e download della landing si aggiornano dai metadati pubblici GitHub; senza JavaScript o API disponibili si apre la pagina latest.
+
 C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows e lingua iniziale: italiano per la prima lingua preferita italiana, inglese altrimenti; una scelta salvata prevale. Per aggiornare senza duplicare l’app vedi [pacchetti e aggiornamento](ISTRUZIONI.md#23-pacchetti-compilati). [Download e SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verificati; controllo visivo nativo Windows rimandato con autorizzazione e dichiarato nelle note.
 
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
-Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.14** (M32; release pubblicata 0.3.13). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.14** (release C32 pubblicata). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. I menu seguono subito la lingua IT/EN scelta nell’app; i contenuti di Servizi e i dialoghi di macOS restano gestiti dal sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
@@ -58,11 +60,13 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
+For packages, use the landing or the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): landing version/downloads update from public GitHub metadata; without JavaScript or an available API, links open the latest page.
+
 C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon resource and initial language: Italian for a primary preferred Italian language, English otherwise; a saved choice takes precedence. To update without duplicate apps see [packages and updating](INSTRUCTIONS.md#23-prebuilt-packages). [Downloads and SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verified; native Windows visual checks explicitly deferred and disclosed in the notes.
 
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.14** source (M32; published release 0.3.13). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.14** (published C32 release). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. Menus immediately follow the IT/EN language chosen in the app; Services contents and macOS dialogs remain managed by the system. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 

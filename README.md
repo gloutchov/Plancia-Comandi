@@ -2,19 +2,21 @@
 
 ## Italiano
 
-Nei sorgenti **M32/0.3.14** il rilevamento dei processi figli condivide le interrogazioni, rispetta l’intervallo anche aprendo nuove sessioni e attende progressivamente dopo gli errori. Dopo tre errori compare un avviso IT/EN; input e altri segnali di stato restano attivi e il recupero è automatico. I quattro parametri `childPolling` sono nel file centrale. La release pubblicata resta **0.3.13** fino al completamento delle verifiche e delle approvazioni M32.
+Nella release **C32/0.3.14** il rilevamento dei processi figli condivide le interrogazioni, rispetta l’intervallo anche aprendo nuove sessioni e attende progressivamente dopo gli errori. Dopo tre errori compare un avviso IT/EN; input e altri segnali di stato restano attivi e il recupero è automatico. I quattro parametri `childPolling` sono nel file centrale. La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) è pubblicata con pacchetti Windows x64/macOS ARM64 e SHA-256 verificati.
 
-La release **0.3.13** completa C33, con M34/M35 assorbite: nome installato **Plancia Comandi**, risorsa ICO ufficiale per la finestra Windows e lingua iniziale dal sistema, con preferenze salvate conservate. Pacchetti Windows x64/macOS ARM64 e checksum verificati; controllo visivo nativo Windows rimandato con autorizzazione e dichiarato nelle note.
+La landing segue automaticamente l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): legge solo i metadati pubblici GitHub all’apertura e aggiorna insieme versione, quattro pacchetti e due checksum. Se la richiesta fallisce o JavaScript è disabilitato, i collegamenti aprono la pagina dell’ultima release. Non servono account o credenziali; non vengono inviati contenuti dei terminali. L’anteprima usa `vite.site.config.ts`, separata dalla configurazione Electron.
+
+La precedente release **0.3.13** completa C33, con M34/M35 assorbite: nome installato **Plancia Comandi**, risorsa ICO ufficiale per la finestra Windows e lingua iniziale dal sistema, con preferenze salvate conservate. Pacchetti Windows x64/macOS ARM64 e checksum verificati; controllo visivo nativo Windows rimandato con autorizzazione e dichiarato nelle note.
 
 Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle viste cliccabili e i menu coerenti con la lingua IT/EN dell’app, senza Reload, Force Reload o Toggle Developer Tools.
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Sorgenti 0.3.14 (M32) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) include C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
+**Versione 0.3.14 (C32) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) include C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -188,15 +190,17 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-In **M32/0.3.14 source**, child-process detection shares queries, respects the interval even when opening sessions and backs off after errors. Three failures show an IT/EN warning; input and other status signals stay active, with automatic recovery. The four `childPolling` parameters live in the central file. The published release remains **0.3.13** until M32 checks and approvals are complete.
+In **C32/0.3.14**, child-process detection shares queries, respects the interval even when opening sessions and backs off after errors. Three failures show an IT/EN warning; input and other status signals stay active, with automatic recovery. The four `childPolling` parameters live in the central file. [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) is published with verified Windows x64/macOS ARM64 packages and SHA-256.
 
-Release **0.3.13** completes C33, absorbing M34/M35: installed name **Plancia Comandi**, official ICO resource for the Windows window and initial system language, preserving saved preferences. Windows x64/macOS ARM64 packages and checksums verified; native Windows visual checks explicitly deferred and disclosed in the notes.
+The landing automatically follows the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): it reads only public GitHub metadata on page load and updates the version, four packages and two checksums together. If the request fails or JavaScript is disabled, links open the latest release page. No account or credentials are needed; terminal contents are not sent. Preview uses `vite.site.config.ts`, separate from the Electron configuration.
+
+Previous release **0.3.13** completes C33, absorbing M34/M35: installed name **Plancia Comandi**, official ICO resource for the Windows window and initial system language, preserving saved preferences. Windows x64/macOS ARM64 packages and checksums verified; native Windows visual checks explicitly deferred and disclosed in the notes.
 
 Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN language are preserved, without Reload, Force Reload or Toggle Developer Tools.
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source 0.3.14 (M32) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) includes C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
+**Version 0.3.14 (C32) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) includes C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 

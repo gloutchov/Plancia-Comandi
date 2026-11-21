@@ -33,7 +33,10 @@
     for (const node of document.querySelectorAll('[data-copy]')) node.textContent = text[node.dataset.copy]
     for (const node of document.querySelectorAll('[data-label]')) node.setAttribute('aria-label', text[node.dataset.label])
     for (const node of document.querySelectorAll('[data-title]')) node.title = text[node.dataset.title]
-    for (const node of document.querySelectorAll('[data-version]')) node.textContent = document.documentElement.dataset.release
+    const release = window.planciaSiteRelease.getState()
+    for (const node of document.querySelectorAll('[data-version]')) node.textContent = release.version || text['release.latest']
+    for (const link of document.querySelectorAll('[data-download]')) link.href = release.downloads[link.dataset.download]
+    document.querySelector('#release-status').textContent = text[release.status === 'fallback' ? 'release.fallback' : 'release.current']
     for (const button of document.querySelectorAll('[data-language]')) button.setAttribute('aria-pressed', String(button.dataset.language === locale))
     const themeButton = document.querySelector('#theme-toggle')
     themeButton.setAttribute('aria-label', text[theme === 'dark' ? 'theme.light' : 'theme.dark'])
@@ -73,5 +76,6 @@
     })
   }
   window.addEventListener('plancia-site-preferences', render)
+  window.addEventListener('plancia-site-release', render)
   render()
 })()
