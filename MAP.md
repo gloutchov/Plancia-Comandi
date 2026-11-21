@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.14**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.15**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -67,7 +67,10 @@ Plancia-Comandi/
 |   |-- shortcuts.test.ts            Test di copia, incolla e Ctrl+C
 |   |-- terminalStream.ts            Ordine snapshot/output e deduplica per sequenza M28
 |   |-- terminalStream.test.ts       Race di parsing, query frammentate, input e chiusura
-|   |-- terminalEdit.ts              Copia, incolla e trascinamento nel terminale
+|   |-- terminalEdit.ts              Copia, incolla/drop, limite e controllo multilinea comune
+|   |-- pasteConfirmation.ts         Una decisione, destinatario e invalidazione delle letture tardive
+|   |-- pasteConfirmation.test.ts    Annullamento, richieste sovrapposte e revisione
+|   |-- terminalPaste.test.ts        Conferma/annulla, limiti, protocollo Modifica e ciclo di vita
 |   |-- terminalEdit.test.ts         Test di deduplica, sequenza acc/key, gesto orfano e tetto FIFO
 |   |-- terminalEdit.powershell.test.ts Test dei percorsi Unicode in drop e immagini incollate
 |   |-- terminalEdit.fish.test.ts     Test fish per drop, immagini, limiti e testo libero
@@ -81,6 +84,7 @@ Plancia-Comandi/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
 |   |   |-- TerminalView.tsx         xterm, resize, clipboard e collegamenti
 |   |   |-- TerminalMenu.tsx         Menu contestuale Copia e Incolla
+|   |   |-- PasteConfirmationDialog.tsx Conferma IT/EN, focus confinato e Annulla iniziale
 |   |   |-- LayoutSwitcher.tsx       Icone delle quattro viste
 |   |   |-- NewSessionDialog.tsx     Scelta nome, shell e cartella
 |   |   |-- SettingsDialog.tsx       Preferenze e parametri del rilevamento
@@ -103,6 +107,8 @@ Plancia-Comandi/
 |       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
 |       |-- shellDetection.test.ts   Rilevamento simulato dei quattro percorsi fish, senza shell reali
 |       |-- shellQuote.native.test.ts Confronto API e round-trip PowerShell 5.1/7 senza autoload di moduli, file UTF-8/base64 e diagnosi della fase, condizionato alla piattaforma
+|       |-- pasteSafety.ts           Decisione pura: LF/CR e bracketed paste effettivo
+|       |-- pasteSafety.test.ts      Una riga, a capo finale, LF/CR e modalità protetta
 |       |-- drop.ts                  Scelta tra percorsi e testo trascinati
 |       |-- drop.test.ts             Test del trascinamento
 |       |-- layout.ts                Abilitazione viste e sessioni visibili
@@ -165,6 +171,7 @@ Plancia-Comandi/
 |   |-- window-chrome-regions.mjs    Asserzioni CSS distinte macOS/Windows, senza input nativo
 |   |-- window-chrome-regions.test.ts Test regressione Windows e casi negativi dei controlli
 |   |-- smoke-terminal-stream.mjs    Renderer sintetico: DA/OSC, viste e avviso processi IT/EN da 0.3.14
+|   |-- smoke-multiline-paste.mjs     M36: appunti sintetici, conferma, focus e renderer/ASAR
 |   |-- smoke-terminal-protocol.mjs  Query DA/OSC su PTY nativa nello smoke full da 0.3.10
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
 |   |-- smoke-development-flags.mjs  Sonde delle dieci variabili, senza bypass nel prodotto
@@ -237,6 +244,8 @@ M31 (sorgenti 0.3.12) estende il trascinamento alla `.toolbar` solo su macOS, co
 
 C29, già M29, assorbe M30. `App` separa la sessione attiva dall’ancoraggio del gruppo: attivare un riquadro visibile conserva posizione e dimensioni, con outline interno di 2 px; `overflow: clip` impedisce al campo nascosto di far scorrere il telaio e il titolo. Affiancate e Incolonnate mantengono la coppia; sessioni nascoste selezionate e Affianca possono scegliere un nuovo gruppo. `TerminalView` apre xterm in `.term-surface`, senza padding; il contenitore esterno conserva il padding e la radice xterm segue l’altezza delle righe. Dopo la build, `node scripts/smoke-terminal-geometry.mjs .` verifica il renderer Electron con la fixture esterna C28, dati e profili sintetici: geometria delle celle, focus e posizioni con cinque sessioni sintetiche, destinazione della tastiera e bordo, rotella e trascinamento reale della barra via CDP, viste/font/lingue/temi, buffer e DPI emulato. Nessun accesso a shell, appunti o dati personali; non sostituisce una prova fisica di mouse/trackpad o Codex CLI. Un terzo argomento opzionale indica un `app.asar` per provare il renderer distribuito. La sonda tiene conto dei controlli alle estremità della barra Windows e verifica anche un tracciato con estremità riservate emulato su macOS; la pressione deve afferrare il cursore senza paginare prima del trascinamento. Registra coordinate e posizioni di scorrimento. I workflow di packaging manuali eseguono la stessa regressione dopo la build; in caso di errore quello Windows conserva report JSON e cattura della sola fixture per sette giorni. Il test fuse macOS individua il framework con `pathToFuseFile`; lo smoke dei pacchetti richiede la chiusura CDP dell’app di prova prima del fallback SIGTERM.
 
+M36/0.3.15: `pasteSafety.ts` decide sul testo già limitato; `pasteConfirmation.ts` gestisce una sola scelta, invalidazione e destinatario. `terminalEdit.ts` centralizza tutti gli incolla e i drop, risponde subito al protocollo Modifica prima di leggere gli appunti e conserva il payload fino alla scelta. `TerminalView` intercetta paste prima di xterm. Il nuovo dialogo non espone il testo e mantiene Annulla/focus. Dopo build, `node scripts/smoke-multiline-paste.mjs .` usa la fixture terminal-stream esterna con appunti sintetici; il terzo argomento facoltativo è il percorso di `app.asar`. Nei workflow manuali esistenti il nuovo passo segue terminal-stream, con soli report/catture sintetiche in caso di guasto. Nessun nuovo trigger, job, permesso o canale del prodotto.
+
 C28 mantiene tutti i terminali montati, nascondendo solo i riquadri non selezionati. `terminalStream.ts` ordina snapshot iniziale e chunk in arrivo; non filtra input o risposte di protocollo. Un terminale viene distrutto alla chiusura della sua sessione. Dopo la build, `node scripts/smoke-terminal-stream.mjs` prova il renderer con un bridge sintetico, senza shell, dati o appunti reali. Lo smoke full del pacchetto aggiunge `smoke-terminal-protocol.mjs`, con una sonda Node locale su PTY isolata. Da 0.3.10 lo smoke dei pattern verifica lingua e tema tramite `settings:updated` e controlla l'identità dei terminali, senza ricaricare il renderer sulle PTY aperte; conserva il percorso con reload per i vecchi pacchetti.
 
 `src/main.tsx` monta `App.tsx`. La UI usa il contratto in `src/env.d.ts`; `electron/preload.ts` espone le operazioni specifiche. `electron/main.ts` registra gli handler e delega a impostazioni, shell e sessioni. `sessions.ts` raccoglie output, titoli, schermo e processi figli e invoca la logica pura di `status.ts`. Il main pubblica gli aggiornamenti alla UI.
@@ -307,7 +316,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.14** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.15** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -372,7 +381,10 @@ Plancia-Comandi/
 |   |-- shortcuts.test.ts            Copy, paste and Ctrl+C tests
 |   |-- terminalStream.ts            M28 snapshot/output ordering and sequence deduplication
 |   |-- terminalStream.test.ts       Parsing race, fragmented queries, input and disposal
-|   |-- terminalEdit.ts              Terminal copy, paste and drag-and-drop
+|   |-- terminalEdit.ts              Copy, paste/drop, bounds and common multiline guard
+|   |-- pasteConfirmation.ts         One decision, destination and invalidation of late reads
+|   |-- pasteConfirmation.test.ts    Cancellation, overlapping requests and revision
+|   |-- terminalPaste.test.ts        Confirm/cancel, limits, Edit protocol and lifecycle
 |   |-- terminalEdit.test.ts         Paste dedup, acc/key sequence, orphan gesture and FIFO cap tests
 |   |-- terminalEdit.powershell.test.ts Unicode drop and pasted-image path tests
 |   |-- terminalEdit.fish.test.ts     Fish drop, image, limit and free-text tests
@@ -386,6 +398,7 @@ Plancia-Comandi/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
 |   |   |-- TerminalView.tsx         xterm, resize, clipboard and links
 |   |   |-- TerminalMenu.tsx         Copy and Paste context menu
+|   |   |-- PasteConfirmationDialog.tsx IT/EN confirmation, focus trap and initial Cancel
 |   |   |-- LayoutSwitcher.tsx       Icons for the four views
 |   |   |-- NewSessionDialog.tsx     Name, shell and folder selection
 |   |   |-- SettingsDialog.tsx       Preferences and detection parameters
@@ -408,6 +421,8 @@ Plancia-Comandi/
 |       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
 |       |-- shellDetection.test.ts   Mocked detection of the four fish paths, without real shells
 |       |-- shellQuote.native.test.ts Native API comparison and PowerShell 5.1/7 round-trip without module autoload, UTF-8/base64 files and stage diagnostics, platform conditional
+|       |-- pasteSafety.ts           Pure decision: LF/CR and effective bracketed paste
+|       |-- pasteSafety.test.ts      One line, trailing newline, LF/CR and bracketed mode
 |       |-- drop.ts                  Choice between dropped paths and text
 |       |-- drop.test.ts             Drag-and-drop tests
 |       |-- layout.ts                View availability and visible sessions
@@ -470,6 +485,7 @@ Plancia-Comandi/
 |   |-- window-chrome-regions.mjs    Separate macOS/Windows CSS assertions, no native input
 |   |-- window-chrome-regions.test.ts Windows regression and negative control-region cases
 |   |-- smoke-terminal-stream.mjs    Synthetic renderer: DA/OSC, views and process warning IT/EN from 0.3.14
+|   |-- smoke-multiline-paste.mjs     M36: synthetic clipboard, confirmation, focus and renderer/ASAR
 |   |-- smoke-terminal-protocol.mjs  Native PTY DA/OSC queries in full smoke from 0.3.10
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
 |   |-- smoke-development-flags.mjs  Ten-variable probes with no product bypass
@@ -541,6 +557,8 @@ The M31 menu adjustment uses an explicit View submenu in `editMenu.ts`, retainin
 M31 (source 0.3.12) extends dragging to `.toolbar` on macOS only, with `no-drag` for view controls and overlays. `node scripts/smoke-window-chrome.mjs .` checks eight IT/EN, theme and 860/1280-width combinations with the C28 fixture and five synthetic sessions. An optional argument selects the renderer or `app.asar`; `--interactive` keeps the window open for native input. `native-window.json` records at most 1000 real BrowserWindow positions/states without content. Assertions in `window-chrome-regions.mjs` require `no-drag` for macOS groups/buttons; the non-draggable Windows toolbar accepts `none` or `no-drag`, always rejecting `drag` on controls. Negative cases preserve this distinction. The probe writes below `RUNNER_TEMP` when available so reports are included in failure artifacts. Automatic CSS, layout and dialog checks do not certify movement or a physical device. Existing manual workflows run the probe after building; on failure they retain the report, positions and synthetic capture for seven days.
 
 C29, formerly M29, absorbs M30. `App` separates the active session from the group anchor: activating a visible pane preserves position and size, with a 2 px internal outline; `overflow: clip` prevents the hidden input from scrolling the frame and title. Side by side and Stacked keep their pair; selecting hidden sessions and Tile can choose a new group. `TerminalView` opens xterm in a padding-free `.term-surface`; the outer container keeps its padding and the xterm root follows row height. After building, `node scripts/smoke-terminal-geometry.mjs .` verifies the Electron renderer with the external C28 fixture, synthetic data and profiles: cell geometry, focus and positions with five synthetic sessions, keyboard destination and border, wheel and actual thumb dragging through CDP, views/fonts/locales/themes, buffers and emulated DPI. No shell, clipboard or personal-data access; this does not replace a physical mouse/trackpad or Codex CLI check. An optional third argument points to an `app.asar` to test the distributed renderer. The probe accounts for controls at the ends of the Windows scrollbar and also tests an inset track emulated on macOS; pressing must grab the thumb without paging before dragging. It records coordinates and scroll positions. Manual packaging workflows run the same regression after building; on failure the Windows workflow retains the JSON report and fixture-only capture for seven days. The macOS fuse test locates the framework with `pathToFuseFile`; package smoke requests CDP closure of the test app before the SIGTERM fallback.
+
+M36/0.3.15: `pasteSafety.ts` decides on already limited text; `pasteConfirmation.ts` manages one decision, invalidation and destination. `terminalEdit.ts` centralizes all pastes and drops, immediately acknowledges Edit before reading the clipboard and retains the payload until the decision. `TerminalView` intercepts paste before xterm. The new dialog does not expose text and maintains Cancel/focus. After building, `node scripts/smoke-multiline-paste.mjs .` uses the external terminal-stream fixture with synthetic clipboard; the optional third argument is an `app.asar` path. In the existing manual workflows the new step follows terminal-stream, retaining only synthetic reports/captures on failure. No new trigger, job, permission or product channel.
 
 C28 keeps all terminals mounted, hiding only unselected panes. `terminalStream.ts` orders the initial snapshot and incoming chunks; it does not filter input or protocol replies. Closing a session destroys its terminal. After building, `node scripts/smoke-terminal-stream.mjs` tests the renderer with a synthetic bridge, without real shells, data or clipboard. Full package smoke also runs `smoke-terminal-protocol.mjs`, with a local Node probe on an isolated PTY. From 0.3.10 the pattern smoke checks locale and theme through `settings:updated` and verifies terminal identity, without reloading the renderer over open PTYs; it retains the reload path for older packages.
 

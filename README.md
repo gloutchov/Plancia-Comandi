@@ -2,6 +2,8 @@
 
 ## Italiano
 
+Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. L’ultima release pubblicata resta 0.3.14; M36 è in verifica locale.
+
 Nella release **C32/0.3.14** il rilevamento dei processi figli condivide le interrogazioni, rispetta l’intervallo anche aprendo nuove sessioni e attende progressivamente dopo gli errori. Dopo tre errori compare un avviso IT/EN; input e altri segnali di stato restano attivi e il recupero è automatico. I quattro parametri `childPolling` sono nel file centrale. La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) è pubblicata con pacchetti Windows x64/macOS ARM64 e SHA-256 verificati.
 
 La landing segue automaticamente l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): legge solo i metadati pubblici GitHub all’apertura e aggiorna i collegamenti ai quattro pacchetti e ai due checksum. Se la richiesta fallisce o JavaScript è disabilitato, i collegamenti aprono la pagina dell’ultima release. Non servono account o credenziali; non vengono inviati contenuti dei terminali. L’anteprima usa `vite.site.config.ts`, separata dalla configurazione Electron.
@@ -12,7 +14,7 @@ Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle vi
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Versione 0.3.14 (C32) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) include C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.15 (M36 in verifica) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) include C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -35,7 +37,7 @@ Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e pref
 - Stati **Avvio**, **Al lavoro**, **In attesa**, **Azione** e **Terminata**, stimati dall'output, dal titolo e dai processi figli.
 - Pallini nella barra e notifiche di sistema per sessioni che richiedono attenzione.
 - Tema di sistema, chiaro o scuro; interfaccia italiana o inglese; dimensione del testo e tempi configurabili.
-- Copia, incolla, trascinamento di file e testo, collegamenti nel browser e scorciatoie adatte alla piattaforma.
+- Copia, incolla, trascinamento di file e testo, collegamenti nel browser e scorciatoie adatte alla piattaforma. Conferma prima dell’incolla o del trascinamento multilinea senza bracketed paste; **Annulla**, Esc o clic fuori dal dialogo non inviano il testo. Tab/Shift+Tab restano sui due pulsanti, Invio attiva quello selezionato. Durante la scelta altri incolla non si accodano; alla chiusura della sessione la richiesta viene annullata.
 
 Le shell dipendono dal computer: **Windows PowerShell**, **PowerShell 7**, **Prompt dei comandi** e **Git Bash** su Windows; **Shell di login**, **zsh**, **bash** e **fish** su macOS/Linux, quando presenti nei percorsi rilevati. La landing riporta lo stesso elenco per piattaforma.
 
@@ -106,6 +108,8 @@ I comandi hanno gli stessi permessi dell'utente che avvia l'app e possono legger
 Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale resta nei buffer di memoria dell'app; shell e programmi avviati possono scrivere cronologia e log propri. Notifiche, clipboard, schermate e messaggi diagnostici possono esporre informazioni. La finestra non carica script da Internet. Il modello descrive [controlli implementati e limiti residui](SECURITY_MODEL.md): la shell resta con i permessi dell'utente e i pacchetti non sono firmati.
 
 ### 5. Sviluppo e verifiche
+
+M36/0.3.15: suite locale con Node 24, 582 test riusciti e 3 saltati; build e check del sito riusciti. La regressione `node scripts/smoke-multiline-paste.mjs .` usa renderer/xterm reali, appunti sintetici, IT/EN, due temi e tre dimensioni desktop; non accede agli appunti o alle shell personali. Prima pubblicazione e verifica Windows restano subordinate al controllo del commit. Dettagli e limiti nel [piano](PLAN.md).
 
 **C33 pubblicata, 20 novembre 2026 — release 0.3.13 (M34/M35 assorbite).** Nome installato **Plancia Comandi**, ICO ufficiale Windows e lingua iniziale dal sistema, con override e preferenze conservati. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, tag annotati `milestone/C33` e `v0.3.13`, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata alle 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 test/4 saltati, PowerShell 5.1/7 e upgrade/rimozione 0.3.1 verificati. macOS ARM64: 514 test/3 saltati, otto primi avvii, upgrade e smoke finali dei pacchetti riusciti. Quattro binari senza certificato di firma e due manifest SHA-256 riscaricati e confrontati; sei URL pubblici HTTP 200, archivi sorgente identici ai 199 file Git. Branch M33 rimosso. Prova visiva nativa Windows rimandata su autorizzazione esplicita e dichiarata nelle note; Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
 
@@ -190,6 +194,8 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
+In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. The latest published release remains 0.3.14; M36 is under local review.
+
 In **C32/0.3.14**, child-process detection shares queries, respects the interval even when opening sessions and backs off after errors. Three failures show an IT/EN warning; input and other status signals stay active, with automatic recovery. The four `childPolling` parameters live in the central file. [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) is published with verified Windows x64/macOS ARM64 packages and SHA-256.
 
 The landing automatically follows the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): it reads only public GitHub metadata on page load and updates links to the four packages and two checksums. If the request fails or JavaScript is disabled, links open the latest release page. No account or credentials are needed; terminal contents are not sent. Preview uses `vite.site.config.ts`, separate from the Electron configuration.
@@ -200,11 +206,11 @@ Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Version 0.3.14 (C32) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) includes C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
+**Source 0.3.15 (M36 under review) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) includes C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
@@ -223,7 +229,7 @@ Screenshots of source version 0.3.1 on Windows, using demonstration data and iso
 - **Starting**, **Working**, **Idle**, **Action** and **Exited** states estimated from output, titles and child processes.
 - Sidebar dots and system notifications for sessions requiring attention.
 - System, light or dark theme; Italian or English interface; configurable text size and detection timings.
-- Copy, paste, file and text drag-and-drop, browser links and platform-specific shortcuts.
+- Copy, paste, file and text drag-and-drop, browser links and platform-specific shortcuts. Confirmation before multiline paste or drop without bracketed paste; **Cancel**, Esc or a click outside the dialog send no text. Tab/Shift+Tab stay on the two buttons; Enter activates the focused one. Other pastes are not queued during the decision; closing the session cancels the request.
 
 Shells depend on the computer: **Windows PowerShell**, **PowerShell 7**, **Command Prompt** and **Git Bash** on Windows; **Login shell**, **zsh**, **bash** and **fish** on macOS/Linux, when present in detected locations. The landing shows the same list by platform.
 
@@ -294,6 +300,8 @@ Commands run with the permissions of the user starting the app and can read or c
 Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
+
+M36/0.3.15: local Node 24 suite, 582 passed and 3 skipped tests; build and site check passed. The `node scripts/smoke-multiline-paste.mjs .` regression uses real renderer/xterm, synthetic clipboard, IT/EN, both themes and three desktop sizes; it does not access personal clipboard or shells. First publication and Windows checks remain subject to commit review. Details and limits in the [plan](PLAN.md).
 
 **C33 published, 20 November 2026 — release 0.3.13 (M34/M35 absorbed).** Installed name **Plancia Comandi**, official Windows ICO and initial system language, preserving overrides and preferences. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, annotated `milestone/C33` and `v0.3.13` tags, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, published at 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 tests/4 skipped, PowerShell 5.1/7 and 0.3.1 upgrade/removal verified. macOS ARM64: 514 tests/3 skipped, eight first launches, upgrade and final package smoke passed. Four binaries without a distribution signing certificate and two SHA-256 manifests downloaded and compared; six public URLs HTTP 200, source archives match all 199 Git files. M33 branch removed. Native Windows visual checks explicitly deferred and disclosed in the notes; Linux, Intel macOS and Gatekeeper on quarantined downloads unverified. Details in the [plan](PLAN.md).
 

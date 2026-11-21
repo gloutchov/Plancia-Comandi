@@ -27,6 +27,10 @@ const streams = new Map(sessions.map(s => [s.id, { seq: 1, data: `READY ${s.inde
 const writes = []
 const subscriptions = []
 const resizes = []
+let clipboard = { text: 'synthetic paste', image: null, delayMs: 0 }
+const clipboardReads = { text: 0, image: 0, returned: 0 }
+const editResults = []
+const editStarted = new Map()
 let win
 ipcMain.handle('probe:boot', () => ({
   platform: process.platform, home: root, version: 'fixture', demo: false, systemDark: true,
@@ -43,7 +47,31 @@ ipcMain.handle('probe:settings', (_event, patch) => {
   win.webContents.send('probe:settings', settings)
   return settings
 })
-ipcMain.handle('probe:report', () => ({ writes, subscriptions, resizes }))
+ipcMain.handle('probe:report', () => ({ writes, subscriptions, resizes, clipboardReads, editResults }))
+ipcMain.handle('probe:clipboard-set', (_event, value) => {
+  clipboard = { text: String(value.text ?? '').slice(0, 200000), image: value.image ?? null, delayMs: Math.min(1000, Math.max(0, Number(value.delayMs) || 0)) }
+})
+ipcMain.handle('probe:clipboard-text', async () => {
+  clipboardReads.text += 1
+  const snapshot = clipboard
+  if (snapshot.delayMs) await new Promise(resolve => setTimeout(resolve, snapshot.delayMs))
+  clipboardReads.returned += 1
+  return snapshot.text
+})
+ipcMain.handle('probe:clipboard-image', () => { clipboardReads.image += 1; return clipboard.image })
+ipcMain.handle('probe:edit', (_event, value) => {
+  editStarted.set(value.id, Date.now())
+  win.webContents.send('probe:edit', { command: 'paste', id: value.id, accelerator: value.accelerator === true })
+})
+ipcMain.on('probe:edit-result', (_event, value) => {
+  editResults.push({ id: value.id, handled: value.handled, elapsedMs: Date.now() - editStarted.get(value.id), imageReads: clipboardReads.image, textReturns: clipboardReads.returned })
+  editStarted.delete(value.id)
+})
+ipcMain.handle('probe:name', (_event, id, name) => {
+  const session = sessions.find(session => session.id === id)
+  if (session) session.name = String(name).slice(0, 80)
+  win.webContents.send('probe:sessions', sessions)
+})
 ipcMain.handle('probe:process-warning', (_event, value) => {
   for (const session of sessions) session.processDetectionUnavailable = value === true
   win.webContents.send('probe:sessions', sessions)

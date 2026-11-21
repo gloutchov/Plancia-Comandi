@@ -6,7 +6,8 @@ import type { ITheme } from '@xterm/xterm'
 import type { RuntimeLimits } from '../shared/appConfig'
 import { appShortcut, isCopyKey, isPasteKey, isPlainCtrlC, plainCtrlCAction, type KeyLike } from '../shortcuts'
 import { TerminalMenu } from './TerminalMenu'
-import { dropIntoTerminal, pasteIntoTerminal, registerTerminalEdit, writeClipboardText } from '../terminalEdit'
+import { dropIntoTerminal, pasteIntoTerminal, registerTerminalEdit, writeClipboardText, type TerminalPasteGuard } from '../terminalEdit'
+import type { PasteConfirmationAccess } from '../pasteConfirmation'
 import { TerminalStream } from '../terminalStream'
 
 const FONT = '"JetBrains Mono", "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace'
@@ -23,6 +24,7 @@ export function TerminalView({
   fitToken,
   copyLabel,
   pasteLabel,
+  pasteConfirmation,
   onShortcut,
   onEscape,
   onActivate,
@@ -38,6 +40,7 @@ export function TerminalView({
   fitToken: string
   copyLabel: string
   pasteLabel: string
+  pasteConfirmation: PasteConfirmationAccess
   onShortcut: (event: KeyLike) => void
   onEscape: () => boolean
   onActivate: () => void
@@ -51,6 +54,8 @@ export function TerminalView({
   const limitsRef = useRef(limits)
   const visibleRef = useRef(visible)
   const activeRef = useRef(active)
+  const confirmationRef = useRef(pasteConfirmation)
+  const pasteGuardRef = useRef<TerminalPasteGuard | undefined>(undefined)
   const [menu, setMenu] = useState<{ x: number; y: number; selection: string } | null>(null)
   shortcutRef.current = onShortcut
   escapeRef.current = onEscape
@@ -58,6 +63,7 @@ export function TerminalView({
   limitsRef.current = limits
   visibleRef.current = visible
   activeRef.current = active
+  confirmationRef.current = pasteConfirmation
 
   useEffect(() => {
     const host = hostRef.current
@@ -89,6 +95,12 @@ export function TerminalView({
     fitRef.current = fit
 
     let disposed = false
+    const pasteGuard: TerminalPasteGuard = {
+      sessionId,
+      isAvailable: () => !disposed && visibleRef.current,
+      confirmation: confirmationRef.current,
+    }
+    pasteGuardRef.current = pasteGuard
     const stream = new TerminalStream(term)
     const unsubscribe = bridge.onData((chunk) => {
       if (chunk.id === sessionId) stream.push(chunk)
@@ -111,10 +123,12 @@ export function TerminalView({
         return false
       }
       if (isPasteKey(key, platform)) {
+        event.preventDefault()
+        event.stopPropagation()
         void pasteIntoTerminal(term, shellRef.current, limitsRef.current, {
           role: 'shortcut',
           id: String(event.timeStamp),
-        })
+        }, undefined, pasteGuard)
         return false
       }
       if (isPlainCtrlC(key)) {
@@ -163,6 +177,7 @@ export function TerminalView({
     const unsubscribeEdit = registerTerminalEdit(sessionId, {
       term,
       shellId,
+      pasteGuard,
       hasFocus: () => {
         const activeElement = document.activeElement
         return !!activeElement && host.contains(activeElement)
@@ -171,6 +186,7 @@ export function TerminalView({
 
     return () => {
       disposed = true
+      if (pasteGuardRef.current === pasteGuard) pasteGuardRef.current = undefined
       stream.dispose()
       cancelAnimationFrame(frame)
       observer.disconnect()
@@ -248,6 +264,16 @@ export function TerminalView({
   return (
     <div
       className="term-host"
+      onPasteCapture={event => {
+        event.preventDefault()
+        event.stopPropagation()
+        const term = termRef.current
+        if (!term) return
+        onActivate()
+        void pasteIntoTerminal(term, shellRef.current, limitsRef.current, {
+          role: 'direct', id: `native:${event.timeStamp}`,
+        }, undefined, pasteGuardRef.current)
+      }}
       onMouseDownCapture={(event) => {
         if (event.button === 2) event.stopPropagation()
       }}
@@ -269,7 +295,8 @@ export function TerminalView({
         const transfer = event.dataTransfer
         if (!term || !transfer) return
         const paths = [...transfer.files].map((file) => window.plancia?.pathForFile(file) ?? '').filter((value) => value.length > 0)
-        dropIntoTerminal(term, shellRef.current, paths, transfer.getData('text/plain') ?? '', limitsRef.current)
+        onActivate()
+        void dropIntoTerminal(term, shellRef.current, paths, transfer.getData('text/plain') ?? '', limitsRef.current, pasteGuardRef.current)
       }}
       onContextMenu={(event) => {
         event.preventDefault()
@@ -301,7 +328,7 @@ export function TerminalView({
               void pasteIntoTerminal(term, shellRef.current, limitsRef.current, {
                 role: 'direct',
                 id: `${event.timeStamp}:${event.clientX}:${event.clientY}`,
-              })
+              }, undefined, pasteGuardRef.current)
             }
             term?.focus()
           }}

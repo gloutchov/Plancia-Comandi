@@ -16,13 +16,22 @@ contextBridge.exposeInMainWorld('plancia', {
   onSessions: callback => on('probe:sessions', callback),
   onSettings: callback => on('probe:settings', callback),
   onSettingsWarning: noSubscription, onSystemTheme: noSubscription,
-  onFocus: noSubscription, onEditCommand: noSubscription,
-  writeClipboard: async () => true, readClipboardText: async () => 'synthetic paste',
-  readClipboardImage: async () => null,
+  onFocus: noSubscription,
+  onEditCommand: callback => on('probe:edit', data => {
+    Promise.resolve(callback(data.command, data.id, data.accelerator)).then(handled => {
+      ipcRenderer.send('probe:edit-result', { id: data.id, handled: handled === true })
+    })
+  }),
+  writeClipboard: async () => true,
+  readClipboardText: () => ipcRenderer.invoke('probe:clipboard-text'),
+  readClipboardImage: () => ipcRenderer.invoke('probe:clipboard-image'),
 })
 contextBridge.exposeInMainWorld('terminalProbe', {
   report: () => ipcRenderer.invoke('probe:report'),
   emit: (id, data) => ipcRenderer.invoke('probe:emit', id, data),
   remove: id => ipcRenderer.invoke('probe:remove', id),
   processWarning: value => ipcRenderer.invoke('probe:process-warning', value),
+  clipboard: value => ipcRenderer.invoke('probe:clipboard-set', value),
+  edit: (id, accelerator = false) => ipcRenderer.invoke('probe:edit', { id, accelerator }),
+  name: (id, name) => ipcRenderer.invoke('probe:name', id, name),
 })

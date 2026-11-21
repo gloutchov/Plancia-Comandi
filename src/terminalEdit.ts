@@ -3,11 +3,20 @@ import type { RuntimeLimits } from './shared/appConfig'
 import { limitText } from './shared/textLimit'
 import { interpretDrop } from './shared/drop'
 import { formatDroppedPaths, quoteShellArg, shellQuoteKind } from './shared/shellQuote'
+import { requiresPasteConfirmation } from './shared/pasteSafety'
+import type { PasteConfirmationAccess } from './pasteConfirmation'
+
+export interface TerminalPasteGuard {
+  sessionId: string
+  isAvailable: () => boolean
+  confirmation: PasteConfirmationAccess
+}
 
 export interface TerminalEditTarget {
   term: Terminal
   shellId: string
   hasFocus: () => boolean
+  pasteGuard?: TerminalPasteGuard
 }
 
 const GESTURE_LIMIT = 64
@@ -83,6 +92,39 @@ export function decidePaste(state: PasteLane, event: PasteEvent, limit = PASTE_Q
   return { paste: true, gesture: `${event.role}:${event.id}` }
 }
 
+function retireUnmatchedHalf(state: PasteLane, event: PasteEvent): void {
+  if (event.role === 'direct') return
+  const queue = event.role === 'shortcut' ? state.shortcuts : state.accelerators
+  const index = queue.indexOf(event.id)
+  if (index >= 0) queue.splice(index, 1)
+}
+
+/** Close an accelerator/shortcut pair while a modal owns the keyboard. */
+export function discardPasteGesture(event: PasteEvent, state: PasteLane = lane): void {
+  const decision = decidePaste(state, event)
+  if (decision.paste) claimPasteGesture(decision.gesture)
+  retireUnmatchedHalf(state, event)
+}
+
+function pasteAllowed(guard: TerminalPasteGuard | undefined, revision: number | undefined): boolean {
+  return !guard || (guard.isAvailable() && guard.confirmation.canStart() && guard.confirmation.revision() === revision)
+}
+
+async function pastePrepared(term: Terminal, text: string, guard: TerminalPasteGuard | undefined, revision: number | undefined): Promise<boolean> {
+  if (!text || !pasteAllowed(guard, revision)) return false
+  const bracketed = term.modes?.bracketedPasteMode === true && term.options?.ignoreBracketedPasteMode !== true
+  try {
+    if (requiresPasteConfirmation(text, bracketed)) {
+      if (!guard || !await guard.confirmation.request(guard.sessionId)) return false
+      if (!guard.isAvailable()) return false
+    }
+    term.paste(text)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function registerTerminalEdit(id: string, target: TerminalEditTarget): () => void {
   targets.set(id, target)
   return () => {
@@ -136,17 +178,23 @@ export async function pasteIntoTerminal(
   limits: RuntimeLimits,
   event: PasteEvent,
   state: PasteLane = lane,
+  guard?: TerminalPasteGuard,
 ): Promise<boolean> {
   const decision = decidePaste(state, event)
   if (!decision.paste || !claimPasteGesture(decision.gesture)) return false
   const bridge = window.plancia
   if (!bridge) return false
+  const revision = guard?.confirmation.revision()
+  if (!pasteAllowed(guard, revision)) {
+    retireUnmatchedHalf(state, event)
+    return true
+  }
   try {
     const imagePath = await bridge.readClipboardImage()
     if (imagePath) {
       const quoted = quoteShellArg(imagePath, shellQuoteKind(shellId))
       if (quoted && quoted.length + 1 <= limits.maxPasteChars) {
-        term.paste(`${quoted} `)
+        await pastePrepared(term, `${quoted} `, guard, revision)
         return true
       }
     }
@@ -156,17 +204,25 @@ export async function pasteIntoTerminal(
   try {
     const text = await bridge.readClipboardText()
     if (!text) return true
-    term.paste(limitText(text, limits.maxPasteChars))
+    await pastePrepared(term, limitText(text, limits.maxPasteChars), guard, revision)
   } catch {
     // Leave the terminal unchanged when the clipboard cannot be read.
   }
   return true
 }
 
-export async function pasteFocusedTerminal(limits: RuntimeLimits, event: PasteEvent): Promise<boolean> {
+export function pasteFocusedTerminal(limits: RuntimeLimits, event: PasteEvent): boolean {
   const target = activeTarget()
   if (!target) return false
-  await pasteIntoTerminal(target.term, target.shellId, limits, event)
+  // Let preload send Edit's acknowledgment before any clipboard IPC (which may be expensive).
+  const revision = target.pasteGuard?.confirmation.revision()
+  setTimeout(() => {
+    if (!pasteAllowed(target.pasteGuard, revision)) {
+      discardPasteGesture(event)
+      return
+    }
+    void pasteIntoTerminal(target.term, target.shellId, limits, event, lane, target.pasteGuard)
+  }, 0)
   return true
 }
 
@@ -176,15 +232,17 @@ export function dropIntoTerminal(
   paths: readonly string[],
   text: string,
   limits: RuntimeLimits,
-): void {
+  guard?: TerminalPasteGuard,
+): Promise<boolean> {
+  const revision = guard?.confirmation.revision()
+  if (!pasteAllowed(guard, revision)) return Promise.resolve(false)
   const action = interpretDrop(
     { paths, text },
     { maxFiles: limits.maxDroppedFiles, maxPathChars: limits.maxPathChars, maxTextChars: limits.maxPasteChars },
   )
   if (action.type === 'paths') {
     const quoted = formatDroppedPaths(action.paths, shellQuoteKind(shellId), limits.maxPasteChars)
-    if (quoted) term.paste(quoted)
-    return
+    return quoted ? pastePrepared(term, quoted, guard, revision) : Promise.resolve(false)
   }
-  if (action.type === 'text') term.paste(action.text)
+  return action.type === 'text' ? pastePrepared(term, action.text, guard, revision) : Promise.resolve(false)
 }

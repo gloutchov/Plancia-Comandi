@@ -648,6 +648,7 @@ button {
 }
 
 .dialog-confirm p { color: var(--ink-soft); line-height: 1.5; }
+.dialog-paste p { overflow-wrap: anywhere; }
 
 .dialog-actions {
   display: flex;

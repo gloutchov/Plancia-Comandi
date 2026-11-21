@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.14** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.15** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -128,6 +128,8 @@ La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attentio
 
 ### 5. Input, limiti e filesystem
 
+**M36/0.3.15 — conferma multilinea.** Il renderer applica lo stesso controllo ad appunti (scorciatoia, Modifica, menu contestuale e evento nativo) e testo trascinato. La decisione riguarda il testo già limitato: LF o CR richiedono conferma se `term.modes.bracketedPasteMode` non è attivo o `ignoreBracketedPasteMode` lo disabilita. Xterm mantiene normalizzazione e marcatori; i percorsi quotati e i limiti esistenti sono conservati. Una sola richiesta è ammessa: la UI riceve solo l’ID della sessione, senza anteprima del testo. Il testo resta in una closure locale volatile fino alla decisione, senza nuovi log, storage, rete o canali privilegiati. Annullamento, chiusura del destinatario, altri dialoghi e smontaggio invalidano la richiesta e le letture tardive; l’invio conserva il destinatario originario e verifica che sia ancora disponibile. Il focus resta nel dialogo con Annulla iniziale. La gestione Modifica risponde subito al protocollo esistente e rinvia la lettura degli appunti al giro successivo, prima di attendere l’utente: il timeout di fallback del main non deve produrre un secondo incolla. L’evento paste nativo è intercettato prima del gestore xterm per impedire un percorso diretto senza conferma. Questo controllo del renderer non aggiunge un confine contro un renderer compromesso; IPC e permessi delle shell restano quelli descritti qui.
+
 | Confine | Limite / fallback implementato |
 | --- | --- |
 | Sessioni | Massimo 12, incluse le terminate non rimosse. |
@@ -192,6 +194,8 @@ Per una release occorrono controllo del commit, approvazione esplicita, test e s
 
 ### 7. Verifiche e rischi residui
 
+**Verifica locale M36/0.3.15:** 28 nuovi test per LF/CR, modalità effettiva, limite, richieste sovrapposte, destinatario e risposte tardive, annullamento e protocollo Modifica. Suite complessiva 582 riusciti/3 saltati, build e sito riusciti. La sonda renderer esterna verifica i percorsi nativo/menu/scorciatoia/drop, ack prima dell’IPC appunti, focus/Annulla/Invio/Esc/Tab, istanza xterm invariata e chiusura del destinatario in 12 scenari IT/EN/temi/dimensioni; ripetuta anche sul renderer dell’ASAR. Tutti i dati sono sintetici. Windows, PowerShell nativi, Linux e macOS Intel non verificati per M36; nessun workflow avviato prima dell’approvazione.
+
 **C33 pubblicata, 20 novembre 2026 — release 0.3.13 (M34/M35 assorbite).** Nome installato **Plancia Comandi**, ICO ufficiale Windows e lingua iniziale dal sistema, con override e preferenze conservati. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, tag annotati `milestone/C33` e `v0.3.13`, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata alle 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 test/4 saltati, PowerShell 5.1/7 e upgrade/rimozione 0.3.1 verificati. macOS ARM64: 514 test/3 saltati, otto primi avvii, upgrade e smoke finali dei pacchetti riusciti. Quattro binari senza certificato di firma e due manifest SHA-256 riscaricati e confrontati; sei URL pubblici HTTP 200, archivi sorgente identici ai 199 file Git. Branch M33 rimosso. Prova visiva nativa Windows rimandata su autorizzazione esplicita e dichiarata nelle note; Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
 
 **C31 pubblicata, 20 novembre 2026 — release 0.3.12.** Barra superiore macOS trascinabile; Reload, Force Reload e DevTools rimossi dal menu; menu IT/EN aggiornati subito con le preferenze. Commit `eb038ff2fed3e02c195a6e88e83f03dc9c9f48a0`, tag annotati `milestone/C31` e `v0.3.12`, [release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12), ID `452884831`, pubblicata alle 16:56:54 (Europe/Rome). Windows [44763826255](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44763826255): 491 test/4 saltati, PowerShell 5.1/7, 194 scenari terminali e otto chrome; scompattato, portable e installato verificati. macOS: 492 test/3 saltati, otto scenari ASAR, smoke completi, fuse, errori di avvio, ZIP/DMG fuori dal checkout e SHA-256. Quattro binari non firmati e due manifest scaricati e confrontati con i locali; dopo pubblicazione ID, dimensioni e digest invariati, sei URL pubblici HTTP 200. ZIP/TAR sorgenti coincidono con i 191 file Git. Branch M31 rimosso localmente e sul remoto. Ripristini nativi macOS e monitor esterni non verificati separatamente; Windows provato sul runner, macOS Intel/Linux e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
@@ -217,7 +221,7 @@ Usare l'app come terminale fidato di un utente ordinario, limitare l'ambiente er
 - I tooltip degli attributi `title` sono quelli del sistema operativo e non usano i colori del tema dell'app.
 - La pulizia delle immagini incollate elimina solo i file il cui nome corrisponde al prefisso configurato.
 - Su Windows `chmod` non è un confine: contano le ACL della cartella dati utente.
-- Senza bracketed paste, un incolla su più righe può essere eseguito dal programma nel terminale.
+- Senza bracketed paste, il testo multilinea confermato può essere eseguito dal programma nel terminale. La conferma M36 riduce gli invii involontari: non analizza i comandi o le sequenze di controllo e non garantisce la sicurezza del testo né del bracketed paste implementato dal destinatario.
 
 M9 corregge il debito residuo degli script: isolamento HOME/appData/userData/sessionData prima del main anche nello smoke tracciato; controllo dei formati DMG/ZIP con `smoke-macos-formats.mjs`; @electron/asar 3.4.1 dichiarato direttamente come dipendenza di sviluppo, stessa versione già nel lockfile e nessun cambiamento del grafo; test espliciti `\.git\config`, `\settings.json`, backup, log e tool di sviluppo. L’ispezione controlla ASAR e risorse esterne. Le prove isolate di C5–C8 avevano già impostato i percorsi e aperto DMG/ZIP tramite launcher temporanei: M9 rende quel controllo ripetibile nel repository, senza attribuirsi quelle prove precedenti.
 
@@ -245,7 +249,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.14** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.15** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -371,6 +375,8 @@ Closing confirmation lives in the UI and applies only to `busy`/`attention` stat
 
 ### 5. Input, limits and filesystem
 
+**M36/0.3.15 — multiline confirmation.** The renderer applies the same check to clipboard paste (shortcut, Edit, context menu and native event) and dropped text. The decision uses already limited text: LF or CR require confirmation when `term.modes.bracketedPasteMode` is off or `ignoreBracketedPasteMode` disables it. Xterm retains normalization and delimiters; quoted paths and existing limits are preserved. Only one request is allowed: UI receives just the session ID, without a text preview. Text stays in a volatile local closure until the decision, with no new logging, storage, network or privileged channels. Cancellation, destination closure, other dialogs and unmount invalidate the request and late reads; sending preserves the original destination and checks it is still available. Focus stays in the dialog with Cancel initially selected. Edit handling immediately acknowledges the existing protocol and defers clipboard reads to the next event-loop turn before awaiting the user: the main fallback timeout must not cause a second paste. Native paste is intercepted before xterm’s handler to prevent a direct route without confirmation. This renderer control adds no boundary against a compromised renderer; IPC and shell permissions remain as described here.
+
 | Boundary | Implemented limit / fallback |
 | --- | --- |
 | Sessions | Maximum 12, including exited sessions not removed. |
@@ -435,6 +441,8 @@ A release requires commit review, explicit approval, tests and real-build smoke 
 
 ### 7. Checks and residual risks
 
+**Local M36/0.3.15 verification:** 28 new tests for LF/CR, effective mode, limits, overlapping requests, destination and late replies, cancellation and Edit protocol. Overall suite 582 passed/3 skipped, build and site passed. The external renderer probe checks native/menu/shortcut/drop routes, acknowledgment before clipboard IPC, focus/Cancel/Enter/Esc/Tab, preserved xterm instance and destination closure in 12 IT/EN/theme/size scenarios; repeated on the ASAR renderer. All data is synthetic. Windows, native PowerShell, Linux and Intel macOS untested for M36; no workflow started before approval.
+
 **C33 published, 20 November 2026 — release 0.3.13 (M34/M35 absorbed).** Installed name **Plancia Comandi**, official Windows ICO and initial system language, preserving overrides and preferences. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, annotated `milestone/C33` and `v0.3.13` tags, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, published at 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 tests/4 skipped, PowerShell 5.1/7 and 0.3.1 upgrade/removal verified. macOS ARM64: 514 tests/3 skipped, eight first launches, upgrade and final package smoke passed. Four binaries without a distribution signing certificate and two SHA-256 manifests downloaded and compared; six public URLs HTTP 200, source archives match all 199 Git files. M33 branch removed. Native Windows visual checks explicitly deferred and disclosed in the notes; Linux, Intel macOS and Gatekeeper on quarantined downloads unverified. Details in the [plan](PLAN.md).
 
 **C31 published, 20 November 2026 — release 0.3.12.** Draggable macOS top bar; Reload, Force Reload and DevTools removed from the menu; immediate IT/EN menu updates with preferences. Commit `eb038ff2fed3e02c195a6e88e83f03dc9c9f48a0`, annotated `milestone/C31` and `v0.3.12` tags, [release 0.3.12](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.12), ID `452884831`, published at 16:56:54 (Europe/Rome). Windows [44763826255](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44763826255): 491 tests/4 skipped, PowerShell 5.1/7, 194 terminal and eight chrome scenarios; unpacked, portable and installed apps verified. macOS: 492 tests/3 skipped, eight ASAR scenarios, full smoke, fuses, startup failures, ZIP/DMG outside checkout and SHA-256. Four unsigned binaries and two manifests downloaded and compared with local files; after publication IDs, sizes and digests unchanged, six public URLs HTTP 200. Source ZIP/TAR match all 191 Git files. M31 branch removed locally and remotely. Native macOS restoration and external displays not separately verified; Windows tested on the runner, Intel macOS/Linux and Gatekeeper on quarantined downloads not verified. Details in the [plan](PLAN.md).
@@ -460,7 +468,7 @@ Use the app as a trusted terminal under an ordinary user account, limit inherite
 - `title` tooltips are drawn by the operating system and do not use the app theme colors.
 - Cleanup of pasted images deletes only files whose names match the configured prefix.
 - On Windows `chmod` is not a boundary: the user-data directory ACLs are what apply.
-- Without bracketed paste, a multiline paste can be executed by the program in the terminal.
+- Without bracketed paste, confirmed multiline text may be executed by the program in the terminal. M36 confirmation reduces unintended sends: it does not inspect commands or control sequences and does not guarantee the safety of text or the receiving program’s bracketed-paste implementation.
 
 M9 corrects the remaining script debt: HOME/appData/userData/sessionData isolation before main in tracked smoke too; real DMG/ZIP checks with `smoke-macos-formats.mjs`; @electron/asar 3.4.1 directly declared as a development dependency, the same version already locked with no dependency-graph change; explicit `\.git\config`, `\settings.json`, backup, log and development-tool cases. Inspection checks ASAR and loose resources. Isolated C5–C8 checks already set paths and opened DMG/ZIP through temporary launchers: M9 makes that repeatable in the repository, without claiming those earlier results as new work.
 

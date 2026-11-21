@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ConfirmDialog } from './components/ConfirmDialog'
+import { PasteConfirmationDialog } from './components/PasteConfirmationDialog'
+import { PasteConfirmationController } from './pasteConfirmation'
 import { NewSessionDialog } from './components/NewSessionDialog'
 import { SettingsDialog } from './components/SettingsDialog'
 import { Sidebar } from './components/Sidebar'
@@ -11,10 +13,11 @@ import { displayedLayout, layoutCapacity, nextLayout, selectVisibleSessions } fr
 import { settingsFromUpdate } from './shared/settingsForm'
 import { sessionErrorMessage } from './shared/diagnosticMessages'
 import { shortenPath } from './shared/paths'
-import { appShortcut, type KeyLike } from './shortcuts'
+import { appShortcut, isPasteKey, type KeyLike } from './shortcuts'
 import { darkTerm, lightTerm } from './termTheme'
 import {
   copyFocusedTerminal,
+  discardPasteGesture,
   pasteFocusedTerminal,
   selectAllFocusedTerminal,
   setFocusedTerminal,
@@ -66,9 +69,15 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const [newOpen, setNewOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [pendingClose, setPendingClose] = useState<SessionInfo | null>(null)
+  const [pendingPasteId, setPendingPasteId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 860px)').matches)
   const demoApplied = useRef(false)
+  const pasteContext = useRef({ mounted: true, blocked: false })
+  pasteContext.current.blocked = newOpen || settingsOpen || pendingClose !== null
+  const [pasteConfirmation] = useState(() => new PasteConfirmationController(
+    setPendingPasteId, () => pasteContext.current.mounted && !pasteContext.current.blocked,
+  ))
 
   const locale = settings.locale
   const t = (key: MessageKey, vars?: Record<string, string | number>) => translate(locale, key, vars)
@@ -77,6 +86,23 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const focused = sessions.find((session) => session.id === focusedId) ?? null
   const patternWarning = sessions.find((session) => session.patternWarning)?.patternWarning
   const processDetectionUnavailable = sessions.some(session => session.processDetectionUnavailable === true)
+  const pendingPaste = sessions.find(session => session.id === pendingPasteId) ?? null
+
+  useEffect(() => {
+    pasteContext.current.mounted = true
+    return () => {
+      pasteContext.current.mounted = false
+      pasteConfirmation.cancel()
+    }
+  }, [pasteConfirmation])
+
+  useEffect(() => {
+    if (pendingPasteId && !sessions.some(session => session.id === pendingPasteId && session.phase !== 'exited')) pasteConfirmation.cancel()
+  }, [pendingPasteId, sessions, pasteConfirmation])
+
+  useEffect(() => {
+    if (pasteContext.current.blocked) pasteConfirmation.cancel()
+  }, [newOpen, settingsOpen, pendingClose, pasteConfirmation])
 
   useEffect(() => {
     document.documentElement.dataset.theme = resolved
@@ -200,7 +226,8 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }
 
   function dismissDialogs() {
-    if (!newOpen && !settingsOpen && !pendingClose) return false
+    if (!newOpen && !settingsOpen && !pendingClose && !pasteConfirmation.isPending()) return false
+    if (pasteConfirmation.isPending()) pasteConfirmation.cancel()
     setNewOpen(false)
     setSettingsOpen(false)
     setPendingClose(null)
@@ -216,7 +243,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   })
   actions.current.escape = dismissDialogs
   actions.current.shortcut = (event) => {
-    if (newOpen || settingsOpen || pendingClose) return
+    if (newOpen || settingsOpen || pendingClose || pasteConfirmation.isPending()) return
     const action = appShortcut(event, boot.platform)
     if (!action) return
     if (action === 'new') setNewOpen(true)
@@ -228,6 +255,16 @@ function Workspace({ boot }: { boot: BootInfo }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target
+      if (pasteConfirmation.isPending()) {
+        if (isPasteKey(event, boot.platform)) {
+          event.preventDefault()
+          discardPasteGesture({ role: 'shortcut', id: String(event.timeStamp) })
+        } else if (event.key === 'Escape') {
+          event.preventDefault()
+          pasteConfirmation.cancel()
+        } else if (appShortcut(event, boot.platform)) event.preventDefault()
+        return
+      }
       if (target instanceof HTMLElement && target.closest('.xterm')) return
       if (target instanceof HTMLElement) {
         const tag = target.tagName
@@ -273,6 +310,10 @@ function Workspace({ boot }: { boot: BootInfo }) {
 
   useEffect(() => {
     return window.plancia?.onEditCommand(async (command, id, accelerator) => {
+      if (pasteConfirmation.isPending()) {
+        if (command === 'paste') discardPasteGesture(accelerator ? { role: 'accelerator', id } : { role: 'direct', id })
+        return true
+      }
       if (command === 'copy') return copyFocusedTerminal()
       if (command === 'paste') {
         return pasteFocusedTerminal(boot.limits, accelerator ? { role: 'accelerator', id } : { role: 'direct', id })
@@ -281,7 +322,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
       if (command === 'cut' || command === 'undo' || command === 'redo') return terminalHasFocus()
       return false
     })
-  }, [boot.limits])
+  }, [boot.limits, pasteConfirmation])
 
   function createError(code: string): string {
     return sessionErrorMessage(locale, code)
@@ -403,13 +444,14 @@ function Workspace({ boot }: { boot: BootInfo }) {
                     shellId={session.shellId}
                     theme={termTheme}
                     fontSize={settings.fontSize}
-                    active={active && !newOpen && !settingsOpen && !pendingClose}
+                    active={active && !newOpen && !settingsOpen && !pendingClose && !pendingPasteId}
                     visible={visibleIds.has(id)}
                     platform={boot.platform}
                     limits={boot.limits}
                     fitToken={displayed}
                     copyLabel={t('menuCopy')}
                     pasteLabel={t('menuPaste')}
+                    pasteConfirmation={pasteConfirmation}
                     onActivate={() => setFocusedId(id)}
                     onShortcut={(event) => actions.current.shortcut(event)}
                     onEscape={() => actions.current.escape()}
@@ -463,6 +505,12 @@ function Workspace({ boot }: { boot: BootInfo }) {
           onCancel={() => setPendingClose(null)}
           onConfirm={() => closeNow(pendingClose)}
         />
+      ) : null}
+
+      {pendingPaste ? (
+        <PasteConfirmationDialog locale={locale} sessionName={sessionName(pendingPaste)}
+          onCancel={() => pasteConfirmation.cancel()}
+          onConfirm={() => pasteConfirmation.resolve(true)} />
       ) : null}
     </div>
   )

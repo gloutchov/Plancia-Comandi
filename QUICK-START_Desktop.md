@@ -8,7 +8,7 @@ C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows
 
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
-Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.14** (release C32 pubblicata). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.15** (M36 in verifica; ultima release pubblicata 0.3.14). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. I menu seguono subito la lingua IT/EN scelta nell’app; i contenuti di Servizi e i dialoghi di macOS restano gestiti dal sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
@@ -42,6 +42,8 @@ Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone
 
 ### 3. Regolare e chiudere
 
+Incollare o trascinare testo con a capo, anche finale, richiede **Incollare più righe?** quando il programma non ha attivato il bracketed paste. **Annulla** è selezionato inizialmente; Invio lo attiva, Esc o clic fuori annullano. Tab/Shift+Tab passano a **Incolla** e indietro. Confermare invia una volta il testo già acquisito alla sessione indicata; altri incolla durante la scelta sono ignorati. Una riga senza a capo e il bracketed paste attivo restano immediati. Controlla comunque i comandi prima di incollarli.
+
 Nei sorgenti 0.3.14, se compare **Rilevamento dei processi non disponibile**, puoi continuare a usare i terminali: gli altri segnali di stato restano attivi. Il controllo riprova automaticamente con attese crescenti fino a 60 secondi, con i parametri iniziali; una risposta valida rimuove l’avviso. Non è necessario riaprire le sessioni.
 
 In **Impostazioni** scegli lingua, tema, corpo del terminale e avvisi; le preferenze sono salvate automaticamente. Usa la matita o il doppio clic sul nome per rinominare una sessione.
@@ -66,7 +68,7 @@ C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon reso
 
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.14** (published C32 release). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.15** (M36 under review; latest published release 0.3.14). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. Menus immediately follow the IT/EN language chosen in the app; Services contents and macOS dialogs remain managed by the system. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 
@@ -99,6 +101,8 @@ Use the desktop window that opens. The development website in a browser has no t
 **Working**, **Idle** and **Action** are estimates: read the terminal before deciding whether a command has finished. Commands can change files and use the network with your permissions.
 
 ### 3. Adjust and close
+
+Pasting or dropping text with a line break, including a trailing one, requires **Paste multiple lines?** when the program has not enabled bracketed paste. **Cancel** is initially focused; Enter activates it, while Esc or a click outside cancel. Tab/Shift+Tab move to **Paste** and back. Confirming sends the captured text once to the named session; further pastes during the decision are ignored. One line without a newline and enabled bracketed paste remain immediate. Always check commands before pasting.
 
 In 0.3.14 source, if **Process detection unavailable** appears, keep using the terminals: other status signals remain active. Detection retries automatically with increasing waits up to 60 seconds under default settings; a valid response clears the warning. Sessions do not need reopening.
 

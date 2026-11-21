@@ -80,6 +80,9 @@ jobs:
       - name: Verify terminal protocol and process detection warning
         working-directory: app
         run: node ../tooling/scripts/smoke-terminal-stream.mjs .
+      - name: Verify multiline paste confirmation with synthetic clipboard
+        working-directory: app
+        run: node ../tooling/scripts/smoke-multiline-paste.mjs .
       - name: Package installer and portable executable
         working-directory: app
         run: |
@@ -187,6 +190,8 @@ jobs:
             ${{ runner.temp }}/plancia-window-chrome-*/report.json
             ${{ runner.temp }}/plancia-window-chrome-*/native-window.json
             ${{ runner.temp }}/plancia-window-chrome-*/failure.png
+            ${{ runner.temp }}/plancia-multiline-paste-*/report.json
+            ${{ runner.temp }}/plancia-multiline-paste-*/failure.png
             ${{ runner.temp }}/plancia-initial-locale-*/*/failure.json
             ${{ runner.temp }}/plancia-initial-locale-*/*/failure.png
           if-no-files-found: ignore
