@@ -44,6 +44,10 @@ ipcMain.handle('probe:settings', (_event, patch) => {
   return settings
 })
 ipcMain.handle('probe:report', () => ({ writes, subscriptions, resizes }))
+ipcMain.handle('probe:process-warning', (_event, value) => {
+  for (const session of sessions) session.processDetectionUnavailable = value === true
+  win.webContents.send('probe:sessions', sessions)
+})
 ipcMain.handle('probe:emit', (_event, id, data) => {
   const stream = streams.get(id)
   stream.data += data

@@ -17,6 +17,12 @@
   },
   "settings": { "maxBytes": 262144 },
   "diagnostics": { "maxBytes": 65536 },
+  "childPolling": {
+    "intervalMs": 2500,
+    "initialBackoffMs": 10000,
+    "maxBackoffMs": 60000,
+    "unavailableAfter": 3
+  },
   "statusPatterns": {
     "budgetMs": 50,
     "startupTimeoutMs": 2000,

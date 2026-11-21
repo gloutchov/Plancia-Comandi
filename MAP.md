@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura di Plancia Comandi **0.3.13**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.14**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -53,7 +53,8 @@ Plancia-Comandi/
 |   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
 |   |-- startupFailure.ts            Avviso IT/EN, diagnostica consentita e uscita 1 differita
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
-|   |-- children.ts                  Snapshot dei processi figli e timeout
+|   |-- children.ts                  Snapshot cancellabili, timeout ed errori PowerShell terminanti
+|   |-- childPolling.ts              Unico polling condiviso, scadenze, backoff e annullamento
 |   `-- screen.ts                    Parser terminale headless per lo schermo
 |-- src/
 |   |-- main.tsx                     Ingresso React e import degli stili
@@ -93,7 +94,10 @@ Plancia-Comandi/
 |       |-- developmentOptions.ts    Dieci variabili ignorate nei pacchetti
 |       |-- developmentOptions.test.ts Matrice sviluppo/pacchetto e alias
 |       |-- startupFailure.test.ts   Lingue, privacy e uscita anche dopo errori degli effetti
-|       |-- appConfig.test.ts        Test della configurazione e dei default
+|       |-- appConfig.test.ts        Test della configurazione, default e budget childPolling
+|       |-- childPolling.test.ts     Timer finti: nessuna sessione, intervalli, backoff e annullamento
+|       |-- children.test.ts         Adapter con comandi simulati, errori, parsing e AbortSignal
+|       |-- sessionChildPolling.test.ts  PTY simulate, avviso, recupero e ciclo di vita
 |       |-- shellQuote.ts            Quotatura dei percorsi per la shell
 |       |-- shellQuote.test.ts       Test POSIX, fish, PowerShell Unicode e cmd
 |       |-- shellDetection.test.ts   Rilevamento simulato dei quattro percorsi fish, senza shell reali
@@ -158,7 +162,7 @@ Plancia-Comandi/
 |   |-- smoke-initial-locale.mjs    M33: otto primi avvii reali su gemello, lingue/temi e override
 |   |-- window-chrome-regions.mjs    Asserzioni CSS distinte macOS/Windows, senza input nativo
 |   |-- window-chrome-regions.test.ts Test regressione Windows e casi negativi dei controlli
-|   |-- smoke-terminal-stream.mjs    Renderer reale, bridge sintetico, DA/OSC e viste
+|   |-- smoke-terminal-stream.mjs    Renderer sintetico: DA/OSC, viste e avviso processi IT/EN da 0.3.14
 |   |-- smoke-terminal-protocol.mjs  Query DA/OSC su PTY nativa nello smoke full da 0.3.10
 |   |-- smoke-driver.mjs             Ambiente ereditato, profilo isolato e debugger loopback
 |   |-- smoke-development-flags.mjs  Sonde delle dieci variabili, senza bypass nel prodotto
@@ -248,6 +252,8 @@ M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/mi
 
 Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
+Nei sorgenti M32/0.3.14, `sessions.ts` delega le interrogazioni a `childPolling.ts`: una richiesta globale per sessioni vive, nessuna senza sessioni, scadenza normale e backoff 10/20/40/60 s. `children.ts` inoltra AbortSignal al solo comando di snapshot e rifiuta risposte Windows vuote/malformate. Il contratto SessionInfo aggiunge il solo booleano `processDetectionUnavailable`; il renderer mostra l’avviso localizzato senza sospendere input o altri segnali. I budget sono in `config/app.config.json` (`childPolling`), validati da `appConfig.ts`. M37 resta pianificata per gli altri limiti. Nei workflow manuali esistenti, lo smoke del renderer terminal-stream segue la build; non è stato avviato un workflow da questa preparazione locale.
+
 ### 3. Comandi e verifiche
 
 **C33 pubblicata, 20 novembre 2026 — release 0.3.13 (M34/M35 assorbite).** Nome installato **Plancia Comandi**, ICO ufficiale Windows e lingua iniziale dal sistema, con override e preferenze conservati. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, tag annotati `milestone/C33` e `v0.3.13`, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata alle 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 test/4 saltati, PowerShell 5.1/7 e upgrade/rimozione 0.3.1 verificati. macOS ARM64: 514 test/3 saltati, otto primi avvii, upgrade e smoke finali dei pacchetti riusciti. Quattro binari senza certificato di firma e due manifest SHA-256 riscaricati e confrontati; sei URL pubblici HTTP 200, archivi sorgente identici ai 199 file Git. Branch M33 rimosso. Prova visiva nativa Windows rimandata su autorizzazione esplicita e dichiarata nelle note; Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
@@ -296,7 +302,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.13** structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.14** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -347,7 +353,8 @@ Plancia-Comandi/
 |   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
 |   |-- startupFailure.ts            IT/EN error, allowlisted diagnostics and deferred exit 1
 |   |-- shells.ts                    Platform shell detection
-|   |-- children.ts                  Child-process snapshots and timeouts
+|   |-- children.ts                  Cancellable snapshots, timeouts and terminating PowerShell errors
+|   |-- childPolling.ts              Shared polling, deadlines, backoff and cancellation
 |   `-- screen.ts                    Headless terminal screen parser
 |-- src/
 |   |-- main.tsx                     React entry point and style imports
@@ -387,7 +394,10 @@ Plancia-Comandi/
 |       |-- developmentOptions.ts    Ten variables ignored in packages
 |       |-- developmentOptions.test.ts Development/package matrix and aliases
 |       |-- startupFailure.test.ts   Locales, privacy and exit after effect failures
-|       |-- appConfig.test.ts        Configuration and default tests
+|       |-- appConfig.test.ts        Configuration, default and childPolling budget tests
+|       |-- childPolling.test.ts     Fake timers: no sessions, intervals, backoff and cancellation
+|       |-- children.test.ts         Mock commands, errors, parsing and AbortSignal
+|       |-- sessionChildPolling.test.ts  Fake PTYs, warning, recovery and lifecycle
 |       |-- shellQuote.ts            Shell path quoting
 |       |-- shellQuote.test.ts       POSIX, fish, PowerShell and cmd tests
 |       |-- shellDetection.test.ts   Mocked detection of the four fish paths, without real shells
@@ -452,7 +462,7 @@ Plancia-Comandi/
 |   |-- smoke-initial-locale.mjs    M33: eight real twin launches, languages/themes and overrides
 |   |-- window-chrome-regions.mjs    Separate macOS/Windows CSS assertions, no native input
 |   |-- window-chrome-regions.test.ts Windows regression and negative control-region cases
-|   |-- smoke-terminal-stream.mjs    Real renderer, synthetic bridge, DA/OSC and views
+|   |-- smoke-terminal-stream.mjs    Synthetic renderer: DA/OSC, views and process warning IT/EN from 0.3.14
 |   |-- smoke-terminal-protocol.mjs  Native PTY DA/OSC queries in full smoke from 0.3.10
 |   |-- smoke-driver.mjs             Inherited environment, isolated profile and loopback debugger
 |   |-- smoke-development-flags.mjs  Ten-variable probes with no product bypass
@@ -541,6 +551,8 @@ UI does not import `node-pty` or directly access the filesystem. Shared dictiona
 M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/migration), `privateFile` (writing/backups) and `diagnostics` (metadata). Two new limits are `settings.maxBytes` and `diagnostics.maxBytes`. The main→UI `settings:warning` event exposes no paths or contents and adds no privileged command. Tests interrupt real workers during writes/rename; smoke from 0.3.6 uses a real synthetic-profile failure in both themes and languages.
 
 `full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
+
+In M32/0.3.14 source, `sessions.ts` delegates queries to `childPolling.ts`: one global request for live sessions, none without sessions, normal deadline and 10/20/40/60 s backoff. `children.ts` forwards AbortSignal to the snapshot command only and rejects empty/malformed Windows responses. SessionInfo adds only the `processDetectionUnavailable` boolean; the renderer shows a localized warning without stopping input or other signals. Budgets live in `config/app.config.json` (`childPolling`), validated by `appConfig.ts`. M37 remains planned for other limits. In the existing manual workflows, the terminal-stream renderer smoke follows the build; no workflow was started during this local preparation.
 
 ### 3. Commands and checks
 

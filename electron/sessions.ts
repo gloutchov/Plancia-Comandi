@@ -6,12 +6,13 @@ import type { BrowserWindow } from 'electron'
 import type { IPty } from 'node-pty'
 import type { Terminal } from '@xterm/headless'
 import { listActiveParents } from './children'
+import { ChildProcessPoller } from './childPolling'
 import { closeShellTree, runTaskkill } from '../src/shared/windowsShellClose'
 import { createScreen, readScreen } from './screen'
 import { CustomPatternMatcher } from './customPatterns'
 import { reportDiagnostic } from './diagnostics'
 import type { SettingsStore } from './settings'
-import type { StatusPatternLimits } from '../src/shared/appConfig'
+import type { ChildPollingLimits, StatusPatternLimits } from '../src/shared/appConfig'
 import {
   ActivityTracker,
   TitleParser,
@@ -103,8 +104,8 @@ export class SessionManager {
   private windowFocused = true
   private pty: PtyModule | null
   private statusTimer: NodeJS.Timeout
-  private childTimer: NodeJS.Timeout
-  private polling = false
+  private childPoller: ChildProcessPoller
+  private processDetectionUnavailable = false
   private patternMatcher: CustomPatternMatcher
 
   constructor(
@@ -116,19 +117,25 @@ export class SessionManager {
       notify: (title: string, body: string, sessionId: string) => void
       maxWriteChars: number
       statusPatternLimits: StatusPatternLimits
+      childPollingLimits: ChildPollingLimits
     },
     ptyModule: PtyModule | null = loadPty(),
   ) {
     this.pty = ptyModule
     this.patternMatcher = new CustomPatternMatcher(deps.statusPatternLimits, MAX_SESSIONS, () => this.tick())
     this.statusTimer = setInterval(() => this.tick(), 400)
-    this.childTimer = setInterval(() => void this.pollChildren(), 2500)
-    void this.pollChildren()
+    this.childPoller = new ChildProcessPoller({
+      limits: deps.childPollingLimits,
+      hasLiveSessions: () => this.liveSessions().length > 0,
+      readParents: signal => listActiveParents(signal),
+      onSnapshot: (parents, unavailable) => this.applyChildSnapshot(parents, unavailable),
+      onError: error => reportDiagnostic('process-snapshot-failed', error),
+    })
   }
 
   dispose(): void {
     clearInterval(this.statusTimer)
-    clearInterval(this.childTimer)
+    this.childPoller.dispose()
     void this.patternMatcher.dispose()
     for (const session of this.sessions.values()) {
       try {
@@ -231,7 +238,7 @@ export class SessionManager {
     this.order.push(id)
     this.deps.settings.update({ lastShellId: shell.id, lastCwd: directory })
     this.push()
-    void this.pollChildren()
+    this.childPoller.sync()
     return { ok: true, session: this.toInfo(session) }
   }
 
@@ -284,6 +291,7 @@ export class SessionManager {
       return
     }
     session.closing = true
+    this.childPoller.sync()
     const pty = session.pty
     // IPty.pid is the console shell: WindowsTerminal copies the agent's innerPid into pid.
     void closeShellTree(process.platform, session.pid ?? pty.pid, () => {
@@ -351,6 +359,7 @@ export class SessionManager {
     session.reason = 'process-exited'
     session.hasActiveChild = false
     session.pid = null
+    this.childPoller.sync()
     if (session.closing) this.remove(session.id)
     else this.push()
   }
@@ -362,6 +371,7 @@ export class SessionManager {
     session.screen?.dispose()
     this.sessions.delete(id)
     this.order = this.order.filter((item) => item !== id)
+    this.childPoller.sync()
     this.push()
   }
 
@@ -451,21 +461,21 @@ export class SessionManager {
     return translate(this.deps.settings.data.locale, 'defaultSession', { n: session.index })
   }
 
-  private async pollChildren(): Promise<void> {
-    if (this.polling) return
-    const live = [...this.sessions.values()].filter((session) => !session.exited && session.pid)
-    if (live.length === 0) return
-    this.polling = true
-    try {
-      const parents = await listActiveParents()
-      for (const session of live) {
-        if (session.pid) session.hasActiveChild = parents.has(session.pid)
-      }
-    } catch (error) {
-      reportDiagnostic('process-snapshot-failed', error)
-      for (const session of live) session.hasActiveChild = null
-    } finally {
-      this.polling = false
+  private liveSessions(): LiveSession[] {
+    return [...this.sessions.values()].filter(session => !session.exited && !session.closing && session.pid !== null)
+  }
+
+  private applyChildSnapshot(parents: Set<number> | null, unavailable: boolean): void {
+    let changed = this.processDetectionUnavailable !== unavailable
+    this.processDetectionUnavailable = unavailable
+    for (const session of this.liveSessions()) {
+      const hasChild = parents === null ? null : parents.has(session.pid!)
+      if (session.hasActiveChild !== hasChild) changed = true
+      session.hasActiveChild = hasChild
+    }
+    if (changed) {
+      this.tick()
+      this.push()
     }
   }
 
@@ -492,6 +502,7 @@ export class SessionManager {
       createdAt: session.createdAt,
       error: session.error,
       patternWarning: session.patternWarning,
+      processDetectionUnavailable: this.processDetectionUnavailable && !session.exited && !session.closing,
     }
   }
 }

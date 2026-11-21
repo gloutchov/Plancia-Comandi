@@ -101,7 +101,7 @@ describe('protected local diagnostics', () => {
     const settings = new SettingsStore(root, { userData: path.join(root, 'profile'), appData: root, maxBytes: 262_144 })
     const update = vi.spyOn(settings, 'update')
     const spawn = vi.fn(() => { throw failure() })
-    const manager = new SessionManager({ getWindow: () => null, settings, shells: [{ id: 'test', labelKey: 'test', command: PRIVATE, args: [] }], home: root, notify: () => undefined, maxWriteChars: 200_000, statusPatternLimits: APP_CONFIG_DEFAULTS.statusPatterns }, { spawn } as unknown as typeof import('node-pty'))
+    const manager = new SessionManager({ getWindow: () => null, settings, shells: [{ id: 'test', labelKey: 'test', command: PRIVATE, args: [] }], home: root, notify: () => undefined, maxWriteChars: 200_000, statusPatternLimits: APP_CONFIG_DEFAULTS.statusPatterns, childPollingLimits: APP_CONFIG_DEFAULTS.childPolling }, { spawn } as unknown as typeof import('node-pty'))
     try {
       expect(manager.create({ shellId: 'test', cwd: root })).toEqual({ ok: false, error: 'pty-spawn-failed' })
       expect(manager.list()).toEqual([])

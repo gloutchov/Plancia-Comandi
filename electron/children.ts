@@ -1,8 +1,8 @@
 import { execFile } from 'node:child_process'
 
-function run(command: string, args: string[], timeout: number): Promise<string> {
+function run(command: string, args: string[], timeout: number, signal?: AbortSignal): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(command, args, { timeout, windowsHide: true, maxBuffer: 4_000_000 }, (error, stdout) => {
+    execFile(command, args, { timeout, signal, windowsHide: true, maxBuffer: 4_000_000 }, (error, stdout) => {
       if (error) reject(error)
       else resolve(String(stdout))
     })
@@ -13,13 +13,13 @@ function run(command: string, args: string[], timeout: number): Promise<string> 
  * Parent process ids that currently have at least one live child.
  * Zombies are ignored. One snapshot covers every session.
  */
-export async function listActiveParents(): Promise<Set<number>> {
-  if (process.platform === 'win32') return listWindowsParents()
-  return listUnixParents()
+export async function listActiveParents(signal?: AbortSignal): Promise<Set<number>> {
+  if (process.platform === 'win32') return listWindowsParents(signal)
+  return listUnixParents(signal)
 }
 
-async function listUnixParents(): Promise<Set<number>> {
-  const stdout = await run('ps', ['-ax', '-o', 'pid=,ppid=,stat='], 4000)
+async function listUnixParents(signal?: AbortSignal): Promise<Set<number>> {
+  const stdout = await run('ps', ['-ax', '-o', 'pid=,ppid=,stat='], 4000, signal)
   const parents = new Set<number>()
   for (const line of stdout.split('\n')) {
     const parts = line.trim().split(/\s+/)
@@ -32,21 +32,28 @@ async function listUnixParents(): Promise<Set<number>> {
   return parents
 }
 
-async function listWindowsParents(): Promise<Set<number>> {
+async function listWindowsParents(signal?: AbortSignal): Promise<Set<number>> {
   const stdout = await run(
     'powershell.exe',
     [
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      'Get-CimInstance Win32_Process | ForEach-Object { "$($_.ParentProcessId)" }',
+      '$ErrorActionPreference = "Stop"; Get-CimInstance Win32_Process -Property ParentProcessId -ErrorAction Stop | ForEach-Object { "$($_.ParentProcessId)" }',
     ],
     8000,
+    signal,
   )
   const parents = new Set<number>()
+  let rows = 0
   for (const line of stdout.split(/\r?\n/)) {
-    const ppid = Number(line.trim())
+    const text = line.trim()
+    if (!text) continue
+    if (!/^\d+$/.test(text) || !Number.isSafeInteger(Number(text))) throw new Error('Invalid process snapshot')
+    rows += 1
+    const ppid = Number(text)
     if (ppid) parents.add(ppid)
   }
+  if (rows === 0) throw new Error('Empty process snapshot')
   return parents
 }

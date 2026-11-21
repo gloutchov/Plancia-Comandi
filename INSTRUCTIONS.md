@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.13**, a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.14** in M32 source (latest published release 0.3.13), a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -225,6 +225,10 @@ If matching takes too long or is unavailable, a warning appears above the termin
 
 ### 6.3 Application configuration file
 
+In M32/0.3.14 source, child-process detection uses one shared query for live sessions, including hidden ones. No query is launched without live sessions, or when all sessions have exited or are closing; an in-flight query is cancelled. Opening another session does not bring the deadline forward. With defaults, the next check starts at least 2500 ms after the previous response. Errors cause waits of 10, 20, 40 and then 60 seconds, without overlapping requests.
+
+After the third consecutive error, **Process detection unavailable. Other status signals remain active.** appears. Terminals, input and output/title detection keep working; process evidence becomes unknown. Retries continue automatically, and the first valid response clears the warning and restores the normal interval. The feature does not bypass Windows permissions or policies; the specific Windows 11 Constrained Language Mode and AppLocker checks have not been run on this Mac.
+
 `config/app.config.json`, in the application folder, holds clipboard, drag-and-drop, input and custom-pattern limits. It contains no secrets. At startup the app reads the file and ignores unknown keys; missing or nonnumeric fields use defaults, while numeric values are rounded and clamped to the allowed ranges. Changes require a restart. In an installed app the same file lives in `resources/config`, outside the inner archive, so it can be edited without rebuilding.
 
 | Key | Default | Range | Use |
@@ -244,6 +248,12 @@ If matching takes too long or is unavailable, a warning appears above the termin
 | `statusPatterns.startupTimeoutMs` | 2000 | 500–10000 | Maximum wait for the matching service to start, separate from the request budget. |
 | `statusPatterns.maxInputChars` | 4096 | 256–32768 | Maximum visible text copied before selecting the rows to examine. |
 | `statusPatterns.workerMemoryMb` | 32 | 16–128 | JavaScript engine old-generation memory limit in MB; not an app-wide memory limit. |
+| `childPolling.intervalMs` | 2500 | 1000–60000 | Minimum wait after a successful snapshot, in ms. |
+| `childPolling.initialBackoffMs` | 10000 | 10000–60000 | Wait after the first error, in ms. |
+| `childPolling.maxBackoffMs` | 60000 | initialBackoffMs–60000 | Cap for doubling after errors; never below the initial value. |
+| `childPolling.unavailableAfter` | 3 | 1–10 | Consecutive errors before the warning. |
+
+The four `childPolling` fields accept only finite numbers: missing or other types use defaults; numbers are rounded and clamped. The actual wait after an error is never below `intervalMs`. **Reset timings** changes status preferences only, not these central-file parameters.
 
 Example without secrets:
 
@@ -259,7 +269,8 @@ Example without secrets:
   },
   "terminal": { "maxWriteChars": 200000 },
   "drop": { "maxFiles": 20, "maxPathChars": 4096 },
-  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 }
+  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 },
+  "childPolling": { "intervalMs": 2500, "initialBackoffMs": 10000, "maxBackoffMs": 60000, "unavailableAfter": 3 }
 }
 ```
 

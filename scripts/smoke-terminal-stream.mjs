@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
@@ -11,7 +11,9 @@ import { connectProtocol, prepareIsolatedSmokeRoot } from './smoke-driver.mjs'
 // External Electron fixture: production renderer, synthetic bridge, no shell,
 // personal profile, real clipboard, AI CLI or product test hook.
 const project = path.resolve(process.argv[2] ?? '.')
-const root = await mkdtemp(path.join(os.tmpdir(), 'plancia-terminal-stream-'))
+const root = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'plancia-terminal-stream-'))
+const [major, minor, patch] = JSON.parse(await readFile(path.join(project, 'package.json'), 'utf8')).version.split(/[.-]/).map(Number)
+const processWarningSupported = major > 0 || minor > 3 || (minor === 3 && patch >= 14)
 const { env } = await prepareIsolatedSmokeRoot(root)
 const server = net.createServer()
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
@@ -88,10 +90,31 @@ try {
     assert.deepEqual(colors, theme === 'dark'
       ? ['\x1b]10;rgb:e7e7/e2e2/d6d6\x1b\\', '\x1b]11;rgb:1414/1818/2020\x1b\\']
       : ['\x1b]10;rgb:1d1d/1b1b/1616\x1b\\', '\x1b]11;rgb:fbfb/fafa/f6f6\x1b\\'])
+    if (processWarningSupported) {
+      await evaluate('terminalProbe.processWarning(true)')
+      const expected = locale === 'it'
+        ? 'Rilevamento dei processi non disponibile. Gli altri segnali di stato restano attivi.'
+        : 'Process detection unavailable. Other status signals remain active.'
+      await until(() => evaluate(`document.querySelector('[data-testid="process-detection-warning"]')?.textContent === ${JSON.stringify(expected)}`), 'process detection warning')
+      assert(await evaluate('originalTerminal === document.querySelector(".xterm")'), 'Warning recreated the terminal')
+      for (const mode of ['split', 'stack', 'grid', 'single']) {
+        await click(`[data-testid="layout-${mode}"]`)
+        await until(() => evaluate(`document.querySelector('.tiles').dataset.layout === ${JSON.stringify(mode)}`), 'warning layout ' + mode)
+        assert.equal((await report()).subscriptions.length, 3, 'Warning/layout change resubscribed terminals')
+      }
+    }
     for (const [width, height] of [[1440, 900], [1280, 820], [860, 560]]) {
       await driver.request('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false })
       await delay(100)
       assert.equal(await evaluate('document.querySelectorAll(".tile:not([hidden])").length'), 1)
+      if (processWarningSupported) {
+        assert(await evaluate(`(() => {
+          const banner = document.querySelector('[data-testid="process-detection-warning"]');
+          const rect = banner.getBoundingClientRect();
+          const tile = document.querySelector('.tile:not([hidden])').getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && rect.right <= innerWidth + 1 && tile.top >= rect.bottom - 1 && tile.height > 100;
+        })()`), 'Warning overlaps or hides the terminal')
+      }
       const shot = await driver.request('Page.captureScreenshot')
       await writeFile(path.join(root, `${locale}-${theme}-${width}.png`), Buffer.from(shot.data, 'base64'))
     }
@@ -101,12 +124,19 @@ try {
   await driver.request('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowUp', code: 'ArrowUp', windowsVirtualKeyCode: 38 })
   await until(async () => (await report()).writes.some(w => w.data === 'synthetic input'), 'user input')
   assert((await report()).writes.some(w => w.data === '\x1b[A'), 'Arrow key was lost')
+  if (processWarningSupported) {
+    await evaluate('terminalProbe.processWarning(false)')
+    await until(() => evaluate('!document.querySelector("[data-testid=process-detection-warning]")'), 'warning recovery')
+    assert.equal((await report()).subscriptions.length, 3, 'Warning recovery resubscribed terminals')
+  }
   await driver.request('Input.dispatchKeyEvent', { type: 'keyDown', key: 'v', code: 'KeyV', modifiers: process.platform === 'darwin' ? 4 : 10, windowsVirtualKeyCode: 86 })
   await driver.request('Input.dispatchKeyEvent', { type: 'keyUp', key: 'v', code: 'KeyV', windowsVirtualKeyCode: 86 })
   await until(async () => (await report()).writes.some(w => w.data === 'synthetic paste'), 'paste')
   await evaluate(`terminalProbe.remove(${JSON.stringify(id)})`)
   await until(() => evaluate('document.querySelectorAll(".xterm").length === 2'), 'session disposal')
-  console.log(JSON.stringify({ smoke: 'terminal-stream-passed', platform: process.platform, root, checks: ['DA/OSC', 'hidden sessions', 'four layouts', 'fragmented output', 'IT/EN', 'theme colors', 'three desktop sizes', 'input', 'arrows', 'paste', 'disposal'] }))
+  const result = { smoke: 'terminal-stream-passed', platform: process.platform, root, processWarningSupported, checks: ['DA/OSC', 'hidden sessions', 'four layouts', 'fragmented output', 'IT/EN', 'theme colors', 'three desktop sizes', 'input', 'arrows', 'paste', 'disposal', ...(processWarningSupported ? ['process warning', 'warning in four layouts', 'warning recovery', 'terminal persistence'] : [])] }
+  await writeFile(path.join(root, 'report.json'), JSON.stringify(result, null, 2))
+  console.log(JSON.stringify(result))
 } finally {
   driver?.close()
   child.kill()

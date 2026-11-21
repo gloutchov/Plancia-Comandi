@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.13**, un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.14** nei sorgenti M32 (ultima release pubblicata 0.3.13), un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -225,6 +225,10 @@ Se il matching impiega troppo tempo o non è disponibile, compare un avviso sopr
 
 ### 6.3 File di configurazione dell'app
 
+Nei sorgenti M32/0.3.14 il rilevamento dei processi figli usa una sola interrogazione condivisa tra le sessioni vive, comprese quelle nascoste. Senza sessioni vive, oppure quando tutte sono terminate o in chiusura, non vengono avviate interrogazioni; quella in corso viene annullata. L’apertura di un’altra sessione non anticipa la scadenza. Con i default il controllo successivo parte almeno 2500 ms dopo la risposta precedente. Dopo gli errori attende 10, 20, 40 e poi 60 secondi, senza richieste sovrapposte.
+
+Al terzo errore consecutivo compare **Rilevamento dei processi non disponibile. Gli altri segnali di stato restano attivi.** I terminali, l’input e il rilevamento da output/titolo continuano a funzionare; il segnale dei processi diventa sconosciuto. I tentativi proseguono automaticamente e la prima risposta valida rimuove l’avviso e ripristina l’intervallo ordinario. La funzione non elude permessi o policy Windows; la prova specifica di Constrained Language Mode su Windows 11 e di AppLocker non è stata eseguita su questo Mac.
+
 `config/app.config.json`, nella cartella dell’applicazione, raccoglie i limiti di appunti, trascinamento, input e pattern personalizzati. Non contiene segreti. All’avvio l’app legge il file e ignora le chiavi sconosciute; i campi mancanti o non numerici usano i default, mentre i valori numerici vengono arrotondati e limitati agli intervalli. Una modifica richiede il riavvio. Nell’app installata lo stesso file sta in `resources/config`, fuori dall’archivio interno, così si può modificare senza ricompilare.
 
 | Chiave | Default | Intervallo | Uso |
@@ -244,6 +248,12 @@ Se il matching impiega troppo tempo o non è disponibile, compare un avviso sopr
 | `statusPatterns.startupTimeoutMs` | 2000 | 500–10000 | Attesa massima per l’avvio del servizio di matching, separata dal budget della richiesta. |
 | `statusPatterns.maxInputChars` | 4096 | 256–32768 | Massimo testo visibile copiato prima di selezionare le righe da esaminare. |
 | `statusPatterns.workerMemoryMb` | 32 | 16–128 | Limite della memoria old-generation del motore JavaScript in MB; non è un limite globale alla memoria dell’app. |
+| `childPolling.intervalMs` | 2500 | 1000–60000 | Attesa minima dopo uno snapshot riuscito, in ms. |
+| `childPolling.initialBackoffMs` | 10000 | 10000–60000 | Attesa dopo il primo errore, in ms. |
+| `childPolling.maxBackoffMs` | 60000 | initialBackoffMs–60000 | Tetto del raddoppio dopo gli errori; mai inferiore al valore iniziale. |
+| `childPolling.unavailableAfter` | 3 | 1–10 | Errori consecutivi prima dell’avviso. |
+
+I quattro campi `childPolling` accettano solo numeri finiti: valori mancanti o di altro tipo usano il default; i numeri sono arrotondati e limitati. L’attesa effettiva dopo un errore non è mai inferiore a `intervalMs`. **Ripristina i tempi** modifica solo le preferenze di stato, non questi parametri del file centrale.
 
 Esempio senza segreti:
 
@@ -259,7 +269,8 @@ Esempio senza segreti:
   },
   "terminal": { "maxWriteChars": 200000 },
   "drop": { "maxFiles": 20, "maxPathChars": 4096 },
-  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 }
+  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 },
+  "childPolling": { "intervalMs": 2500, "initialBackoffMs": 10000, "maxBackoffMs": 60000, "unavailableAfter": 3 }
 }
 ```
 

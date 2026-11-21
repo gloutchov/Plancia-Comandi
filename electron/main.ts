@@ -393,6 +393,7 @@ function start(): void {
     notify,
     maxWriteChars: appConfig.terminal.maxWriteChars,
     statusPatternLimits: appConfig.statusPatterns,
+    childPollingLimits: appConfig.childPolling,
   })
 
   nativeTheme.on('updated', () => {

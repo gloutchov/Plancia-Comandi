@@ -24,6 +24,14 @@ export interface AppConfig {
   statusPatterns: StatusPatternLimits
   settings: { maxBytes: number }
   diagnostics: { maxBytes: number }
+  childPolling: ChildPollingLimits
+}
+
+export interface ChildPollingLimits {
+  intervalMs: number
+  initialBackoffMs: number
+  maxBackoffMs: number
+  unavailableAfter: number
 }
 
 export interface StatusPatternLimits {
@@ -67,6 +75,12 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   },
   settings: { maxBytes: 262_144 },
   diagnostics: { maxBytes: 65_536 },
+  childPolling: {
+    intervalMs: 2500,
+    initialBackoffMs: 10_000,
+    maxBackoffMs: 60_000,
+    unavailableAfter: 3,
+  },
 }
 
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
@@ -99,7 +113,11 @@ export function validateAppConfig(input: unknown): AppConfig {
   const patterns = record(source.statusPatterns)
   const settings = record(source.settings)
   const diagnostics = record(source.diagnostics)
+  const children = record(source.childPolling)
   const defaults = APP_CONFIG_DEFAULTS
+  const childNumber = (key: keyof ChildPollingLimits, min: number, max: number) =>
+    clamp(typeof children[key] === 'number' ? children[key] : undefined, min, max, defaults.childPolling[key])
+  const initialBackoffMs = childNumber('initialBackoffMs', 10_000, 60_000)
   return {
     clipboardImages: {
       directoryName: asDirectoryName(images.directoryName, defaults.clipboardImages.directoryName),
@@ -124,6 +142,12 @@ export function validateAppConfig(input: unknown): AppConfig {
     },
     settings: { maxBytes: clamp(typeof settings.maxBytes === 'number' ? settings.maxBytes : undefined, 16_384, 1_048_576, defaults.settings.maxBytes) },
     diagnostics: { maxBytes: clamp(typeof diagnostics.maxBytes === 'number' ? diagnostics.maxBytes : undefined, 4096, 1_048_576, defaults.diagnostics.maxBytes) },
+    childPolling: {
+      intervalMs: childNumber('intervalMs', 1000, 60_000),
+      initialBackoffMs,
+      maxBackoffMs: childNumber('maxBackoffMs', initialBackoffMs, 60_000),
+      unavailableAfter: childNumber('unavailableAfter', 1, 10),
+    },
   }
 }
 

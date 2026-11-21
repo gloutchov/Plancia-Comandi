@@ -77,6 +77,9 @@ jobs:
       - name: Verify window chrome and interactive exclusions
         working-directory: app
         run: node ../tooling/scripts/smoke-window-chrome.mjs .
+      - name: Verify terminal protocol and process detection warning
+        working-directory: app
+        run: node ../tooling/scripts/smoke-terminal-stream.mjs .
       - name: Package installer and portable executable
         working-directory: app
         run: |

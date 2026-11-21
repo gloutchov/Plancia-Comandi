@@ -24,4 +24,5 @@ contextBridge.exposeInMainWorld('terminalProbe', {
   report: () => ipcRenderer.invoke('probe:report'),
   emit: (id, data) => ipcRenderer.invoke('probe:emit', id, data),
   remove: id => ipcRenderer.invoke('probe:remove', id),
+  processWarning: value => ipcRenderer.invoke('probe:process-warning', value),
 })

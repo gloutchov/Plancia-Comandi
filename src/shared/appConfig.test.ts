@@ -95,4 +95,21 @@ describe('validateAppConfig', () => {
   it('uses defaults when the file cannot be read', () => {
     expect(loadAppConfig(path.join(os.tmpdir(), 'plancia-missing-app.config.json'))).toEqual(APP_CONFIG_DEFAULTS)
   })
+
+  it('validates child polling deadlines, backoff and warning threshold independently', () => {
+    expect(validateAppConfig({ childPolling: {
+      intervalMs: 1, initialBackoffMs: 1, maxBackoffMs: 999_999, unavailableAfter: 99,
+    } }).childPolling).toEqual({ intervalMs: 1000, initialBackoffMs: 10_000, maxBackoffMs: 60_000, unavailableAfter: 10 })
+    expect(validateAppConfig({ childPolling: {
+      intervalMs: 999_999, initialBackoffMs: 999_999, maxBackoffMs: 1, unavailableAfter: 0,
+    } }).childPolling).toEqual({ intervalMs: 60_000, initialBackoffMs: 60_000, maxBackoffMs: 60_000, unavailableAfter: 1 })
+    for (const value of [null, true, '2500', [], {}, Infinity, NaN]) {
+      expect(validateAppConfig({ childPolling: {
+        intervalMs: value, initialBackoffMs: value, maxBackoffMs: value, unavailableAfter: value,
+      } }).childPolling).toEqual(APP_CONFIG_DEFAULTS.childPolling)
+    }
+    expect(validateAppConfig({ childPolling: {
+      intervalMs: 3000.6, initialBackoffMs: 15_000, maxBackoffMs: 30_000, unavailableAfter: 4,
+    } }).childPolling).toEqual({ intervalMs: 3001, initialBackoffMs: 15_000, maxBackoffMs: 30_000, unavailableAfter: 4 })
+  })
 })

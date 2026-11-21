@@ -76,6 +76,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   const termTheme = resolved === 'dark' ? darkTerm : lightTerm
   const focused = sessions.find((session) => session.id === focusedId) ?? null
   const patternWarning = sessions.find((session) => session.patternWarning)?.patternWarning
+  const processDetectionUnavailable = sessions.some(session => session.processDetectionUnavailable === true)
 
   useEffect(() => {
     document.documentElement.dataset.theme = resolved
@@ -354,6 +355,11 @@ function Workspace({ boot }: { boot: BootInfo }) {
         {settingsWarning ? (
           <p className="pattern-warning" role="status" data-testid="settings-warning">
             {t(('settingsWarning_' + settingsWarning) as MessageKey)}
+          </p>
+        ) : null}
+        {processDetectionUnavailable ? (
+          <p className="pattern-warning" role="status" data-testid="process-detection-warning">
+            {t('processDetectionUnavailable')}
           </p>
         ) : null}
         {patternWarning ? (

@@ -98,6 +98,8 @@ export interface SessionInfo {
   createdAt: number
   error?: string
   patternWarning?: CustomPatternWarning
+  /** Machine-wide process snapshot failed repeatedly; other status signals still work. */
+  processDetectionUnavailable?: boolean
 }
 
 export type CreateResult =

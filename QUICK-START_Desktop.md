@@ -6,7 +6,7 @@ C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows
 
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
-Questa guida porta dal checkout al primo terminale di Plancia Comandi **0.3.13**. Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.14** (M32; release pubblicata 0.3.13). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. I menu seguono subito la lingua IT/EN scelta nell’app; i contenuti di Servizi e i dialoghi di macOS restano gestiti dal sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
@@ -40,6 +40,8 @@ Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone
 
 ### 3. Regolare e chiudere
 
+Nei sorgenti 0.3.14, se compare **Rilevamento dei processi non disponibile**, puoi continuare a usare i terminali: gli altri segnali di stato restano attivi. Il controllo riprova automaticamente con attese crescenti fino a 60 secondi, con i parametri iniziali; una risposta valida rimuove l’avviso. Non è necessario riaprire le sessioni.
+
 In **Impostazioni** scegli lingua, tema, corpo del terminale e avvisi; le preferenze sono salvate automaticamente. Usa la matita o il doppio clic sul nome per rinominare una sessione.
 
 Per chiuderla premi **×** nella sua riga. L'app chiede conferma se la considera al lavoro o in attesa di un'azione. Termina e salva il lavoro prima di uscire dall'app: le sessioni non vengono ripristinate e l'uscita completa non ha una conferma generale per tutte le sessioni.
@@ -60,7 +62,7 @@ C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon reso
 
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.13**. Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.14** source (M32; published release 0.3.13). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. Menus immediately follow the IT/EN language chosen in the app; Services contents and macOS dialogs remain managed by the system. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 
@@ -93,6 +95,8 @@ Use the desktop window that opens. The development website in a browser has no t
 **Working**, **Idle** and **Action** are estimates: read the terminal before deciding whether a command has finished. Commands can change files and use the network with your permissions.
 
 ### 3. Adjust and close
+
+In 0.3.14 source, if **Process detection unavailable** appears, keep using the terminals: other status signals remain active. Detection retries automatically with increasing waits up to 60 seconds under default settings; a valid response clears the warning. Sessions do not need reopening.
 
 In **Settings**, choose language, theme, terminal size and alerts; preferences are saved automatically. Use the pencil or double-click a session name to rename it.
 
