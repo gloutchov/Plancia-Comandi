@@ -27,7 +27,7 @@ Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pub
 
 ## 2. Installazione
 
-La landing segue automaticamente l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): legge solo i metadati pubblici GitHub all’apertura e aggiorna insieme versione, quattro pacchetti e due checksum. Se la richiesta fallisce o JavaScript è disabilitato, i collegamenti aprono la pagina dell’ultima release. Non servono account o credenziali; non vengono inviati contenuti dei terminali. L’anteprima usa `vite.site.config.ts`, separata dalla configurazione Electron.
+La landing segue automaticamente l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): legge solo i metadati pubblici GitHub all’apertura e aggiorna i collegamenti ai quattro pacchetti e ai due checksum. Se la richiesta fallisce o JavaScript è disabilitato, i collegamenti aprono la pagina dell’ultima release. Non servono account o credenziali; non vengono inviati contenuti dei terminali. L’anteprima usa `vite.site.config.ts`, separata dalla configurazione Electron.
 
 
 ### 2.1 Installare il software necessario

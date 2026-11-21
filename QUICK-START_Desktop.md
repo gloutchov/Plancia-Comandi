@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Per i pacchetti usa la landing o l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): versione e download della landing si aggiornano dai metadati pubblici GitHub; senza JavaScript o API disponibili si apre la pagina latest.
+Per i pacchetti usa la landing o l’[ultima release stabile](https://github.com/gloutchov/Plancia-Comandi/releases/latest): i download della landing si aggiornano dai metadati pubblici GitHub; senza JavaScript o API disponibili si apre la pagina latest.
 
 C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows e lingua iniziale: italiano per la prima lingua preferita italiana, inglese altrimenti; una scelta salvata prevale. Per aggiornare senza duplicare l’app vedi [pacchetti e aggiornamento](ISTRUZIONI.md#23-pacchetti-compilati). [Download e SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verificati; controllo visivo nativo Windows rimandato con autorizzazione e dichiarato nelle note.
 
@@ -60,7 +60,7 @@ Nei pacchetti 0.3.9 demo, DevTools, screenshot e traccia di sviluppo sono disabi
 
 ## English
 
-For packages, use the landing or the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): landing version/downloads update from public GitHub metadata; without JavaScript or an available API, links open the latest page.
+For packages, use the landing or the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): landing downloads update from public GitHub metadata; without JavaScript or an available API, links open the latest page.
 
 C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon resource and initial language: Italian for a primary preferred Italian language, English otherwise; a saved choice takes precedence. To update without duplicate apps see [packages and updating](INSTRUCTIONS.md#23-prebuilt-packages). [Downloads and SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13) verified; native Windows visual checks explicitly deferred and disclosed in the notes.
 

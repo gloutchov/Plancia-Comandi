@@ -27,7 +27,7 @@ Running source requires Git, Node.js with npm and access to the public repositor
 
 ## 2. Installation
 
-The landing automatically follows the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): it reads only public GitHub metadata on page load and updates the version, four packages and two checksums together. If the request fails or JavaScript is disabled, links open the latest release page. No account or credentials are needed; terminal contents are not sent. Preview uses `vite.site.config.ts`, separate from the Electron configuration.
+The landing automatically follows the [latest stable release](https://github.com/gloutchov/Plancia-Comandi/releases/latest): it reads only public GitHub metadata on page load and updates links to the four packages and two checksums. If the request fails or JavaScript is disabled, links open the latest release page. No account or credentials are needed; terminal contents are not sent. Preview uses `vite.site.config.ts`, separate from the Electron configuration.
 
 
 ### 2.1 Install the required software
