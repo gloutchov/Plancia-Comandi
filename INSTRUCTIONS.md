@@ -1,6 +1,6 @@
 # User manual — Plancia Comandi
 
-This manual describes Plancia Comandi **0.3.15** (M36 source under review; latest published release 0.3.14), a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
+This manual describes Plancia Comandi **0.3.16** (unified M37 source under review; latest published release 0.3.15), a desktop app for using multiple real terminals and following their activity. The app is in early development; the limitations listed here describe current behavior. The complete Italian version is [ISTRUZIONI.md](ISTRUZIONI.md).
 
 C14 adds quoting specific to fish sessions; the personal test and 17 native fish 4.9.3 comparisons passed. Release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) with Electron 45.3.2 is published with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256. C13 fixes PowerShell quoting for paths containing Unicode apostrophes. The required native comparison passed on Windows PowerShell 5.1.26100.33648 and PowerShell 7.6.9, 46 cases per engine; controls and the settings format are unchanged.
 
@@ -23,7 +23,7 @@ C14 adds quoting specific to fish sessions; the personal test and 17 native fish
 
 You need a desktop computer running macOS, Windows or Linux with an available shell. Minimum window size is 860 × 560. These are target platforms, not a compatibility certification for every OS version. Configured packages are DMG/ZIP for macOS, NSIS/portable x64 for Windows and AppImage/DEB for Linux; real distribution checks still need to be completed.
 
-Running source requires Git, Node.js with npm and access to the public repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. macOS and Linux still need compilation, because Linux has no prebuild and the macOS install still rebuilds the module for Electron. This documentation's local checks use Node.js 24. Electron 45.3.2 requires at least Node.js 22.12; the current toolchain requires Node.js 22.12+ on the 22.x line, 24.x, or 26+. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
+Running source requires Git, Node.js with npm and access to the public repository. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds for win32-x64 and win32-arm64. On macOS compilation is only the fallback: postinstall checks the N-API prebuild in development Electron and prepares its helper. Linux keeps compilation because node-pty 1.1.0 has no Linux prebuild. This documentation's local checks use Node.js 24. Electron 45.3.2 requires at least Node.js 22.12; the current toolchain requires Node.js 22.12+ on the 22.x line, 24.x, or 26+. Electron does not need a separate installation: dependencies download it. CLIs you want to run in terminals, including AI tools, must be installed and authenticated separately.
 
 ## 2. Installation
 
@@ -34,14 +34,14 @@ The landing automatically follows the [latest stable release](https://github.com
 
 1. Install **Git** from its [official website](https://git-scm.com/downloads), choosing your OS and following the installer. On Windows you can also install Git Bash. Open a new terminal and check `git --version`.
 2. Install **Node.js 22.12+ on the 22.x line, 24.x, or 26+**, with npm, from its [official website](https://nodejs.org/en/download), choosing the OS and architecture. These are the toolchain requirements; Electron 45.3.2 requires at least Node.js 22.12. Local checks use Node.js 24. Reopen the terminal and check `node --version` and `npm --version`. npm is included in a normal Node.js installation.
-3. Prepare native tools only where compilation is still required. On Windows x64 or arm64, compiling is not required and administrator rights are not required: do not install Python or the C++ Build Tools, and `npm ci` does not rebuild `node-pty`. macOS needs the Xcode development tools. Linux needs Python, `make` and a C++ compiler, because `node-pty` 1.1.0 does not include a Linux prebuild. A compiler is not required to use an already built package.
+3. Prepare native tools only where compilation is still required. On Windows x64 or arm64, compiling is not required and administrator rights are not required: do not install Python or the C++ Build Tools, and `npm ci` does not rebuild `node-pty`. On macOS, Xcode development tools are needed only if the prebuild is missing, incompatible or cannot be prepared. Linux needs Python, `make` and a C++ compiler, because `node-pty` 1.1.0 does not include a Linux prebuild. A compiler is not required to use an already built package.
 4. If you want an optional shell, install it with its own installer and restart Plancia Comandi. Windows detection looks for PowerShell 7 in `PATH` and Git Bash in standard Git directories. Windows PowerShell is the initial choice; macOS/Linux use the login shell.
 5. To use an AI CLI, first complete its installation and sign-in in your normal system terminal. Plancia Comandi does not include the CLI, configure its account or manage its credentials.
 
 To prepare native tools:
 
-- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer `PlanciaComandi-win-0.3.15-x64-setup.exe` and the portable `PlanciaComandi-win-0.3.15-x64-portable.exe`; the unpacked folder, when requested, is `release/win-unpacked/Plancia Comandi.exe`.
-- **macOS:** on [Apple's Xcode page](https://developer.apple.com/xcode/resources/), follow the Mac App Store link, install Xcode and launch it to complete initial setup prompts. If compilation reports missing tools, check the command-line tools installation. The `node-pty` package also has macOS prebuilds, but the Plancia Comandi install still rebuilds the module for Electron.
+- **Windows:** do not install Python, the C++ Build Tools or the Spectre libraries. Git and Node.js with npm are enough: compiling is not required and administrator rights are not required. `npm ci` downloads Electron and uses the `node-pty` prebuilds in `prebuilds/win32-x64` or `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Then, from the project folder: `npm test`, `npm run build`, `npm run dev` and, for the executable, `npm run dist:win`. `release/` receives the NSIS installer `PlanciaComandi-win-0.3.16-x64-setup.exe` and the portable `PlanciaComandi-win-0.3.16-x64-portable.exe`; the unpacked folder, when requested, is `release/win-unpacked/Plancia Comandi.exe`.
+- **macOS:** try `npm ci` first. When the prebuild for the current architecture loads in development Electron, installation prepares execution permission for that `spawn-helper` only and skips rebuilding. This path needs no Xcode or administrator rights. Missing files, incompatibility or permission failures retain the development-tools fallback: install the required tools from [Apple’s Xcode page](https://developer.apple.com/xcode/resources/) and repeat `npm ci`, or use `npm run rebuild` to force compilation. The check opens neither the app nor a personal shell.
 - **Linux:** `node-pty` 1.1.0 has no Linux prebuild. On Debian and Ubuntu install `build-essential` and `python3`, then follow [Build and run on Linux](#24-build-and-run-on-linux). It has not been tested in person on Linux.
 
 ### 2.2 Get and start Plancia Comandi
@@ -55,7 +55,7 @@ npm ci
 npm run dev
 ```
 
-If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions. On Windows it does not rebuild `node-pty`; on macOS and Linux it rebuilds that module for Electron. In every case it downloads the Electron binary and needs network access. Wait for it to finish before starting the app.
+If you already have a checkout, open a terminal in its folder without cloning another copy. `npm ci` installs the lockfile versions. On Windows it does not rebuild `node-pty`; on macOS it checks the prebuild in Electron and prepares its helper, rebuilding only as fallback; on Linux it rebuilds for Electron. In every case it downloads the Electron binary and needs network access. Wait for it to finish before starting the app.
 
 The desktop window opens. Vite also serves `http://127.0.0.1:47231/`, but the browser page cannot open terminals: use the Electron window. To stop the development environment, quit the app and interrupt the command in the terminal that started it.
 
@@ -116,7 +116,7 @@ From release 0.3.12, on macOS move the window by the session title or free space
 
 ## 4. Sessions and views
 
-You can keep up to **12 sessions**, including exited sessions that have not been closed. At the limit, close one before creating another.
+With defaults you can keep up to **12 sessions**, including exited sessions not removed. `sessions.maxSessions` allows 1–32 sessions after restart; the limit message displays the configured number. Close one before creating another when the limit is reached.
 
 - **Select:** click a sidebar row, terminal title or terminal content. A thicker colored border identifies the active session, which receives keyboard input. In multiple views, activating an already visible pane preserves its position and the positions of the others.
 - **Rename:** click the **Rename** pencil or double-click the name. Press Enter or move focus away to save; Esc cancels. Names are limited to 80 characters.
@@ -228,6 +228,8 @@ If matching takes too long or is unavailable, a warning appears above the termin
 
 ### 6.3 Application configuration file
 
+M37/0.3.16 adds `sessions` and `processSnapshot`. All six fields accept finite numbers only: missing fields, strings, booleans or nonfinite values use defaults; numbers are rounded and clamped. `retainedBacklogChars` never exceeds `maxBacklogChars`, including when missing. Defaults preserve 0.3.15 behavior. The backlog limit concerns per-session history, not live chunks or the app’s total memory. Other parameters still in modules remain outside this milestone.
+
 In M32/0.3.14 source, child-process detection uses one shared query for live sessions, including hidden ones. No query is launched without live sessions, or when all sessions have exited or are closing; an in-flight query is cancelled. Opening another session does not bring the deadline forward. With defaults, the next check starts at least 2500 ms after the previous response. Errors cause waits of 10, 20, 40 and then 60 seconds, without overlapping requests.
 
 After the third consecutive error, **Process detection unavailable. Other status signals remain active.** appears. Terminals, input and output/title detection keep working; process evidence becomes unknown. Retries continue automatically, and the first valid response clears the warning and restores the normal interval. The feature does not bypass Windows permissions or policies; the specific Windows 11 Constrained Language Mode and AppLocker checks have not been run on this Mac.
@@ -236,6 +238,12 @@ After the third consecutive error, **Process detection unavailable. Other status
 
 | Key | Default | Range | Use |
 | --- | --- | --- | --- |
+| `sessions.maxSessions` | 12 | 1–32 | Maximum sessions, including exited sessions not removed; also the pending matching-request capacity. |
+| `sessions.maxBacklogChars` | 300000 | 1000–2000000 | Per-session backlog threshold, in JavaScript string units. |
+| `sessions.retainedBacklogChars` | 250000 | 1000–maxBacklogChars | Text retained after exceeding the threshold; never above the threshold, including when missing. |
+| `sessions.statusIntervalMs` | 400 | 100–5000 | Status update interval, in ms. |
+| `processSnapshot.unixTimeoutMs` | 4000 | 500–60000 | `ps` timeout, in ms. |
+| `processSnapshot.windowsTimeoutMs` | 8000 | 500–60000 | PowerShell snapshot-command timeout, in ms. |
 | `clipboardImages.directoryName` | `clipboard-images` | one path segment: lowercase letters, digits and hyphens | Folder created inside the user-data directory, not an absolute path. |
 | `clipboardImages.filePrefix` | `img` | an initial lowercase letter, then letters, digits or hyphens | Prefix of `prefix-time-code.png` files. |
 | `clipboardImages.maxBytes` | 12582912 | 65536–33554432 | Maximum size of the clipboard image read and of the saved PNG. |
@@ -270,10 +278,35 @@ Example without secrets:
     "maxKeep": 40,
     "maxAgeHours": 24
   },
-  "terminal": { "maxWriteChars": 200000 },
-  "drop": { "maxFiles": 20, "maxPathChars": 4096 },
-  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 },
-  "childPolling": { "intervalMs": 2500, "initialBackoffMs": 10000, "maxBackoffMs": 60000, "unavailableAfter": 3 }
+  "terminal": {
+    "maxWriteChars": 200000
+  },
+  "drop": {
+    "maxFiles": 20,
+    "maxPathChars": 4096
+  },
+  "statusPatterns": {
+    "budgetMs": 50,
+    "startupTimeoutMs": 2000,
+    "maxInputChars": 4096,
+    "workerMemoryMb": 32
+  },
+  "childPolling": {
+    "intervalMs": 2500,
+    "initialBackoffMs": 10000,
+    "maxBackoffMs": 60000,
+    "unavailableAfter": 3
+  },
+  "sessions": {
+    "maxSessions": 12,
+    "maxBacklogChars": 300000,
+    "retainedBacklogChars": 250000,
+    "statusIntervalMs": 400
+  },
+  "processSnapshot": {
+    "unixTimeoutMs": 4000,
+    "windowsTimeoutMs": 8000
+  }
 }
 ```
 
@@ -335,7 +368,7 @@ From 0.3.9 source, a handled startup or window-loading failure shows a native di
 | Problem | What to do |
 | --- | --- |
 | Browser asks you to open the desktop window | Use Electron started with `npm run dev`, rather than the Vite page. |
-| Terminal unavailable / `node-pty` error | On Windows check that `node_modules/node-pty/prebuilds/win32-x64` or `win32-arm64` contains `pty.node`, `conpty.node` and `conpty_console_list.node`, then run `npm ci` again. On macOS and Linux check the native tools, run `npm run rebuild` in the checkout, and restart. Rebuild after changing Electron. |
+| Terminal unavailable / `node-pty` error | On Windows check that `node_modules/node-pty/prebuilds/win32-x64` or `win32-arm64` contains `pty.node`, `conpty.node` and `conpty_console_list.node`, then run `npm ci` again. On macOS first repeat `npm ci` to check the prebuild in Electron; if compilation is needed, prepare native tools and run `npm run rebuild`. On Linux use `npm run rebuild`. Repeat the check after changing Electron, then restart. |
 | Invalid folder | Use **Browse** to select an existing, accessible directory. An `app.asar` archive is not a valid working folder. |
 | Shell is missing | Install it in a detected location or in `PATH` where supported, and restart. There is no arbitrary shell-command field. |
 | CLI command not found | Confirm it works in the chosen shell and that its login profile configures `PATH`. The app does not install CLIs. |
@@ -376,6 +409,8 @@ Cross-platform validation of shells, IME input, PTYs, shortcuts, notifications, 
 
 ## 12. Development and distribution
 
+For M37, `node scripts/smoke-macos-prebuild.mjs .` copies only the terminal dependency into an isolated fixture, reproduces helper mode 0644, runs the actual postinstall without a compiler and checks a real Electron/Node PTY with a synthetic marker. It retains evidence in the temporary directory and uses no personal profile or shell.
+
 After `npm run build`, `node scripts/smoke-multiline-paste.mjs .` checks the real renderer/xterm with an external synthetic bridge and clipboard: confirmation/cancellation, immediate Edit acknowledgment, native/context/keyboard paste, bracketed paste, text drop, focus, IT/EN, both themes and three desktop sizes. An optional third argument points to `app.asar` to test the packaged renderer. No personal shell, clipboard or preferences are used. The existing manual packaging workflows run this regression after building; Windows verification remains pending until an approved commit can be published.
 
 **C33 published, 20 November 2026 — release 0.3.13 (M34/M35 absorbed).** Installed name **Plancia Comandi**, official Windows ICO and initial system language, preserving overrides and preferences. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, annotated `milestone/C33` and `v0.3.13` tags, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, published at 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 tests/4 skipped, PowerShell 5.1/7 and 0.3.1 upgrade/removal verified. macOS ARM64: 514 tests/3 skipped, eight first launches, upgrade and final package smoke passed. Four binaries without a distribution signing certificate and two SHA-256 manifests downloaded and compared; six public URLs HTTP 200, source archives match all 199 Git files. M33 branch removed. Native Windows visual checks explicitly deferred and disclosed in the notes; Linux, Intel macOS and Gatekeeper on quarantined downloads unverified. Details in the [plan](PLAN.md).
@@ -413,7 +448,7 @@ Before distributing, test the package outside the checkout, check that it contai
 
 From 0.3.9 source, the following variables work only outside a package (`app.isPackaged` false). In packages DevTools is also disabled in the menu, and variables are ignored without creating directories. `PLANCIA_DIAG_STARTUP=1` and `PLANCIA_DIAG_DIR` enable tracing only in development; they are not a diagnostic option for a distributed package. Development-only variables: `PLANCIA_DEVTOOLS=1` opens DevTools; in demo mode `PLANCIA_SHOT_DIR` enables screenshot writes and `PLANCIA_SHOT_EXIT=1` quits after capture. Legacy aliases `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT` also exist. Screenshots include visible content and the output path is not confined: use only authorized test directories and terminals without private data. Capture also changes the saved theme.
 
-Smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.15`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
+Smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.16`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
 On Windows, closing a terminal runs `taskkill /T /F` on the shell tree and then closes the PTY with `conpty.dll` and `OpenConsole.exe` outside the ASAR. Inspection compares the SHA-256 of those two files with the checkout prebuild. To check an existing build, use `node scripts/inspect-package.mjs <resources-directory> <built-checkout> <version>` and, with Node.js 24, `node scripts/smoke-package.mjs <executable> <version> release` on the binary with the fuses on. The `full` path, with `--inspect-brk`, stays on the twin copied before the flip. Run the smoke test on the target OS: it creates temporary preferences and shells, checks the bridge, PTY, views, languages and themes, and terminates its test processes. It does not use a real AI CLI or the existing clipboard. Local temporary files remain until cleanup is approved. It does not configure signing or notarization. Review and distribution rules are in [AGENTS.md](AGENTS.md); structure in [MAP.md](MAP.md); license in [LICENSE](LICENSE).
 

@@ -17,6 +17,7 @@ describe('validateAppConfig', () => {
     expect(loadAppConfig(file)).toEqual(APP_CONFIG_DEFAULTS)
     expect(BRACKETED_PASTE_WRAP).toBe(12)
     expect(runtimeLimits(APP_CONFIG_DEFAULTS)).toEqual({
+      maxSessions: 12,
       maxPasteChars: 200_000 - BRACKETED_PASTE_WRAP,
       maxDroppedFiles: 20,
       maxPathChars: 4096,

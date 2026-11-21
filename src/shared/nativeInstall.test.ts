@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { hasWindowsNodePtyPrebuild, shouldRebuildForElectron, windowsPrebuildDir } from '../../scripts/install-native.mjs'
@@ -8,6 +11,23 @@ function filesFor(root: string, arch: string): Set<string> {
 }
 
 describe('shouldRebuildForElectron', () => {
+  it.skipIf(process.platform !== 'win32')('runs the actual Windows postinstall from a path with spaces without a compiler', () => {
+    const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'plancia-native entry-'))
+    try {
+      fs.mkdirSync(path.join(fixture, 'scripts'), { recursive: true })
+      const prebuild = windowsPrebuildDir(path.join(fixture, 'node_modules/node-pty'), process.arch)
+      fs.mkdirSync(prebuild, { recursive: true })
+      for (const name of ['pty.node', 'conpty.node', 'conpty_console_list.node']) fs.writeFileSync(path.join(prebuild, name), '')
+      for (const name of ['install-native.mjs', 'macos-prebuild.mjs']) fs.copyFileSync(path.join(process.cwd(), 'scripts', name), path.join(fixture, 'scripts', name))
+      const result = spawnSync(process.execPath, [path.join(fixture, 'scripts/install-native.mjs')], {
+        cwd: fixture, timeout: 5000, maxBuffer: 8192, encoding: 'utf8',
+        env: { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot },
+      })
+      expect(result.status).toBe(0)
+      expect(result.stdout).toContain('skipping the Electron rebuild')
+    } finally { fs.rmSync(fixture, { recursive: true, force: true }) }
+  })
+
   const root = '/app/node_modules/node-pty'
 
   it('skips the Electron rebuild on Windows when the three prebuilds exist', () => {

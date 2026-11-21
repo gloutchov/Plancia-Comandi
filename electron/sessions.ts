@@ -12,7 +12,7 @@ import { createScreen, readScreen } from './screen'
 import { CustomPatternMatcher } from './customPatterns'
 import { reportDiagnostic } from './diagnostics'
 import type { SettingsStore } from './settings'
-import type { ChildPollingLimits, StatusPatternLimits } from '../src/shared/appConfig'
+import type { ChildPollingLimits, ProcessSnapshotLimits, SessionLimits, StatusPatternLimits } from '../src/shared/appConfig'
 import {
   ActivityTracker,
   TitleParser,
@@ -34,9 +34,6 @@ import type {
 } from '../src/shared/types'
 
 const require = createRequire(import.meta.url)
-
-const MAX_SESSIONS = 12
-const MAX_BACKLOG = 300_000
 
 type PtyModule = typeof import('node-pty')
 
@@ -118,16 +115,18 @@ export class SessionManager {
       maxWriteChars: number
       statusPatternLimits: StatusPatternLimits
       childPollingLimits: ChildPollingLimits
+      sessionLimits: SessionLimits
+      processSnapshotLimits: ProcessSnapshotLimits
     },
     ptyModule: PtyModule | null = loadPty(),
   ) {
     this.pty = ptyModule
-    this.patternMatcher = new CustomPatternMatcher(deps.statusPatternLimits, MAX_SESSIONS, () => this.tick())
-    this.statusTimer = setInterval(() => this.tick(), 400)
+    this.patternMatcher = new CustomPatternMatcher(deps.statusPatternLimits, deps.sessionLimits.maxSessions, () => this.tick())
+    this.statusTimer = setInterval(() => this.tick(), deps.sessionLimits.statusIntervalMs)
     this.childPoller = new ChildProcessPoller({
       limits: deps.childPollingLimits,
       hasLiveSessions: () => this.liveSessions().length > 0,
-      readParents: signal => listActiveParents(signal),
+      readParents: signal => listActiveParents(signal, deps.processSnapshotLimits),
       onSnapshot: (parents, unavailable) => this.applyChildSnapshot(parents, unavailable),
       onError: error => reportDiagnostic('process-snapshot-failed', error),
     })
@@ -161,7 +160,7 @@ export class SessionManager {
 
   create(input: CreateSessionInput): CreateResult {
     if (!this.pty) return { ok: false, error: 'pty-missing' }
-    if (this.sessions.size >= MAX_SESSIONS) return { ok: false, error: 'max-sessions' }
+    if (this.sessions.size >= this.deps.sessionLimits.maxSessions) return { ok: false, error: 'max-sessions' }
 
     const requestedId = input.shellId || this.deps.settings.data.lastShellId
     const shell = this.deps.shells.find((item) => item.id === requestedId) ?? this.deps.shells[0]
@@ -328,8 +327,8 @@ export class SessionManager {
   private onData(session: LiveSession, data: string): void {
     session.seq += 1
     session.backlog += data
-    if (session.backlog.length > MAX_BACKLOG) {
-      session.backlog = session.backlog.slice(session.backlog.length - 250_000)
+    if (session.backlog.length > this.deps.sessionLimits.maxBacklogChars) {
+      session.backlog = session.backlog.slice(-this.deps.sessionLimits.retainedBacklogChars)
     }
     const now = Date.now()
     const config = this.deps.settings.data.status

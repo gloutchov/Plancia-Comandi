@@ -6,10 +6,10 @@ export function validSettingsWarning(value: unknown): value is SettingsWarning |
 }
 
 /** Unknown/native errors are never rendered as text. */
-export function sessionErrorMessage(locale: Locale, code: string): string {
+export function sessionErrorMessage(locale: Locale, code: string, maxSessions?: number): string {
   if (code === 'bad-cwd') return translate(locale, 'badCwd')
   if (code === 'bad-shell') return translate(locale, 'badShell')
-  if (code === 'max-sessions') return translate(locale, 'maxSessions', { n: 12 })
+  if (code === 'max-sessions' && maxSessions !== undefined) return translate(locale, 'maxSessions', { n: maxSessions })
   if (code === 'pty-missing') return translate(locale, 'ptyMissing')
   return translate(locale, 'createFailed')
 }

@@ -34,7 +34,7 @@ const editStarted = new Map()
 let win
 ipcMain.handle('probe:boot', () => ({
   platform: process.platform, home: root, version: 'fixture', demo: false, systemDark: true,
-  settings, sessions, shells: [], limits: { maxPasteChars: 200000, maxDroppedFiles: 100, maxPathChars: 32768 },
+  settings, sessions, shells: [], limits: { maxSessions: 12, maxPasteChars: 200000, maxDroppedFiles: 100, maxPathChars: 32768 },
 }))
 ipcMain.handle('probe:subscribe', (_event, id) => {
   subscriptions.push(id)

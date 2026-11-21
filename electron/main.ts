@@ -394,6 +394,8 @@ function start(): void {
     maxWriteChars: appConfig.terminal.maxWriteChars,
     statusPatternLimits: appConfig.statusPatterns,
     childPollingLimits: appConfig.childPolling,
+    sessionLimits: appConfig.sessions,
+    processSnapshotLimits: appConfig.processSnapshot,
   })
 
   nativeTheme.on('updated', () => {

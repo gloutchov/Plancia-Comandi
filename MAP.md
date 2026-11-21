@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.15**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.16**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -133,6 +133,7 @@ Plancia-Comandi/
 |       |-- textLimit.test.ts        Test dell'emoji a cavallo del limite
 |       |-- applicationMenu.test.ts Test menu IT/EN, tre piattaforme e modalità sviluppo/pacchetto
 |       |-- nativeInstall.test.ts    Test della scelta prebuild Windows o ricompilazione
+|       |-- sessionLimits.test.ts    Limiti/timeout, clamp, backlog e messaggio IT/EN
 |       |-- clipboardImages.ts       Salvataggio e pulizia delle immagini
 |       |-- clipboardImages.test.ts  Test di percorso, permessi e pulizia
 |       |-- customPatternText.ts     Copia limitata e selezione delle righe per il worker
@@ -151,7 +152,11 @@ Plancia-Comandi/
 |   |-- site-preferences.test.ts      Test di lingua, tema, storage bloccato e valori invalidi
 |   |-- inspect-package.mjs          Confronto bundle ASAR, contenuti distribuiti e hash di conpty.dll e OpenConsole.exe
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
-|   |-- install-native.mjs          Postinstall: prebuild Windows oppure ricompilazione Electron
+|   |-- install-native.mjs          Postinstall: prebuild Windows, sonda macOS o rebuild
+|   |-- macos-prebuild.mjs          Architettura, caricamento Electron e permesso helper
+|   |-- macos-prebuild.d.mts        Contratto della sonda di compatibilità
+|   |-- macos-prebuild.test.ts      Casi negativi ABI/architettura/file/permessi/ambiente
+|   |-- smoke-macos-prebuild.mjs    Installazione pulita sintetica senza compilatore e PTY reale
 |   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
 |   |-- package-macos-cli.mjs        Avvio di electron-builder per macOS
 |   |-- package-macos.mjs            Opzioni macOS arm64, DMG e ZIP, senza firma
@@ -236,6 +241,8 @@ M40 unificata (21 novembre 2026, assorbe M41–M43): dominio pubblico `https://p
 
 ### 2. Flusso e responsabilità
 
+M37/0.3.16: configurazione validata → `main` → `SessionManager` (cap sessioni/capacità matcher, soglia e ritenzione backlog, timer) e `children.ts` (timeout). `runtimeLimits` aggiunge il cap al boot esistente per il messaggio UI. `install-native.mjs` verifica le prebuild macOS con `macos-prebuild.mjs`, usando Electron stock separato, architettura e permessi; fallback senza nuove dipendenze. `node scripts/smoke-macos-prebuild.mjs .` prova una copia senza build e un PTY sintetico reale, conservando le evidenze. Nessuna API/flag di prova nel prodotto o nuovo workflow.
+
 C33 (release 0.3.13 pubblicata) unifica nome, icona Windows e lingua iniziale. `initialLocale.ts` consulta la prima lingua preferita dopo ready; `SettingsStore` conserva un valore valido già salvato. `build/icon.ico` entra nell’ASAR e viene selezionato da BrowserWindow su Windows. I lettori dei pacchetti riconoscono i nomi attuali con spazio e quelli storici; il workflow risolve il nome dal checkout sorgenti dopo l’installazione e prova otto avvii sul gemello con fuse aperti. La prova Windows di upgrade 0.3.1 controlla SHA-256 del vecchio installer, stessa voce NSIS, EXE e collegamenti con spazio, rimozione e preferenze sintetiche; è bloccata fuori dai runner GitHub ospitati. Il workflow esegue questo upgrade prima della diagnosi di integrità, che può installare temporaneamente l’EXE e lasciare una registrazione nel runner; il controllo delle installazioni preesistenti resta attivo. La pulizia fuse usa il percorso esatto e preserva i PID preesistenti. Nessun nuovo workflow o canale IPC.
 
 Il ritocco M31 al menu usa un sottomenu Vista esplicito in `editMenu.ts`, con zoom e schermo intero, senza reload, forceReload o toggleDevTools in sviluppo e nei pacchetti. `editMenu.ts` usa sottomenu espliciti anche per appMenu e windowMenu, mantenendo ruoli e scorciatoie native; tutte le etichette sono nei dizionari IT/EN. `settings:update` reinstalla il menu nella lingua scelta, senza ricaricare il renderer. `applicationMenu.test.ts` verifica tutte le etichette IT/EN, ricostruzione del menu, tre piattaforme e scorciatoie Copia/Incolla. Da 0.3.12 lo smoke completo del gemello controlla anche l’assenza di entrambi i comandi di reload; mantiene il controllo storico DevTools per i vecchi pacchetti. Lo smoke verifica Vista/Finestra dopo ogni cambio lingua prima di qualsiasi reload.
@@ -266,7 +273,7 @@ M8 separa `SettingsStore` (normalizzazione), `SettingsFile` (lettura/recupero/mi
 
 Lo smoke `full` imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Lo smoke `release` non apre quel debugger: il gemello con i fuse aperti conserva il percorso `full`, e il binario di release usa il CDP del renderer solo su `127.0.0.1`. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
-Nei sorgenti M32/0.3.14, `sessions.ts` delega le interrogazioni a `childPolling.ts`: una richiesta globale per sessioni vive, nessuna senza sessioni, scadenza normale e backoff 10/20/40/60 s. `children.ts` inoltra AbortSignal al solo comando di snapshot e rifiuta risposte Windows vuote/malformate. Il contratto SessionInfo aggiunge il solo booleano `processDetectionUnavailable`; il renderer mostra l’avviso localizzato senza sospendere input o altri segnali. I budget sono in `config/app.config.json` (`childPolling`), validati da `appConfig.ts`. M37 resta pianificata per gli altri limiti. Nei workflow manuali esistenti, lo smoke del renderer terminal-stream segue la build; non è stato avviato un workflow da questa preparazione locale.
+Nei sorgenti M32/0.3.14, `sessions.ts` delega le interrogazioni a `childPolling.ts`: una richiesta globale per sessioni vive, nessuna senza sessioni, scadenza normale e backoff 10/20/40/60 s. `children.ts` inoltra AbortSignal al solo comando di snapshot e rifiuta risposte Windows vuote/malformate. Il contratto SessionInfo aggiunge il solo booleano `processDetectionUnavailable`; il renderer mostra l’avviso localizzato senza sospendere input o altri segnali. I budget sono in `config/app.config.json` (`childPolling`), validati da `appConfig.ts`. M37/0.3.16 aggiunge `sessions` e `processSnapshot` al file centrale, collegandoli a manager e adapter; i parametri residui di P2 restano proposte. Nei workflow manuali esistenti, lo smoke del renderer terminal-stream segue la build; non è stato avviato un workflow da questa preparazione locale.
 
 ### 3. Comandi e verifiche
 
@@ -316,7 +323,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.15** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.16** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -447,6 +454,7 @@ Plancia-Comandi/
 |       |-- textLimit.test.ts        Test of an emoji straddling the limit
 |       |-- applicationMenu.test.ts IT/EN menu tests, three platforms and source/package modes
 |       |-- nativeInstall.test.ts    Test of the Windows prebuild or rebuild choice
+|       |-- sessionLimits.test.ts    Limits/timeouts, clamp, backlog and IT/EN message
 |       |-- clipboardImages.ts       Image save and cleanup
 |       |-- clipboardImages.test.ts  Path, permission and cleanup tests
 |       |-- customPatternText.ts     Bounded copy and worker screen-row selection
@@ -465,7 +473,11 @@ Plancia-Comandi/
 |   |-- site-preferences.test.ts      Language, theme, blocked storage and invalid-value tests
 |   |-- inspect-package.mjs          ASAR bundle, distributed contents and conpty.dll plus OpenConsole.exe hashes
 |   |-- install-native.d.mts        Types for the script, used by the tests
-|   |-- install-native.mjs          Postinstall: Windows prebuild or Electron rebuild
+|   |-- install-native.mjs          Postinstall: Windows prebuild, macOS probe or rebuild
+|   |-- macos-prebuild.mjs          Architecture, Electron loading and helper permission
+|   |-- macos-prebuild.d.mts        Compatibility-probe contract
+|   |-- macos-prebuild.test.ts      Negative ABI/architecture/file/permission/env cases
+|   |-- smoke-macos-prebuild.mjs    Clean synthetic installation without compiler and real PTY
 |   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
 |   |-- package-macos-cli.mjs        Starts electron-builder for macOS
 |   |-- package-macos.mjs            Unsigned macOS arm64 DMG and ZIP options
@@ -550,6 +562,8 @@ Unified M40 (21 November 2026, absorbs M41–M43): public domain `https://planci
 
 ### 2. Flow and responsibilities
 
+M37/0.3.16: validated configuration → `main` → `SessionManager` (session cap/matcher capacity, backlog threshold/retention, timer) and `children.ts` (timeouts). `runtimeLimits` adds the cap to the existing boot data for the UI message. `install-native.mjs` checks macOS prebuilds with `macos-prebuild.mjs`, using separate stock Electron, architecture and permissions; fallback without new dependencies. `node scripts/smoke-macos-prebuild.mjs .` checks a copy without builds and a real synthetic PTY, retaining evidence. No product test API/flag or new workflow.
+
 C33 (published release 0.3.13) unifies the name, Windows icon and initial language. `initialLocale.ts` reads the primary preferred language after ready; `SettingsStore` preserves a valid saved value. `build/icon.ico` is packaged in ASAR and selected by BrowserWindow on Windows. Package readers recognize current spaced and historical names; the workflow resolves the name from the source checkout after installation and checks eight launches on the open-fuse twin. The Windows 0.3.1 upgrade probe checks the old installer SHA-256, the same NSIS entry, spaced EXE and shortcut names, removal and synthetic preferences; it is blocked outside GitHub-hosted runners. The workflow runs this upgrade before integrity diagnostics, which can temporarily install the EXE and leave a runner registration; the preexisting-install guard stays enabled. Fuse cleanup uses the exact path and preserves preexisting PIDs. No new workflow or IPC channel.
 
 The M31 menu adjustment uses an explicit View submenu in `editMenu.ts`, retaining zoom and full screen without reload, forceReload or toggleDevTools in development and packages. `editMenu.ts` also uses explicit appMenu and windowMenu submenus, preserving native roles and shortcuts; all labels are in the IT/EN dictionaries. `settings:update` reinstalls the menu in the chosen language without reloading the renderer. `applicationMenu.test.ts` checks all IT/EN labels, menu reinstallation, three platforms and Copy/Paste shortcuts. From 0.3.12 full twin smoke also checks that both reload commands are absent; older packages retain the historical DevTools check. Smoke checks View/Window after each language change before any reload.
@@ -580,7 +594,7 @@ M8 separates `SettingsStore` (normalization), `SettingsFile` (reading/recovery/m
 
 `full` smoke sets HOME, appData, userData and sessionData before main through a loopback debugger; it uses no personal profiles, credentials or real clipboard. `release` smoke does not open that debugger: the open-fuse twin keeps the `full` path, and the release binary uses renderer CDP only on `127.0.0.1`. From 0.3.7 it adds negative IPC/CSP and permission checks. To test both macOS formats after build and packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.10`. It extracts ZIP, mounts DMG read-only, inspects and launches both outside the checkout, then unmounts the volume. Temporary files remain for review. The existing Windows workflow runs the same smoke on unpacked, portable and installed apps; the manual macOS workflow now includes DMG and ZIP, with no remote run when local checks are equivalent.
 
-In M32/0.3.14 source, `sessions.ts` delegates queries to `childPolling.ts`: one global request for live sessions, none without sessions, normal deadline and 10/20/40/60 s backoff. `children.ts` forwards AbortSignal to the snapshot command only and rejects empty/malformed Windows responses. SessionInfo adds only the `processDetectionUnavailable` boolean; the renderer shows a localized warning without stopping input or other signals. Budgets live in `config/app.config.json` (`childPolling`), validated by `appConfig.ts`. M37 remains planned for other limits. In the existing manual workflows, the terminal-stream renderer smoke follows the build; no workflow was started during this local preparation.
+In M32/0.3.14 source, `sessions.ts` delegates queries to `childPolling.ts`: one global request for live sessions, none without sessions, normal deadline and 10/20/40/60 s backoff. `children.ts` forwards AbortSignal to the snapshot command only and rejects empty/malformed Windows responses. SessionInfo adds only the `processDetectionUnavailable` boolean; the renderer shows a localized warning without stopping input or other signals. Budgets live in `config/app.config.json` (`childPolling`), validated by `appConfig.ts`. M37/0.3.16 adds `sessions` and `processSnapshot` to the central file, wired to the manager and adapter; remaining P2 parameters stay proposals. In the existing manual workflows, the terminal-stream renderer smoke follows the build; no workflow was started during this local preparation.
 
 ### 3. Commands and checks
 

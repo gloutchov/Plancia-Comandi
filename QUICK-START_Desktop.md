@@ -8,7 +8,7 @@ C33, release **0.3.13**, unifica nome **Plancia Comandi**, risorsa icona Windows
 
 Dalla release 0.3.11 puoi scorrere la cronologia disponibile con rotella/trackpad o trascinando la barra, anche in vista Una. Non serve cambiare vista. Una CLI a schermo intero può usare un buffer alternativo senza cronologia: usa i suoi comandi di scorrimento.
 
-Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.15** (M36 in verifica; ultima release pubblicata 0.3.14). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
+Questa guida porta dal checkout al primo terminale nei sorgenti di Plancia Comandi **0.3.16** (M37 in verifica; ultima release pubblicata 0.3.15). Per installare i prerequisiti segui prima il capitolo [Installazione](ISTRUZIONI.md#2-installazione).
 
 Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo della sessione o dagli spazi liberi della barra superiore, oltre che dal blocco del logo. I pulsanti delle viste e del menu laterale restano cliccabili; terminali, selezioni e finestre di dialogo non trascinano la finestra. Esci dallo schermo intero nativo prima di spostarla. Su Windows resta disponibile la barra del titolo del sistema. I menu seguono subito la lingua IT/EN scelta nell’app; i contenuti di Servizi e i dialoghi di macOS restano gestiti dal sistema. Il menu Vista offre zoom e schermo intero; Reload, Force Reload e Toggle Developer Tools e le relative scorciatoie del menu sono assenti anche durante `npm run dev`.
 
@@ -42,6 +42,8 @@ Usa la finestra desktop che si apre. Il sito di sviluppo nel browser non dispone
 
 ### 3. Regolare e chiudere
 
+Da M37/0.3.16 puoi modificare in `config/app.config.json` il gruppo `sessions` (numero di sessioni, soglia/testo conservato del backlog, intervallo di stato) e `processSnapshot` (timeout Unix/Windows), poi riavviare. I default non cambiano; il limite di sessioni mostrato dall’app segue il file. Su macOS `npm ci` prova la prebuild nel vero Electron e prepara l’helper, evitando Xcode quando compatibile; `npm run rebuild` resta la compilazione esplicita di ripiego.
+
 Incollare o trascinare testo con a capo, anche finale, richiede **Incollare più righe?** quando il programma non ha attivato il bracketed paste. **Annulla** è selezionato inizialmente; Invio lo attiva, Esc o clic fuori annullano. Tab/Shift+Tab passano a **Incolla** e indietro. Confermare invia una volta il testo già acquisito alla sessione indicata; altri incolla durante la scelta sono ignorati. Una riga senza a capo e il bracketed paste attivo restano immediati. Controlla comunque i comandi prima di incollarli.
 
 Nei sorgenti 0.3.14, se compare **Rilevamento dei processi non disponibile**, puoi continuare a usare i terminali: gli altri segnali di stato restano attivi. Il controllo riprova automaticamente con attese crescenti fino a 60 secondi, con i parametri iniziali; una risposta valida rimuove l’avviso. Non è necessario riaprire le sessioni.
@@ -50,7 +52,7 @@ In **Impostazioni** scegli lingua, tema, corpo del terminale e avvisi; le prefer
 
 Per chiuderla premi **×** nella sua riga. L'app chiede conferma se la considera al lavoro o in attesa di un'azione. Termina e salva il lavoro prima di uscire dall'app: le sessioni non vengono ripristinate e l'uscita completa non ha una conferma generale per tutte le sessioni.
 
-Per errori del modulo terminale, su macOS e Linux esegui `npm run rebuild` e riavvia. Su Windows, se il terminale non parte, ripeti `npm ci`. Approfondimenti nel [manuale](ISTRUZIONI.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
+Per errori del modulo terminale su macOS, ripeti prima `npm ci`; se serve compilare, prepara gli strumenti nativi e usa `npm run rebuild`. Su Linux usa `npm run rebuild`, poi riavvia. Su Windows, se il terminale non parte, ripeti `npm ci`. Approfondimenti nel [manuale](ISTRUZIONI.md) e nel [modello di sicurezza](SECURITY_MODEL.md).
 
 Nella release 0.3.6, un avviso sui pattern personalizzati indica che il rilevamento standard continua. Per svuotare le liste personalizzate e ripristinare il rilevamento usa **Impostazioni → Ripristina i tempi**. La [release 0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) è pubblicata con pacchetti Windows x64/macOS ARM64 non firmati e checksum verificati.
 
@@ -68,7 +70,7 @@ C33, release **0.3.13**, unifies the **Plancia Comandi** name, Windows icon reso
 
 From release 0.3.11, scroll available history with the wheel/trackpad or by dragging the bar, including in One. No layout change is needed. A full-screen CLI may use an alternate buffer without history: use its own scrolling commands.
 
-This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.15** (M36 under review; latest published release 0.3.14). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
+This guide takes you from the checkout to your first terminal in Plancia Comandi **0.3.16** (M37 under review; latest published release 0.3.15). Install prerequisites first by following the [Installation](INSTRUCTIONS.md#2-installation) chapter.
 
 From release 0.3.12, on macOS move the window by the session title or free space in the top bar, as well as the logo area. View and sidebar-menu buttons remain clickable; terminals, selections and dialogs do not drag the window. Leave native full screen before moving it. Windows retains its system title bar. Menus immediately follow the IT/EN language chosen in the app; Services contents and macOS dialogs remain managed by the system. The View menu offers zoom and full screen; Reload, Force Reload and Toggle Developer Tools and their menu shortcuts are absent even during `npm run dev`.
 
@@ -102,6 +104,8 @@ Use the desktop window that opens. The development website in a browser has no t
 
 ### 3. Adjust and close
 
+From M37/0.3.16, edit `sessions` (session count, backlog threshold/retained text, status interval) and `processSnapshot` (Unix/Windows timeouts) in `config/app.config.json`, then restart. Defaults are unchanged; the session-limit message follows the file. On macOS `npm ci` checks the prebuild in actual Electron and prepares its helper, avoiding Xcode when compatible; `npm run rebuild` remains the explicit compilation fallback.
+
 Pasting or dropping text with a line break, including a trailing one, requires **Paste multiple lines?** when the program has not enabled bracketed paste. **Cancel** is initially focused; Enter activates it, while Esc or a click outside cancel. Tab/Shift+Tab move to **Paste** and back. Confirming sends the captured text once to the named session; further pastes during the decision are ignored. One line without a newline and enabled bracketed paste remain immediate. Always check commands before pasting.
 
 In 0.3.14 source, if **Process detection unavailable** appears, keep using the terminals: other status signals remain active. Detection retries automatically with increasing waits up to 60 seconds under default settings; a valid response clears the warning. Sessions do not need reopening.
@@ -110,7 +114,7 @@ In **Settings**, choose language, theme, terminal size and alerts; preferences a
 
 To close a session, click **×** in its row. The app asks for confirmation when it considers it working or waiting for action. Finish and save your work before quitting the app: sessions are not restored and a full quit has no general confirmation for all sessions.
 
-For terminal-module errors on macOS and Linux, run `npm run rebuild` and restart. On Windows, if the terminal does not start, run `npm ci` again. See the [manual](INSTRUCTIONS.md) and [security model](SECURITY_MODEL.md) for details.
+For terminal-module errors on macOS, repeat `npm ci` first; if compilation is needed, prepare native tools and run `npm run rebuild`. On Linux use `npm run rebuild`, then restart. On Windows, if the terminal does not start, run `npm ci` again. See the [manual](INSTRUCTIONS.md) and [security model](SECURITY_MODEL.md) for details.
 
 In release 0.3.6, a custom-pattern warning means standard detection continues. To empty custom lists and reset detection, use **Settings → Reset timings**. [Release 0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) is published with unsigned Windows x64/macOS ARM64 packages and verified checksums.
 

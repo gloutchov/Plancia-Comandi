@@ -117,6 +117,7 @@ export interface BootInfo {
   sessions: SessionInfo[]
   shells: ShellChoice[]
   limits: {
+    maxSessions: number
     maxPasteChars: number
     maxDroppedFiles: number
     maxPathChars: number

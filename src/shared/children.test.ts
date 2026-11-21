@@ -14,6 +14,14 @@ function output(text: string, error: Error | null = null) {
 afterEach(() => { vi.restoreAllMocks(); run.mockReset() })
 
 describe('process snapshot adapter', () => {
+  it.each([['darwin', 'unixTimeoutMs'], ['win32', 'windowsTimeoutMs']] as const)('applies configured %s snapshot deadline', async (platform, key) => {
+    vi.spyOn(process, 'platform', 'get').mockReturnValue(platform)
+    output(platform === 'win32' ? '42' : '10 42 S')
+    const controller = new AbortController()
+    await listActiveParents(controller.signal, { unixTimeoutMs: 1900, windowsTimeoutMs: 2700 })
+    expect(run.mock.calls[0][2]).toMatchObject({ signal: controller.signal, timeout: key === 'unixTimeoutMs' ? 1900 : 2700 })
+  })
+
   it('uses a static terminating-error command and forwards cancellation on Windows', async () => {
     vi.spyOn(process, 'platform', 'get').mockReturnValue('win32')
     output('0\r\n42\r\n7\r\n42\r\n')

@@ -6,14 +6,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SessionManager } from '../../electron/sessions'
 import { listActiveParents } from '../../electron/children'
 import { defaultSettings, type SettingsStore } from '../../electron/settings'
-import { APP_CONFIG_DEFAULTS } from './appConfig'
+import { APP_CONFIG_DEFAULTS, loadAppConfig, validateAppConfig, type SessionLimits } from './appConfig'
+import { readScreen } from '../../electron/screen'
 import { translate } from './i18n'
 import { runTaskkill } from './windowsShellClose'
 
 vi.mock('../../electron/children', () => ({ listActiveParents: vi.fn() }))
 vi.mock('../../electron/screen', () => ({
   createScreen: () => ({ dispose: vi.fn(), write: vi.fn(), resize: vi.fn() }),
-  readScreen: () => ({ text: '', mode: 'normal' }),
+  readScreen: vi.fn(() => ({ text: '', mode: 'normal' })),
 }))
 vi.mock('../../electron/diagnostics', () => ({ reportDiagnostic: vi.fn() }))
 vi.mock('./windowsShellClose', () => ({
@@ -24,6 +25,10 @@ vi.mock('./windowsShellClose', () => ({
 let root: string
 let manager: SessionManager
 let pid: number
+let outputs: ((data: string) => void)[]
+let exits: ((event: {exitCode: number}) => void)[]
+let deps: ConstructorParameters<typeof SessionManager>[0]
+let pty: typeof import('node-pty')
 const read = vi.mocked(listActiveParents)
 const send = vi.fn()
 
@@ -31,6 +36,9 @@ beforeEach(() => {
   vi.useFakeTimers()
   vi.setSystemTime(100_000)
   pid = 42
+  outputs = []
+  exits = []
+  vi.mocked(readScreen).mockClear()
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'plancia-m32-test-'))
   read.mockReset().mockResolvedValue(new Set())
   send.mockReset()
@@ -38,17 +46,19 @@ beforeEach(() => {
   const spawn = vi.fn(() => {
     let onExit: (event: { exitCode: number }) => void = () => undefined
     return {
-      pid: pid++, onData: () => ({ dispose() {} }),
-      onExit: (listener: typeof onExit) => { onExit = listener; return { dispose() {} } },
+      pid: pid++, onData: (listener: (data: string) => void) => { outputs.push(listener); return { dispose() {} } },
+      onExit: (listener: typeof onExit) => { onExit = listener; exits.push(listener); return { dispose() {} } },
       kill: () => onExit({ exitCode: 0 }), write: vi.fn(), resize: vi.fn(),
     }
   })
-  manager = new SessionManager({
+  deps = {
     getWindow: () => ({ isDestroyed: () => false, webContents: { send } }) as unknown as BrowserWindow,
     settings, shells: [{ id: 'test', labelKey: 'shellLogin', command: 'synthetic-shell', args: [] }],
     home: root, notify: vi.fn(), maxWriteChars: 200_000,
-    statusPatternLimits: APP_CONFIG_DEFAULTS.statusPatterns, childPollingLimits: APP_CONFIG_DEFAULTS.childPolling,
-  }, { spawn } as unknown as typeof import('node-pty'))
+    statusPatternLimits: APP_CONFIG_DEFAULTS.statusPatterns, childPollingLimits: APP_CONFIG_DEFAULTS.childPolling, sessionLimits: APP_CONFIG_DEFAULTS.sessions, processSnapshotLimits: APP_CONFIG_DEFAULTS.processSnapshot,
+  }
+  pty = { spawn } as unknown as typeof import('node-pty')
+  manager = new SessionManager(deps, pty)
 })
 afterEach(() => {
   manager.dispose()
@@ -64,6 +74,42 @@ function create() {
 }
 
 describe('session process detection integration', () => {
+  function configure(overrides: Partial<SessionLimits>) {
+    manager.dispose()
+    const configFile = path.join(root, 'app.config.json')
+    fs.writeFileSync(configFile, JSON.stringify({ sessions: overrides }))
+    manager = new SessionManager({ ...deps, sessionLimits: loadAppConfig(configFile).sessions }, pty)
+  }
+  it('enforces the configured cap, including exited sessions until removal', async () => {
+    configure({ maxSessions: 2 })
+    const first = create(); create()
+    expect(manager.create({ cwd: root })).toEqual({ ok: false, error: 'max-sessions' })
+    exits[0]({ exitCode: 0 })
+    expect(manager.create({ cwd: root })).toEqual({ ok: false, error: 'max-sessions' })
+    manager.close(first)
+    expect(manager.create({ cwd: root }).ok).toBe(true)
+  })
+  it('trims the snapshot to the configured retained length only after the threshold', () => {
+    configure({ maxBacklogChars: 2000, retainedBacklogChars: 1200 })
+    const id = create()
+    outputs[0]('a'.repeat(1900))
+    expect(manager.subscribe(id).data.length).toBe(1900)
+    outputs[0]('b'.repeat(300))
+    expect(manager.subscribe(id).data).toBe('a'.repeat(900) + 'b'.repeat(300))
+  })
+  it('ticks at the configured status interval and forwards snapshot deadlines', async () => {
+    deps.processSnapshotLimits = validateAppConfig({ processSnapshot: { unixTimeoutMs: 1900, windowsTimeoutMs: 2700 } }).processSnapshot
+    configure({ statusIntervalMs: 1500 })
+    create()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(read.mock.calls[0][1]).toEqual({ unixTimeoutMs: 1900, windowsTimeoutMs: 2700 })
+    vi.mocked(readScreen).mockClear()
+    await vi.advanceTimersByTimeAsync(1499)
+    expect(readScreen).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(readScreen).toHaveBeenCalledOnce()
+  })
+
   it('does no command for an empty manager, shares snapshots, and stops at the last close', async () => {
     await vi.advanceTimersByTimeAsync(30_000)
     expect(read).not.toHaveBeenCalled()

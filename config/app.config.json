@@ -15,8 +15,12 @@
     "maxFiles": 20,
     "maxPathChars": 4096
   },
-  "settings": { "maxBytes": 262144 },
-  "diagnostics": { "maxBytes": 65536 },
+  "settings": {
+    "maxBytes": 262144
+  },
+  "diagnostics": {
+    "maxBytes": 65536
+  },
   "childPolling": {
     "intervalMs": 2500,
     "initialBackoffMs": 10000,
@@ -28,5 +32,15 @@
     "startupTimeoutMs": 2000,
     "maxInputChars": 4096,
     "workerMemoryMb": 32
+  },
+  "sessions": {
+    "maxSessions": 12,
+    "maxBacklogChars": 300000,
+    "retainedBacklogChars": 250000,
+    "statusIntervalMs": 400
+  },
+  "processSnapshot": {
+    "unixTimeoutMs": 4000,
+    "windowsTimeoutMs": 8000
   }
 }

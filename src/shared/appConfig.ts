@@ -25,6 +25,20 @@ export interface AppConfig {
   settings: { maxBytes: number }
   diagnostics: { maxBytes: number }
   childPolling: ChildPollingLimits
+  sessions: SessionLimits
+  processSnapshot: ProcessSnapshotLimits
+}
+
+export interface SessionLimits {
+  maxSessions: number
+  maxBacklogChars: number
+  retainedBacklogChars: number
+  statusIntervalMs: number
+}
+
+export interface ProcessSnapshotLimits {
+  unixTimeoutMs: number
+  windowsTimeoutMs: number
 }
 
 export interface ChildPollingLimits {
@@ -47,10 +61,14 @@ export interface RuntimeLimits {
   maxPathChars: number
 }
 
+export interface BootLimits extends RuntimeLimits {
+  maxSessions: number
+}
+
 const DIRECTORY_NAME = /^[a-z0-9][a-z0-9-]{0,40}$/
 const FILE_PREFIX = /^[a-z][a-z0-9-]{0,20}$/
 
-/** Fallbacks used only when the central file is missing, unreadable or out of range. */
+/** Missing/invalid fields use these defaults; finite numbers are rounded and clamped. */
 export const APP_CONFIG_DEFAULTS: AppConfig = {
   clipboardImages: {
     directoryName: 'clipboard-images',
@@ -81,6 +99,13 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
     maxBackoffMs: 60_000,
     unavailableAfter: 3,
   },
+  sessions: {
+    maxSessions: 12,
+    maxBacklogChars: 300_000,
+    retainedBacklogChars: 250_000,
+    statusIntervalMs: 400,
+  },
+  processSnapshot: { unixTimeoutMs: 4000, windowsTimeoutMs: 8000 },
 }
 
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
@@ -114,10 +139,15 @@ export function validateAppConfig(input: unknown): AppConfig {
   const settings = record(source.settings)
   const diagnostics = record(source.diagnostics)
   const children = record(source.childPolling)
+  const sessions = record(source.sessions)
+  const snapshot = record(source.processSnapshot)
   const defaults = APP_CONFIG_DEFAULTS
   const childNumber = (key: keyof ChildPollingLimits, min: number, max: number) =>
     clamp(typeof children[key] === 'number' ? children[key] : undefined, min, max, defaults.childPolling[key])
   const initialBackoffMs = childNumber('initialBackoffMs', 10_000, 60_000)
+  const strictNumber = (value: unknown, min: number, max: number, fallback: number) =>
+    clamp(typeof value === 'number' ? value : undefined, min, max, fallback)
+  const maxBacklogChars = strictNumber(sessions.maxBacklogChars, 1000, 2_000_000, defaults.sessions.maxBacklogChars)
   return {
     clipboardImages: {
       directoryName: asDirectoryName(images.directoryName, defaults.clipboardImages.directoryName),
@@ -148,6 +178,16 @@ export function validateAppConfig(input: unknown): AppConfig {
       maxBackoffMs: childNumber('maxBackoffMs', initialBackoffMs, 60_000),
       unavailableAfter: childNumber('unavailableAfter', 1, 10),
     },
+    sessions: {
+      maxSessions: strictNumber(sessions.maxSessions, 1, 32, defaults.sessions.maxSessions),
+      maxBacklogChars,
+      retainedBacklogChars: strictNumber(sessions.retainedBacklogChars, 1000, maxBacklogChars, Math.min(defaults.sessions.retainedBacklogChars, maxBacklogChars)),
+      statusIntervalMs: strictNumber(sessions.statusIntervalMs, 100, 5000, defaults.sessions.statusIntervalMs),
+    },
+    processSnapshot: {
+      unixTimeoutMs: strictNumber(snapshot.unixTimeoutMs, 500, 60_000, defaults.processSnapshot.unixTimeoutMs),
+      windowsTimeoutMs: strictNumber(snapshot.windowsTimeoutMs, 500, 60_000, defaults.processSnapshot.windowsTimeoutMs),
+    },
   }
 }
 
@@ -158,8 +198,9 @@ export function validateAppConfig(input: unknown): AppConfig {
  */
 export const BRACKETED_PASTE_WRAP = '\u001b[200~'.length + '\u001b[201~'.length
 
-export function runtimeLimits(config: AppConfig): RuntimeLimits {
+export function runtimeLimits(config: AppConfig): BootLimits {
   return {
+    maxSessions: config.sessions.maxSessions,
     maxPasteChars: Math.max(1, config.terminal.maxWriteChars - BRACKETED_PASTE_WRAP),
     maxDroppedFiles: config.drop.maxFiles,
     maxPathChars: config.drop.maxPathChars,

@@ -325,7 +325,7 @@ function Workspace({ boot }: { boot: BootInfo }) {
   }, [boot.limits, pasteConfirmation])
 
   function createError(code: string): string {
-    return sessionErrorMessage(locale, code)
+    return sessionErrorMessage(locale, code, boot.limits.maxSessions)
   }
 
   const sessionName = (session: SessionInfo) =>

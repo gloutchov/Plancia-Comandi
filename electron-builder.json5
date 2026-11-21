@@ -15,7 +15,8 @@
     "**/node_modules/@xterm/headless/**/*",
   ],
   // Windows uses the N-API prebuilds in node-pty. Rebuilding here would call
-  // node-gyp. Linux and macOS are compiled by scripts/install-native.mjs.
+  // node-gyp. install-native.mjs probes macOS prebuilds in Electron and prepares
+  // spawn-helper; incompatible/missing macOS prebuilds and Linux still rebuild.
   npmRebuild: false,
   directories: {
     output: "release",

@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.15** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.16** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -128,11 +128,15 @@ La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attentio
 
 ### 5. Input, limiti e filesystem
 
+**M37 unificata, sorgenti 0.3.16 — budget e prebuild macOS.** I gruppi `sessions` e `processSnapshot` accettano solo numeri finiti, arrotondati e limitati; campi mancanti o di tipo errato ricevono default. La ritenzione del backlog non supera mai la soglia, anche con campo mancante. Il manager usa i valori validati per cap sessioni/capacità del matcher, timer e storico; l’adapter applica i timeout ai comandi di snapshot già statici e cancellabili. Il solo cap pubblico è aggiunto al boot esistente per il messaggio IT/EN: nessun nuovo canale o comando privilegiato. Default 12 sessioni, soglia/ritenzione 300000/250000, timer 400 ms e timeout 4/8 s conservati. Aumentare i limiti può aumentare memoria e lavoro; non sono un tetto globale a memoria o output live.
+
+Il postinstall macOS controlla file regolari Mach-O per l’architettura corrente e carica proprio la prebuild nel solo Electron di sviluppo in un processo Node separato: timeout 5 s, output massimo 4 KiB, codice statico e percorso come argomento, ambiente limitato a PATH/TMP e `ELECTRON_RUN_AS_NODE=1`. NODE_OPTIONS, NODE_PATH, DYLD e altri dati d’ambiente non passano alla sonda; non parte il main applicativo né una shell/profilo personale. Dopo successo, soltanto il suo `spawn-helper` regolare riceve i bit di esecuzione mancanti tramite descrittore senza symlink; il pacchetto node-pty 1.1.0 lo fornisce a 0644. Qualunque assenza, incompatibilità, errore di caricamento/permessi o timeout mantiene il rebuild. Windows conserva le tre prebuild; Linux e `npm run rebuild` conservano la compilazione. Non cambiano fuse, firma, rete o dipendenze. Il controllo si fida della dipendenza locale installata: non è una verifica di provenienza contro un checkout compromesso. Non si usa sui binari distribuiti con fuse chiusi.
+
 **M36/0.3.15 — conferma multilinea.** Il renderer applica lo stesso controllo ad appunti (scorciatoia, Modifica, menu contestuale e evento nativo) e testo trascinato. La decisione riguarda il testo già limitato: LF o CR richiedono conferma se `term.modes.bracketedPasteMode` non è attivo o `ignoreBracketedPasteMode` lo disabilita. Xterm mantiene normalizzazione e marcatori; i percorsi quotati e i limiti esistenti sono conservati. Una sola richiesta è ammessa: la UI riceve solo l’ID della sessione, senza anteprima del testo. Il testo resta in una closure locale volatile fino alla decisione, senza nuovi log, storage, rete o canali privilegiati. Annullamento, chiusura del destinatario, altri dialoghi e smontaggio invalidano la richiesta e le letture tardive; l’invio conserva il destinatario originario e verifica che sia ancora disponibile. Il focus resta nel dialogo con Annulla iniziale. La gestione Modifica risponde subito al protocollo esistente e rinvia la lettura degli appunti al giro successivo, prima di attendere l’utente: il timeout di fallback del main non deve produrre un secondo incolla. L’evento paste nativo è intercettato prima del gestore xterm per impedire un percorso diretto senza conferma. Questo controllo del renderer non aggiunge un confine contro un renderer compromesso; IPC e permessi delle shell restano quelli descritti qui.
 
 | Confine | Limite / fallback implementato |
 | --- | --- |
-| Sessioni | Massimo 12, incluse le terminate non rimosse. |
+| Sessioni | `sessions.maxSessions`: default 12, intervallo 1–32; include le terminate non rimosse e limita anche le richieste pendenti del matcher. |
 | Nome | Trim e troncamento a 80 unità di lunghezza stringa; nome automatico se vuoto alla creazione. |
 | Cartella | Deve esistere ed essere una directory; percorsi contenenti/terminanti in `app.asar` sono respinti. Non c'è canonicalizzazione o confinamento a una workspace. |
 | Shell | Scelta tra quelle rilevate; ID non trovato ripiega sulla prima. Nessun comando shell arbitrario nel campo UI. Il percorso scelto nell'ambiente di login è comunque fidato. |
@@ -142,12 +146,12 @@ La conferma di chiusura vive nella UI e si applica solo a stati `busy`/`attentio
 | Trascinamento | Al massimo `drop.maxFiles` percorsi, ciascuno fino a `drop.maxPathChars`. I percorsi con NUL o a capo sono scartati e non vengono troncati. Il testo senza file è troncato al limite di incolla. |
 | Immagini appunti | Byte, lato, età, quantità, cartella e prefisso da `config/app.config.json`. Valori invalidi tornano ai default documentati. |
 | Resize | Interi: 2–500 colonne, 2–200 righe. |
-| Output main | Oltre 300000 unità stringa, conserva le ultime 250000 nel backlog. Il chunk live non ha un limite equivalente per messaggio. |
+| Output main | `sessions.maxBacklogChars` default 300000 (1000–2000000); oltre la soglia conserva `retainedBacklogChars` default 250000 (1000–soglia), anche con campo mancante. Il chunk live non ha un limite equivalente per messaggio. |
 | Schermi | Scrollback headless 200 righe; renderer 8000 righe. Non sono garanzie globali contro esaurimento memoria o code di output. |
 | Font | Valore intero limitato a 11–22; fallback 14. |
 | Parametri stato | Default, arrotondamento e intervalli definiti in `clampStatusConfig`. |
 | Regex aggiuntive | Massimo 40 stringhe per lista, lunghezza 1–299; esclusione degli elementi fuori limite preservata. Compilazione e matching nel solo worker Node. Budget di richiesta 50 ms, attesa avvio 2000 ms e copia di testo visibile di 4096 unità, validati da `statusPatterns`. Regex invalide ignorate con avviso; timeout/errore sospendono le tre liste e mantengono il rilevamento standard. |
-| Processi figli | Snapshot PID/PPID; timeout 4 s Unix, 8 s Windows, buffer subprocesso massimo 4000000 byte. Ricerca shell Windows: timeout 3 s per comando `where`. |
+| Processi figli | Snapshot PID/PPID; `processSnapshot.unixTimeoutMs` default 4000 e `windowsTimeoutMs` default 8000, entrambi 500–60000 ms. Buffer subprocesso massimo 4000000 byte; ricerca shell Windows 3 s per comando `where`. |
 
 Il main scrive preferenze, le immagini generate degli appunti nella cartella dati e, solo nella modalità di cattura demo, screenshot nel percorso configurato. La cartella delle immagini è un tratto di percorso validato sotto `userData`, non un percorso ricevuto dal renderer. Le directory di lavoro dei terminali sono liberamente selezionabili tra quelle accessibili; path assoluti e segmenti relativi non sono trattati come una policy di autorizzazione. Il selettore può creare cartelle fuori dal checkout. Non dichiarare protezioni anti-path-traversal che il prodotto non implementa al di fuori della cartella delle immagini incollate.
 
@@ -249,7 +253,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.15** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.16** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -375,11 +379,15 @@ Closing confirmation lives in the UI and applies only to `busy`/`attention` stat
 
 ### 5. Input, limits and filesystem
 
+**Unified M37, 0.3.16 source — budgets and macOS prebuild.** `sessions` and `processSnapshot` accept finite numbers only, rounded and clamped; missing or wrong-type fields receive defaults. Retained backlog never exceeds its threshold, including when missing. The manager uses validated values for session cap/matcher capacity, timer and history; the adapter applies timeouts to the existing static, cancellable snapshot commands. Only the public cap is added to existing boot data for the IT/EN message: no new privileged channel or command. Defaults remain 12 sessions, 300000/250000 threshold/retention, 400 ms timer and 4/8 s timeouts. Raising limits may increase memory and work; these are no global cap on memory or live output.
+
+macOS postinstall checks regular Mach-O files for the current architecture and loads the actual prebuild in development Electron only, as a separate Node process: 5 s timeout, 4 KiB maximum output, static program and path argument, environment limited to PATH/TMP and `ELECTRON_RUN_AS_NODE=1`. NODE_OPTIONS, NODE_PATH, DYLD and other environment data are excluded; no application main or personal shell/profile starts. After success only its regular `spawn-helper` receives missing execution bits through a no-symlink descriptor; node-pty 1.1.0 ships it as 0644. Any absence, incompatibility, load/permission error or timeout retains rebuilding. Windows retains the three prebuilds; Linux and `npm run rebuild` retain compilation. Fuses, signing, network and dependencies unchanged. The check trusts the installed local dependency: it does not prove provenance against a compromised checkout. It is not used on distributed binaries with closed fuses.
+
 **M36/0.3.15 — multiline confirmation.** The renderer applies the same check to clipboard paste (shortcut, Edit, context menu and native event) and dropped text. The decision uses already limited text: LF or CR require confirmation when `term.modes.bracketedPasteMode` is off or `ignoreBracketedPasteMode` disables it. Xterm retains normalization and delimiters; quoted paths and existing limits are preserved. Only one request is allowed: UI receives just the session ID, without a text preview. Text stays in a volatile local closure until the decision, with no new logging, storage, network or privileged channels. Cancellation, destination closure, other dialogs and unmount invalidate the request and late reads; sending preserves the original destination and checks it is still available. Focus stays in the dialog with Cancel initially selected. Edit handling immediately acknowledges the existing protocol and defers clipboard reads to the next event-loop turn before awaiting the user: the main fallback timeout must not cause a second paste. Native paste is intercepted before xterm’s handler to prevent a direct route without confirmation. This renderer control adds no boundary against a compromised renderer; IPC and shell permissions remain as described here.
 
 | Boundary | Implemented limit / fallback |
 | --- | --- |
-| Sessions | Maximum 12, including exited sessions not removed. |
+| Sessions | `sessions.maxSessions`: default 12, range 1–32; includes exited sessions not removed and also bounds pending matcher requests. |
 | Name | Trimmed and truncated to 80 string-length units; automatic name if empty at creation. |
 | Folder | Must exist and be a directory; paths containing/ending in `app.asar` are rejected. No canonicalization or workspace confinement. |
 | Shell | Chosen from detected entries; an unknown ID falls back to the first. No arbitrary shell command field in the UI. The path chosen from the login environment is still trusted. |
@@ -389,12 +397,12 @@ Closing confirmation lives in the UI and applies only to `busy`/`attention` stat
 | Drag and drop | At most `drop.maxFiles` paths, each up to `drop.maxPathChars`. Paths containing NUL or a line break are discarded and are not truncated. Text without files is truncated to the paste limit. |
 | Clipboard images | Bytes, edge, age, count, directory and prefix come from `config/app.config.json`. Invalid values fall back to the documented defaults. |
 | Resize | Integers: 2–500 columns, 2–200 rows. |
-| Main output | Above 300000 string units, keeps the latest 250000 in the backlog. Live chunks have no equivalent per-message bound. |
+| Main output | `sessions.maxBacklogChars` default 300000 (1000–2000000); beyond the threshold retain `retainedBacklogChars` default 250000 (1000–threshold), including when missing. Live chunks have no equivalent per-message bound. |
 | Screens | Headless scrollback 200 lines; renderer 8000 lines. These are not global memory-exhaustion or output-queue guarantees. |
 | Font | Integer clamped to 11–22; fallback 14. |
 | Status parameters | Defaults, rounding and ranges defined in `clampStatusConfig`. |
 | Extra regexes | Up to 40 strings per list, length 1–299; existing exclusion of out-of-range entries preserved. Compilation and matching only in the Node worker. Request budget 50 ms, startup wait 2000 ms and visible text copy 4096 units, validated through `statusPatterns`. Invalid regexes ignored with warning; timeout/error suspends all three lists and keeps standard detection active. |
-| Child processes | PID/PPID snapshot; timeout 4 s Unix, 8 s Windows, subprocess buffer at most 4000000 bytes. Windows shell search: 3 s timeout per `where` command. |
+| Child processes | PID/PPID snapshot; `processSnapshot.unixTimeoutMs` default 4000 and `windowsTimeoutMs` default 8000, both 500–60000 ms. Maximum subprocess buffer 4000000 bytes; Windows shell search 3 s per `where` command. |
 
 Main writes preferences, generated clipboard images in the data directory and, only in demo capture mode, screenshots to the configured path. The image folder is a validated path segment under `userData`, not a path received from the renderer. Terminal working directories can be freely selected among accessible directories; absolute paths and relative segments are not treated as an authorization policy. The picker can create directories outside the checkout. Do not claim path-traversal protections the product does not implement outside the pasted-image folder.
 

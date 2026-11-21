@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process'
+import { APP_CONFIG_DEFAULTS, type ProcessSnapshotLimits } from '../src/shared/appConfig'
 
 function run(command: string, args: string[], timeout: number, signal?: AbortSignal): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -13,13 +14,13 @@ function run(command: string, args: string[], timeout: number, signal?: AbortSig
  * Parent process ids that currently have at least one live child.
  * Zombies are ignored. One snapshot covers every session.
  */
-export async function listActiveParents(signal?: AbortSignal): Promise<Set<number>> {
-  if (process.platform === 'win32') return listWindowsParents(signal)
-  return listUnixParents(signal)
+export async function listActiveParents(signal?: AbortSignal, limits: ProcessSnapshotLimits = APP_CONFIG_DEFAULTS.processSnapshot): Promise<Set<number>> {
+  if (process.platform === 'win32') return listWindowsParents(signal, limits.windowsTimeoutMs)
+  return listUnixParents(signal, limits.unixTimeoutMs)
 }
 
-async function listUnixParents(signal?: AbortSignal): Promise<Set<number>> {
-  const stdout = await run('ps', ['-ax', '-o', 'pid=,ppid=,stat='], 4000, signal)
+async function listUnixParents(signal: AbortSignal | undefined, timeoutMs: number): Promise<Set<number>> {
+  const stdout = await run('ps', ['-ax', '-o', 'pid=,ppid=,stat='], timeoutMs, signal)
   const parents = new Set<number>()
   for (const line of stdout.split('\n')) {
     const parts = line.trim().split(/\s+/)
@@ -32,7 +33,7 @@ async function listUnixParents(signal?: AbortSignal): Promise<Set<number>> {
   return parents
 }
 
-async function listWindowsParents(signal?: AbortSignal): Promise<Set<number>> {
+async function listWindowsParents(signal: AbortSignal | undefined, timeoutMs: number): Promise<Set<number>> {
   const stdout = await run(
     'powershell.exe',
     [
@@ -41,7 +42,7 @@ async function listWindowsParents(signal?: AbortSignal): Promise<Set<number>> {
       '-Command',
       '$ErrorActionPreference = "Stop"; Get-CimInstance Win32_Process -Property ParentProcessId -ErrorAction Stop | ForEach-Object { "$($_.ParentProcessId)" }',
     ],
-    8000,
+    timeoutMs,
     signal,
   )
   const parents = new Set<number>()

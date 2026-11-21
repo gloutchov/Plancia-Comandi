@@ -2,7 +2,9 @@
 
 ## Italiano
 
-Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. L’ultima release pubblicata resta 0.3.14; M36 è in verifica locale.
+Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. M37 è in verifica locale; ultima release pubblicata **0.3.15**.
+
+Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. C36 è pubblicata nella release 0.3.15 con pacchetti e checksum verificati.
 
 Nella release **C32/0.3.14** il rilevamento dei processi figli condivide le interrogazioni, rispetta l’intervallo anche aprendo nuove sessioni e attende progressivamente dopo gli errori. Dopo tre errori compare un avviso IT/EN; input e altri segnali di stato restano attivi e il recupero è automatico. I quattro parametri `childPolling` sono nel file centrale. La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) è pubblicata con pacchetti Windows x64/macOS ARM64 e SHA-256 verificati.
 
@@ -14,7 +16,7 @@ Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle vi
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Sorgenti 0.3.15 (M36 in verifica) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) include C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.16 (M37 unificata in verifica) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.15](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.15) include C36 e C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -32,7 +34,7 @@ Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e pref
 
 ### 1. Funzioni principali
 
-- Fino a 12 sessioni, con scelta della shell e della cartella iniziale.
+- Fino a 12 sessioni con i default, configurabili da 1 a 32, con scelta della shell e della cartella iniziale.
 - Viste **Una**, **Affiancate**, **Incolonnate** e **Griglia**, con icone, rinomina e chiusura delle sessioni.
 - Stati **Avvio**, **Al lavoro**, **In attesa**, **Azione** e **Terminata**, stimati dall'output, dal titolo e dai processi figli.
 - Pallini nella barra e notifiche di sistema per sessioni che richiedono attenzione.
@@ -49,7 +51,7 @@ Nei sorgenti 0.3.5, se i pattern personalizzati sono troppo lenti o non disponib
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS e Linux servono ancora gli strumenti di compilazione. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS gli strumenti di compilazione servono solo come ripiego se la prebuild non è compatibile/preparabile; Linux li richiede. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -58,7 +60,7 @@ npm ci
 npm run dev
 ```
 
-Il repository è pubblico; per il clone in lettura non è necessario un account GitHub. `npm ci` scarica dipendenze ed Electron. Su macOS e Linux ricompila il modulo del terminale; su Windows usa la prebuild. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
+Il repository è pubblico; per il clone in lettura non è necessario un account GitHub. `npm ci` scarica dipendenze ed Electron. Su macOS verifica la prebuild nel vero Electron e prepara il suo helper, ricompilando solo come ripiego; Linux ricompila e Windows conserva le prebuild. Si apre una finestra desktop: la pagina web di sviluppo, da sola, non può creare terminali.
 
 1. Premi **Nuova sessione**.
 2. Scegli shell e cartella, inserisci un nome facoltativo e premi **Apri**.
@@ -169,7 +171,7 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. Su Windows il pacchetto usa le prebuild di `node-pty` e non ricompila. Su macOS e Linux `npm ci` ricompila il modulo per Electron; `npm run rebuild` ripete quella compilazione.
+Eseguire solo il comando per la piattaforma interessata. `npm run dist` usa quella corrente. `release/` riceve DMG/ZIP su macOS, installer NSIS/eseguibile portabile x64 su Windows, AppImage/DEB su Linux. Su Windows il pacchetto usa le prebuild di `node-pty` e non ricompila. Su macOS `npm ci` verifica la prebuild in Electron e prepara l’helper, con compilazione di ripiego; Linux ricompila. `npm run rebuild` forza la compilazione.
 
 La configurazione macOS disabilita la firma; su Windows non è configurato un certificato. Per questo progetto la distribuzione prevista è non firmata, senza notarizzazione o aggiornamento automatico configurati. Il pacchetto macOS di questo workflow è solo Apple Silicon (arm64): Intel non è supportato. Gatekeeper e SmartScreen possono mostrare avvisi. Al primo avvio di un download, fai clic destro sull'app e scegli **Apri**. Non modificare le protezioni del sistema per aprire artifact di origine o integrità non verificate.
 
@@ -194,7 +196,9 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. The latest published release remains 0.3.14; M36 is under local review.
+In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. M37 is under local verification; latest published release **0.3.15**.
+
+In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. C36 is published in release 0.3.15 with verified packages and checksums.
 
 In **C32/0.3.14**, child-process detection shares queries, respects the interval even when opening sessions and backs off after errors. Three failures show an IT/EN warning; input and other status signals stay active, with automatic recovery. The four `childPolling` parameters live in the central file. [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) is published with verified Windows x64/macOS ARM64 packages and SHA-256.
 
@@ -206,7 +210,7 @@ Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source 0.3.15 (M36 under review) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) includes C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
+**Source 0.3.16 (unified M37 under review) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.15](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.15) includes C36 and C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -224,7 +228,7 @@ Screenshots of source version 0.3.1 on Windows, using demonstration data and iso
 
 ### 1. Main features
 
-- Up to 12 sessions, with a choice of shell and starting folder.
+- Up to 12 sessions by default, configurable from 1 to 32, with a choice of shell and starting folder.
 - **One**, **Side by side**, **Stacked** and **Grid** views, with icons, plus session renaming and closing.
 - **Starting**, **Working**, **Idle**, **Action** and **Exited** states estimated from output, titles and child processes.
 - Sidebar dots and system notifications for sessions requiring attention.
@@ -241,7 +245,7 @@ In version 0.3.5 source, a warning explains when slow or unavailable custom patt
 
 ### 2. Installation and first use
 
-Running from source requires Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain; Electron 45.3.2 requires at least Node.js 22.12. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS and Linux still need build tools. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
+Running from source requires Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain; Electron 45.3.2 requires at least Node.js 22.12. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS needs build tools only as fallback without a compatible/preparable prebuild; Linux requires them. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -250,7 +254,7 @@ npm ci
 npm run dev
 ```
 
-This repository is public; read-only cloning does not require a GitHub account. `npm ci` downloads dependencies and Electron. On macOS and Linux it rebuilds the terminal module; on Windows it uses the prebuild. A desktop window opens: the development web page cannot create terminals on its own.
+This repository is public; read-only cloning does not require a GitHub account. `npm ci` downloads dependencies and Electron. On macOS it checks the prebuild in actual Electron and prepares its helper, rebuilding only as fallback; Linux rebuilds and Windows retains prebuilds. A desktop window opens: the development web page cannot create terminals on its own.
 
 1. Click **New session**.
 2. Choose a shell and folder, optionally enter a name, and click **Open**.
@@ -361,7 +365,7 @@ npm run dist:win
 npm run dist:linux
 ```
 
-Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. On Windows the package uses the `node-pty` prebuilds and does not compile. On macOS and Linux `npm ci` rebuilds the module for Electron; `npm run rebuild` repeats that compilation.
+Run only the command for the intended platform. `npm run dist` uses the current OS. `release/` receives DMG/ZIP on macOS, an NSIS installer/x64 portable executable on Windows, and AppImage/DEB on Linux. On Windows the package uses the `node-pty` prebuilds and does not compile. On macOS `npm ci` checks the prebuild in Electron and prepares its helper, compiling only as fallback; Linux rebuilds. `npm run rebuild` forces compilation.
 
 macOS configuration disables signing; Windows has no configured certificate. Distribution for this project is expected to be unsigned, with no notarization or automatic updates configured. The macOS package from this workflow is Apple Silicon (arm64) only: Intel is not supported. Gatekeeper and SmartScreen may display warnings. The first time you open a download, right-click the app and choose **Open**. Do not change system protections to open artifacts whose origin or integrity has not been verified.
 

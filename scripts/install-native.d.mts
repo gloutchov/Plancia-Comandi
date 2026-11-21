@@ -13,4 +13,5 @@ export function shouldRebuildForElectron(
   ptyRoot: string,
   arch: string,
   existsSync?: (file: string) => boolean,
+  macProbe?: (ptyRoot: string, arch: string) => boolean,
 ): boolean

@@ -1,6 +1,6 @@
 # Manuale utente — Plancia Comandi
 
-Questo manuale descrive Plancia Comandi **0.3.15** (sorgenti M36 in verifica; ultima release pubblicata 0.3.14), un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
+Questo manuale descrive Plancia Comandi **0.3.16** (sorgenti M37 unificata in verifica; ultima release pubblicata 0.3.15), un'app desktop per usare più terminali reali e seguirne l'attività. L'app è in sviluppo iniziale; i limiti indicati qui sono parte del comportamento attuale. La traduzione completa è in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
 C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 17 confronti nativi con fish 4.9.3 sono riusciti. La release [0.3.6](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.6) con Electron 45.3.2 è pubblicata con installer/portable Windows x64 e DMG/ZIP macOS ARM64, non firmati e con SHA-256. C13 corregge la quotatura PowerShell dei percorsi con apostrofi Unicode. Il confronto nativo richiesto è riuscito su Windows PowerShell 5.1.26100.33648 e PowerShell 7.6.9, 46 casi per motore; non cambiano i controlli o il formato delle preferenze.
 
@@ -23,7 +23,7 @@ C14 aggiunge la quotatura specifica per le sessioni fish; la prova personale e 1
 
 Serve un computer desktop con macOS, Windows o Linux e una shell utilizzabile. La finestra ha dimensione minima 860 × 560. Queste sono piattaforme target, non una certificazione di compatibilità per ogni versione del sistema. I pacchetti configurati sono DMG/ZIP per macOS, NSIS/portabile x64 per Windows e AppImage/DEB per Linux; le verifiche reali di distribuzione sono ancora da completare.
 
-Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pubblico. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS e Linux la compilazione resta necessaria, perché su Linux non c'è una prebuild e su macOS l'installazione ricompila comunque il modulo per Electron. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.3.2 richiede almeno Node.js 22.12; la toolchain corrente richiede Node.js 22.12+ della serie 22, 24.x oppure 26+. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
+Per eseguire i sorgenti servono Git, Node.js con npm e accesso al repository pubblico. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API per win32-x64 e win32-arm64. Su macOS la compilazione serve solo come ripiego: il postinstall verifica la prebuild N-API nell’Electron di sviluppo e prepara il suo helper. Linux conserva la compilazione perché `node-pty` 1.1.0 non include una prebuild Linux. Le verifiche locali di questa documentazione usano Node.js 24. Electron 45.3.2 richiede almeno Node.js 22.12; la toolchain corrente richiede Node.js 22.12+ della serie 22, 24.x oppure 26+. Non serve installare Electron separatamente: viene scaricato tra le dipendenze. Le CLI che vuoi usare nei terminali, incluse quelle AI, vanno installate e autenticate separatamente.
 
 ## 2. Installazione
 
@@ -34,14 +34,14 @@ La landing segue automaticamente l’[ultima release stabile](https://github.com
 
 1. Installa **Git** dal [sito ufficiale](https://git-scm.com/downloads), scegliendo il tuo sistema operativo e seguendo l'installer. Su Windows puoi installare anche Git Bash. Apri un nuovo terminale e verifica `git --version`.
 2. Installa **Node.js 22.12+ della serie 22, 24.x oppure 26+**, con npm, dal [sito ufficiale](https://nodejs.org/en/download), scegliendo sistema e architettura. Sono i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Le verifiche locali usano Node.js 24. Riapri il terminale e controlla `node --version` e `npm --version`. npm fa parte della normale installazione Node.js.
-3. Prepara gli strumenti nativi solo dove la compilazione serve ancora. Su Windows x64 o arm64 non serve compilare e non servono diritti di amministratore: non installare Python né i Build Tools C++, e `npm ci` non ricompila `node-pty`. Su macOS servono gli strumenti di sviluppo Xcode. Su Linux servono Python, `make` e un compilatore C++, perché `node-pty` 1.1.0 non include una prebuild Linux. Non occorre un compilatore per usare un pacchetto già compilato.
+3. Prepara gli strumenti nativi solo dove la compilazione serve ancora. Su Windows x64 o arm64 non serve compilare e non servono diritti di amministratore: non installare Python né i Build Tools C++, e `npm ci` non ricompila `node-pty`. Su macOS gli strumenti Xcode servono soltanto se la prebuild manca, è incompatibile o non può essere preparata. Su Linux servono Python, `make` e un compilatore C++, perché `node-pty` 1.1.0 non include una prebuild Linux. Non occorre un compilatore per usare un pacchetto già compilato.
 4. Se vuoi una shell opzionale, installala con il suo installer e riavvia Plancia Comandi. Su Windows vengono cercati PowerShell 7 nel `PATH` e Git Bash nelle cartelle standard di Git. La normale Windows PowerShell è la scelta iniziale; su macOS/Linux si usa la shell di login.
 5. Se vuoi usare una CLI AI, completa prima la sua installazione e il suo accesso nel normale terminale di sistema. Plancia Comandi non include la CLI, non ne configura l'account e non gestisce le sue credenziali.
 
 Per preparare gli strumenti nativi:
 
-- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.15-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.15-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/Plancia Comandi.exe`.
-- **macOS:** dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) apri il collegamento al Mac App Store, installa Xcode e avvialo per completare le richieste iniziali. Se la compilazione segnala strumenti mancanti, verifica l'installazione degli strumenti da riga di comando. Il pacchetto `node-pty` ha anche prebuild macOS, ma l'installazione di Plancia Comandi ricompila comunque il modulo per Electron.
+- **Windows:** non installare Python, i Build Tools C++ né le librerie Spectre. Git e Node.js con npm bastano: non serve compilare e non servono diritti di amministratore. `npm ci` scarica Electron e usa le prebuild di `node-pty` in `prebuilds/win32-x64` o `win32-arm64` (`pty.node`, `conpty.node`, `conpty_console_list.node`). Poi, dalla cartella del progetto: `npm test`, `npm run build`, `npm run dev` e, per l'eseguibile, `npm run dist:win`. In `release/` trovi l'installer NSIS `PlanciaComandi-win-0.3.16-x64-setup.exe` e il portabile `PlanciaComandi-win-0.3.16-x64-portable.exe`; la cartella scompattata, se richiesta, è `release/win-unpacked/Plancia Comandi.exe`.
+- **macOS:** prova prima `npm ci`. Se la prebuild per l’architettura corrente si carica nell’Electron di sviluppo, l’installazione prepara il permesso di esecuzione del solo `spawn-helper` e salta la ricompilazione. Non occorrono Xcode o diritti di amministratore per questo percorso. Se mancano file, compatibilità o permessi, resta il ripiego con gli strumenti di sviluppo: dalla pagina [Xcode di Apple](https://developer.apple.com/xcode/resources/) installa gli strumenti richiesti e ripeti `npm ci`, oppure usa `npm run rebuild` per forzare la compilazione. Il controllo non avvia l’app né una shell personale.
 - **Linux:** `node-pty` 1.1.0 non ha una prebuild Linux. Su Debian e Ubuntu installa `build-essential` e `python3`, poi segui [Compilare ed eseguire su Linux](#24-compilare-ed-eseguire-su-linux). Su Linux non è stata testata di persona.
 
 ### 2.2 Ottenere e avviare Plancia Comandi
@@ -55,7 +55,7 @@ npm ci
 npm run dev
 ```
 
-Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile. Su Windows non ricompila `node-pty`; su macOS e Linux esegue quella ricompilazione per Electron. In tutti i casi scarica il binario di Electron e richiede la rete. Attendi il completamento prima di avviare l'app.
+Se il checkout esiste già, apri il terminale nella sua cartella senza clonare un'altra copia. `npm ci` installa le versioni del lockfile. Su Windows non ricompila `node-pty`; su macOS verifica la prebuild e prepara l’helper, con ricompilazione di ripiego; su Linux ricompila per Electron. In tutti i casi scarica il binario di Electron e richiede la rete. Attendi il completamento prima di avviare l'app.
 
 Si apre la finestra desktop. Vite serve anche `http://127.0.0.1:47231/`, ma la pagina nel browser non può aprire terminali: usa la finestra Electron. Per terminare l'ambiente di sviluppo, esci dall'app e interrompi il comando nel terminale che l'ha avviata.
 
@@ -116,7 +116,7 @@ Dalla release 0.3.12, su macOS puoi spostare la finestra prendendola dal titolo 
 
 ## 4. Sessioni e viste
 
-Puoi tenere fino a **12 sessioni**, contando anche quelle terminate ma non ancora chiuse. Se raggiungi il limite, chiudine una prima di crearne un'altra.
+Con i default puoi tenere fino a **12 sessioni**, contando anche quelle terminate ma non ancora chiuse. `sessions.maxSessions` permette da 1 a 32 sessioni dopo il riavvio; il messaggio di limite mostra il valore configurato. Se raggiungi il limite, chiudine una prima di crearne un'altra.
 
 - **Selezionare:** clicca una riga nella barra laterale, il titolo o il contenuto di un terminale. Il bordo colorato più spesso indica la sessione attiva, a cui è indirizzata la tastiera. Nelle viste multiple, attivare un riquadro già visibile conserva la sua posizione e quella degli altri.
 - **Rinominare:** premi la matita **Rinomina** o fai doppio clic sul nome. Premi Invio o sposta il focus per salvare; Esc annulla. Il nome è limitato a 80 caratteri.
@@ -228,6 +228,8 @@ Se il matching impiega troppo tempo o non è disponibile, compare un avviso sopr
 
 ### 6.3 File di configurazione dell'app
 
+M37/0.3.16 aggiunge i gruppi `sessions` e `processSnapshot`. I sei campi accettano solo numeri finiti: assenza, stringhe, booleani o valori non finiti usano i default; i numeri sono arrotondati e limitati. `retainedBacklogChars` non supera mai `maxBacklogChars`, anche quando manca. I default conservano il comportamento 0.3.15. Il limite del backlog riguarda lo storico per sessione, non il chunk live o tutta la memoria dell’app. Gli altri parametri ancora nei moduli restano fuori da questa milestone.
+
 Nei sorgenti M32/0.3.14 il rilevamento dei processi figli usa una sola interrogazione condivisa tra le sessioni vive, comprese quelle nascoste. Senza sessioni vive, oppure quando tutte sono terminate o in chiusura, non vengono avviate interrogazioni; quella in corso viene annullata. L’apertura di un’altra sessione non anticipa la scadenza. Con i default il controllo successivo parte almeno 2500 ms dopo la risposta precedente. Dopo gli errori attende 10, 20, 40 e poi 60 secondi, senza richieste sovrapposte.
 
 Al terzo errore consecutivo compare **Rilevamento dei processi non disponibile. Gli altri segnali di stato restano attivi.** I terminali, l’input e il rilevamento da output/titolo continuano a funzionare; il segnale dei processi diventa sconosciuto. I tentativi proseguono automaticamente e la prima risposta valida rimuove l’avviso e ripristina l’intervallo ordinario. La funzione non elude permessi o policy Windows; la prova specifica di Constrained Language Mode su Windows 11 e di AppLocker non è stata eseguita su questo Mac.
@@ -236,6 +238,12 @@ Al terzo errore consecutivo compare **Rilevamento dei processi non disponibile. 
 
 | Chiave | Default | Intervallo | Uso |
 | --- | --- | --- | --- |
+| `sessions.maxSessions` | 12 | 1–32 | Sessioni massime, comprese le terminate non rimosse; anche capacità delle richieste di matching pendenti. |
+| `sessions.maxBacklogChars` | 300000 | 1000–2000000 | Soglia del backlog per sessione, in unità stringa JavaScript. |
+| `sessions.retainedBacklogChars` | 250000 | 1000–maxBacklogChars | Testo conservato dopo il superamento della soglia; mai maggiore della soglia, anche se il campo manca. |
+| `sessions.statusIntervalMs` | 400 | 100–5000 | Intervallo di aggiornamento dello stato, in ms. |
+| `processSnapshot.unixTimeoutMs` | 4000 | 500–60000 | Timeout di `ps`, in ms. |
+| `processSnapshot.windowsTimeoutMs` | 8000 | 500–60000 | Timeout del comando PowerShell di snapshot, in ms. |
 | `clipboardImages.directoryName` | `clipboard-images` | un solo tratto di percorso: lettere minuscole, cifre e trattini | Cartella creata dentro i dati utente, non un percorso assoluto. |
 | `clipboardImages.filePrefix` | `img` | lettera minuscola iniziale, poi lettere, cifre o trattini | Prefisso dei file `prefisso-tempo-codice.png`. |
 | `clipboardImages.maxBytes` | 12582912 | 65536–33554432 | Dimensione massima dell'immagine letta dagli appunti e del PNG salvato. |
@@ -270,10 +278,35 @@ Esempio senza segreti:
     "maxKeep": 40,
     "maxAgeHours": 24
   },
-  "terminal": { "maxWriteChars": 200000 },
-  "drop": { "maxFiles": 20, "maxPathChars": 4096 },
-  "statusPatterns": { "budgetMs": 50, "startupTimeoutMs": 2000, "maxInputChars": 4096, "workerMemoryMb": 32 },
-  "childPolling": { "intervalMs": 2500, "initialBackoffMs": 10000, "maxBackoffMs": 60000, "unavailableAfter": 3 }
+  "terminal": {
+    "maxWriteChars": 200000
+  },
+  "drop": {
+    "maxFiles": 20,
+    "maxPathChars": 4096
+  },
+  "statusPatterns": {
+    "budgetMs": 50,
+    "startupTimeoutMs": 2000,
+    "maxInputChars": 4096,
+    "workerMemoryMb": 32
+  },
+  "childPolling": {
+    "intervalMs": 2500,
+    "initialBackoffMs": 10000,
+    "maxBackoffMs": 60000,
+    "unavailableAfter": 3
+  },
+  "sessions": {
+    "maxSessions": 12,
+    "maxBacklogChars": 300000,
+    "retainedBacklogChars": 250000,
+    "statusIntervalMs": 400
+  },
+  "processSnapshot": {
+    "unixTimeoutMs": 4000,
+    "windowsTimeoutMs": 8000
+  }
 }
 ```
 
@@ -335,7 +368,7 @@ Dai sorgenti 0.3.9, un errore gestito durante l’avvio o il caricamento della f
 | Problema | Cosa fare |
 | --- | --- |
 | Il browser chiede di aprire la finestra desktop | Usa Electron avviato con `npm run dev`, non la pagina Vite. |
-| Il terminale non è disponibile / errore `node-pty` | Su Windows controlla che `node_modules/node-pty/prebuilds/win32-x64` o `win32-arm64` contenga `pty.node`, `conpty.node` e `conpty_console_list.node`, poi ripeti `npm ci`. Su macOS e Linux controlla gli strumenti nativi, esegui `npm run rebuild` nel checkout e riavvia. Ricompila dopo aver cambiato Electron. |
+| Il terminale non è disponibile / errore `node-pty` | Su Windows controlla che `node_modules/node-pty/prebuilds/win32-x64` o `win32-arm64` contenga `pty.node`, `conpty.node` e `conpty_console_list.node`, poi ripeti `npm ci`. Su macOS ripeti prima `npm ci` per verificare la prebuild con Electron; se serve la compilazione, prepara gli strumenti nativi e usa `npm run rebuild`. Su Linux usa `npm run rebuild`. Dopo un cambio di Electron ripeti la verifica, poi riavvia. |
 | Cartella non valida | Usa **Sfoglia** e scegli una directory esistente accessibile. Un archivio `app.asar` non è una cartella di lavoro valida. |
 | Una shell non compare | Installala nei percorsi rilevati o nel `PATH` dove previsto e riavvia l'app. Non c'è un campo per comandi shell arbitrari. |
 | Una CLI non viene trovata | Verifica che funzioni nella shell scelta e che il profilo di login configuri il `PATH`. L'app non installa le CLI. |
@@ -376,6 +409,8 @@ La validazione multipiattaforma di shell, input IME, PTY, scorciatoie, notifiche
 
 ## 12. Sviluppo e distribuzione
 
+Per M37, `node scripts/smoke-macos-prebuild.mjs .` copia soltanto la dipendenza terminale in una fixture isolata, riproduce l’helper 0644, esegue il postinstall reale senza compilatore e verifica un PTY Electron/Node con marcatore sintetico. Conserva le evidenze nella cartella temporanea e non usa profili o shell personali.
+
 Dopo `npm run build`, `node scripts/smoke-multiline-paste.mjs .` verifica renderer/xterm reali con bridge e appunti sintetici esterni: conferma/annullamento, risposta immediata a Modifica, incolla nativo/contestuale/da tastiera, bracketed paste, testo trascinato, focus, IT/EN, due temi e tre dimensioni desktop. Un terzo argomento facoltativo indica `app.asar` per provare il renderer del pacchetto. Non usa shell, appunti o preferenze personali. I workflow manuali di packaging esistenti eseguono questa regressione dopo la build; la verifica Windows resta in attesa della pubblicazione di un commit approvato.
 
 **C33 pubblicata, 20 novembre 2026 — release 0.3.13 (M34/M35 assorbite).** Nome installato **Plancia Comandi**, ICO ufficiale Windows e lingua iniziale dal sistema, con override e preferenze conservati. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, tag annotati `milestone/C33` e `v0.3.13`, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata alle 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 test/4 saltati, PowerShell 5.1/7 e upgrade/rimozione 0.3.1 verificati. macOS ARM64: 514 test/3 saltati, otto primi avvii, upgrade e smoke finali dei pacchetti riusciti. Quattro binari senza certificato di firma e due manifest SHA-256 riscaricati e confrontati; sei URL pubblici HTTP 200, archivi sorgente identici ai 199 file Git. Branch M33 rimosso. Prova visiva nativa Windows rimandata su autorizzazione esplicita e dichiarata nelle note; Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
@@ -413,7 +448,7 @@ Prima di distribuire occorre provare il pacchetto fuori dal checkout, controllar
 
 Dai sorgenti 0.3.9 le variabili seguenti sono efficaci solo fuori dal pacchetto (`app.isPackaged` falso). Nei pacchetti DevTools è disabilitato anche dal menu e le variabili sono ignorate senza creare cartelle. `PLANCIA_DIAG_STARTUP=1` e `PLANCIA_DIAG_DIR` abilitano la traccia solo in sviluppo; non sono un modo per diagnosticare un pacchetto distribuito. Variabili riservate allo sviluppo: `PLANCIA_DEVTOOLS=1` apre DevTools; in modalità demo `PLANCIA_SHOT_DIR` abilita la scrittura di screenshot e `PLANCIA_SHOT_EXIT=1` esce dopo la cattura. Esistono gli alias storici `MOLO_DEVTOOLS`, `MOLO_SHOT_DIR`, `MOLO_SHOT_EXIT`. Gli screenshot includono ciò che è visibile e il percorso di output non è confinato: usare solo cartelle di test autorizzate e terminali senza dati privati. La cattura cambia anche il tema salvato.
 
-Lo smoke imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.15`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
+Lo smoke imposta HOME, appData, userData e sessionData prima del main mediante debugger su loopback; non usa profili personali, credenziali o appunti reali. Da 0.3.7 aggiunge i negativi IPC/CSP e i permessi. Per provare entrambi i formati macOS, dopo build e packaging: `node scripts/smoke-macos-formats.mjs release . 0.3.16`. Estrae lo ZIP, monta il DMG in sola lettura, ispeziona e avvia entrambi fuori dal checkout, poi smonta il volume. I temporanei restano per il controllo. Il workflow Windows esistente esegue lo stesso smoke su scompattato, portable e installato; quello macOS manuale include ora DMG e ZIP, senza avvio remoto quando i controlli locali sono equivalenti.
 
 Su Windows la chiusura di un terminale esegue `taskkill /T /F` sull'albero della shell e poi chiude il PTY con `conpty.dll` e `OpenConsole.exe` fuori dall'asar. L'ispezione confronta lo SHA-256 di quei due file con la prebuild del checkout. Per controllare una build già generata, usa `node scripts/inspect-package.mjs <directory-resources> <checkout-compilato> <versione>` e, con Node.js 24, `node scripts/smoke-package.mjs <eseguibile> <versione> release` sul binario con i fuse accesi. Il percorso `full`, con `--inspect-brk`, resta sul gemello copiato prima del flip. Lo smoke va eseguito sul sistema di destinazione: crea preferenze e shell temporanee, verifica bridge, PTY, viste, lingue e temi e termina i processi di prova. Non usa una CLI AI o gli appunti reali. I temporanei locali sono conservati fino alla conferma di pulizia. Non configura firma o notarizzazione. Regole di revisione e distribuzione in [AGENTS.md](AGENTS.md); struttura in [MAP.md](MAP.md); licenza in [LICENSE](LICENSE).
 
