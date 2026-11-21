@@ -246,9 +246,11 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 
 Riordino richiesto da Glauco il 18 novembre 2026 dopo i test della 0.3.8 su Windows e macOS. M18 conserva numero, branch previsto e ambito perché completa C27. Seguono i tre nuovi difetti e gli altri problemi d’uso; configurazione, packaging e manutenzione del repository passano in fondo. Le voci concluse e i loro tag non cambiano. Le altre attività aperte assumono M28–M43, senza riutilizzare numeri di checkpoint storici.
 
-**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → M32 → M36 → M37 → M38 → M39 → M40 → M41 → M42 → M43.
+**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → M32 → M36 → M37 → M38 → M40 → M41 → M42 → M43.
 
-Il precedente riordino documentale non avviava implementazioni. Con una successiva richiesta del 18 novembre Glauco ha autorizzato M18 sullo stesso branch locale `patch/0.3.8-functional-roadmap`: sorgenti 0.3.9, poi approvati e pubblicati come C18. C29, avviata come M29 il 20 novembre con M30 assorbita, è chiusa e pubblicata; C31 è chiusa e pubblicata; C33, già M33 unificata, è chiusa e pubblicata prima di M32, con M34/M35 assorbite. Le altre milestone restano pianificate. Ogni milestone richiede avvio separato, branch da main e precedente checkpoint remoto verificato. C18 conferma `v0.3.9`; C29 conferma `v0.3.11`; C31 conferma `v0.3.12`; C33 conferma `v0.3.13`; M32 e M36–M38 hanno versioni indicative `v0.3.14`–`v0.3.17`, da confermare; M39–M43 non hanno release né incremento. Se un intervento risolve già un difetto successivo, verificarlo sul pacchetto e registrare le evidenze senza modifiche inutili né chiusure automatiche di altre milestone.
+**Decisione del 21 novembre 2026.** Su richiesta di Glauco, M39 (già M16/PC-07) è rimossa dal piano esecutivo: la configurazione di sicurezza e manutenzione sarà ripensata insieme per tutti i suoi repository, con uno standard comune. L'esigenza resta valida, ma non viene aperta una nuova proposta o milestone locale. Nessuna impostazione GitHub viene modificata; non sono previsti branch o checkpoint C39. Le altre milestone conservano il proprio numero; M40 segue C38.
+
+Il precedente riordino documentale non avviava implementazioni. Con una successiva richiesta del 18 novembre Glauco ha autorizzato M18 sullo stesso branch locale `patch/0.3.8-functional-roadmap`: sorgenti 0.3.9, poi approvati e pubblicati come C18. C29, avviata come M29 il 20 novembre con M30 assorbita, è chiusa e pubblicata; C31 è chiusa e pubblicata; C33, già M33 unificata, è chiusa e pubblicata prima di M32, con M34/M35 assorbite. Le altre milestone restano pianificate. Ogni milestone richiede avvio separato, branch da main e precedente checkpoint remoto verificato. C18 conferma `v0.3.9`; C29 conferma `v0.3.11`; C31 conferma `v0.3.12`; C33 conferma `v0.3.13`; M32 e M36–M38 hanno versioni indicative `v0.3.14`–`v0.3.17`, da confermare; M40–M43 non hanno release né incremento. Se un intervento risolve già un difetto successivo, verificarlo sul pacchetto e registrare le evidenze senza modifiche inutili né chiusure automatiche di altre milestone.
 
 | Ordine | Voce corrente | Identificatore precedente | Origine | Versione indicativa |
 | --- | --- | --- | --- | --- |
@@ -262,11 +264,10 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | 7 | M36 — Conferma dell'incolla e del trascinamento multilinea | M19 | PC-12 | `v0.3.15` |
 | 8 | M37 — Limiti di sessione nel file centrale | M20 | PC-14 | `v0.3.16` |
 | 9 | M38 — Prebuild di node-pty su macOS | M24 | PC-18 | `v0.3.17` |
-| 10 | M39 — Avvisi e configurazione del repository | M16 | PC-07 | Invariata; nessuna release |
-| 11 | M40 — CNAME, canonical e piano | M21 | PC-15 | Invariata; nessuna release |
-| 12 | M41 — Default e immagini dei workflow di packaging | M22 | PC-16 | Invariata; nessuna release |
-| 13 | M42 — Esclusioni Git di ambienti e chiavi | M23 | PC-17 | Invariata; nessuna release |
-| 14 | M43 — Tag documentali e copia dello standard | M25 | PC-19 | Invariata; nessuna release |
+| 10 | M40 — CNAME, canonical e piano | M21 | PC-15 | Invariata; nessuna release |
+| 11 | M41 — Default e immagini dei workflow di packaging | M22 | PC-16 | Invariata; nessuna release |
+| 12 | M42 — Esclusioni Git di ambienti e chiavi | M23 | PC-17 | Invariata; nessuna release |
+| 13 | M43 — Tag documentali e copia dello standard | M25 | PC-19 | Invariata; nessuna release |
 
 | Campo | C18, già M18 — DevTools e demo solo fuori dal pacchetto |
 | --- | --- |
@@ -398,21 +399,10 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Documentazione | README, manuali IT/EN, quick start, MAP, `SECURITY_MODEL.md`, PLAN e versione. |
 | Stato | `M38`, già M24, solo pianificata; implementazione non avviata. |
 
-| Campo | M39 — Avvisi e configurazione del repository |
-| --- | --- |
-| Numero e obiettivo | M39 — PC-07, gravità media, verificata. Registrare la decisione di Glauco su Dependabot, secret scanning, push protection e protezione di `main`. L'unica attività su file è `.github/dependabot.yml`, e solo se quella decisione la include. |
-| Dipendenza e branch previsto | Dopo C38 verificata sul remoto e richiesta di avvio separata; `milestone/39-dependabot-config`. Glauco può decidere le impostazioni account in qualsiasi momento; il file Dependabot segue questa sequenza solo se incluso nella decisione. |
-| Checkpoint e versione previsti | `milestone/C39`; versione applicativa invariata; nessuna release. |
-| Attività | Alla data della baseline gli alert Dependabot e il secret scanning risultano disattivati, manca `dependabot.yml`, manca il code scanning e `main` non è protetto. Glauco può cambiare le impostazioni dell'account in qualsiasi momento, senza attendere questa milestone. Alert Dependabot, secret scanning, push protection e protezione di `main` (niente force-push né cancellazione) restano azioni sull'account e seguono la sua decisione. Se la decisione include il file, aggiungere `.github/dependabot.yml` per npm e per github-actions. |
-| Criteri di accettazione | Il piano riporta la decisione. Nessuna impostazione del repository cambia prima di essa. Se il file entra nel commit, copre npm e github-actions e i workflow di packaging restano `workflow_dispatch`. |
-| Test richiesti | Controllo statico del YAML, se presente. Nessun `workflow_dispatch` di prova. Nessun test applicativo aggiuntivo per le sole impostazioni. |
-| Documentazione | `PLAN.md` e `SECURITY_MODEL.md` con l'esito della decisione e i limiti che restano sull'account. |
-| Stato | `M39`, già M16, solo pianificata; implementazione non avviata. Decisione di Glauco ancora aperta. |
-
 | Campo | M40 — CNAME, canonical e piano |
 | --- | --- |
 | Numero e obiettivo | M40 — PC-15, gravità bassa, verificata. Allineare CNAME, canonical e piano dopo la scelta del dominio, che è di Glauco. |
-| Dipendenza e branch previsto | Dopo C39 verificata sul remoto e richiesta di avvio separata; `milestone/40-pages-cname`. Richiede anche la scelta esplicita del dominio. |
+| Dipendenza e branch previsto | Dopo C38 verificata sul remoto e richiesta di avvio separata; `milestone/40-pages-cname`. Richiede anche la scelta esplicita del dominio. |
 | Checkpoint e versione previsti | `milestone/C40`; versione applicativa invariata; nessuna release. |
 | Attività | `docs/CNAME` contiene `planciacomandi.glaucosilvestri.it`, dal commit `e967d92` («Create CNAME») eseguito dall'interfaccia web direttamente su main. In `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`: puntano a `gloutchov.github.io/Plancia-Comandi/`. La voce C4 di questo piano dice che Pages `main:/docs` è stato attivato senza CNAME. Il DNS non è verificato. Glauco sceglie: verificare DNS e HTTPS su Pages e poi allineare canonical, Open Graph, `hreflang` e questa voce di piano, oppure rimuovere il CNAME e lasciare gli URL `github.io`. |
 | Criteri di accettazione | Canonical, Open Graph, `hreflang`, `docs/CNAME` e la voce C4 descrivono lo stesso host. Se il dominio proprio resta, DNS e HTTPS sono verificati prima dell'allineamento. La versione desktop resta quella già pubblicata. |
@@ -440,7 +430,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Criteri di accettazione | Gli schemi `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` e `*.pfx` sono presenti. `.env.example` resta tracciabile. I file già voluti nel pacchetto o nei documenti restano tracciati. |
 | Test richiesti | Controllo statico di `.gitignore` e di `git check-ignore` su percorsi finti, compresi `.env.local`, `.env.example` e un `*.pfx`, fuori dal contenuto reale del repository. La verifica che i nomi della baseline non fossero tracciati resta quella fatta su `d200abe`. |
 | Documentazione | `SECURITY_MODEL.md` e MAP, con il limite che `.gitignore` non è un filtro dei segreti già presenti nella storia. |
-| Stato | `M42`, già M23, solo pianificata; implementazione non avviata. |
+| Stato | `M42`, già M23, solo pianificata; implementazione non avviata. È una prevenzione, non una segnalazione di chiavi esposte: il controllo del 21 novembre 2026 non ha trovato chiavi private o credenziali reali nei file e nella cronologia pubblicati; ambito e limiti in `SECURITY_MODEL.md`, sezione 2. |
 
 | Campo | M43 — Tag documentali e copia dello standard |
 | --- | --- |
@@ -468,7 +458,7 @@ Versione, branch, checkpoint, attività e test di P1 e della parte sicurezza/pac
 
 Vesta ha analizzato `main` al commit `e967d92` il 13 novembre 2026, senza eseguire build, test né `npm audit`. Il DNS del CNAME non è stato verificato. La sfruttabilità di PC-01 e PC-02 è dedotta, non provata. Le righe sono state ricontrollate su `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` sui file citati è vuoto, quindi gli intervalli restano quelli indicati da Vesta. Due precisazioni di contenuto, sullo stesso testo: in `docs/index.html` la riga 12 è `og:image`, la riga 13 è il canonical e le righe 14-15 sono gli `hreflang`; in `.github/workflows/package-macos.yml` il runner è già `macos-15` (riga 24). `package-windows.yml` usa ancora `windows-latest` (riga 23). Il default `"0.3.0"` è alla riga 12 di entrambi i workflow e la descrizione di `package-macos.yml` (riga 7) cita ancora lo SHA della 0.3.0.
 
-**Identificatori storici.** La baseline del 13 novembre assegnava PC-01–PC-19 a M5–M25. C5–C9, C13/C14 e C26 restano concluse con gli stessi numeri e checkpoint. Le voci aperte PC-06/07/09/10/12/14/15/16/17/18/19 corrispondono ora a M32/M39/C33 (M35)/M18/M36/M37/M40/M41/M42/M38/M43. La tabella 2.2 mantiene anche i vecchi numeri: i rimandi nelle checklist concluse e nei documenti non modificati sono storici. Nessuna segnalazione è eliminata o unita a una voce estranea.
+**Identificatori storici.** La baseline del 13 novembre assegnava PC-01–PC-19 a M5–M25. C5–C9, C13/C14 e C26 restano concluse con gli stessi numeri e checkpoint. I riferimenti PC-06/07/09/10/12/14/15/16/17/18/19 corrispondono a M32/M39/C33 (M35)/M18/M36/M37/M40/M41/M42/M38/M43. La tabella 2.2 mantiene anche i vecchi numeri: i rimandi nelle checklist concluse e nei documenti non modificati sono storici. M39/PC-07 è rimossa dal piano esecutivo per la decisione del 21 novembre 2026; il rimando resta storico. Nessuna segnalazione è unita a una voce estranea.
 
 Le decisioni del 14 novembre (C26 prima dell’allora M5–M25), l’anticipo C13/C14 dopo C5 e l’ordine del 16 novembre (C27, M18, l’allora M10) restano cronologia. Il riordino del 18 novembre sostituisce la sequenza aperta e le versioni indicative; il riferimento esecutivo è 2.2. Protezioni GitHub e dominio restano decisioni di Glauco. La regola unica Release resta invariata.
 
@@ -525,7 +515,7 @@ Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: 
 ### 3. Convenzioni delle milestone
 
 - `P<n>`: proposta facoltativa, non eseguibile senza decisione esplicita del progettista.
-- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → M32 → M36–M43 (M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
+- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → M32 → M36–M38 → M40–M43 (M39 rimossa; M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
 - `C<n>`: lavoro approvato dal progettista, con lo stesso numero della relativa `M`; pubblicazione e chiusura operativa possono essere ancora pendenti.
 
 Le numerazioni `P` e `M` sono indipendenti. Ogni futura `M` deve specificare obiettivo funzionale, branch, checkpoint `milestone/C<n>`, incremento di versione, attività, criteri di accettazione, test, documenti e stato. Non iniziare la milestone successiva finché `main` e il checkpoint della precedente non sono verificati sul remoto.
@@ -1198,9 +1188,11 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 
 Reordering requested by Glauco on 18 November 2026 after testing 0.3.8 on Windows and macOS. M18 keeps its number, planned branch and scope because it completes C27. The three new defects and other usability problems follow; configuration, packaging and repository maintenance move to the end. Completed entries and their tags do not change. Other open work becomes M28–M43, without reusing historical checkpoint numbers.
 
-**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → M32 → M36 → M37 → M38 → M39 → M40 → M41 → M42 → M43.
+**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → M32 → M36 → M37 → M38 → M40 → M41 → M42 → M43.
 
-The earlier documentation reordering started no implementation. In a subsequent request on 18 November Glauco authorized M18 on the same local `patch/0.3.8-functional-roadmap` branch: source 0.3.9, subsequently approved and published as C18. C29, started as M29 on 20 November with M30 absorbed, is closed and published; C33, formerly unified M33, is closed and published before M32, absorbing M34/M35. Other milestones remain planned only. Each milestone needs a separate kickoff, branch from main and preceding remotely verified checkpoint. C18 confirms `v0.3.9`; C29 confirms `v0.3.11`; C31 confirms `v0.3.12`; C33 confirms `v0.3.13`; M32 and M36–M38 have indicative `v0.3.14`–`v0.3.17`, to confirm; M39–M43 have no release or increment. If a change already resolves a later defect, verify it in the package and record evidence without unnecessary changes or automatic closure of other milestones.
+**Decision of 21 November 2026.** At Glauco's request, M39 (formerly M16/PC-07) is removed from the execution plan: security and maintenance configuration will be reconsidered together for all his repositories, using one common standard. The need remains valid, but no new local proposal or milestone is opened. No GitHub setting is changed; no C39 branch or checkpoint is planned. Other milestones retain their numbers; M40 follows C38.
+
+The earlier documentation reordering started no implementation. In a subsequent request on 18 November Glauco authorized M18 on the same local `patch/0.3.8-functional-roadmap` branch: source 0.3.9, subsequently approved and published as C18. C29, started as M29 on 20 November with M30 absorbed, is closed and published; C33, formerly unified M33, is closed and published before M32, absorbing M34/M35. Other milestones remain planned only. Each milestone needs a separate kickoff, branch from main and preceding remotely verified checkpoint. C18 confirms `v0.3.9`; C29 confirms `v0.3.11`; C31 confirms `v0.3.12`; C33 confirms `v0.3.13`; M32 and M36–M38 have indicative `v0.3.14`–`v0.3.17`, to confirm; M40–M43 have no release or increment. If a change already resolves a later defect, verify it in the package and record evidence without unnecessary changes or automatic closure of other milestones.
 
 | Order | Current entry | Previous identifier | Origin | Indicative version |
 | --- | --- | --- | --- | --- |
@@ -1214,11 +1206,10 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | 7 | M36 — Confirm multiline paste and drop | M19 | PC-12 | `v0.3.15` |
 | 8 | M37 — Session limits in the central file | M20 | PC-14 | `v0.3.16` |
 | 9 | M38 — node-pty prebuild on macOS | M24 | PC-18 | `v0.3.17` |
-| 10 | M39 — Repository alerts and configuration | M16 | PC-07 | Unchanged; no release |
-| 11 | M40 — CNAME, canonical URLs and plan | M21 | PC-15 | Unchanged; no release |
-| 12 | M41 — Packaging workflow defaults and images | M22 | PC-16 | Unchanged; no release |
-| 13 | M42 — Git exclusions for env files and keys | M23 | PC-17 | Unchanged; no release |
-| 14 | M43 — Documentation tags and the committed standard | M25 | PC-19 | Unchanged; no release |
+| 10 | M40 — CNAME, canonical URLs and plan | M21 | PC-15 | Unchanged; no release |
+| 11 | M41 — Packaging workflow defaults and images | M22 | PC-16 | Unchanged; no release |
+| 12 | M42 — Git exclusions for env files and keys | M23 | PC-17 | Unchanged; no release |
+| 13 | M43 — Documentation tags and the committed standard | M25 | PC-19 | Unchanged; no release |
 
 | Field | C18, formerly M18 — DevTools and demo only outside the package |
 | --- | --- |
@@ -1350,21 +1341,10 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Documentation | README, IT/EN manuals, quick start, MAP, `SECURITY_MODEL.md`, PLAN and version. |
 | Status | `M38`, formerly M24, planned only; implementation not started. |
 
-| Field | M39 — Repository alerts and configuration |
-| --- | --- |
-| Number and goal | M39 — PC-07, medium severity, verified. Record Glauco's decision on Dependabot, secret scanning, push protection and protection of `main`. The only file activity is `.github/dependabot.yml`, and only when that decision includes it. |
-| Dependency and planned branch | After remotely verified C38 and a separate start request; `milestone/39-dependabot-config`. Glauco may decide account settings at any time; the Dependabot file follows this sequence only if included in that decision. |
-| Planned checkpoint and version | `milestone/C39`; application version unchanged; no release. |
-| Tasks | At the baseline date, Dependabot alerts and secret scanning are off, `dependabot.yml` is absent, code scanning is absent and `main` is unprotected. Glauco can change the account settings at any time, without waiting for this milestone. Dependabot alerts, secret scanning, push protection and protection of `main` (no force-push and no deletion) stay account actions and follow his decision. If the decision includes the file, add `.github/dependabot.yml` for npm and for github-actions. |
-| Acceptance | The plan records the decision. No repository setting changes before it. If the file is part of the commit, it covers npm and github-actions and the packaging workflows stay `workflow_dispatch`. |
-| Required tests | Static check of the YAML, when present. No trial `workflow_dispatch`. No extra application test for settings alone. |
-| Documentation | `PLAN.md` and `SECURITY_MODEL.md` with the decision outcome and the limits that remain on the account. |
-| Status | `M39`, formerly M16, planned only; implementation not started. Glauco’s decision is still open. |
-
 | Field | M40 — CNAME, canonical URLs and plan |
 | --- | --- |
 | Number and goal | M40 — PC-15, low severity, verified. Align CNAME, canonical URLs and this plan after the domain choice, which is Glauco's. |
-| Dependency and planned branch | After remotely verified C39 and a separate start request; `milestone/40-pages-cname`. Also requires the explicit domain choice. |
+| Dependency and planned branch | After remotely verified C38 and a separate start request; `milestone/40-pages-cname`. Also requires the explicit domain choice. |
 | Planned checkpoint and version | `milestone/C40`; application version unchanged; no release. |
 | Tasks | `docs/CNAME` contains `planciacomandi.glaucosilvestri.it`, from commit `e967d92` ("Create CNAME") made through the web UI directly on main. In `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links: they point at `gloutchov.github.io/Plancia-Comandi/`. The C4 entry in this plan says Pages `main:/docs` was enabled without a CNAME. DNS was not verified. Glauco chooses: verify DNS and HTTPS on Pages and then align canonical, Open Graph, `hreflang` and this plan entry, or remove the CNAME and keep the `github.io` URLs. |
 | Acceptance | Canonical, Open Graph, `hreflang`, `docs/CNAME` and the C4 entry describe the same host. If the custom domain stays, DNS and HTTPS are verified before alignment. The desktop version stays the one already published. |
@@ -1392,7 +1372,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Acceptance | The patterns `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` and `*.pfx` are present. `.env.example` stays trackable. Files already intended for the package or the documents stay tracked. |
 | Required tests | Static check of `.gitignore` and `git check-ignore` on fake paths, including `.env.local`, `.env.example` and a `*.pfx`, outside the repository's real content. The check that the baseline names were not tracked remains the one done on `d200abe`. |
 | Documentation | `SECURITY_MODEL.md` and MAP, with the limit that `.gitignore` is not a filter for secrets already in history. |
-| Status | `M42`, formerly M23, planned only; implementation not started. |
+| Status | `M42`, formerly M23, planned only; implementation not started. This is prevention, not a report of exposed keys: the 21 November 2026 check found no private keys or real credentials in published files and history; scope and limits are in `SECURITY_MODEL.md`, section 2. |
 
 | Field | M43 — Documentation tags and the committed standard |
 | --- | --- |
@@ -1420,7 +1400,7 @@ Version, branch, checkpoint, tasks and tests for P1 and the security/package por
 
 Vesta analyzed `main` at `e967d92` on 13 November 2026 and did not run a build, the test suite, or `npm audit`. CNAME DNS was not verified. Exploitability of PC-01 and PC-02 is inferred, not demonstrated. The cited lines were rechecked on `d200abe611ef92220d9aa902f9f858192caee06b`: `git diff e967d92 d200abe` for those files is empty, so the ranges stay as Vesta cited them. Two content notes on that same text: in `docs/index.html`, line 12 is `og:image`, line 13 is the canonical link and lines 14-15 are the `hreflang` links; in `.github/workflows/package-macos.yml` the runner is already `macos-15` (line 24). `package-windows.yml` still uses `windows-latest` (line 23). The `"0.3.0"` default is line 12 of both workflows, and the `package-macos.yml` description (line 7) still cites the 0.3.0 SHA.
 
-**Historical identifiers.** The 13 November baseline assigned PC-01–PC-19 to M5–M25. C5–C9, C13/C14 and C26 stay completed with the same numbers and checkpoints. Open PC-06/07/09/10/12/14/15/16/17/18/19 now map to M32/M39/C33 (M35)/M18/M36/M37/M40/M41/M42/M38/M43. Table 2.2 also retains old numbers: references in completed checklists and unchanged documents are historical. No report is removed or merged into an unrelated entry.
+**Historical identifiers.** The 13 November baseline assigned PC-01–PC-19 to M5–M25. C5–C9, C13/C14 and C26 stay completed with the same numbers and checkpoints. References PC-06/07/09/10/12/14/15/16/17/18/19 map to M32/M39/C33 (M35)/M18/M36/M37/M40/M41/M42/M38/M43. Table 2.2 also retains old numbers: references in completed checklists and unchanged documents are historical. M39/PC-07 is removed from the execution plan by the decision of 21 November 2026; its reference remains historical. No report is merged into an unrelated entry.
 
 The 14 November decision (C26 before the then M5–M25), C13/C14 brought forward after C5, and the 16 November order (C27, M18, the then M10) remain history. The 18 November reordering supersedes the open sequence and indicative versions; section 2.2 is the execution reference. GitHub protections and domain choices remain Glauco’s. The single Release rule is unchanged.
 
@@ -1477,7 +1457,7 @@ On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26
 ### 3. Milestone conventions
 
 - `P<n>`: optional proposal, not executable without an explicit designer decision.
-- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → M32 → M36–M43 (M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
+- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → M32 → M36–M38 → M40–M43 (M39 removed; M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
 - `C<n>`: work approved by the designer, retaining its `M` number; publication and operational closure may still be pending.
 
 `P` and `M` numbering is independent. Each future `M` must specify a functional goal, branch, `milestone/C<n>` checkpoint, version increment, tasks, acceptance criteria, tests, documentation and status. Do not start the next milestone until the preceding `main` and checkpoint are verified on the remote.
