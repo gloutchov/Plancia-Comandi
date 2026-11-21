@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento corrente — 21 novembre 2026:** M40 unificata assorbe M41–M43 ed è anticipata a M32 sul branch attuale `patch/0.3.13-roadmap-without-m39`, su richiesta esplicita di Glauco. Versione invariata 0.3.13, nessuna release; implementazione e verifiche locali, prima approvazione ancora da ricevere. Nessun checkpoint autonomo C41/C42/C43.
+**Intervento corrente — 21 novembre 2026:** C40, già M40 unificata, assorbe M41–M43 ed è anticipata a M32 sul branch `patch/0.3.13-roadmap-without-m39`, su richiesta esplicita di Glauco. Prima approvazione ricevuta sul commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`; passaggio M40→C40 in questo nuovo commit documentale. Secondo controllo ancora da ricevere, pubblicazione e chiusura operativa pendenti. Versione 0.3.13 invariata, nessuna release o checkpoint autonomo C41/C42/C43.
 
 **Ultimo checkpoint pubblicato:** C33, già M33 unificata, chiusa e pubblicata con M34/M35 assorbite sul commit approvato `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`. [Release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata il 20 novembre 2026 alle 21:17:23 (Europe/Rome), latest e non prerelease. Main e tag annotati `milestone/C33`/`v0.3.13`, quattro binari e due manifest verificati, sei URL pubblici HTTP 200; branch M33 rimosso localmente e sul remoto. Windows `44792620689`, Pages `44807866883` e verifiche macOS ARM64 locali riusciti. Prova visiva nativa Windows rimandata su autorizzazione esplicita, dichiarata nelle note. Consuntivo in 4.23; M32 non avviata.
 
@@ -249,11 +249,11 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 
 Riordino richiesto da Glauco il 18 novembre 2026 dopo i test della 0.3.8 su Windows e macOS. M18 conserva numero, branch previsto e ambito perché completa C27. Seguono i tre nuovi difetti e gli altri problemi d’uso; configurazione, packaging e manutenzione del repository passano in fondo. Le voci concluse e i loro tag non cambiano. Le altre attività aperte assumono M28–M43, senza riutilizzare numeri di checkpoint storici.
 
-**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → M40 unificata (M41–M43) → M32 → M36 → M37 → M38.
+**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → C40 approvata, pubblicazione pendente (M41–M43) → M32 → M36 → M37 → M38.
 
 **Decisione del 21 novembre 2026.** Su richiesta di Glauco, M39 (già M16/PC-07) è rimossa dal piano esecutivo: la configurazione di sicurezza e manutenzione sarà ripensata insieme per tutti i suoi repository, con uno standard comune. L'esigenza resta valida, ma non viene aperta una nuova proposta o milestone locale. Nessuna impostazione GitHub viene modificata; non sono previsti branch o checkpoint C39. Le altre milestone conservano il proprio numero. La successiva richiesta di Glauco nella stessa sessione accorpa M40–M43 e le anticipa a M32 sul branch attuale: M40 segue C33, M32 segue il futuro checkpoint C40.
 
-Il precedente riordino documentale non avviava implementazioni. Con una successiva richiesta del 18 novembre Glauco ha autorizzato M18 sullo stesso branch locale `patch/0.3.8-functional-roadmap`: sorgenti 0.3.9, poi approvati e pubblicati come C18. C29, avviata come M29 il 20 novembre con M30 assorbita, è chiusa e pubblicata; C31 è chiusa e pubblicata; C33, già M33 unificata, è chiusa e pubblicata prima di M32, con M34/M35 assorbite. Le altre milestone restano pianificate. Ogni milestone richiede avvio separato, branch da main e precedente checkpoint remoto verificato. C18 conferma `v0.3.9`; C29 conferma `v0.3.11`; C31 conferma `v0.3.12`; C33 conferma `v0.3.13`; M32 e M36–M38 hanno versioni indicative `v0.3.14`–`v0.3.17`, da confermare; M40 unificata non ha release né incremento; M41–M43 non hanno checkpoint autonomi. Se un intervento risolve già un difetto successivo, verificarlo sul pacchetto e registrare le evidenze senza modifiche inutili né chiusure automatiche di altre milestone.
+Il precedente riordino documentale non avviava implementazioni. Con una successiva richiesta del 18 novembre Glauco ha autorizzato M18 sullo stesso branch locale `patch/0.3.8-functional-roadmap`: sorgenti 0.3.9, poi approvati e pubblicati come C18. C29, avviata come M29 il 20 novembre con M30 assorbita, è chiusa e pubblicata; C31 è chiusa e pubblicata; C33, già M33 unificata, è chiusa e pubblicata prima di M32, con M34/M35 assorbite. Le altre milestone restano pianificate. Ogni milestone richiede avvio separato, branch da main e precedente checkpoint remoto verificato. C18 conferma `v0.3.9`; C29 conferma `v0.3.11`; C31 conferma `v0.3.12`; C33 conferma `v0.3.13`; M32 e M36–M38 hanno versioni indicative `v0.3.14`–`v0.3.17`, da confermare; C40 unificata non ha release né incremento; M41–M43 non hanno checkpoint autonomi. Se un intervento risolve già un difetto successivo, verificarlo sul pacchetto e registrare le evidenze senza modifiche inutili né chiusure automatiche di altre milestone.
 
 | Ordine | Voce corrente | Identificatore precedente | Origine | Versione indicativa |
 | --- | --- | --- | --- | --- |
@@ -263,7 +263,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | — | M30 — Assorbita in C29 (già M29) | Nuova | 0.3.8 #3 | Nessuna separata |
 | 4 | C31 — Finestra macOS trascinabile e menu coerenti | M31 / M12 | Desktop | `v0.3.12` |
 | 5 | C33, già M33 — Nome, icona e lingua iniziale (assorbe M34/M35) | M10 / M11 / M17 | Desktop / PC-09 | `v0.3.13` |
-| 6 | M40 — Landing, packaging e regole del repository (assorbe M41–M43) | M21–M23 / M25 | PC-15 / PC-16 / PC-17 / PC-19 | Invariata; nessuna release |
+| 6 | C40, già M40 — Landing, packaging e regole del repository (assorbe M41–M43) | M21–M23 / M25 | PC-15 / PC-16 / PC-17 / PC-19 | Invariata; nessuna release |
 | 7 | M32 — Polling dei processi figli su Windows | M15 | PC-06 | `v0.3.14` |
 | 8 | M36 — Conferma dell'incolla e del trascinamento multilinea | M19 | PC-12 | `v0.3.15` |
 | 9 | M37 — Limiti di sessione nel file centrale | M20 | PC-14 | `v0.3.16` |
@@ -399,16 +399,16 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Documentazione | README, manuali IT/EN, quick start, MAP, `SECURITY_MODEL.md`, PLAN e versione. |
 | Stato | `M38`, già M24, solo pianificata; implementazione non avviata. |
 
-| Campo | M40 — Landing, packaging e regole del repository (assorbe M41–M43) |
+| Campo | C40, già M40 — Landing, packaging e regole del repository (assorbe M41–M43) |
 | --- | --- |
-| Numero e obiettivo | M40 unificata — PC-15/16/17/19. Allineare dominio e metadati della landing, rendere espliciti input e runner dei workflow, prevenire il tracciamento accidentale di ambienti e chiavi e consolidare la policy dei tag. |
+| Numero e obiettivo | C40, già M40 unificata — PC-15/16/17/19. Allineare dominio e metadati della landing, rendere espliciti input e runner dei workflow, prevenire il tracciamento accidentale di ambienti e chiavi e consolidare la policy dei tag. |
 | Dipendenza e branch | Accorpamento, anticipo a M32 ed esecuzione sul branch attuale richiesti da Glauco il 21 novembre 2026: eccezioni esplicite di ordine e branch. `patch/0.3.13-roadmap-without-m39` dal commit locale `d71dce36a7dfd3b48d79466e138b692fb01c9d56`. Main remoto `fbf6151628100f67b0901a3993fe3305778e0dd4` e checkpoint C33 `6bab754c79ced9e530e73e30f8bca59fd55c4ffc` verificati prima del lavoro. M32–M38 restano non avviate. |
 | Checkpoint e versione previsti | Unico `milestone/C40` dopo le due approvazioni e la verifica del main pubblicato. Versione applicativa invariata 0.3.13, nessun tag versione o release; M41–M43 assorbite senza checkpoint autonomi. |
 | Attività | Dominio già configurato `planciacomandi.glaucosilvestri.it`, confermato esplicitamente da Glauco nella sessione: DNS CNAME verso `gloutchov.github.io`, HTTPS 200 e verifica TLS riusciti. CNAME conservato; canonical, Open Graph, hreflang e documenti allineati. Estendere `check:site` alla coerenza dei metadati. Attuare le componenti M41–M43 descritte sotto, senza cambiare runtime, versione, trigger o permessi. |
 | Criteri di accettazione | Unico host per CNAME/canonical/Open Graph/hreflang e documentazione, DNS e HTTPS verificati; risorse relative e sito IT/EN validi. Workflow YAML senza default di release, runner fissati e solo workflow_dispatch. File sensibili sintetici ignorati, `.env.example` tracciabile. Tag pubblicati, standard HOME e file utente preservati. |
 | Test richiesti | `npm run check:site`, casi negativi dei metadati su copie isolate, controllo statico YAML e confronto dei soli campi modificati, `git check-ignore --no-index` su nomi finti, documenti/link/anchor e parità IT/EN, `git diff --check`; DNS/HTTPS in sola lettura. Nessun dispatch, build o packaging di prova per questi cambi statici. |
 | Documentazione | README, manuali IT/EN, `SECURITY_MODEL.md`, MAP, AGENTS e PLAN. La copia `STARTUP_PREFERENCES_HOME.md` rimane intatta. |
-| Stato | M40 unificata implementata e verificata localmente sul dominio confermato; pronta per il primo controllo del commit. La voce resta M40 fino alla prima approvazione. Nessun push, merge, tag o passaggio a C40 prima del controllo previsto. |
+| Stato | C40, già M40 unificata, approvata da Glauco sul commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`: «procedi con commit, merge, tag, push e rimozione del branch». Dominio/metadati, workflow, esclusioni Git e policy dei tag implementati e verificati come in 4.24. Versione 0.3.13 invariata; checkpoint previsto `milestone/C40`, nessuna release. Passaggio documentale a C40 in questo nuovo commit: secondo controllo e approvazione ancora pendenti. Nessun push, merge, tag o rimozione branch eseguiti; metadati online da verificare dopo il deploy approvato. |
 
 | Componente assorbita | M41 — Default e immagini dei workflow di packaging |
 | --- | --- |
@@ -419,7 +419,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Criteri di accettazione | Nessun default punta ancora a 0.3.0. La descrizione non cita uno SHA di una release precedente come valore operativo. L'immagine Windows è un'etichetta fissa. Un push o una pull request non avviano i workflow. |
 | Test richiesti | Lettura statica dei due YAML. Nessun `workflow_dispatch` di prova. |
 | Documentazione | `PLAN.md`, MAP e `SECURITY_MODEL.md` se cambia il perimetro dei workflow. |
-| Stato | M41 assorbita in M40, attuata e verificata localmente; chiusura solo attraverso M40, dopo le approvazioni. |
+| Stato | M41 assorbita in C40, già M40, attuata e verificata localmente; pubblicazione e chiusura attraverso C40 dopo la seconda approvazione. |
 
 | Componente assorbita | M42 — Esclusioni Git di ambienti e chiavi |
 | --- | --- |
@@ -430,7 +430,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Criteri di accettazione | Gli schemi `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` e `*.pfx` sono presenti. `.env.example` resta tracciabile. I file già voluti nel pacchetto o nei documenti restano tracciati. |
 | Test richiesti | Controllo statico di `.gitignore` e di `git check-ignore` su percorsi finti, compresi `.env.local`, `.env.example` e un `*.pfx`, fuori dal contenuto reale del repository. La verifica che i nomi della baseline non fossero tracciati resta quella fatta su `d200abe`. |
 | Documentazione | `SECURITY_MODEL.md` e MAP, con il limite che `.gitignore` non è un filtro dei segreti già presenti nella storia. |
-| Stato | M42 assorbita in M40, attuata e verificata localmente; chiusura solo attraverso M40, dopo le approvazioni. |
+| Stato | M42 assorbita in C40, già M40, attuata e verificata localmente; pubblicazione e chiusura attraverso C40 dopo la seconda approvazione. |
 
 | Componente assorbita | M43 — Tag documentali e copia dello standard |
 | --- | --- |
@@ -441,7 +441,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Criteri di accettazione | Il piano e `AGENTS.md` rimandano alla regola unica della sezione Release dello standard. I tag `docs/*` già pubblicati, compreso `docs/plan-vesta-baseline-2026-11-13`, restano al loro commit. Nessun tag pubblicato viene spostato o cancellato. |
 | Test richiesti | `git diff --check` e controllo dei documenti obbligatori, dei link e dell'equivalenza IT/EN. Nessun test applicativo. |
 | Documentazione | `PLAN.md`, `AGENTS.md` e i rimandi a `STARTUP_PREFERENCES_HOME.md`. La copia resta nel repository. |
-| Stato | M43 assorbita in M40, attuata e verificata localmente; chiusura solo attraverso M40, dopo le approvazioni. |
+| Stato | M43 assorbita in C40, già M40, attuata e verificata localmente; pubblicazione e chiusura attraverso C40 dopo la seconda approvazione. |
 
 
 #### 2.3 Proposte e parti residue
@@ -515,7 +515,7 @@ Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: 
 ### 3. Convenzioni delle milestone
 
 - `P<n>`: proposta facoltativa, non eseguibile senza decisione esplicita del progettista.
-- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → M40 unificata → M32 → M36–M38 (M41–M43 assorbite in M40; M39 rimossa; M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
+- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → C40 approvata, pubblicazione pendente → M32 → M36–M38 (M41–M43 assorbite in M40; M39 rimossa; M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
 - `C<n>`: lavoro approvato dal progettista, con lo stesso numero della relativa `M`; pubblicazione e chiusura operativa possono essere ancora pendenti.
 
 Le numerazioni `P` e `M` sono indipendenti. Ogni futura `M` deve specificare obiettivo funzionale, branch, checkpoint `milestone/C<n>`, incremento di versione, attività, criteri di accettazione, test, documenti e stato. Non iniziare la milestone successiva finché `main` e il checkpoint della precedente non sono verificati sul remoto.
@@ -945,7 +945,9 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Esclusioni Git verificate senza creare chiavi o ambienti: dieci nomi sensibili sintetici ignorati, quattro nomi leciti tracciabili, inclusi `.env.example` e `nested/.env.example`. `.gitignore` non sostituisce la scansione dei segreti e non elimina contenuti dalla storia.
 - [x] Quattro tag `docs/*` verificati contro il remoto e preservati, nessun tag locale alterato. Copia HOME conservata con SHA-256 `8afee7c90b3dffed339a2f20ac893c029d508f4865ffa713129f7f22f89dc4ee`; versione 0.3.13 e lockfile invariati. File utente `scripts/smoke-terminal-geometry 2.mjs` conservato con SHA-256 invariato.
 - [x] Documenti, link e anchor locali, capitoli, equivalenza IT/EN e `git diff --check` verificati. Nessuna modifica al runtime o alla grafica della pagina; suite/build/smoke dei pacchetti non ripetuti per manutenzione statica di sito, workflow e repository. Nessun incremento, tag versione o release. Evidenze in `out/m40-review/`, preservate senza cancellazioni.
-- [ ] Primo controllo personale e prima approvazione del commit locale; la voce resta M40. Solo dopo: passaggio a C40 in nuovo commit, secondo controllo e approvazione, poi pubblicazione/merge, verifica Pages e checkpoint annotato `milestone/C40`. Nessun C41/C42/C43 autonomo. Il sito online non contiene ancora i nuovi metadati: vanno ricontrollati dopo il deploy approvato.
+- [x] Prima approvazione esplicita ricevuta da Glauco il 21 novembre sul commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`: «procedi con commit, merge, tag, push e rimozione del branch». Sequenza di pubblicazione autorizzata; versione 0.3.13 invariata e nessuna release.
+- [x] Passaggio M40→C40 e riepilogo registrati in questo nuovo commit locale. Cambia solo `PLAN.md`: implementazione, sito, workflow, esclusioni, standard, versione, test ed evidenze restano quelli del commit approvato. Verifica documentale IT/EN, link/anchor e `git diff --check`; suite/build/smoke non ripetuti per un aggiornamento del solo piano.
+- [ ] Secondo controllo personale e approvazione di questo nuovo commit prima di push, merge, tag o rimozione branch. Poi verifica del main e del deploy Pages, metadati online e checkpoint annotato `milestone/C40`; nessun C41/C42/C43 autonomo. Pubblicazione e chiusura operativa ancora pendenti.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -955,7 +957,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 21 November 2026:** unified M40 absorbs M41–M43 and is brought forward before M32 on the current `patch/0.3.13-roadmap-without-m39` branch, at Glauco's explicit request. Version unchanged at 0.3.13, no release; local implementation and checks, first approval still pending. No standalone C41/C42/C43 checkpoints.
+**Current work — 21 November 2026:** C40, formerly unified M40, absorbs M41–M43 and is brought forward before M32 on the `patch/0.3.13-roadmap-without-m39` branch, at Glauco's explicit request. First approval received for commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`; M40→C40 transition in this new documentation commit. Second review still pending, publication and operational closure pending. Version 0.3.13 unchanged, no release or standalone C41/C42/C43 checkpoints.
 
 **Latest published checkpoint:** C33, formerly unified M33, closed and published with M34/M35 absorbed at approved `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`. [Release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, published on 20 November 2026 at 21:17:23 (Europe/Rome), latest and not prerelease. Main and annotated `milestone/C33`/`v0.3.13` tags, four binaries and two manifests verified, six public URLs HTTP 200; M33 branch removed locally/remotely. Windows `44792620689`, Pages `44807866883` and local macOS ARM64 checks passed. Native Windows visual checks explicitly deferred and disclosed. Closeout in 4.23; M32 not started.
 
@@ -1202,11 +1204,11 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 
 Reordering requested by Glauco on 18 November 2026 after testing 0.3.8 on Windows and macOS. M18 keeps its number, planned branch and scope because it completes C27. The three new defects and other usability problems follow; configuration, packaging and repository maintenance move to the end. Completed entries and their tags do not change. Other open work becomes M28–M43, without reusing historical checkpoint numbers.
 
-**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → unified M40 (M41–M43) → M32 → M36 → M37 → M38.
+**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → approved C40, publication pending (M41–M43) → M32 → M36 → M37 → M38.
 
 **Decision of 21 November 2026.** At Glauco's request, M39 (formerly M16/PC-07) is removed from the execution plan: security and maintenance configuration will be reconsidered together for all his repositories, using one common standard. The need remains valid, but no new local proposal or milestone is opened. No GitHub setting is changed; no C39 branch or checkpoint is planned. Other milestones retain their numbers. Glauco's subsequent request in the same session combines M40–M43 and brings them forward before M32 on the current branch: M40 follows C33, M32 follows the future C40 checkpoint.
 
-The earlier documentation reordering started no implementation. In a subsequent request on 18 November Glauco authorized M18 on the same local `patch/0.3.8-functional-roadmap` branch: source 0.3.9, subsequently approved and published as C18. C29, started as M29 on 20 November with M30 absorbed, is closed and published; C33, formerly unified M33, is closed and published before M32, absorbing M34/M35. Other milestones remain planned only. Each milestone needs a separate kickoff, branch from main and preceding remotely verified checkpoint. C18 confirms `v0.3.9`; C29 confirms `v0.3.11`; C31 confirms `v0.3.12`; C33 confirms `v0.3.13`; M32 and M36–M38 have indicative `v0.3.14`–`v0.3.17`, to confirm; Unified M40 has no release or increment; M41–M43 have no standalone checkpoints. If a change already resolves a later defect, verify it in the package and record evidence without unnecessary changes or automatic closure of other milestones.
+The earlier documentation reordering started no implementation. In a subsequent request on 18 November Glauco authorized M18 on the same local `patch/0.3.8-functional-roadmap` branch: source 0.3.9, subsequently approved and published as C18. C29, started as M29 on 20 November with M30 absorbed, is closed and published; C33, formerly unified M33, is closed and published before M32, absorbing M34/M35. Other milestones remain planned only. Each milestone needs a separate kickoff, branch from main and preceding remotely verified checkpoint. C18 confirms `v0.3.9`; C29 confirms `v0.3.11`; C31 confirms `v0.3.12`; C33 confirms `v0.3.13`; M32 and M36–M38 have indicative `v0.3.14`–`v0.3.17`, to confirm; Unified C40 has no release or increment; M41–M43 have no standalone checkpoints. If a change already resolves a later defect, verify it in the package and record evidence without unnecessary changes or automatic closure of other milestones.
 
 | Order | Current entry | Previous identifier | Origin | Indicative version |
 | --- | --- | --- | --- | --- |
@@ -1216,7 +1218,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | — | M30 — Absorbed into C29 (formerly M29) | New | 0.3.8 #3 | No separate release |
 | 4 | C31 — Draggable macOS window and consistent menus | M31 / M12 | Desktop | `v0.3.12` |
 | 5 | C33, formerly M33 — App name, icon and initial language (absorbs M34/M35) | M10 / M11 / M17 | Desktop / PC-09 | `v0.3.13` |
-| 6 | M40 — Landing, packaging and repository rules (absorbs M41–M43) | M21–M23 / M25 | PC-15 / PC-16 / PC-17 / PC-19 | Unchanged; no release |
+| 6 | C40, formerly M40 — Landing, packaging and repository rules (absorbs M41–M43) | M21–M23 / M25 | PC-15 / PC-16 / PC-17 / PC-19 | Unchanged; no release |
 | 7 | M32 — Windows child-process polling | M15 | PC-06 | `v0.3.14` |
 | 8 | M36 — Confirm multiline paste and drop | M19 | PC-12 | `v0.3.15` |
 | 9 | M37 — Session limits in the central file | M20 | PC-14 | `v0.3.16` |
@@ -1352,16 +1354,16 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Documentation | README, IT/EN manuals, quick start, MAP, `SECURITY_MODEL.md`, PLAN and version. |
 | Status | `M38`, formerly M24, planned only; implementation not started. |
 
-| Field | M40 — Landing, packaging and repository rules (absorbs M41–M43) |
+| Field | C40, formerly M40 — Landing, packaging and repository rules (absorbs M41–M43) |
 | --- | --- |
-| Number and goal | Unified M40 — PC-15/16/17/19. Align the landing domain and metadata, require explicit workflow inputs and runners, prevent accidental tracking of environment files and keys, and consolidate the tag policy. |
+| Number and goal | C40, formerly unified M40 — PC-15/16/17/19. Align the landing domain and metadata, require explicit workflow inputs and runners, prevent accidental tracking of environment files and keys, and consolidate the tag policy. |
 | Dependency and branch | Combination, priority over M32 and execution on the current branch requested by Glauco on 21 November 2026: explicit order and branch exceptions. `patch/0.3.13-roadmap-without-m39` from local commit `d71dce36a7dfd3b48d79466e138b692fb01c9d56`. Remote main `fbf6151628100f67b0901a3993fe3305778e0dd4` and C33 checkpoint `6bab754c79ced9e530e73e30f8bca59fd55c4ffc` verified before work. M32–M38 remain unstarted. |
 | Planned checkpoint and version | Single `milestone/C40` after both approvals and verification of published main. Application version unchanged at 0.3.13, no version tag or release; M41–M43 absorbed without standalone checkpoints. |
 | Tasks | Already configured `planciacomandi.glaucosilvestri.it` domain explicitly confirmed by Glauco in the session: DNS CNAME to `gloutchov.github.io`, HTTPS 200 and TLS verification passed. CNAME preserved; canonical, Open Graph, hreflang and documentation aligned. Extend `check:site` to cover metadata consistency. Implement the M41–M43 components below, without changing runtime, version, triggers or permissions. |
 | Acceptance | One host across CNAME/canonical/Open Graph/hreflang and documentation, verified DNS and HTTPS; valid relative assets and IT/EN site. Workflow YAML without release defaults, pinned runners and workflow_dispatch only. Synthetic sensitive files ignored, `.env.example` trackable. Published tags, HOME standard and user files preserved. |
 | Required tests | `npm run check:site`, negative metadata cases on isolated copies, static YAML checks and comparison of changed fields only, `git check-ignore --no-index` on fake names, documents/links/anchors and IT/EN parity, `git diff --check`; read-only DNS/HTTPS. No trial dispatch, build or packaging for these static changes. |
 | Documentation | README, IT/EN manuals, `SECURITY_MODEL.md`, MAP, AGENTS and PLAN. The `STARTUP_PREFERENCES_HOME.md` copy remains intact. |
-| Status | Unified M40 implemented and checked locally on the confirmed domain; ready for the first commit review. The entry stays M40 until first approval. No push, merge, tag or transition to C40 before the required review. |
+| Status | C40, formerly unified M40, approved by Glauco at commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`: “procedi con commit, merge, tag, push e rimozione del branch”. Domain/metadata, workflows, Git exclusions and tag policy implemented and checked as in 4.24. Version 0.3.13 unchanged; planned checkpoint `milestone/C40`, no release. Documentation transition to C40 in this new commit: second review and approval still pending. No push, merge, tag or branch removal performed; recheck live metadata after the approved deployment. |
 
 | Absorbed component | M41 — Packaging workflow defaults and images |
 | --- | --- |
@@ -1372,7 +1374,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Acceptance | No default still points at 0.3.0. The description does not cite a previous release SHA as an operational value. The Windows image is a fixed label. A push or a pull request does not start the workflows. |
 | Required tests | Static reading of both YAML files. No trial `workflow_dispatch`. |
 | Documentation | `PLAN.md`, MAP and `SECURITY_MODEL.md` if the workflow perimeter changes. |
-| Status | M41 absorbed into M40, implemented and checked locally; closure through M40 only, after approvals. |
+| Status | M41 absorbed into C40, formerly M40, implemented and checked locally; publication and closure through C40 after second approval. |
 
 | Absorbed component | M42 — Git exclusions for env files and keys |
 | --- | --- |
@@ -1383,7 +1385,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Acceptance | The patterns `.env`, `.env.*`, `!.env.example`, `*.pem`, `*.key`, `*.p12` and `*.pfx` are present. `.env.example` stays trackable. Files already intended for the package or the documents stay tracked. |
 | Required tests | Static check of `.gitignore` and `git check-ignore` on fake paths, including `.env.local`, `.env.example` and a `*.pfx`, outside the repository's real content. The check that the baseline names were not tracked remains the one done on `d200abe`. |
 | Documentation | `SECURITY_MODEL.md` and MAP, with the limit that `.gitignore` is not a filter for secrets already in history. |
-| Status | M42 absorbed into M40, implemented and checked locally; closure through M40 only, after approvals. |
+| Status | M42 absorbed into C40, formerly M40, implemented and checked locally; publication and closure through C40 after second approval. |
 
 | Absorbed component | M43 — Documentation tags and the committed standard |
 | --- | --- |
@@ -1394,7 +1396,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Acceptance | The plan and `AGENTS.md` point to the single rule in the Release section of the standard. Published `docs/*` tags, including `docs/plan-vesta-baseline-2026-11-13`, stay on their commit. No published tag is moved or deleted. |
 | Required tests | `git diff --check` and a check of the required documents, links and IT/EN equivalence. No application test. |
 | Documentation | `PLAN.md`, `AGENTS.md` and the references to `STARTUP_PREFERENCES_HOME.md`. The copy stays in the repository. |
-| Status | M43 absorbed into M40, implemented and checked locally; closure through M40 only, after approvals. |
+| Status | M43 absorbed into C40, formerly M40, implemented and checked locally; publication and closure through C40 after second approval. |
 
 
 #### 2.3 Proposals and remaining work
@@ -1468,7 +1470,7 @@ On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26
 ### 3. Milestone conventions
 
 - `P<n>`: optional proposal, not executable without an explicit designer decision.
-- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → unified M40 → M32 → M36–M38 (M41–M43 absorbed into M40; M39 removed; M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
+- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → approved C40, publication pending → M32 → M36–M38 (M41–M43 absorbed into M40; M39 removed; M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
 - `C<n>`: work approved by the designer, retaining its `M` number; publication and operational closure may still be pending.
 
 `P` and `M` numbering is independent. Each future `M` must specify a functional goal, branch, `milestone/C<n>` checkpoint, version increment, tasks, acceptance criteria, tests, documentation and status. Do not start the next milestone until the preceding `main` and checkpoint are verified on the remote.
@@ -1898,7 +1900,9 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Git exclusions checked without creating keys or environments: ten synthetic sensitive names ignored, four legitimate names trackable, including `.env.example` and `nested/.env.example`. `.gitignore` does not replace secret scanning or remove historical contents.
 - [x] Four `docs/*` tags checked against the remote and preserved, no local tag changed. HOME copy preserved with SHA-256 `8afee7c90b3dffed339a2f20ac893c029d508f4865ffa713129f7f22f89dc4ee`; version 0.3.13 and lockfile unchanged. User file `scripts/smoke-terminal-geometry 2.mjs` preserved with unchanged SHA-256.
 - [x] Documents, local links and anchors, chapters, IT/EN equivalence and `git diff --check` checked. No runtime or page layout change; application suite/build/package smoke not repeated for static site, workflow and repository maintenance. No increment, version tag or release. Evidence in `out/m40-review/`, preserved without deletion.
-- [ ] First personal review and approval of the local commit; entry stays M40. Only afterward: transition to C40 in a new commit, second review and approval, then publication/merge, Pages verification and annotated `milestone/C40` checkpoint. No standalone C41/C42/C43. The live site does not yet contain the new metadata: recheck after the approved deployment.
+- [x] First explicit approval received from Glauco on 21 November for commit `b9f1b38b00aafdb5f00147282f483715d986b8cc`: “procedi con commit, merge, tag, push e rimozione del branch”. Publication sequence authorized; version 0.3.13 unchanged and no release.
+- [x] M40→C40 transition and summary recorded in this new local commit. Only `PLAN.md` changes: implementation, site, workflows, exclusions, standard, version, tests and evidence remain those of the approved commit. IT/EN documentation, links/anchors and `git diff --check` checked; suite/build/smoke not repeated for a plan-only update.
+- [ ] Second personal review and approval of this new commit before push, merge, tags or branch removal. Then verify main and the Pages deployment, live metadata and annotated `milestone/C40` checkpoint; no standalone C41/C42/C43. Publication and operational closure still pending.
 
 ### 5. Versions, CI and distribution
 
