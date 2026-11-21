@@ -7,3 +7,12 @@ release
 *.log
 .vite
 out
+
+# Local environment files and private keys; keep the example template trackable.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx

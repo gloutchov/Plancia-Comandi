@@ -27,7 +27,7 @@ Plancia-Comandi/
 |-- LICENSE                          Apache License 2.0
 |-- package.json                     Versione, dipendenze e script npm canonici
 |-- package-lock.json                Risoluzione riproducibile delle dipendenze
-|-- .gitignore                       Esclusioni per output, dipendenze e log
+|-- .gitignore                       Esclusioni per output, dipendenze, log, ambienti e chiavi private
 |-- electron-builder.json5           Target e contenuti dei pacchetti
 |-- vite.config.ts                   Server locale, CSP di sviluppo e bundle main/preload/renderer
 |-- vitest.config.ts                 Unit test in ambiente Node
@@ -135,7 +135,7 @@ Plancia-Comandi/
 |       `-- package-windows.yml      Packaging Windows manuale, eseguito per v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Simulazione Bash busy/attention/idle
-|   |-- check-site.mjs                Controllo landing, dizionari, risorse, CSP e link
+|   |-- check-site.mjs                Controllo landing, CNAME/metadati, dizionari, risorse, CSP e link
 |   |-- site-preferences.test.ts      Test di lingua, tema, storage bloccato e valori invalidi
 |   |-- inspect-package.mjs          Confronto bundle ASAR, contenuti distribuiti e hash di conpty.dll e OpenConsole.exe
 |   |-- install-native.d.mts        Tipi dello script, usati dai test
@@ -218,6 +218,8 @@ Plancia-Comandi/
 
 `.github/workflows/package-windows.yml` ha un solo job Windows avviabile manualmente, senza trigger push/PR o pubblicazione automatica. È predisposto per costruire installer e portabile con nomi distinti, controlli sul runner e checksum. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Lo step di packaging chiama `scripts/package-windows.mjs` dal checkout del workflow, così PowerShell non riceve `-c.*` né `--config.*`. `.github/workflows/package-macos.yml` è solo manuale, sul runner `macos-15`, e ha costruito i DMG e ZIP ARM64 non firmati della release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) nella run `43257940568`; smoke e ispezione hanno riguardato solo l'app scompattata. macOS ARM64 della release `v0.2.0` è stato costruito e provato localmente. La landing C4 è in `docs/`, con sorgente di pubblicazione `main:/docs`. Non è aggiunto un workflow al repository: il deploy Pages gestito da GitHub sarà necessario dopo le approvazioni. `.nojekyll` conserva i file statici; le risorse usano percorsi relativi. `config/app.config.json` è la configurazione centrale dei limiti di appunti, trascinamento e input; le preferenze di interfaccia restano in `settings.json`, fuori dal checkout. Alcuni altri limiti restano costanti nei moduli, come documentato nel modello di sicurezza e nella proposta P2.
 
+M40 unificata (21 novembre 2026, assorbe M41–M43): dominio pubblico `https://planciacomandi.glaucosilvestri.it/`, CNAME/metadati coerenti e DNS/HTTPS verificati; i workflow richiedono SHA completo e versione espliciti, senza default di release; Windows usa `windows-2025`, macOS conserva `macos-15`. Trigger solo manuali, un job per piattaforma e permessi `contents: read` invariati. `.gitignore` esclude `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12` e `*.pfx`, con eccezione per `.env.example`: i file già tracciati e la cronologia non vengono filtrati. I tag `docs/*` sono storici; nuovi checkpoint `milestone/C<n>`, nuovi tag di versione solo `vX.Y.Z` quando la regola Release lo prevede. `STARTUP_PREFERENCES_HOME.md` è conservato senza modifiche.
+
 ### 2. Flusso e responsabilità
 
 C33 (release 0.3.13 pubblicata) unifica nome, icona Windows e lingua iniziale. `initialLocale.ts` consulta la prima lingua preferita dopo ready; `SettingsStore` conserva un valore valido già salvato. `build/icon.ico` entra nell’ASAR e viene selezionato da BrowserWindow su Windows. I lettori dei pacchetti riconoscono i nomi attuali con spazio e quelli storici; il workflow risolve il nome dal checkout sorgenti dopo l’installazione e prova otto avvii sul gemello con fuse aperti. La prova Windows di upgrade 0.3.1 controlla SHA-256 del vecchio installer, stessa voce NSIS, EXE e collegamenti con spazio, rimozione e preferenze sintetiche; è bloccata fuori dai runner GitHub ospitati. Il workflow esegue questo upgrade prima della diagnosi di integrità, che può installare temporaneamente l’EXE e lasciare una registrazione nel runner; il controllo delle installazioni preesistenti resta attivo. La pulizia fuse usa il percorso esatto e preserva i PID preesistenti. Nessun nuovo workflow o canale IPC.
@@ -265,7 +267,7 @@ Da 0.3.9 `smoke-package.mjs` prova automaticamente le dieci variabili di svilupp
 | `npm test` / `npm run test:watch` | Test Vitest una volta / in osservazione. |
 | `npm run build` | `tsc --noEmit` e bundle Vite. |
 | `npm run preview` | Anteprima web del renderer; nessun accesso PTY standalone. |
-| `npm run check:site` | Verifica landing, risorse relative, icone, CSP, URL di release e dizionari IT/EN. |
+| `npm run check:site` | Verifica landing, CNAME/canonical/Open Graph/hreflang, risorse relative, icone, CSP, URL di release e dizionari IT/EN. |
 | `npm run preview:site` | Serve `docs/` su loopback 4174, sotto `/Plancia-Comandi/`, senza avviare Electron. |
 | `npm run rebuild` | Ricompilazione delle dipendenze applicative per Electron. |
 | `npm run dist` | Bundle e pacchetto per il sistema corrente. |
@@ -319,7 +321,7 @@ Plancia-Comandi/
 |-- LICENSE                          Apache License 2.0
 |-- package.json                     Canonical version, dependencies and npm scripts
 |-- package-lock.json                Reproducible dependency resolution
-|-- .gitignore                       Output, dependency and log exclusions
+|-- .gitignore                       Output, dependency, log, environment and private-key exclusions
 |-- electron-builder.json5           Package targets and contents
 |-- vite.config.ts                   Local server, development CSP and main/preload/renderer bundles
 |-- vitest.config.ts                 Unit tests in a Node environment
@@ -427,7 +429,7 @@ Plancia-Comandi/
 |       `-- package-windows.yml      Manual Windows packaging, run for v0.3.0
 |-- scripts/
 |   |-- demo-codex.sh                 Bash busy/attention/idle simulation
-|   |-- check-site.mjs                Landing, dictionary, resource, CSP and link checks
+|   |-- check-site.mjs                Landing, CNAME/metadata, dictionary, resource, CSP and link checks
 |   |-- site-preferences.test.ts      Language, theme, blocked storage and invalid-value tests
 |   |-- inspect-package.mjs          ASAR bundle, distributed contents and conpty.dll plus OpenConsole.exe hashes
 |   |-- install-native.d.mts        Types for the script, used by the tests
@@ -510,6 +512,8 @@ Plancia-Comandi/
 
 `.github/workflows/package-windows.yml` has one manually triggered Windows job, with no push/PR trigger or automatic publication. It is set up to build distinctly named installer and portable packages, runner checks and checksums. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The packaging step calls `scripts/package-windows.mjs` from the workflow checkout, so PowerShell does not receive `-c.*` or `--config.*`. `.github/workflows/package-macos.yml` is manual only, on the `macos-15` runner, and built the unsigned ARM64 DMG and ZIP of release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) in run `43257940568`; smoke tests and inspection covered only the unpacked app. The macOS ARM64 packages of release `v0.2.0` were built and tested locally. The C4 landing is in `docs/`, with `main:/docs` as the publishing source. No repository workflow is added: GitHub’s managed Pages deployment will be necessary after approvals. `.nojekyll` preserves static files; assets use relative paths. `config/app.config.json` is the central configuration for clipboard, drag-and-drop and input limits; interface preferences remain in `settings.json`, outside the checkout. Some other limits remain module constants, as recorded in the security model and proposal P2.
 
+Unified M40 (21 November 2026, absorbs M41–M43): public domain `https://planciacomandi.glaucosilvestri.it/`, consistent CNAME/metadata and verified DNS/HTTPS; workflows require an explicit full SHA and version, with no release default; Windows uses `windows-2025`, macOS keeps `macos-15`. Manual-only triggers, one job per platform and `contents: read` permissions stay unchanged. `.gitignore` excludes `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12` and `*.pfx`, except `.env.example`: already tracked files and history are not filtered. The `docs/*` tags are historical; new checkpoints use `milestone/C<n>`, with new version tags only `vX.Y.Z` when required by the Release rule. `STARTUP_PREFERENCES_HOME.md` is preserved unchanged.
+
 ### 2. Flow and responsibilities
 
 C33 (published release 0.3.13) unifies the name, Windows icon and initial language. `initialLocale.ts` reads the primary preferred language after ready; `SettingsStore` preserves a valid saved value. `build/icon.ico` is packaged in ASAR and selected by BrowserWindow on Windows. Package readers recognize current spaced and historical names; the workflow resolves the name from the source checkout after installation and checks eight launches on the open-fuse twin. The Windows 0.3.1 upgrade probe checks the old installer SHA-256, the same NSIS entry, spaced EXE and shortcut names, removal and synthetic preferences; it is blocked outside GitHub-hosted runners. The workflow runs this upgrade before integrity diagnostics, which can temporarily install the EXE and leave a runner registration; the preexisting-install guard stays enabled. Fuse cleanup uses the exact path and preserves preexisting PIDs. No new workflow or IPC channel.
@@ -557,7 +561,7 @@ From 0.3.9 `smoke-package.mjs` automatically sets and tests all ten development 
 | `npm test` / `npm run test:watch` | Run Vitest once / in watch mode. |
 | `npm run build` | `tsc --noEmit` and Vite bundles. |
 | `npm run preview` | Renderer web preview; no standalone PTY access. |
-| `npm run check:site` | Checks landing, relative assets, icons, CSP, release URLs and IT/EN dictionaries. |
+| `npm run check:site` | Checks landing, CNAME/canonical/Open Graph/hreflang, relative assets, icons, CSP, release URLs and IT/EN dictionaries. |
 | `npm run preview:site` | Serves `docs/` on loopback 4174 under `/Plancia-Comandi/`, without launching Electron. |
 | `npm run rebuild` | Rebuild application dependencies for Electron. |
 | `npm run dist` | Bundles and package for the current OS. |

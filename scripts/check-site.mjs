@@ -39,6 +39,17 @@ assert(!/\bon\w+\s*=|<script\b(?![^>]*\bsrc=)/i.test(html), 'Unexpected inline s
 assert(html.includes("connect-src 'none'"))
 assert(html.includes("script-src 'self'"))
 assert(fs.existsSync(path.join(site, '.nojekyll')))
+const cnamePath = path.join(site, 'CNAME')
+const cname = fs.existsSync(cnamePath) ? fs.readFileSync(cnamePath, 'utf8').trim() : null
+if (cname !== null) assert.match(cname, /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/i, 'Invalid CNAME hostname')
+const publication = cname ? `https://${cname}/` : 'https://gloutchov.github.io/Plancia-Comandi/'
+assert.equal(/<link rel="canonical" href="([^"]+)"/.exec(html)?.[1], publication, 'Canonical differs from the publishing host')
+assert.equal(/<meta property="og:url" content="([^"]+)"/.exec(html)?.[1], publication, 'Open Graph URL differs from canonical')
+assert.equal(/<meta property="og:image" content="([^"]+)"/.exec(html)?.[1], new URL('./screenshots/plancia-dark-en.png', publication).href, 'Open Graph image differs from the publishing host')
+for (const locale of ['it', 'en']) {
+  const alternate = new RegExp(`<link rel="alternate" hreflang="${locale}" href="([^"]+)"`).exec(html)?.[1]
+  assert.equal(alternate, `${publication}?lang=${locale}`, `${locale}: alternate differs from the publishing host`)
+}
 for (const name of ['icon.png', 'icon.ico']) assert.deepEqual(fs.readFileSync(path.join(site, 'assets', name)), fs.readFileSync(path.join(root, 'build', name)))
 for (const locale of ['it', 'en']) for (const view of ['dark', 'light', 'settings']) assert(fs.statSync(path.join(site, 'screenshots', `plancia-${view}${locale === 'en' ? '-en' : ''}.png`)).isFile())
 
@@ -50,4 +61,4 @@ for (const url of downloads) assert(url.includes(`/v${release}/`), 'Release URL 
 assert.equal(downloads.filter(url => url.endsWith('.exe')).length, 2)
 assert.equal(downloads.filter(url => url.endsWith('.dmg') || url.endsWith('.zip')).length, 2)
 assert.equal(downloads.filter(url => /SHA256SUMS-.*\.txt$/.test(url)).length, 2)
-console.log(JSON.stringify({ site: 'passed', release, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'classic script syntax and order', 'UI element references', 'local scripts/styles', 'CSP', 'no inline handlers', 'canonical icons', 'IT/EN parity'] }))
+console.log(JSON.stringify({ site: 'passed', release, publication, translationKeys: keys.length, locales: 2, localResources, screenshots: 6, downloadLinks: downloads.length, checks: ['relative Pages paths', 'anchors', 'classic script syntax and order', 'UI element references', 'local scripts/styles', 'CSP', 'no inline handlers', 'publication metadata', 'canonical icons', 'IT/EN parity'] }))

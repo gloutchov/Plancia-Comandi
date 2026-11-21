@@ -4,12 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Full 40-hex commit to package. For 0.3.0 use 94ff1e44106f08fdcf961cab74171668112ad780.
+        description: Full 40-hex commit approved for packaging
         required: true
       version:
         description: Expected package.json version
         required: true
-        default: "0.3.0"
 
 permissions:
   contents: read

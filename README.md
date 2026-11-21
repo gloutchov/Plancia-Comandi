@@ -139,7 +139,7 @@ npm run check:site
 npm run preview:site
 ```
 
-Apri `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C arresta l'anteprima. Il server serve solo la pagina statica, senza avviare Electron. La sorgente di pubblicazione prevista da C4 è `main` e `/docs`, con `.nojekyll` e i due controlli del commit prima del push; non è aggiunto un workflow al repository. GitHub esegue comunque il deploy Pages gestito, necessario per il sito richiesto. L'URL di pubblicazione è `https://gloutchov.github.io/Plancia-Comandi/`; un eventuale dominio dedicato richiede una scelta separata. Procedura: [sorgente di pubblicazione Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Apri `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C arresta l'anteprima. Il server serve solo la pagina statica, senza avviare Electron. La sorgente di pubblicazione prevista da C4 è `main` e `/docs`, con `.nojekyll` e i due controlli del commit prima del push; non è aggiunto un workflow al repository. GitHub esegue comunque il deploy Pages gestito, necessario per il sito richiesto. Il dominio pubblico è `https://planciacomandi.glaucosilvestri.it/`, già configurato e confermato da Glauco per M40. DNS e HTTPS sono verificati; CNAME, canonical, Open Graph e hreflang usano questo host. Le risorse restano relative, utilizzabili anche nell’anteprima locale. Procedura: [sorgente di pubblicazione Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 Per una dimostrazione da un checkout con Bash, su macOS/Linux:
 
@@ -150,6 +150,8 @@ PLANCIA_DEMO=1 npm run dev
 La demo apre due shell, avvia un indicatore simulato e imposta il tema scuro, salvandolo nelle preferenze correnti. Non usa un modello AI. Il manuale descrive demo, variabili di sviluppo e limiti.
 
 ### 6. Distribuzione
+
+Per preparare pacchetti con i workflow manuali, inserisci ogni volta lo SHA completo del commit approvato e la versione attesa: non è precompilata una versione di release. Windows usa `windows-2025`, macOS ARM64 conserva `macos-15`. I workflow non partono su push o pull request e non pubblicano release.
 
 Eseguire prima test e build, poi creare il pacchetto sul sistema di destinazione:
 
@@ -321,7 +323,7 @@ npm run check:site
 npm run preview:site
 ```
 
-Open `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C stops the preview. The server serves only the static page and does not launch Electron. The planned publishing source is `main` and `/docs`, with `.nojekyll`, with both commit reviews before pushing; no repository workflow is added. GitHub still runs its managed Pages deployment, which is necessary for the requested site. The publication URL is `https://gloutchov.github.io/Plancia-Comandi/`; a dedicated domain requires a separate choice. Procedure: [Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Open `http://127.0.0.1:4174/Plancia-Comandi/`; Ctrl+C stops the preview. The server serves only the static page and does not launch Electron. The planned publishing source is `main` and `/docs`, with `.nojekyll`, with both commit reviews before pushing; no repository workflow is added. GitHub still runs its managed Pages deployment, which is necessary for the requested site. The public domain is `https://planciacomandi.glaucosilvestri.it/`, already configured and confirmed by Glauco for M40. DNS and HTTPS are verified; CNAME, canonical, Open Graph and hreflang use this host. Assets remain relative and work in local previews too. Procedure: [Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 For a demo from a checkout with Bash on macOS/Linux:
 
@@ -332,6 +334,8 @@ PLANCIA_DEMO=1 npm run dev
 The demo opens two shells, runs a simulated indicator and selects the dark theme, saving it to current preferences. It uses no AI model. The manual covers the demo, development variables and limitations.
 
 ### 6. Distribution
+
+To prepare packages with the manual workflows, enter the full approved commit SHA and expected version each time: no release version is prefilled. Windows uses `windows-2025`, macOS ARM64 keeps `macos-15`. Workflows do not run on push or pull request and do not publish releases.
 
 Run tests and build first, then create the package on its target OS:
 
