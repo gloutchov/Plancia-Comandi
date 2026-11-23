@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. La PR Dependabot #19 (45.3.4) non è toccata. Commit locale, senza push. Dettaglio in 1.3 e 4.35.
+**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. La PR Dependabot #19 è chiusa come superata. Resta il residuo minimatch, corretto solo in 11.0.1 e solo in sviluppo. Dettaglio in 1.3 e 4.35.
 
 **Intervento precedente — 23 novembre 2026:** il progettista ha autorizzato il `dependabot.yml` standard. Patch di sola configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. Aggiunge gli aggiornamenti di versione mensili per npm nella radice e per le GitHub Actions di `package-macos.yml` e `package-windows.yml`. Il repository non ha mai avuto questo file. Electron resta il pin esatto `45.3.2`; versione 0.3.16 invariata. Completata: PR #18 integrata in main, nessun tag e nessuna release. Dettaglio in 1.2 e 4.34.
 
@@ -138,7 +138,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Accettazione | Il pin non ha `^` né `~`. I nove fuse di default del binario 45.4.1 coincidono con il filo C27. I test dei fuse e di ConPTY passano. |
 | Verifiche richieste | Suite, build e, dove possibile, avvio del pacchetto. Workflow di packaging solo dopo il push, e solo su dispatch. |
 | Documentazione | README, manuali, quick start, mappa, modello, piano e `AGENTS.md`. |
-| Stato | Commit locale da controllare. Nessun push, merge, tag o release. |
+| Stato | Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. PR Dependabot #19 chiusa come superata. Residuo minimatch ancora aperto, correzione solo in 11.0.1 e solo in sviluppo. Tag e release dopo i pacchetti del commit di merge. |
 
 ### 2. Milestone e proposte
 
@@ -1097,7 +1097,7 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 
 #### 4.35 Electron 45.4.1 — 23 novembre 2026
 
-- [ ] Patch su `patch/0.3.17-electron-45-4-1` da main `9f10663af348fda3a356d473532fae3965770b88`. Electron pin esatto `45.4.1`, versione proposta 0.3.17. Fuse e ConPTY di C27 conservati; `node-pty` ricompilato per l’ABI 150 e caricato nel binario 45.4.1. I nove fuse di default coincidono con il filo C27; `afterPack` li applica sul pacchetto Linux. Suite 609 riusciti/3 saltati (PowerShell nativo e postinstall Windows). Test fuse e ConPTY 33/33. Build e `check:site` riusciti. Pacchetto Linux scompattato avviato e chiuso dal processo principale, senza processi rimasti. PR #19 non modificata. Commit locale da approvare prima di push, merge, tag o release.
+- [x] Patch su `patch/0.3.17-electron-45-4-1` da main `9f10663af348fda3a356d473532fae3965770b88`. Electron pin esatto `45.4.1`, versione proposta 0.3.17. Fuse e ConPTY di C27 conservati; `node-pty` ricompilato per l’ABI 150 e caricato nel binario 45.4.1. I nove fuse di default coincidono con il filo C27; `afterPack` li applica sul pacchetto Linux. Suite 609 riusciti/3 saltati (PowerShell nativo e postinstall Windows). Test fuse e ConPTY 33/33. Build e `check:site` riusciti. Pacchetto Linux scompattato avviato e chiuso dal processo principale, senza processi rimasti. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. PR Dependabot #19 chiusa come superata. Residuo minimatch ancora aperto, solo 11.0.1 e solo in sviluppo. Tag e release dopo i pacchetti sul commit di merge.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -1107,7 +1107,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Dependabot PR #19 (45.3.4) is untouched. Local commit, no push. Detail in 1.3 and 4.35.
+**Current work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 is closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Detail in 1.3 and 4.35.
 
 **Previous work — 23 November 2026:** the designer authorized the standard `dependabot.yml`. Configuration-only patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. It adds monthly version updates for npm at the repository root and for the GitHub Actions in `package-macos.yml` and `package-windows.yml`. The repository has never had this file. Electron remains the exact pin `45.3.2`; version 0.3.16 is unchanged. Completed: PR #18 integrated into main, no tag and no release. Detail in 1.2 and 4.34.
 
@@ -1243,7 +1243,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Acceptance | The pin has neither `^` nor `~`. The nine default fuses of the 45.4.1 binary match the C27 wire. Fuse and ConPTY tests pass. |
 | Required checks | Suite, build and, where possible, a packaged launch. Packaging workflows run after the push, and only on dispatch. |
 | Documentation | README, manuals, quick start, map, model, plan and `AGENTS.md`. |
-| Status | Local commit to review. No push, merge, tag or release. |
+| Status | Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Tag and release follow the packages of the merge commit. |
 
 ### 2. Milestones and proposals
 
@@ -2202,7 +2202,7 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 
 #### 4.35 Electron 45.4.1 — 23 November 2026
 
-- [ ] Patch on `patch/0.3.17-electron-45-4-1` from main `9f10663af348fda3a356d473532fae3965770b88`. Exact Electron pin `45.4.1`, proposed version 0.3.17. C27 fuses and ConPTY kept; `node-pty` rebuilt for ABI 150 and loaded in the 45.4.1 binary. The nine default fuses match the C27 wire; `afterPack` applies them on the Linux package. Suite 609 passed/3 skipped (native PowerShell and the Windows postinstall). Fuse and ConPTY tests 33/33. Build and `check:site` passed. Unpacked Linux package started and closed from the main process, with no processes left. PR #19 not modified. Local commit to approve before push, merge, tag or release.
+- [x] Patch on `patch/0.3.17-electron-45-4-1` from main `9f10663af348fda3a356d473532fae3965770b88`. Exact Electron pin `45.4.1`, proposed version 0.3.17. C27 fuses and ConPTY kept; `node-pty` rebuilt for ABI 150 and loaded in the 45.4.1 binary. The nine default fuses match the C27 wire; `afterPack` applies them on the Linux package. Suite 609 passed/3 skipped (native PowerShell and the Windows postinstall). Fuse and ConPTY tests 33/33. Build and `check:site` passed. Unpacked Linux package started and closed from the main process, with no processes left. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 closed as superseded. The minimatch residual remains open, only 11.0.1 and only in development. Tag and release follow the packages on the merge commit.
 
 ### 5. Versions, CI and distribution
 
