@@ -2,7 +2,9 @@
 
 ## Italiano
 
-**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. La PR Dependabot #19 è chiusa come superata. Resta il residuo minimatch, corretto solo in 11.0.1 e solo in sviluppo. Dettaglio in 1.3 e 4.35.
+**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione proposta **0.3.18**. Sostituisce la PR Dependabot #20, che non è modificata. Commit locale, senza push. Dettaglio in 1.4 e 4.36.
+
+**Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. La PR Dependabot #19 è chiusa come superata. Resta il residuo minimatch, corretto solo in 11.0.1 e solo in sviluppo. Dettaglio in 1.3 e 4.35.
 
 **Intervento precedente — 23 novembre 2026:** il progettista ha autorizzato il `dependabot.yml` standard. Patch di sola configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. Aggiunge gli aggiornamenti di versione mensili per npm nella radice e per le GitHub Actions di `package-macos.yml` e `package-windows.yml`. Il repository non ha mai avuto questo file. Electron resta il pin esatto `45.3.2`; versione 0.3.16 invariata. Completata: PR #18 integrata in main, nessun tag e nessuna release. Dettaglio in 1.2 e 4.34.
 
@@ -65,6 +67,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [4.33 Consuntivo C37 e completamento P1/P2](#433-consuntivo-c37-e-completamento-p1p2)
 - [4.34 Configurazione Dependabot](#434-configurazione-dependabot--23-novembre-2026)
 - [4.35 Electron 45.4.1](#435-electron-4541--23-novembre-2026)
+- [4.36 Runtime xterm](#436-runtime-xterm--23-novembre-2026)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
 
 ### 1. Base e intervento corrente
@@ -139,6 +142,19 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Verifiche richieste | Suite, build e, dove possibile, avvio del pacchetto. Workflow di packaging solo dopo il push, e solo su dispatch. |
 | Documentazione | README, manuali, quick start, mappa, modello, piano e `AGENTS.md`. |
 | Stato | Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. PR Dependabot #19 chiusa come superata. Residuo minimatch ancora aperto, correzione solo in 11.0.1 e solo in sviluppo. Tag e release dopo i pacchetti del commit di merge. |
+
+#### 1.4 Runtime xterm — 23 novembre 2026
+
+| Campo | Patch di runtime |
+| --- | --- |
+| Obiettivo | Adottare Fit 0.11 misurando la scrollbar reale, insieme a web-links 0.12 e React 19.3.1. |
+| Tipo | Patch di dipendenze di runtime, fuori dalla numerazione delle milestone. |
+| Base | `main`, commit `0590eec15701e49ef953c60559c04b86a81c0ec6`, release 0.3.17. |
+| Branch | `patch/0.3.18-xterm-runtime`. |
+| Versione / incremento | Proposta **0.3.18**, `+0.0.1`. Release prevista e non pubblicata. |
+| Attività | Pin esatti. Prima di ogni `fit`, `overviewRuler.width` riceve `offsetWidth - clientWidth`, con ripiego 15 px se la misura è 0. `overviewRulerWidth` non viene impostato. `@xterm/xterm` resta 5.5.0. |
+| Accettazione | Lo smoke di geometria resta invariato e passa. Il calcolo della larghezza ha un test unitario. |
+| Stato | Commit locale da controllare. Nessun push, merge, tag o release. PR #20 non è modificata. |
 
 ### 2. Milestone e proposte
 
@@ -1099,6 +1115,10 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 
 - [x] Patch su `patch/0.3.17-electron-45-4-1` da main `9f10663af348fda3a356d473532fae3965770b88`. Electron pin esatto `45.4.1`, versione proposta 0.3.17. Fuse e ConPTY di C27 conservati; `node-pty` ricompilato per l’ABI 150 e caricato nel binario 45.4.1. I nove fuse di default coincidono con il filo C27; `afterPack` li applica sul pacchetto Linux. Suite 609 riusciti/3 saltati (PowerShell nativo e postinstall Windows). Test fuse e ConPTY 33/33. Build e `check:site` riusciti. Pacchetto Linux scompattato avviato e chiuso dal processo principale, senza processi rimasti. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. PR Dependabot #19 chiusa come superata. Residuo minimatch ancora aperto, solo 11.0.1 e solo in sviluppo. Tag e release dopo i pacchetti sul commit di merge.
 
+#### 4.36 Runtime xterm — 23 novembre 2026
+
+- [ ] Patch su `patch/0.3.18-xterm-runtime` da main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Pin esatti Fit 0.11.0, web-links 0.12.0, React e ReactDOM 19.3.1. Larghezza scrollbar misurata prima di ogni fit; il righello non viene acceso. Versione proposta 0.3.18. Suite 613 riusciti/3 saltati, test larghezza 4/4, build e `check:site` riusciti. Lo smoke di geometria su questo Linux fallisce prima del controllo scrollbar anche con Fit 0.10. PR #20 non modificata. Commit locale da approvare prima di push, merge, tag o release.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -1107,7 +1127,9 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 is closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Detail in 1.3 and 4.35.
+**Current work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Proposed version **0.3.18**. It supersedes Dependabot PR #20, which is not modified. Local commit, no push. Detail in 1.4 and 4.36.
+
+**Previous work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 is closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Detail in 1.3 and 4.35.
 
 **Previous work — 23 November 2026:** the designer authorized the standard `dependabot.yml`. Configuration-only patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. It adds monthly version updates for npm at the repository root and for the GitHub Actions in `package-macos.yml` and `package-windows.yml`. The repository has never had this file. Electron remains the exact pin `45.3.2`; version 0.3.16 is unchanged. Completed: PR #18 integrated into main, no tag and no release. Detail in 1.2 and 4.34.
 
@@ -1170,6 +1192,7 @@ This plan records the existing Plancia Comandi baseline and future work. Publish
 - [4.33 C37 closeout and P1/P2 completion](#433-c37-closeout-and-p1p2-completion)
 - [4.34 Dependabot configuration](#434-dependabot-configuration--23-november-2026)
 - [4.35 Electron 45.4.1](#435-electron-4541--23-november-2026)
+- [4.36 xterm runtime](#436-xterm-runtime--23-november-2026)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
 
 ### 1. Baseline and current work
@@ -1244,6 +1267,19 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Required checks | Suite, build and, where possible, a packaged launch. Packaging workflows run after the push, and only on dispatch. |
 | Documentation | README, manuals, quick start, map, model, plan and `AGENTS.md`. |
 | Status | Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Tag and release follow the packages of the merge commit. |
+
+#### 1.4 xterm runtime — 23 November 2026
+
+| Field | Runtime patch |
+| --- | --- |
+| Goal | Adopt Fit 0.11 by measuring the real scrollbar, together with web-links 0.12 and React 19.3.1. |
+| Type | Runtime-dependency patch, outside milestone numbering. |
+| Baseline | `main`, commit `0590eec15701e49ef953c60559c04b86a81c0ec6`, release 0.3.17. |
+| Branch | `patch/0.3.18-xterm-runtime`. |
+| Version / increment | Proposed **0.3.18**, `+0.0.1`. A release is expected and is not published. |
+| Work | Exact pins. Before every `fit`, `overviewRuler.width` receives `offsetWidth - clientWidth`, with a 15 px fallback when the measurement is 0. `overviewRulerWidth` is not set. `@xterm/xterm` stays at 5.5.0. |
+| Acceptance | The geometry smoke stays unchanged and passes. The width calculation has a unit test. |
+| Status | Local commit to review. No push, merge, tag or release. PR #20 is not modified. |
 
 ### 2. Milestones and proposals
 
@@ -2203,6 +2239,10 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 #### 4.35 Electron 45.4.1 — 23 November 2026
 
 - [x] Patch on `patch/0.3.17-electron-45-4-1` from main `9f10663af348fda3a356d473532fae3965770b88`. Exact Electron pin `45.4.1`, proposed version 0.3.17. C27 fuses and ConPTY kept; `node-pty` rebuilt for ABI 150 and loaded in the 45.4.1 binary. The nine default fuses match the C27 wire; `afterPack` applies them on the Linux package. Suite 609 passed/3 skipped (native PowerShell and the Windows postinstall). Fuse and ConPTY tests 33/33. Build and `check:site` passed. Unpacked Linux package started and closed from the main process, with no processes left. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 closed as superseded. The minimatch residual remains open, only 11.0.1 and only in development. Tag and release follow the packages on the merge commit.
+
+#### 4.36 xterm runtime — 23 November 2026
+
+- [ ] Patch on `patch/0.3.18-xterm-runtime` from main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Exact pins Fit 0.11.0, web-links 0.12.0, React and ReactDOM 19.3.1. Scrollbar width measured before every fit; the ruler stays off. Proposed version 0.3.18. Suite 613 passed/3 skipped, width tests 4/4, build and `check:site` passed. The geometry smoke on this Linux host fails before the scrollbar check even with Fit 0.10. PR #20 not modified. Local commit to approve before push, merge, tag or release.
 
 ### 5. Versions, CI and distribution
 

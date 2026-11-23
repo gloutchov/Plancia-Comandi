@@ -2,7 +2,7 @@
   "name": "plancia-comandi",
   "productName": "Plancia Comandi",
   "private": true,
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "Desktop terminal manager for Codex CLI and other shells",
   "license": "Apache-2.0",
   "type": "module",
@@ -26,13 +26,13 @@
     "postinstall": "node scripts/install-native.mjs"
   },
   "dependencies": {
-    "@xterm/addon-fit": "0.10.0",
-    "@xterm/addon-web-links": "0.11.0",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/addon-web-links": "0.12.0",
     "@xterm/headless": "5.5.0",
     "@xterm/xterm": "5.5.0",
     "node-pty": "1.1.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@electron/asar": "3.4.1",

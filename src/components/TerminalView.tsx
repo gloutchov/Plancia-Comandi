@@ -9,6 +9,7 @@ import { TerminalMenu } from './TerminalMenu'
 import { dropIntoTerminal, pasteIntoTerminal, registerTerminalEdit, writeClipboardText, type TerminalPasteGuard } from '../terminalEdit'
 import type { PasteConfirmationAccess } from '../pasteConfirmation'
 import { TerminalStream } from '../terminalStream'
+import { applyFitScrollbarWidth } from '../scrollbarFit'
 
 const FONT = '"JetBrains Mono", "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace'
 
@@ -152,6 +153,7 @@ export function TerminalView({
       if (disposed || !visibleRef.current) return
       if (host.clientWidth < 2 || host.clientHeight < 2) return
       try {
+        applyFitScrollbarWidth(term)
         fit.fit()
       } catch {
         return
@@ -202,9 +204,18 @@ export function TerminalView({
 
   useEffect(() => {
     const term = termRef.current
+    const fit = fitRef.current
     if (!term) return
     term.options.theme = theme
-  }, [theme])
+    if (!fit || !visible) return
+    try {
+      applyFitScrollbarWidth(term)
+      fit.fit()
+      window.plancia?.resize(sessionId, term.cols, term.rows)
+    } catch {
+      // A theme change can arrive before the pane has a size.
+    }
+  }, [theme, sessionId, visible])
 
   useEffect(() => {
     const term = termRef.current
@@ -212,6 +223,7 @@ export function TerminalView({
     if (!term || !fit || !visible) return
     term.options.fontSize = fontSize
     try {
+      applyFitScrollbarWidth(term)
       fit.fit()
       window.plancia?.resize(sessionId, term.cols, term.rows)
     } catch {
@@ -224,17 +236,20 @@ export function TerminalView({
     const fit = fitRef.current
     if (!term || !fit || !visible) return
     let inner = 0
+    const fitNow = () => {
+      applyFitScrollbarWidth(term)
+      fit.fit()
+      window.plancia?.resize(sessionId, term.cols, term.rows)
+    }
     const outer = requestAnimationFrame(() => {
       try {
-        fit.fit()
-        window.plancia?.resize(sessionId, term.cols, term.rows)
+        fitNow()
       } catch {
         // The pane may still be hidden.
       }
       inner = requestAnimationFrame(() => {
         try {
-          fit.fit()
-          window.plancia?.resize(sessionId, term.cols, term.rows)
+          fitNow()
         } catch {
           // Ignore a second fit that races with disposal.
         }
@@ -242,8 +257,7 @@ export function TerminalView({
     })
     const onResize = () => {
       try {
-        fit.fit()
-        window.plancia?.resize(sessionId, term.cols, term.rows)
+        fitNow()
       } catch {
         // The window can resize while the terminal is closing.
       }

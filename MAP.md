@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.17**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.18**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -80,9 +80,11 @@ Plancia-Comandi/
 |   |   |-- powershellNativeTransport.ts Protocollo base64 UTF-8 e validazione dei report nativi
 |   |   `-- powershellNativeTransport.test.ts Test di Unicode, separatori e report non validi
 |   |-- cx.ts                        Helper per nomi di classi CSS
+|   |-- scrollbarFit.ts             Larghezza reale della scrollbar per Fit 0.11, senza righello
+|   |-- scrollbarFit.test.ts        Calcolo della larghezza e assenza del righello
 |   |-- components/
 |   |   |-- Sidebar.tsx              Elenco sessioni, rinomina e affiancamento
-|   |   |-- TerminalView.tsx         xterm, resize, clipboard e collegamenti
+|   |   |-- TerminalView.tsx         xterm, resize, scrollbar, clipboard e collegamenti
 |   |   |-- TerminalMenu.tsx         Menu contestuale Copia e Incolla
 |   |   |-- PasteConfirmationDialog.tsx Conferma IT/EN, focus confinato e Annulla iniziale
 |   |   |-- LayoutSwitcher.tsx       Icone delle quattro viste
@@ -324,7 +326,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.17** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.18** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -402,9 +404,11 @@ Plancia-Comandi/
 |   |   |-- powershellNativeTransport.ts UTF-8/base64 protocol and native report validation
 |   |   `-- powershellNativeTransport.test.ts Unicode, delimiter and invalid report tests
 |   |-- cx.ts                        CSS class-name helper
+|   |-- scrollbarFit.ts             Real scrollbar width for Fit 0.11, without a ruler
+|   |-- scrollbarFit.test.ts        Width calculation and absence of the ruler
 |   |-- components/
 |   |   |-- Sidebar.tsx              Session list, renaming and tiling
-|   |   |-- TerminalView.tsx         xterm, resize, clipboard and links
+|   |   |-- TerminalView.tsx         xterm, resize, scrollbar, clipboard and links
 |   |   |-- TerminalMenu.tsx         Copy and Paste context menu
 |   |   |-- PasteConfirmationDialog.tsx IT/EN confirmation, focus trap and initial Cancel
 |   |   |-- LayoutSwitcher.tsx       Icons for the four views
