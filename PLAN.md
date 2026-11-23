@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione proposta **0.3.18**. Sostituisce la PR Dependabot #20, che non è modificata. Commit locale, senza push. Dettaglio in 1.4 e 4.36.
+**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione proposta **0.3.18**. Sostituisce la PR Dependabot #20, che non è modificata. Pubblicata come PR #25; push approvato ed eseguito. Run Windows `45200473912` e macOS `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. Merge, tag e release restano da fare. Dettaglio in 1.4 e 4.36.
 
 **Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. La PR Dependabot #19 è chiusa come superata. Resta il residuo minimatch, corretto solo in 11.0.1 e solo in sviluppo. Dettaglio in 1.3 e 4.35.
 
@@ -154,7 +154,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Versione / incremento | Proposta **0.3.18**, `+0.0.1`. Release prevista e non pubblicata. |
 | Attività | Pin esatti. Prima di ogni `fit`, `overviewRuler.width` riceve `offsetWidth - clientWidth`, con ripiego 15 px se la misura è 0. `overviewRulerWidth` non viene impostato. `@xterm/xterm` resta 5.5.0. |
 | Accettazione | Lo smoke di geometria resta invariato e passa. Il calcolo della larghezza ha un test unitario. |
-| Stato | Commit locale da controllare. Nessun push, merge, tag o release. PR #20 non è modificata. |
+| Stato | Pubblicata come PR #25. Push approvato ed eseguito. Run `45200473912` e `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. Merge, tag e release restano da fare. PR #20 non è modificata. |
 
 ### 2. Milestone e proposte
 
@@ -1117,7 +1117,7 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 
 #### 4.36 Runtime xterm — 23 novembre 2026
 
-- [ ] Patch su `patch/0.3.18-xterm-runtime` da main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Pin esatti Fit 0.11.0, web-links 0.12.0, React e ReactDOM 19.3.1. Larghezza scrollbar misurata prima di ogni fit; il righello non viene acceso. Versione proposta 0.3.18. Suite 613 riusciti/3 saltati, test larghezza 4/4, build e `check:site` riusciti. Lo smoke di geometria su questo Linux fallisce prima del controllo scrollbar anche con Fit 0.10. PR #20 non modificata. Commit locale da approvare prima di push, merge, tag o release.
+- [x] Patch su `patch/0.3.18-xterm-runtime` da main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Pin esatti Fit 0.11.0, web-links 0.12.0, React e ReactDOM 19.3.1. Larghezza scrollbar misurata prima di ogni fit; il righello non viene acceso. Versione proposta 0.3.18. Sullo SHA `b1b2438e0b53e4ac1a5bcef834110e07bf8630aa`: Linux 613 riusciti/3 saltati, Windows 611 riusciti/5 saltati, test larghezza 4/4, build e `check:site` riusciti. Lo smoke di geometria su questo Linux fallisce prima del controllo scrollbar anche con Fit 0.10. Run Windows `45200473912` e macOS `45200481623` verdi. Pubblicata come PR #25; push approvato ed eseguito. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. PR #20 non modificata. Merge, tag e release restano da fare.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -1127,7 +1127,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Proposed version **0.3.18**. It supersedes Dependabot PR #20, which is not modified. Local commit, no push. Detail in 1.4 and 4.36.
+**Current work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Proposed version **0.3.18**. It supersedes Dependabot PR #20, which is not modified. Published as PR #25; the push is approved and done. Windows run `45200473912` and macOS run `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. Merge, tag and release remain to be done. Detail in 1.4 and 4.36.
 
 **Previous work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 is closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Detail in 1.3 and 4.35.
 
@@ -1279,7 +1279,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Version / increment | Proposed **0.3.18**, `+0.0.1`. A release is expected and is not published. |
 | Work | Exact pins. Before every `fit`, `overviewRuler.width` receives `offsetWidth - clientWidth`, with a 15 px fallback when the measurement is 0. `overviewRulerWidth` is not set. `@xterm/xterm` stays at 5.5.0. |
 | Acceptance | The geometry smoke stays unchanged and passes. The width calculation has a unit test. |
-| Status | Local commit to review. No push, merge, tag or release. PR #20 is not modified. |
+| Status | Published as PR #25. The push is approved and done. Runs `45200473912` and `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. Merge, tag and release remain to be done. PR #20 is not modified. |
 
 ### 2. Milestones and proposals
 
@@ -2242,7 +2242,7 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 
 #### 4.36 xterm runtime — 23 November 2026
 
-- [ ] Patch on `patch/0.3.18-xterm-runtime` from main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Exact pins Fit 0.11.0, web-links 0.12.0, React and ReactDOM 19.3.1. Scrollbar width measured before every fit; the ruler stays off. Proposed version 0.3.18. Suite 613 passed/3 skipped, width tests 4/4, build and `check:site` passed. The geometry smoke on this Linux host fails before the scrollbar check even with Fit 0.10. PR #20 not modified. Local commit to approve before push, merge, tag or release.
+- [x] Patch on `patch/0.3.18-xterm-runtime` from main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Exact pins Fit 0.11.0, web-links 0.12.0, React and ReactDOM 19.3.1. Scrollbar width measured before every fit; the ruler stays off. Proposed version 0.3.18. On SHA `b1b2438e0b53e4ac1a5bcef834110e07bf8630aa`: Linux 613 passed/3 skipped, Windows 611 passed/5 skipped, width tests 4/4, build and `check:site` passed. The geometry smoke on this Linux host fails before the scrollbar check even with Fit 0.10. Windows run `45200473912` and macOS run `45200481623` are green. Published as PR #25; the push is approved and done. First approval from Glauco on 23 November 2026 at 17:00. PR #20 not modified. Merge, tag and release remain to be done.
 
 ### 5. Versions, CI and distribution
 
