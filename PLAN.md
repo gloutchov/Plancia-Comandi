@@ -2,7 +2,9 @@
 
 ## Italiano
 
-**Intervento corrente — 21 novembre 2026:** il progettista ha richiesto di indicare P1 e P2 come completate con riferimento alle C già pubblicate. Patch documentale su `patch/0.3.16-p1-p2-completion`, da main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verificati sul remoto. P1 completata tramite C7/C8; P2 tramite C33/C37; P3 resta proposta aperta. Allineati i richiami nel piano, nella mappa, nelle regole operative e nel modello di sicurezza. Versione 0.3.16 invariata; nessun nuovo codice, milestone, tag o release. Commit locale da controllare prima della pubblicazione; consuntivo C37 e decisione in 4.33.
+**Intervento corrente — 23 novembre 2026:** il progettista ha autorizzato il `dependabot.yml` standard. Patch di sola configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. Aggiunge gli aggiornamenti di versione mensili per npm nella radice e per le GitHub Actions di `package-macos.yml` e `package-windows.yml`. Il repository non ha mai avuto questo file. Electron resta il pin esatto `45.3.2`; versione 0.3.16 invariata; nessun tag e nessuna release, perché la modifica è solo configurazione. Commit locale, senza push. Dettaglio in 1.2 e 4.34.
+
+**Intervento documentale precedente — 21 novembre 2026:** il progettista ha richiesto di indicare P1 e P2 come completate con riferimento alle C già pubblicate. Patch documentale su `patch/0.3.16-p1-p2-completion`, da main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verificati sul remoto. P1 completata tramite C7/C8; P2 tramite C33/C37; P3 resta proposta aperta. Allineati i richiami nel piano, nella mappa, nelle regole operative e nel modello di sicurezza. Versione 0.3.16 invariata; nessun nuovo codice, milestone, tag o release. Commit locale da controllare prima della pubblicazione; consuntivo C37 e decisione in 4.33.
 
 **Ultimo checkpoint pubblicato:** C37, già M37 unificata con M38 assorbita, sul commit approvato `a58cc015b3e92191a64b8f7675c9273ec83c9d80`. Checkpoint annotato `milestone/C37` (oggetto `949261950b4ca5337f2a3c09c9cec522ebeecb0d`) e tag `v0.3.16` (oggetto `97fb93fdea81aa647e0553230f4a62a0cdd4be98`) verificati; [release 0.3.16](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.16), ID `453879551`, pubblicata il 21 novembre alle 19:06:21 (Europe/Rome), latest al controllo. Windows `44931884198`, Pages `44933024287`, macOS ARM64, sei allegati/SHA-256 e ZIP/TAR sorgenti da 218 file verificati. Branch rimosso localmente/remotamente; consuntivo in 4.33.
 
@@ -59,6 +61,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [4.31 Verifiche locali M37 unificata](#431-verifiche-locali-m37-unificata--21-novembre-2026)
 - [4.32 Passaggio M37→C37 dopo la prima approvazione](#432-passaggio-m37c37-dopo-la-prima-approvazione)
 - [4.33 Consuntivo C37 e completamento P1/P2](#433-consuntivo-c37-e-completamento-p1p2)
+- [4.34 Configurazione Dependabot](#434-configurazione-dependabot--23-novembre-2026)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
 
 ### 1. Base e intervento corrente
@@ -101,6 +104,22 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 - Documentazione: README, manuali IT/EN, modello di sicurezza, mappa, piano e regole operative aggiornati.
 - Limiti: Windows deve ancora essere eseguito sul runner dopo il controllo del commit; macOS Intel, Linux, CLI AI reale, firma, notarizzazione e prove complete di scorciatoie/clipboard non sono coperti da queste verifiche. I pacchetti sono privi di firma di distribuzione verificata. I temporanei locali vengono conservati.
 - Stato: strumenti approvati nel commit `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, uniti a `main` con `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). Pacchetti macOS e SHA-256 pubblicati e riscaricati con esito positivo. Il primo run Windows `43086813880` supera installazione e build ma fallisce perché PowerShell spezza `-c.nsis.runAfterFinish=false` e electron-builder apre quel resto come file di configurazione. La PR #5 è unita in `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` e sostituisce quegli argomenti con un JSON e `--config` più il solo percorso. La run `43096382710` su quel commit è `startup_failure` senza job, quindi quel comando non è stato eseguito. Il pacchetto Windows di 0.2.0 non è stato pubblicato. Per 0.3.0 la run `43226304320`, con tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, è riuscita e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). C2 non duplica il JSON: lo step chiama `scripts/package-windows.mjs`. La PR #4 è stata chiusa senza merge il 12 novembre 2026. I branch di lavoro sono stati cancellati.
+
+#### 1.2 Configurazione Dependabot — 23 novembre 2026
+
+| Campo | Patch di configurazione |
+| --- | --- |
+| Obiettivo | Attivare gli aggiornamenti di versione Dependabot secondo il modello standard, senza cambiare dipendenze né runtime. |
+| Tipo | Patch di sola configurazione, fuori dalla numerazione delle milestone. |
+| Base | `main`, commit `3f53e78f1f9c6af6861e8d13a718048fefec90c1`, allineato a `origin/main` prima dell’intervento. |
+| Branch | `patch/dependabot-standard`. |
+| Versione / incremento | `0.3.16`, invariata: nessuna modifica applicativa. |
+| Checkpoint / release | Nessun tag di milestone o versione; nessuna release. La regola unica esclude la sola configurazione. |
+| Attività | `.github/dependabot.yml` version 2. npm con `directory: "/"` (`package.json` e lockfile nella radice). GitHub Actions con `directory: "/"`, che copre `.github/workflows/package-macos.yml` e `package-windows.yml`. Cadenza mensile, gruppi, cooldown e ignore delle major Electron come nel modello. `versioning-strategy` non impostata: resta il default. |
+| Accettazione | Un solo manifest npm, nella radice. I due workflow restano `workflow_dispatch`. Electron in `package.json` resta il pin esatto `45.3.2`. |
+| Verifiche richieste | Sintassi YAML e chiavi confrontate con la documentazione ufficiale Dependabot; `git diff --check`. La suite e la build esistenti solo se l’ambiente le ha già installate. |
+| Documentazione | `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`. |
+| Stato | Commit locale da controllare. Nessun push, merge, tag, release o avvio di workflow. |
 
 ### 2. Milestone e proposte
 
@@ -1053,15 +1072,21 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Decisione successiva del progettista: «direi che P1 e P2 possano essere indicate come completate con riferimento alle C...». P1 completata tramite C7/C8; P2 tramite C33/C37. Identificatori P conservati come riferimenti storici, senza nuove milestone o checkpoint. P3 resta aperta; eventuali ulteriori centralizzazioni richiedono una nuova decisione.
 - [ ] Patch documentale su `patch/0.3.16-p1-p2-completion` da main/C37 remoto verificato: piano IT/EN e relativi richiami in AGENTS, MAP e modello allineati. Codice, dipendenze, versione 0.3.16, tag/release, sito e workflow invariati. Controlli documentali locali; nessuna nuova CI o build necessaria. Commit finale da presentare e approvare prima di merge, push o rimozione branch.
 
+#### 4.34 Configurazione Dependabot — 23 novembre 2026
+
+- [ ] Patch di configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. `.github/dependabot.yml` per npm e GitHub Actions; piano, mappa e modello allineati. Codice, dipendenze, Electron `45.3.2`, versione 0.3.16, tag, release, sito e workflow invariati. YAML, `git diff --check` e `npm run check:site` riusciti. `npm test` e `npm run build` non eseguiti: `node_modules` assente e la patch non tocca codice o dipendenze. Commit locale da presentare e approvare prima di push, merge o rimozione del branch. Nessun workflow avviato.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
 
-Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Il workflow `package-macos.yml` si avvia solo manualmente sul runner `macos-15` per DMG e ZIP ARM64 non firmati; non parte su push o PR. È stato eseguito nella run `43257940568` e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Il piano di chiusura di M2 approvato il 12 novembre 2026 prevede questa build remota riproducibile per gli artifact della release v0.3.0, con SHA-256, accanto al workflow Windows: consuma minuti solo quando viene avviato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`.
+Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Il workflow `package-macos.yml` si avvia solo manualmente sul runner `macos-15` per DMG e ZIP ARM64 non firmati; non parte su push o PR. È stato eseguito nella run `43257940568` e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Il piano di chiusura di M2 approvato il 12 novembre 2026 prevede questa build remota riproducibile per gli artifact della release v0.3.0, con SHA-256, accanto al workflow Windows: consuma minuti solo quando viene avviato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`. `.github/dependabot.yml` (23 novembre 2026) non è un workflow e non parte su push o pull request. Dopo la pubblicazione su `main`, gli aggiornamenti di versione li apre il servizio Dependabot.
 
 ## English
 
-**Current work — 21 November 2026:** the designer requested marking P1 and P2 completed with references to the already published C milestones. Documentation patch on `patch/0.3.16-p1-p2-completion`, from main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verified remotely. P1 completed through C7/C8; P2 through C33/C37; P3 remains an open proposal. References aligned in the plan, map, operating rules and security model. Version 0.3.16 unchanged; no new code, milestone, tag or release. Local commit to review before publication; C37 closeout and decision in 4.33.
+**Current work — 23 November 2026:** the designer authorized the standard `dependabot.yml`. Configuration-only patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. It adds monthly version updates for npm at the repository root and for the GitHub Actions in `package-macos.yml` and `package-windows.yml`. The repository has never had this file. Electron remains the exact pin `45.3.2`; version 0.3.16 is unchanged; no tag and no release, because the change is configuration only. Local commit, no push. Detail in 1.2 and 4.34.
+
+**Previous documentation work — 21 November 2026:** the designer requested marking P1 and P2 completed with references to the already published C milestones. Documentation patch on `patch/0.3.16-p1-p2-completion`, from main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verified remotely. P1 completed through C7/C8; P2 through C33/C37; P3 remains an open proposal. References aligned in the plan, map, operating rules and security model. Version 0.3.16 unchanged; no new code, milestone, tag or release. Local commit to review before publication; C37 closeout and decision in 4.33.
 
 **Latest published checkpoint:** C37, formerly unified M37 with M38 absorbed, at approved commit `a58cc015b3e92191a64b8f7675c9273ec83c9d80`. Annotated `milestone/C37` checkpoint (object `949261950b4ca5337f2a3c09c9cec522ebeecb0d`) and `v0.3.16` tag (object `97fb93fdea81aa647e0553230f4a62a0cdd4be98`) verified; [release 0.3.16](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.16), ID `453879551`, published on 21 November at 19:06:21 (Europe/Rome), latest when checked. Windows `44931884198`, Pages `44933024287`, macOS ARM64, six assets/SHA-256 and ZIP/TAR source archives matching 218 files verified. Branch removed locally/remotely; closeout in 4.33.
 
@@ -1118,6 +1143,7 @@ This plan records the existing Plancia Comandi baseline and future work. Publish
 - [4.31 Local unified M37 checks](#431-local-unified-m37-checks--21-november-2026)
 - [4.32 M37→C37 transition after first approval](#432-m37c37-transition-after-first-approval)
 - [4.33 C37 closeout and P1/P2 completion](#433-c37-closeout-and-p1p2-completion)
+- [4.34 Dependabot configuration](#434-dependabot-configuration--23-november-2026)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
 
 ### 1. Baseline and current work
@@ -1160,6 +1186,22 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 - Documentation: README, IT/EN manuals, security model, map, plan and operating rules updated.
 - Limitations: Windows still requires a runner execution after commit review; macOS Intel, Linux, a real AI CLI, signing, notarization and full shortcut/clipboard checks are not covered. Packages have no verified distribution signature. Local temporary files are retained.
 - Status: tooling approved at `90cfe3af09526a792d495f0d37f5fa48bc6d3ea2`, merged into `main` as `830af0952c384ac27f0af62fac66cffe98da9dc7` (PR #3). macOS packages and SHA-256 published and successfully downloaded again. The first Windows run, `43086813880`, passes installation and build but fails because PowerShell splits `-c.nsis.runAfterFinish=false` and electron-builder opens that remainder as a configuration file. PR #5 is merged as `45f6575c4f14015c6cc9cb7bc45de3604a97a87e` and replaces those arguments with a JSON file and `--config` plus only the path. Run `43096382710` on that commit is `startup_failure` with no jobs, so that command was not executed. The Windows package for 0.2.0 was not published. For 0.3.0, run `43226304320`, with tooling `49ca65d6f5ae06ea9d6d22de4dd7af2cf38b4dba`, succeeded and its artifacts are in release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). C2 does not duplicate the JSON: the step calls `scripts/package-windows.mjs`. PR #4 was closed without merging on 12 November 2026. The work branches were deleted.
+
+#### 1.2 Dependabot configuration — 23 November 2026
+
+| Field | Configuration patch |
+| --- | --- |
+| Goal | Enable Dependabot version updates from the standard model, without changing dependencies or the runtime. |
+| Type | Configuration-only patch, outside milestone numbering. |
+| Baseline | `main`, commit `3f53e78f1f9c6af6861e8d13a718048fefec90c1`, aligned with `origin/main` before the work. |
+| Branch | `patch/dependabot-standard`. |
+| Version / increment | `0.3.16`, unchanged: no application changes. |
+| Checkpoint / release | No milestone or version tag; no release. The single rule excludes configuration alone. |
+| Work | `.github/dependabot.yml` version 2. npm with `directory: "/"` (`package.json` and the lockfile at the root). GitHub Actions with `directory: "/"`, which covers `.github/workflows/package-macos.yml` and `package-windows.yml`. Monthly schedule, groups, cooldown and the Electron major ignore follow the model. `versioning-strategy` is not set: the default remains. |
+| Acceptance | One npm manifest, at the root. Both workflows stay `workflow_dispatch`. Electron in `package.json` stays the exact pin `45.3.2`. |
+| Required checks | YAML syntax and keys compared with the official Dependabot documentation; `git diff --check`. The existing suite and build only if the environment already has them installed. |
+| Documentation | `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`. |
+| Status | Local commit to review. No push, merge, tag, release or workflow run. |
 
 ### 2. Milestones and proposals
 
@@ -2112,8 +2154,12 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Subsequent designer decision: “direi che P1 e P2 possano essere indicate come completate con riferimento alle C...”. P1 completed through C7/C8; P2 through C33/C37. P identifiers retained as historical references, without new milestones or checkpoints. P3 remains open; any further centralization requires a new decision.
 - [ ] Documentation patch on `patch/0.3.16-p1-p2-completion` from remotely verified main/C37: IT/EN plan and related AGENTS, MAP and model references aligned. Code, dependencies, version 0.3.16, tags/release, site and workflows unchanged. Local documentation checks; no new CI or build required. Final commit to present and approve before merge, push or branch removal.
 
+#### 4.34 Dependabot configuration — 23 November 2026
+
+- [ ] Configuration patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. `.github/dependabot.yml` for npm and GitHub Actions; plan, map and model aligned. Code, dependencies, Electron `45.3.2`, version 0.3.16, tags, release, site and workflows unchanged. YAML, `git diff --check` and `npm run check:site` passed. `npm test` and `npm run build` were not run: `node_modules` is absent and the patch does not touch code or dependencies. Local commit to present and approve before push, merge or branch removal. No workflow started.
+
 ### 5. Versions, CI and distribution
 
 Use `+0.0.1` for patches, `+0.1.0` for minor features and `+1.0.0` for major changes. Publication follows the single rule in the Release section of `STARTUP_PREFERENCES_HOME.md`, from 14 November 2026, with no project exception: a release only for changes that matter to how the app works. Documentation, CI, tests and refactoring with no effect have no release, leave the version unchanged and do not create a `vX.Y.Z` tag. If the app is not usable, a release that is due is marked as a prerelease. Do not configure signing, notarization or automatic updates without explicit credentials and a process.
 
-The `package-windows.yml` workflow is manually triggered for a Windows build attempt that cannot be performed equivalently locally. It does not run on push or PR. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The `package-macos.yml` workflow is manual only, on the `macos-15` runner, for unsigned ARM64 DMG and ZIP files; it does not run on push or PR. It ran as `43257940568` and the artifacts are in release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). The M2 closing plan approved on 12 November 2026 includes this reproducible remote macOS build for the v0.3.0 release assets, with SHA-256, alongside the Windows workflow: it spends minutes only when launched. The macOS ARM64 checks for release `v0.2.0` run locally. Additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified.
+The `package-windows.yml` workflow is manually triggered for a Windows build attempt that cannot be performed equivalently locally. It does not run on push or PR. Run `43226304320` produced the Windows packages of release v0.3.0 and also checked the portable executable and the installed app. The `package-macos.yml` workflow is manual only, on the `macos-15` runner, for unsigned ARM64 DMG and ZIP files; it does not run on push or PR. It ran as `43257940568` and the artifacts are in release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). The M2 closing plan approved on 12 November 2026 includes this reproducible remote macOS build for the v0.3.0 release assets, with SHA-256, alongside the Windows workflow: it spends minutes only when launched. The macOS ARM64 checks for release `v0.2.0` run locally. Additional workflows require a separate justification. `npm run build` alone does not establish that a package has been verified. `.github/dependabot.yml` (23 November 2026) is not a workflow and does not run on push or pull request. After publication on `main`, the Dependabot service opens the version updates.
