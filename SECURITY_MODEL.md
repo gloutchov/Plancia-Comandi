@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.16** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.17** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -190,7 +190,9 @@ Zero segnalazioni npm non certifica l’assenza di vulnerabilità in Electron/Ch
 
 Il lockfile fissa le dipendenze; installazione e rebuild possono eseguire script e compilare codice nativo. Electron, `node-pty` e i parser terminale sono parte della superficie fidata. Non introdurre aggiornamenti o dipendenze senza motivazione e verifiche.
 
-**Dependabot — 23 novembre 2026.** `.github/dependabot.yml` abilita solo gli aggiornamenti di versione, con cadenza mensile, per npm nella radice e per le GitHub Actions dei due workflow di packaging. Non cambia `package.json`, il lockfile né Electron **45.3.2**. Le major di Electron sono escluse; una minor o una patch proposta resta un pin esatto, perché la strategia predefinita per questa app privata è `increase`. Il file non accende gli alert Dependabot né le security updates e non aggiunge un workflow. Versione 0.3.16 invariata, nessuna release.
+**Dependabot — 23 novembre 2026.** `.github/dependabot.yml` abilita solo gli aggiornamenti di versione, con cadenza mensile, per npm nella radice e per le GitHub Actions dei due workflow di packaging. Quella patch non cambia `package.json`, il lockfile né Electron **45.3.2**. Le major di Electron sono escluse; una minor o una patch proposta resta un pin esatto, perché la strategia predefinita per questa app privata è `increase`. Il file non accende gli alert Dependabot né le security updates e non aggiunge un workflow. Versione 0.3.16 invariata in quella patch, nessuna release.
+
+**Runtime 0.3.17 — 23 novembre 2026.** I sorgenti fissano Electron **45.4.1** nel manifest e nel lockfile, ancora senza `^` o `~`. Le [note 45.4.1](https://releases.electronjs.org/release/v45.4.1) riportano Chromium **156.0.8078.100**, Node.js incorporato **24.22.3** e V8 **15.6.75.57-electron.c2a1644ee688c616**. Rispetto a 45.3.2 il requisito npm resta Node.js >= 22.12. Il binario di sviluppo ha gli stessi nove fuse di default letti per C27; `node-pty` 1.1.0 è stato ricompilato per l’ABI 150 di Electron 45. Non sono state assorbite le major di Vite 6→8 né di `@types/node` 22→26. La PR Dependabot #19, che propone 45.3.4, resta aperta e non è modificata. Nessuna release è pubblicata con questa patch.
 
 Su Windows `node-pty` 1.1.0 fornisce prebuild N-API (`pty.node`, `conpty.node`, `conpty_console_list.node`) e `scripts/install-native.mjs` non chiama `node-gyp`. Su Linux non c'è una prebuild, quindi il postinstall ricompila per Electron. Su macOS le prebuild esistono, ma l'installazione ricompila comunque. `npmRebuild` è disattivato in electron-builder, così il pacchetto non avvia una seconda compilazione e si appoggia al postinstall: un packaging per un'altra architettura, per esempio `--linux --arm64` da una macchina x64, non ricompila `node-pty`. Il postinstall di Electron, che scarica il binario, non è stato modificato.
 
@@ -257,7 +259,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.16** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.17** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -445,7 +447,9 @@ Zero npm findings does not certify Electron/Chromium vulnerability absence or re
 
 The lockfile pins dependencies; installation and rebuild may execute scripts and compile native code. Electron, `node-pty` and terminal parsers are part of the trusted surface. Do not introduce dependency changes without justification and checks.
 
-**Dependabot — 23 November 2026.** `.github/dependabot.yml` enables version updates only, on a monthly schedule, for npm at the repository root and for the GitHub Actions used by the two packaging workflows. It does not change `package.json`, the lockfile or Electron **45.3.2**. Electron major updates are excluded; a proposed minor or patch stays an exact pin, because the default strategy for this private app is `increase`. The file does not turn on Dependabot alerts or security updates and does not add a workflow. Version 0.3.16 is unchanged and there is no release.
+**Dependabot — 23 November 2026.** `.github/dependabot.yml` enables version updates only, on a monthly schedule, for npm at the repository root and for the GitHub Actions used by the two packaging workflows. That patch does not change `package.json`, the lockfile or Electron **45.3.2**. Electron major updates are excluded; a proposed minor or patch stays an exact pin, because the default strategy for this private app is `increase`. The file does not turn on Dependabot alerts or security updates and does not add a workflow. Version 0.3.16 is unchanged in that patch, and there is no release.
+
+**Runtime 0.3.17 — 23 November 2026.** Source pins Electron **45.4.1** in the manifest and lockfile, still without `^` or `~`. The [45.4.1 notes](https://releases.electronjs.org/release/v45.4.1) list Chromium **156.0.8078.100**, embedded Node.js **24.22.3** and V8 **15.6.75.57-electron.c2a1644ee688c616**. Compared with 45.3.2, the npm requirement remains Node.js >= 22.12. The development binary has the same nine default fuses read for C27; `node-pty` 1.1.0 was rebuilt for Electron 45 ABI 150. The Vite 6→8 and `@types/node` 22→26 majors are not included. Dependabot PR #19, which proposes 45.3.4, stays open and is not modified. This patch publishes no release.
 
 On Windows `node-pty` 1.1.0 supplies N-API prebuilds (`pty.node`, `conpty.node`, `conpty_console_list.node`) and `scripts/install-native.mjs` does not call `node-gyp`. Linux has no prebuild, so postinstall rebuilds for Electron. macOS prebuilds exist, but the install still rebuilds. `npmRebuild` is off in electron-builder, so packaging does not start a second compilation and relies on postinstall: packaging for another architecture, for example `--linux --arm64` from an x64 machine, does not rebuild `node-pty`. Electron's own postinstall, which downloads the binary, was not changed.
 

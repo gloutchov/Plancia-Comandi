@@ -13,7 +13,7 @@ export const NODE_OPTIONS_PROBE = '--max-http-header-size=8192'
 export const NODE_OPTIONS_HEADER_SIZE = 8192
 export const NODE_OPTIONS_IGNORED = 'NODE_OPTIONS ignored due to disabled nodeOptions fuse.'
 // The inspector global of the Electron main process has process, not require.
-// getBuiltinModule is on process since Node 22.3. Electron 45.3.2 here is Node 24.22.2.
+// getBuiltinModule is on process since Node 22.3. Electron 45.4.1 here is Node 24.22.3.
 export const HEADER_SIZE_READ = `(() => {
   const notes = []
   try {

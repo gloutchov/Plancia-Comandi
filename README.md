@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. M37 è in verifica locale; ultima release pubblicata **0.3.15**.
+Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. C37 è pubblicata nella release **0.3.16**; i sorgenti correnti sono **0.3.17**.
 
 Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. C36 è pubblicata nella release 0.3.15 con pacchetti e checksum verificati.
 
@@ -16,7 +16,7 @@ Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle vi
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Sorgenti 0.3.16 (M37 unificata in verifica) · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** La [release 0.3.15](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.15) include C36 e C32 e conserva C33 per nome, icona Windows e lingua iniziale; conserva trascinamento/menu C31, scorrimento e selezione stabile C29 e le garanzie C28 al cambio sessione/vista. Pacchetti Windows x64/macOS ARM64 con SHA-256 verificati; Linux e macOS Intel non verificati. Il runtime resta Electron 45.3.2 con fuse C27 e protezioni C18. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.17 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** L’ultima release pubblicata è la [0.3.16](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.16). Il runtime di questi sorgenti è Electron **45.4.1**, pin esatto, con gli stessi fuse C27 e le protezioni C18. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -51,7 +51,7 @@ Nei sorgenti 0.3.5, se i pattern personalizzati sono troppo lenti o non disponib
 
 ### 2. Installazione e primo utilizzo
 
-Per l'avvio dai sorgenti servono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain; Electron 45.3.2 richiede almeno Node.js 22.12. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS gli strumenti di compilazione servono solo come ripiego se la prebuild non è compatibile/preparabile; Linux li richiede. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
+Per l'avvio dai sorgenti servono Git e Node.js 22.12+ della serie 22, 24.x oppure 26+ con npm, secondo i requisiti della toolchain; Electron 45.4.1 richiede almeno Node.js 22.12. Su Windows non serve compilare e non servono diritti di amministratore: `node-pty` 1.1.0 include prebuild N-API. Su macOS gli strumenti di compilazione servono solo come ripiego se la prebuild non è compatibile/preparabile; Linux li richiede. Le istruzioni complete sono nel capitolo [Installazione](ISTRUZIONI.md#2-installazione). Le verifiche locali di questa documentazione usano Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git
@@ -196,7 +196,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. M37 is under local verification; latest published release **0.3.15**.
+In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. C37 is published in release **0.3.16**; current source is **0.3.17**.
 
 In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. C36 is published in release 0.3.15 with verified packages and checksums.
 
@@ -210,7 +210,7 @@ Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source 0.3.16 (unified M37 under review) · early development · macOS, Windows and Linux targets · Apache-2.0.** [Release 0.3.15](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.15) includes C36 and C32 and preserves C33 for the name, Windows icon and initial language; it preserves C31 dragging/menus, C29 scrolling and stable selection, and C28 guarantees when switching session/layout. Windows x64/macOS ARM64 packages with verified SHA-256; Linux and Intel macOS unverified. Runtime remains Electron 45.3.2 with C27 fuses and C18 protections. Install terminal tools separately.
+**Source 0.3.17 · early development · macOS, Windows and Linux targets · Apache-2.0.** The latest published release is [0.3.16](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.16). These sources run on Electron **45.4.1**, an exact pin, with the same C27 fuses and C18 protections. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
@@ -245,7 +245,7 @@ In version 0.3.5 source, a warning explains when slow or unavailable custom patt
 
 ### 2. Installation and first use
 
-Running from source requires Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain; Electron 45.3.2 requires at least Node.js 22.12. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS needs build tools only as fallback without a compatible/preparable prebuild; Linux requires them. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
+Running from source requires Git and Node.js 22.12+ on the 22.x line, 24.x, or 26+ with npm, as required by the toolchain; Electron 45.4.1 requires at least Node.js 22.12. On Windows, compiling is not required and administrator rights are not required: `node-pty` 1.1.0 includes N-API prebuilds. macOS needs build tools only as fallback without a compatible/preparable prebuild; Linux requires them. Complete installation steps are in the [Installation](INSTRUCTIONS.md#2-installation) chapter. This documentation's local checks use Node.js 24.
 
 ```bash
 git clone https://github.com/gloutchov/Plancia-Comandi.git

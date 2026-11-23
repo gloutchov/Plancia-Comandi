@@ -61,7 +61,7 @@ export function loadFuses(start) {
 export const executableName = 'plancia-comandi' // Linux command name stays unchanged.
 const sentinel = Buffer.from('dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX')
 
-// Electron 45.3.2 carries nine fuses. @electron/fuses 1.8.0, which
+// Electron 45.4.1 carries nine fuses, the same wire as 45.3.2. @electron/fuses 1.8.0, which
 // electron-builder 26.18.0 imports, stops at eight, so the flip lives here.
 export function releaseFuseConfig() {
   const { FuseVersion, FuseV1Options } = loadFuses()
@@ -94,7 +94,8 @@ export function decidedFuseStates() {
   return fuseStatesFrom(releaseFuseConfig())
 }
 
-// Wire read from the unpacked Electron 45.3.2 binary before any flip.
+// Wire read from the unpacked Electron 45.4.1 binary before any flip.
+// The nine defaults match the 45.3.2 wire preserved by C27.
 export function defaultFuseConfig() {
   const { FuseVersion, FuseV1Options } = loadFuses()
   return {
@@ -118,7 +119,7 @@ export function defaultFuseStates() {
 }
 
 // A twin with one release fuse turned on, so a startup failure can be tied to
-// that fuse. The other wires stay at the Electron 45.3.2 defaults.
+// that fuse. The other wires stay at the Electron 45.4.1 defaults.
 export function variantFuseConfig(kind) {
   const { FuseV1Options } = loadFuses()
   const config = defaultFuseConfig()
