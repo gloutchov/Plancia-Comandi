@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento corrente — 23 novembre 2026:** il progettista ha autorizzato il `dependabot.yml` standard. Patch di sola configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. Aggiunge gli aggiornamenti di versione mensili per npm nella radice e per le GitHub Actions di `package-macos.yml` e `package-windows.yml`. Il repository non ha mai avuto questo file. Electron resta il pin esatto `45.3.2`; versione 0.3.16 invariata; nessun tag e nessuna release, perché la modifica è solo configurazione. Commit locale, senza push. Dettaglio in 1.2 e 4.34.
+**Intervento corrente — 23 novembre 2026:** il progettista ha autorizzato il `dependabot.yml` standard. Patch di sola configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. Aggiunge gli aggiornamenti di versione mensili per npm nella radice e per le GitHub Actions di `package-macos.yml` e `package-windows.yml`. Il repository non ha mai avuto questo file. Electron resta il pin esatto `45.3.2`; versione 0.3.16 invariata. Completata: PR #18 integrata in main, nessun tag e nessuna release. Dettaglio in 1.2 e 4.34.
 
 **Intervento documentale precedente — 21 novembre 2026:** il progettista ha richiesto di indicare P1 e P2 come completate con riferimento alle C già pubblicate. Patch documentale su `patch/0.3.16-p1-p2-completion`, da main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verificati sul remoto. P1 completata tramite C7/C8; P2 tramite C33/C37; P3 resta proposta aperta. Allineati i richiami nel piano, nella mappa, nelle regole operative e nel modello di sicurezza. Versione 0.3.16 invariata; nessun nuovo codice, milestone, tag o release. Commit locale da controllare prima della pubblicazione; consuntivo C37 e decisione in 4.33.
 
@@ -119,7 +119,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Accettazione | Un solo manifest npm, nella radice. I due workflow restano `workflow_dispatch`. Electron in `package.json` resta il pin esatto `45.3.2`. |
 | Verifiche richieste | Sintassi YAML e chiavi confrontate con la documentazione ufficiale Dependabot; `git diff --check`. La suite e la build esistenti solo se l’ambiente le ha già installate. |
 | Documentazione | `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`. |
-| Stato | Commit locale da controllare. Nessun push, merge, tag, release o avvio di workflow. |
+| Stato | Completata: PR #18 integrata in main, nessun tag e nessuna release. |
 
 ### 2. Milestone e proposte
 
@@ -1074,7 +1074,7 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 
 #### 4.34 Configurazione Dependabot — 23 novembre 2026
 
-- [ ] Patch di configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. `.github/dependabot.yml` per npm e GitHub Actions; piano, mappa e modello allineati. Codice, dipendenze, Electron `45.3.2`, versione 0.3.16, tag, release, sito e workflow invariati. YAML, `git diff --check` e `npm run check:site` riusciti. `npm test` e `npm run build` non eseguiti: `node_modules` assente e la patch non tocca codice o dipendenze. Commit locale da presentare e approvare prima di push, merge o rimozione del branch. Nessun workflow avviato.
+- [x] Patch di configurazione su `patch/dependabot-standard`, da main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` allineato al remoto. `.github/dependabot.yml` per npm e GitHub Actions; piano, mappa e modello allineati. Codice, dipendenze, Electron `45.3.2`, versione 0.3.16, tag, release, sito e workflow invariati. YAML, `git diff --check` e `npm run check:site` riusciti. `npm test` e `npm run build` non eseguiti: `node_modules` assente e la patch non tocca codice o dipendenze. Completata: PR #18 integrata in main, nessun tag e nessuna release.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -1084,7 +1084,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 23 November 2026:** the designer authorized the standard `dependabot.yml`. Configuration-only patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. It adds monthly version updates for npm at the repository root and for the GitHub Actions in `package-macos.yml` and `package-windows.yml`. The repository has never had this file. Electron remains the exact pin `45.3.2`; version 0.3.16 is unchanged; no tag and no release, because the change is configuration only. Local commit, no push. Detail in 1.2 and 4.34.
+**Current work — 23 November 2026:** the designer authorized the standard `dependabot.yml`. Configuration-only patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. It adds monthly version updates for npm at the repository root and for the GitHub Actions in `package-macos.yml` and `package-windows.yml`. The repository has never had this file. Electron remains the exact pin `45.3.2`; version 0.3.16 is unchanged. Completed: PR #18 integrated into main, no tag and no release. Detail in 1.2 and 4.34.
 
 **Previous documentation work — 21 November 2026:** the designer requested marking P1 and P2 completed with references to the already published C milestones. Documentation patch on `patch/0.3.16-p1-p2-completion`, from main/C37 `a58cc015b3e92191a64b8f7675c9273ec83c9d80` verified remotely. P1 completed through C7/C8; P2 through C33/C37; P3 remains an open proposal. References aligned in the plan, map, operating rules and security model. Version 0.3.16 unchanged; no new code, milestone, tag or release. Local commit to review before publication; C37 closeout and decision in 4.33.
 
@@ -1201,7 +1201,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Acceptance | One npm manifest, at the root. Both workflows stay `workflow_dispatch`. Electron in `package.json` stays the exact pin `45.3.2`. |
 | Required checks | YAML syntax and keys compared with the official Dependabot documentation; `git diff --check`. The existing suite and build only if the environment already has them installed. |
 | Documentation | `PLAN.md`, `MAP.md`, `SECURITY_MODEL.md`. |
-| Status | Local commit to review. No push, merge, tag, release or workflow run. |
+| Status | Completed: PR #18 integrated into main, no tag and no release. |
 
 ### 2. Milestones and proposals
 
@@ -2156,7 +2156,7 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 
 #### 4.34 Dependabot configuration — 23 November 2026
 
-- [ ] Configuration patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. `.github/dependabot.yml` for npm and GitHub Actions; plan, map and model aligned. Code, dependencies, Electron `45.3.2`, version 0.3.16, tags, release, site and workflows unchanged. YAML, `git diff --check` and `npm run check:site` passed. `npm test` and `npm run build` were not run: `node_modules` is absent and the patch does not touch code or dependencies. Local commit to present and approve before push, merge or branch removal. No workflow started.
+- [x] Configuration patch on `patch/dependabot-standard`, from main `3f53e78f1f9c6af6861e8d13a718048fefec90c1` aligned with the remote. `.github/dependabot.yml` for npm and GitHub Actions; plan, map and model aligned. Code, dependencies, Electron `45.3.2`, version 0.3.16, tags, release, site and workflows unchanged. YAML, `git diff --check` and `npm run check:site` passed. `npm test` and `npm run build` were not run: `node_modules` is absent and the patch does not touch code or dependencies. Completed: PR #18 integrated into main, no tag and no release.
 
 ### 5. Versions, CI and distribution
 
