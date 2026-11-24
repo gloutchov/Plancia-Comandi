@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento documentale corrente — 24 novembre 2026:** allineamento su `patch/0.3.18-release-docs`, da main locale e remoto `e4384c220ecbe45f39866883926f7d379f4d91c5`. Registra le release 0.3.17/0.3.18 già pubblicate e la chiusura della revisione Dependabot tramite PR #26. Sorgenti e ultima release **0.3.18**; nessuna modifica applicativa, incremento, tag o nuova release. Letture remote e controlli documentali riusciti; commit locale da presentare per approvazione prima della pubblicazione. Dettagli in 1.6 e 4.38. La cronologia delle milestone e le proposte restano invariate.
+**Consuntivo documentale — 24 novembre 2026:** allineamento delle release 0.3.17/0.3.18 e della chiusura delle PR Dependabot completato sul commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, approvato esplicitamente da Glauco, integrato con fast-forward e pubblicato su main. Pages `45417297561` riuscita sullo stesso commit. Il branch locale `patch/0.3.18-release-docs` e la cartella `out/release-docs-20261124/` sono stati rimossi dopo conferma separata. Sorgenti e ultima release **0.3.18**; nessuna modifica applicativa, incremento, tag o nuova release. Dettagli in 1.6 e 4.38. La cronologia delle milestone e le proposte restano invariate.
 
 **Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione pubblicata **0.3.18**. Sostituisce la PR Dependabot #20, chiusa senza merge. Pubblicata come PR #25; push approvato ed eseguito. Run Windows `45200473912` e macOS `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. PR #25 integrata; tag annotato `v0.3.18` e release pubblicati il 23 novembre sul commit `16d87d7c0c9944424870f572dcdc3907232483c3`. Run finali Windows `45228957575` e macOS `45228965581` riuscite. Dettaglio in 1.4 e 4.36.
 
@@ -182,7 +182,7 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Ambito | README, manuali IT/EN, quick start, piano, mappa, modello di sicurezza e riferimento alla release in AGENTS. Nessun cambio a codice, dipendenze, configurazione, workflow o landing. |
 | Versione / release | 0.3.18 invariata; nessun nuovo tag, checkpoint o release. Il tag pubblicato resta sul suo commit applicativo. |
 | Verifiche | Letture remote di main, PR, release, tag annotati e run; controlli locali di documenti, link/anchor, capitoli, parità IT/EN, esempi JSON, versioni e `check:site`; `git diff --check`. Nessuna nuova suite, build, installazione, packaging o smoke per la sola documentazione. |
-| Stato | Preparata localmente; presentare il commit finale per approvazione prima di push, merge o rimozione branch. Esiti in 4.38. |
+| Stato | Completata: commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` approvato da Glauco, integrato con fast-forward e pubblicato su main; Pages `45417297561` riuscita. Branch locale e temporanei della patch rimossi dopo conferma separata. Esiti in 4.38. |
 
 ### 2. Milestone e proposte
 
@@ -1158,7 +1158,7 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Nessun dispatch CI: controlli locali equivalenti per l'aggiornamento del solo test runner. Packaging e smoke Electron non eseguiti per questa patch di toolchain; nessuna nuova verifica macOS/Linux o delle altre versioni Node. L'audit non è una verifica completa di sicurezza.
 - [x] Controlli documentali: nove file obbligatori presenti, 182 collegamenti locali con destinazione esistente, nuove anchor e numerazione IT/EN equivalenti; JSON e versione canonica coerenti. `git diff --check` riuscito.
 - [x] Commit finale `e4384c220ecbe45f39866883926f7d379f4d91c5` approvato da Glauco il 24 novembre con «procedi», come registrato nella [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26). Integrazione fast-forward verificata su main locale e remoto; #22 chiusa come assorbita, #21/#23 chiuse senza merge. Branch di revisione e tre branch Dependabot rimossi; nessuna PR aperta e solo main sul remoto al controllo. [Pages 45385967754](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45385967754) riuscita sul medesimo SHA. Nessun workflow di packaging, tag o nuova release.
-- [ ] Temporanei propri conservati nelle due directory `out/` sopra e nelle cartelle sintetiche dei test in `%TEMP%`; elenco locale in `out/dependabot-review-cleanup.json`. Richiedere conferma separata prima della pulizia; preservare preferenze, dipendenze e file locali dell'utente.
+- [ ] La revisione aveva registrato temporanei nelle due directory `out/` sopra e nelle cartelle sintetiche dei test in `%TEMP%`, con elenco in `out/dependabot-review-cleanup.json`. Le due copie `out/` e il manifest non erano presenti al controllo documentale del 24 novembre; gli altri temporanei storici non sono stati ricensiti. La successiva pulizia in 4.38 riguarda solo il branch e la cartella dell’allineamento documentale. Eventuali altri residui richiedono verifica e conferma separata prima della cancellazione.
 
 #### 4.38 Allineamento documentale delle release — 24 novembre 2026
 
@@ -1167,7 +1167,9 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Tag annotati `v0.3.17` e `v0.3.18` risolti ai commit delle rispettive release; latest 0.3.18 non draft/non prerelease, con quattro pacchetti e due manifest. I checksum ricalcolati sono quelli registrati nelle note delle release; questa patch non riscarica né riprova i binari.
 - [x] README, manuali, quick start, modello, mappa, regole operative e piano allineati IT/EN. HOME, sorgenti applicativi, dipendenze, versione, landing, screenshot e workflow preservati. Nessuna nuova milestone o modifica alle proposte.
 - [x] Nove file obbligatori, 350 collegamenti locali e 178 anchor verificati; capitoli e checklist IT/EN equivalenti, 12 capitoli dei manuali, quattro esempi JSON validi, versioni canoniche coerenti. `npm run check:site` e `git diff --check` riusciti; HOME con SHA-256 invariato. Suite, build, audit, packaging e smoke non ripetuti: modifica solo documentale, verifiche storiche conservate con il loro ambito.
-- [ ] Approvazione del commit finale prima di push/merge e rimozione branch; nessuna operazione di pubblicazione eseguita per questa patch. Temporanei propri in `out/release-docs-20261124/` conservati; cancellazione solo con conferma separata. Le due copie `out/dependabot-*-20261124/` e il manifest di pulizia della revisione precedente non sono presenti al controllo; nessuna cancellazione eseguita da questa patch, altri temporanei storici non ricensiti.
+- [x] Glauco ha approvato esplicitamente il commit finale `2ee3b1add652f565e82c17f6dfb925a34b0b641e` con «si, approvo». Merge fast-forward e push di main completati senza modificare il commit approvato; main locale e remoto verificati sul medesimo SHA.
+- [x] [Pages 45417297561](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45417297561) completata con successo sul commit approvato. Nessun workflow di packaging avviato; versione 0.3.18, tag e release invariati.
+- [x] Dopo la conferma separata «procedi», rimossi il solo branch locale `patch/0.3.18-release-docs` e la sola cartella `out/release-docs-20261124/`, previa verifica del percorso risolto nella workspace e dei suoi nove file temporanei. Worktree finale pulito su main, allineato al remoto; altri temporanei storici non ricensiti o rimossi.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -1177,7 +1179,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current documentation work — 24 November 2026:** alignment on `patch/0.3.18-release-docs`, from local and remote main `e4384c220ecbe45f39866883926f7d379f4d91c5`. Records the already published 0.3.17/0.3.18 releases and the completed Dependabot review through PR #26. Source and latest release **0.3.18**; no application changes, increment, tag or new release. Remote reads and documentation checks passed; the local commit must be presented for approval before publication. Details in 1.6 and 4.38. Milestone history and proposals remain unchanged.
+**Documentation closeout — 24 November 2026:** alignment of releases 0.3.17/0.3.18 and the closed Dependabot PRs completed at `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, explicitly approved by Glauco, integrated with fast-forward and published on main. Pages `45417297561` succeeded at the same commit. The local `patch/0.3.18-release-docs` branch and `out/release-docs-20261124/` directory were removed after separate confirmation. Source and latest release **0.3.18**; no application changes, increment, tag or new release. Details in 1.6 and 4.38. Milestone history and proposals remain unchanged.
 
 **Previous work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Published version **0.3.18**. It supersedes Dependabot PR #20, closed without merging. Published as PR #25; the push is approved and done. Windows run `45200473912` and macOS run `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. PR #25 integrated; annotated `v0.3.18` tag and release published on 23 November at `16d87d7c0c9944424870f572dcdc3907232483c3`. Final Windows `45228957575` and macOS `45228965581` runs succeeded. Detail in 1.4 and 4.36.
 
@@ -1357,7 +1359,7 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Scope | README, IT/EN manuals, quick start, plan, map, security model and release reference in AGENTS. No changes to code, dependencies, configuration, workflows or landing. |
 | Version / release | 0.3.18 unchanged; no new tag, checkpoint or release. The published tag stays at its application commit. |
 | Checks | Remote reads of main, PRs, releases, annotated tags and runs; local document, link/anchor, chapter, IT/EN parity, JSON example, version and `check:site` checks; `git diff --check`. No new suite, build, installation, packaging or smoke for documentation alone. |
-| Status | Prepared locally; present the final commit for approval before push, merge or branch removal. Results in 4.38. |
+| Status | Completed: commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` approved by Glauco, integrated with fast-forward and published on main; Pages `45417297561` succeeded. Local branch and patch temporary files removed after separate confirmation. Results in 4.38. |
 
 ### 2. Milestones and proposals
 
@@ -2333,7 +2335,7 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] No CI dispatch: local checks equivalent for the test-runner-only update. Packaging and Electron smoke not run for this toolchain patch; no new macOS/Linux or other Node version checks. The audit is not a complete security assessment.
 - [x] Documentation checks: nine required files present, 182 local links with existing destinations, new anchors and matching IT/EN chapter numbers; JSON and canonical version consistent. `git diff --check` passed.
 - [x] Final commit `e4384c220ecbe45f39866883926f7d379f4d91c5` approved by Glauco on 24 November with “procedi”, as recorded in [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26). Fast-forward integration verified on local and remote main; #22 closed as absorbed, #21/#23 closed without merging. Review branch and three Dependabot branches removed; no open PR and only main remotely at the check. [Pages 45385967754](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45385967754) succeeded at the same SHA. No packaging workflow, tag or new release.
-- [ ] Own temporary files preserved in the two `out/` directories above and in synthetic test directories under `%TEMP%`; local list in `out/dependabot-review-cleanup.json`. Request separate confirmation before cleanup; preserve user preferences, dependencies and local files.
+- [ ] The review recorded temporary files in the two `out/` directories above and in synthetic test directories under `%TEMP%`, listed in `out/dependabot-review-cleanup.json`. The two `out/` copies and manifest were absent at the 24 November documentation check; other historical temporary files were not inventoried again. The subsequent cleanup in 4.38 covers only the documentation alignment branch and directory. Any other remnants require verification and separate confirmation before deletion.
 
 #### 4.38 Release documentation alignment — 24 November 2026
 
@@ -2342,7 +2344,9 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Annotated `v0.3.17` and `v0.3.18` tags resolved to their release commits; latest 0.3.18 is neither draft nor prerelease, with four packages and two manifests. Recomputed checksums are those recorded in the release notes; this patch does not download or test the binaries again.
 - [x] README, manuals, quick start, model, map, operating rules and plan aligned IT/EN. HOME, application source, dependencies, version, landing, screenshots and workflows preserved. No new milestone or proposal changes.
 - [x] Nine required files, 350 local links and 178 anchors checked; equivalent IT/EN chapters and checklists, 12 manual chapters, four valid JSON examples, consistent canonical versions. `npm run check:site` and `git diff --check` passed; HOME SHA-256 unchanged. Suite, build, audit, packaging and smoke not repeated: documentation-only change, historical checks retained with their scope.
-- [ ] Final commit approval before push/merge and branch removal; no publication performed for this patch. Own temporary files retained in `out/release-docs-20261124/`; deletion requires separate confirmation. The two `out/dependabot-*-20261124/` copies and the previous review’s cleanup manifest are absent at the check; this patch deleted nothing, other historical temporary files were not inventoried again.
+- [x] Glauco explicitly approved final commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` with “si, approvo”. Fast-forward merge and main push completed without changing the approved commit; local and remote main verified at the same SHA.
+- [x] [Pages 45417297561](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45417297561) completed successfully at the approved commit. No packaging workflow started; version 0.3.18, tags and release unchanged.
+- [x] After the separate “procedi” confirmation, removed only the local `patch/0.3.18-release-docs` branch and `out/release-docs-20261124/` directory, after checking the resolved workspace path and its nine temporary files. Final worktree clean on main, aligned with the remote; other historical temporary files were not inventoried again or removed.
 
 ### 5. Versions, CI and distribution
 
