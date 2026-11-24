@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. L’ultima release pubblicata è **0.3.17**; i sorgenti correnti sono **0.3.18**.
+Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. Sorgenti e ultima release pubblicata sono **0.3.18**.
 
 Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. C36 è pubblicata nella release 0.3.15 con pacchetti e checksum verificati.
 
@@ -16,11 +16,11 @@ Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle vi
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Sorgenti 0.3.18 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** L’ultima release pubblicata è la [0.3.17](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.17). Il runtime resta Electron **45.4.1**, pin esatto, con fuse C27. Fit 0.11 usa la larghezza reale della scrollbar. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.18 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** L’ultima release pubblicata è la [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). Il runtime resta Electron **45.4.1**, pin esatto, con fuse C27. Fit 0.11 usa la larghezza reale della scrollbar. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
-Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
+Schermate della versione sorgenti 0.3.1 su Windows, con dati dimostrativi e preferenze isolate; [provenienza delle catture](docs/screenshots/capture.json). La release [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) è disponibile con installer/portable Windows x64 e DMG/ZIP macOS ARM64 non firmati e checksum SHA-256.
 
 **Sommario**
 
@@ -111,6 +111,8 @@ Le preferenze salvano anche l'ultima cartella utilizzata. L'output del terminale
 
 ### 5. Sviluppo e verifiche
 
+**Release 0.3.18 pubblicata, 23 novembre 2026.** Fit 0.11, web-links 0.12 e React/ReactDOM 19.3.1 sono inclusi nella [release](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) sul commit `16d87d7c0c9944424870f572dcdc3907232483c3`, con Electron 45.4.1. Le run [Windows 45228957575](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228957575) e [macOS ARM64 45228965581](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228965581) sono riuscite; le note registrano smoke dei pacchetti, geometria del terminale e checksum verificati. Sono allegati installer/portable Windows x64, DMG/ZIP macOS ARM64 e due manifest SHA-256. Le prove sono sui runner GitHub: nessuna firma di distribuzione o notarizzazione, nessun pacchetto Linux o macOS Intel e nessuna nuova prova visiva su macchine personali. La successiva [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26), integrata il 24 novembre, aggiorna solo la toolchain a Vitest 5.1.1; versione e pacchetti della release restano invariati. Dettagli nel [piano](PLAN.md).
+
 M36/0.3.15: suite locale con Node 24, 582 test riusciti e 3 saltati; build e check del sito riusciti. La regressione `node scripts/smoke-multiline-paste.mjs .` usa renderer/xterm reali, appunti sintetici, IT/EN, due temi e tre dimensioni desktop; non accede agli appunti o alle shell personali. Prima pubblicazione e verifica Windows restano subordinate al controllo del commit. Dettagli e limiti nel [piano](PLAN.md).
 
 **C33 pubblicata, 20 novembre 2026 — release 0.3.13 (M34/M35 assorbite).** Nome installato **Plancia Comandi**, ICO ufficiale Windows e lingua iniziale dal sistema, con override e preferenze conservati. Commit `6bab754c79ced9e530e73e30f8bca59fd55c4ffc`, tag annotati `milestone/C33` e `v0.3.13`, [release 0.3.13](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.13), ID `453136648`, pubblicata alle 21:17:23 (Europe/Rome). [Windows 44792620689](https://github.com/gloutchov/Plancia-Comandi/actions/runs/44792620689): 513 test/4 saltati, PowerShell 5.1/7 e upgrade/rimozione 0.3.1 verificati. macOS ARM64: 514 test/3 saltati, otto primi avvii, upgrade e smoke finali dei pacchetti riusciti. Quattro binari senza certificato di firma e due manifest SHA-256 riscaricati e confrontati; sei URL pubblici HTTP 200, archivi sorgente identici ai 199 file Git. Branch M33 rimosso. Prova visiva nativa Windows rimandata su autorizzazione esplicita e dichiarata nelle note; Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. Dettagli nel [piano](PLAN.md).
@@ -196,7 +198,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. The latest published release is **0.3.17**; current source is **0.3.18**.
+In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. Source and the latest published release are **0.3.18**.
 
 In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. C36 is published in release 0.3.15 with verified packages and checksums.
 
@@ -210,11 +212,11 @@ Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source 0.3.18 · early development · macOS, Windows and Linux targets · Apache-2.0.** The latest published release is [0.3.17](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.17). The runtime remains Electron **45.4.1**, an exact pin, with C27 fuses. Fit 0.11 uses the real scrollbar width. Install terminal tools separately.
+**Source 0.3.18 · early development · macOS, Windows and Linux targets · Apache-2.0.** The latest published release is [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). The runtime remains Electron **45.4.1**, an exact pin, with C27 fuses. Fit 0.11 uses the real scrollbar width. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
-Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.14](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.14) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
+Screenshots of source version 0.3.1 on Windows, using demonstration data and isolated preferences; [capture provenance](docs/screenshots/capture.json). Release [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) is available with unsigned Windows x64 installer/portable and macOS ARM64 DMG/ZIP packages and SHA-256 checksums.
 
 **Contents**
 
@@ -304,6 +306,8 @@ Commands run with the permissions of the user starting the app and can read or c
 Preferences also store the last used folder. Terminal output remains in the app's memory buffers; shells and launched programs may write their own history and logs. Notifications, clipboard, screenshots and diagnostics can expose information. The window does not load scripts from the Internet. The security model describes [implemented controls and remaining limitations](SECURITY_MODEL.md): the shell still runs with the user's permissions and the packages are unsigned.
 
 ### 5. Development and checks
+
+**Release 0.3.18 published, 23 November 2026.** Fit 0.11, web-links 0.12 and React/ReactDOM 19.3.1 are included in the [release](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) at `16d87d7c0c9944424870f572dcdc3907232483c3`, with Electron 45.4.1. [Windows 45228957575](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228957575) and [macOS ARM64 45228965581](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228965581) succeeded; the notes record package smoke, terminal geometry and verified checksums. Attached are Windows x64 installer/portable, macOS ARM64 DMG/ZIP and two SHA-256 manifests. Checks ran on GitHub runners: no distribution signing or notarization, no Linux or Intel macOS package and no new visual checks on personal machines. The subsequent [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26), integrated on 24 November, updates only the toolchain to Vitest 5.1.1; the release version and packages are unchanged. Details in the [plan](PLAN.md).
 
 M36/0.3.15: local Node 24 suite, 582 passed and 3 skipped tests; build and site check passed. The `node scripts/smoke-multiline-paste.mjs .` regression uses real renderer/xterm, synthetic clipboard, IT/EN, both themes and three desktop sizes; it does not access personal clipboard or shells. First publication and Windows checks remain subject to commit review. Details and limits in the [plan](PLAN.md).
 
