@@ -2,7 +2,9 @@
 
 ## Italiano
 
-**Intervento corrente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione proposta **0.3.18**. Sostituisce la PR Dependabot #20, che non è modificata. Pubblicata come PR #25; push approvato ed eseguito. Run Windows `45200473912` e macOS `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. Merge, tag e release restano da fare. Dettaglio in 1.4 e 4.36.
+**Revisione PR corrente — 24 novembre 2026:** patch di toolchain su `patch/0.3.18-dependabot-review`, da main remoto verificato `16d87d7c0c9944424870f572dcdc3907232483c3`. Applica la PR Dependabot #22 (Vitest 5.1.1); propone la chiusura di #21 (Vite 8 incompatibile con il plugin React corrente) e #23 (tipi Node 26, mantenendo il supporto a Node 22/24). Versione sorgenti **0.3.18** invariata, nessuna release o tag per questa patch. Verifiche locali completate; commit finale da controllare prima di pubblicazione, merge e rimozione branch. Tutte e tre le PR restano aperte. Dettagli in 1.5 e 4.37; le voci successive conservano lo stato registrato negli interventi precedenti.
+
+**Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione proposta **0.3.18**. Sostituisce la PR Dependabot #20, che non è modificata. Pubblicata come PR #25; push approvato ed eseguito. Run Windows `45200473912` e macOS `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. Merge, tag e release restano da fare. Dettaglio in 1.4 e 4.36.
 
 **Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.17-electron-45-4-1`, da main `9f10663af348fda3a356d473532fae3965770b88`. Electron passa dal pin esatto `45.3.2` al pin esatto `45.4.1`; versione proposta **0.3.17**, incremento `+0.0.1`, release prevista e non pubblicata. Fuse C27 e controlli ConPTY invariati; `node-pty` ricompilato per l’ABI di Electron 45. Pubblicata come PR #24; merge approvato da Glauco il 23 novembre 2026. La PR Dependabot #19 è chiusa come superata. Resta il residuo minimatch, corretto solo in 11.0.1 e solo in sviluppo. Dettaglio in 1.3 e 4.35.
 
@@ -33,6 +35,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 **Sommario**
 
 - [1. Base e intervento corrente](#1-base-e-intervento-corrente)
+- [1.5 Revisione PR Dependabot](#15-revisione-pr-dependabot--24-novembre-2026)
 - [2. Milestone e proposte](#2-milestone-e-proposte)
 - [2.1 Milestone di sicurezza pianificate](#21-milestone-di-sicurezza-pianificate)
 - [2.2 Piano esecutivo: correzioni funzionali prima](#22-piano-esecutivo-correzioni-funzionali-prima)
@@ -68,6 +71,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [4.34 Configurazione Dependabot](#434-configurazione-dependabot--23-novembre-2026)
 - [4.35 Electron 45.4.1](#435-electron-4541--23-novembre-2026)
 - [4.36 Runtime xterm](#436-runtime-xterm--23-novembre-2026)
+- [4.37 Revisione PR Dependabot](#437-revisione-pr-dependabot--24-novembre-2026)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
 
 ### 1. Base e intervento corrente
@@ -155,6 +159,19 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Attività | Pin esatti. Prima di ogni `fit`, `overviewRuler.width` riceve `offsetWidth - clientWidth`, con ripiego 15 px se la misura è 0. `overviewRulerWidth` non viene impostato. `@xterm/xterm` resta 5.5.0. |
 | Accettazione | Lo smoke di geometria resta invariato e passa. Il calcolo della larghezza ha un test unitario. |
 | Stato | Pubblicata come PR #25. Push approvato ed eseguito. Run `45200473912` e `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. Merge, tag e release restano da fare. PR #20 non è modificata. |
+
+#### 1.5 Revisione PR Dependabot — 24 novembre 2026
+
+| Campo | Patch di toolchain |
+| --- | --- |
+| Obiettivo | Risolvere le tre proposte aperte dopo averne verificato compatibilità e ambito. |
+| Base / branch | Main `16d87d7c0c9944424870f572dcdc3907232483c3`, allineato a `origin/main`; `patch/0.3.18-dependabot-review`. |
+| PR #22 | Applicato localmente il diff del commit `1b62f28dcde68540453729a08c298bda1aba0164`: pin Vitest 5.1.1 e aggiornamento dei soli mocker/spy nel lockfile. |
+| PR #21 | Proposta di chiusura senza merge. Vite 8.3.5 non soddisfa il peer Vite fino alla serie 7 di `@vitejs/plugin-react` 5.1.4: `npm ci --dry-run --ignore-scripts` della PR fallisce con `ERESOLVE`. Nessun bypass dei peer; una migrazione coordinata richiede un intervento distinto. |
+| PR #23 | Proposta di chiusura senza merge. Conservati `@types/node` 22.19.1 e requisito minimo Node 22; tipi 26 non garantiscono API disponibili anche su Node 22/24. Nessun fallimento della compilazione della PR è dichiarato o provato. |
+| Versione / release | 0.3.18 invariata; sola toolchain dei test, senza nuova release, tag o checkpoint di milestone. |
+| Documentazione | Piano e modello di sicurezza bilingui, mappa, versione corrente della toolchain in `AGENTS.md`; risultati storici C6 conservati. |
+| Stato | Verifiche in 4.37 completate; controllo del commit finale, pubblicazione e operazioni remote pendenti. Configurazione Dependabot standard invariata. |
 
 ### 2. Milestone e proposte
 
@@ -1119,6 +1136,19 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 
 - [x] Patch su `patch/0.3.18-xterm-runtime` da main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Pin esatti Fit 0.11.0, web-links 0.12.0, React e ReactDOM 19.3.1. Larghezza scrollbar misurata prima di ogni fit; il righello non viene acceso. Versione proposta 0.3.18. Sullo SHA `b1b2438e0b53e4ac1a5bcef834110e07bf8630aa`: Linux 613 riusciti/3 saltati, Windows 611 riusciti/5 saltati, test larghezza 4/4, build e `check:site` riusciti. Lo smoke di geometria su questo Linux fallisce prima del controllo scrollbar anche con Fit 0.10. Run Windows `45200473912` e macOS `45200481623` verdi. Pubblicata come PR #25; push approvato ed eseguito. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. PR #20 non modificata. Merge, tag e release restano da fare.
 
+#### 4.37 Revisione PR Dependabot — 24 novembre 2026
+
+- [x] Identità autore `Gloutchov <gloutchov@gmail.com>` e account del connettore GitHub `gloutchov` verificati. La verifica di `gh` nel sandbox ha segnalato il token non valido: nessuna modifica alle credenziali; per la lettura remota usato il connettore autenticato. Main remoto invariato alla base sopra; worktree iniziale pulito e nessuna modifica utente rimossa.
+- [x] Diff #22 applicato sul branch dedicato, senza alterare i branch Dependabot. Verifica di manifest e lockfile: nessuna modifica di runtime, override o requisito Node.
+- [x] Copia di verifica in `out/dependabot-review-20261124/`, con `npm ci --ignore-scripts`, installazione Electron 45.4.1 verificata dal suo file versione e preparazione esplicita delle prebuild Windows node-pty. `node_modules` del checkout principale preservata. Download Electron riuscito con `--use-system-ca`, TLS attivo; il primo tentativo senza trust di sistema era fallito.
+- [x] Suite completa con Vitest 5.1.1 su Windows/Node 24.18.1: **611 test riusciti e 5 saltati, 62 file**. Compresi entrambi i confronti PowerShell 5.1/7; i cinque skip riguardano prove POSIX/macOS non applicabili a Windows. Il primo avvio aveva superato 600 test ma non caricato la suite fuse per il download Electron mancante; dopo la preparazione, la suite completa è riuscita senza modificare codice o test.
+- [x] `npm run build` (TypeScript e tre bundle) e `npm run check:site` riusciti. Avviso renderer oltre 500 kB. `npm audit --json` completo: zero segnalazioni alla data del controllo. Le verifiche storiche restano riferite alle rispettive date.
+- [x] PR #21 riprodotta in `out/dependabot-vite21-20261124/` con i due manifest del suo SHA `b79c4225937a8a6d3bc82e27c01231f3b953fed7`: dry-run senza script fallito con `ERESOLVE` sul peer React/Vite. PR #23 valutata rispetto ai requisiti Node; non installata né compilata con tipi 26.
+- [x] Nessun dispatch CI: controlli locali equivalenti per l'aggiornamento del solo test runner. Packaging e smoke Electron non eseguiti per questa patch di toolchain; nessuna nuova verifica macOS/Linux o delle altre versioni Node. L'audit non è una verifica completa di sicurezza.
+- [x] Controlli documentali: nove file obbligatori presenti, 182 collegamenti locali con destinazione esistente, nuove anchor e numerazione IT/EN equivalenti; JSON e versione canonica coerenti. `git diff --check` riuscito.
+- [ ] Approvazione esplicita del commit finale prima di push/merge; proposta successiva: pubblicare e integrare questa patch con la documentazione, chiudere #22 come assorbita e #21/#23 senza merge con le motivazioni sopra, quindi rimuovere i soli branch obsoleti dopo approvazione e verifiche. Nessun messaggio, chiusura, merge, tag, release o rimozione branch remoto eseguiti.
+- [ ] Temporanei propri conservati nelle due directory `out/` sopra e nelle cartelle sintetiche dei test in `%TEMP%`; elenco locale in `out/dependabot-review-cleanup.json`. Richiedere conferma separata prima della pulizia; preservare preferenze, dipendenze e file locali dell'utente.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -1127,7 +1157,9 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Current work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Proposed version **0.3.18**. It supersedes Dependabot PR #20, which is not modified. Published as PR #25; the push is approved and done. Windows run `45200473912` and macOS run `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. Merge, tag and release remain to be done. Detail in 1.4 and 4.36.
+**Current PR review — 24 November 2026:** toolchain patch on `patch/0.3.18-dependabot-review`, from verified remote main `16d87d7c0c9944424870f572dcdc3907232483c3`. Applies Dependabot PR #22 (Vitest 5.1.1); proposes closing #21 (Vite 8 incompatible with the current React plugin) and #23 (Node 26 types, preserving support for Node 22/24). Source version **0.3.18** unchanged, no release or tag for this patch. Local checks completed; the final commit must be reviewed before publication, merge and branch removal. All three PRs remain open. Details in 1.5 and 4.37; the following entries preserve the state recorded by previous work.
+
+**Previous work — 23 November 2026:** runtime patch on `patch/0.3.18-xterm-runtime`, from main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adopts exact `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, and React and ReactDOM 19.3.1. `TerminalView` measures the scrollbar before every `fit`. Proposed version **0.3.18**. It supersedes Dependabot PR #20, which is not modified. Published as PR #25; the push is approved and done. Windows run `45200473912` and macOS run `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. Merge, tag and release remain to be done. Detail in 1.4 and 4.36.
 
 **Previous work — 23 November 2026:** runtime patch on `patch/0.3.17-electron-45-4-1`, from main `9f10663af348fda3a356d473532fae3965770b88`. Electron moves from the exact pin `45.3.2` to the exact pin `45.4.1`; proposed version **0.3.17**, increment `+0.0.1`, release expected and not published. C27 fuses and ConPTY checks unchanged; `node-pty` rebuilt for the Electron 45 ABI. Published as PR #24; merge approved by Glauco on 23 November 2026. Dependabot PR #19 is closed as superseded. The minimatch residual remains open, fixed only in 11.0.1 and only in development. Detail in 1.3 and 4.35.
 
@@ -1158,6 +1190,7 @@ This plan records the existing Plancia Comandi baseline and future work. Publish
 **Contents**
 
 - [1. Baseline and current work](#1-baseline-and-current-work)
+- [1.5 Dependabot PR review](#15-dependabot-pr-review--24-november-2026)
 - [2. Milestones and proposals](#2-milestones-and-proposals)
 - [2.1 Planned security milestones](#21-planned-security-milestones)
 - [2.2 Execution plan: functional fixes first](#22-execution-plan-functional-fixes-first)
@@ -1193,6 +1226,7 @@ This plan records the existing Plancia Comandi baseline and future work. Publish
 - [4.34 Dependabot configuration](#434-dependabot-configuration--23-november-2026)
 - [4.35 Electron 45.4.1](#435-electron-4541--23-november-2026)
 - [4.36 xterm runtime](#436-xterm-runtime--23-november-2026)
+- [4.37 Dependabot PR review](#437-dependabot-pr-review--24-november-2026)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
 
 ### 1. Baseline and current work
@@ -1280,6 +1314,19 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Work | Exact pins. Before every `fit`, `overviewRuler.width` receives `offsetWidth - clientWidth`, with a 15 px fallback when the measurement is 0. `overviewRulerWidth` is not set. `@xterm/xterm` stays at 5.5.0. |
 | Acceptance | The geometry smoke stays unchanged and passes. The width calculation has a unit test. |
 | Status | Published as PR #25. The push is approved and done. Runs `45200473912` and `45200481623` are green. First approval from Glauco on 23 November 2026 at 17:00. Merge, tag and release remain to be done. PR #20 is not modified. |
+
+#### 1.5 Dependabot PR review — 24 November 2026
+
+| Field | Toolchain patch |
+| --- | --- |
+| Goal | Resolve the three open proposals after checking compatibility and scope. |
+| Base / branch | Main `16d87d7c0c9944424870f572dcdc3907232483c3`, aligned with `origin/main`; `patch/0.3.18-dependabot-review`. |
+| PR #22 | Locally applied the diff from commit `1b62f28dcde68540453729a08c298bda1aba0164`: Vitest 5.1.1 pin and only mocker/spy updates in the lockfile. |
+| PR #21 | Proposed closure without merging. Vite 8.3.5 does not satisfy the Vite peer through major 7 of `@vitejs/plugin-react` 5.1.4: the PR's `npm ci --dry-run --ignore-scripts` fails with `ERESOLVE`. No peer bypass; a coordinated migration requires separate work. |
+| PR #23 | Proposed closure without merging. Kept `@types/node` 22.19.1 and minimum Node 22; version 26 types do not guarantee API availability on Node 22/24. No compilation failure of this PR is claimed or established. |
+| Version / release | 0.3.18 unchanged; test toolchain only, without a new release, tag or milestone checkpoint. |
+| Documentation | Bilingual plan and security model, map, current toolchain version in `AGENTS.md`; historical C6 results preserved. |
+| Status | Checks in 4.37 completed; final commit review, publication and remote operations pending. Standard Dependabot configuration unchanged. |
 
 ### 2. Milestones and proposals
 
@@ -2243,6 +2290,19 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 #### 4.36 xterm runtime — 23 November 2026
 
 - [x] Patch on `patch/0.3.18-xterm-runtime` from main `0590eec15701e49ef953c60559c04b86a81c0ec6`. Exact pins Fit 0.11.0, web-links 0.12.0, React and ReactDOM 19.3.1. Scrollbar width measured before every fit; the ruler stays off. Proposed version 0.3.18. On SHA `b1b2438e0b53e4ac1a5bcef834110e07bf8630aa`: Linux 613 passed/3 skipped, Windows 611 passed/5 skipped, width tests 4/4, build and `check:site` passed. The geometry smoke on this Linux host fails before the scrollbar check even with Fit 0.10. Windows run `45200473912` and macOS run `45200481623` are green. Published as PR #25; the push is approved and done. First approval from Glauco on 23 November 2026 at 17:00. PR #20 not modified. Merge, tag and release remain to be done.
+
+#### 4.37 Dependabot PR review — 24 November 2026
+
+- [x] Author identity `Gloutchov <gloutchov@gmail.com>` and GitHub connector account `gloutchov` verified. The sandboxed `gh` check reported an invalid token: no credential changes; the authenticated connector was used for remote reads. Remote main unchanged from the base above; initial worktree clean and no user changes removed.
+- [x] Applied #22's diff on the dedicated branch, without changing Dependabot branches. Manifest and lockfile check: no runtime, override or Node requirement changes.
+- [x] Validation copy in `out/dependabot-review-20261124/`, with `npm ci --ignore-scripts`, Electron 45.4.1 installation checked against its version file and explicit preparation of Windows node-pty prebuilds. Main checkout `node_modules` preserved. Electron download succeeded with `--use-system-ca`, TLS enabled; the first attempt without system trust had failed.
+- [x] Full suite with Vitest 5.1.1 on Windows/Node 24.18.1: **611 tests passed and 5 skipped, 62 files**. Includes both PowerShell 5.1/7 comparisons; the five skips are POSIX/macOS checks that do not apply on Windows. The first run passed 600 tests but could not load the fuse suite because Electron had not downloaded; after preparation, the full suite passed without code or test changes.
+- [x] `npm run build` (TypeScript and three bundles) and `npm run check:site` passed. Renderer warning above 500 kB. Full `npm audit --json`: zero findings at the time of the check. Historical checks remain tied to their respective dates.
+- [x] Reproduced PR #21 in `out/dependabot-vite21-20261124/` with both manifests from its SHA `b79c4225937a8a6d3bc82e27c01231f3b953fed7`: dry-run without scripts failed with `ERESOLVE` on the React/Vite peer. PR #23 assessed against Node requirements; not installed or compiled with version 26 types.
+- [x] No CI dispatch: local checks equivalent for the test-runner-only update. Packaging and Electron smoke not run for this toolchain patch; no new macOS/Linux or other Node version checks. The audit is not a complete security assessment.
+- [x] Documentation checks: nine required files present, 182 local links with existing destinations, new anchors and matching IT/EN chapter numbers; JSON and canonical version consistent. `git diff --check` passed.
+- [ ] Explicit approval of the final commit before push/merge; proposed next step: publish and integrate this patch with documentation, close #22 as incorporated and #21/#23 without merging with the reasons above, then remove only obsolete branches after approval and verification. No message, closure, merge, tag, release or remote branch removal performed.
+- [ ] Own temporary files preserved in the two `out/` directories above and in synthetic test directories under `%TEMP%`; local list in `out/dependabot-review-cleanup.json`. Request separate confirmation before cleanup; preserve user preferences, dependencies and local files.
 
 ### 5. Versions, CI and distribution
 
