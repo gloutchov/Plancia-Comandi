@@ -60,9 +60,12 @@ try {
   // Use its absolute system path, static script and arguments, no policy bypass.
   const powershell = path.join(env.SystemRoot || env.SYSTEMROOT, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
   const script = fileURLToPath(new URL('./windows-icon-probe.ps1', import.meta.url))
-  const { stdout } = await promisify(execFile)(powershell, ['-NoProfile', '-NonInteractive', '-File', script, '-InputFile', inputFile], { env, windowsHide: true, timeout: 15000, maxBuffer: 4096 })
+  // Allow for PowerShell/.NET startup and Add-Type on hosted Windows runners.
+  // Keep a finite budget and retain the last static phase if it expires.
+  const { stdout } = await promisify(execFile)(powershell, ['-NoProfile', '-NonInteractive', '-File', script, '-InputFile', inputFile], { env, windowsHide: true, timeout: 45000, maxBuffer: 4096 })
   const result = JSON.parse(stdout.replace(/^\uFEFF/, '').trim())
-  await writeFile(path.join(root, 'report.json'), JSON.stringify({ ...window, ...result }, null, 2))
+  const probe = JSON.parse(await readFile(path.join(root, 'input.progress.json'), 'utf8'))
+  await writeFile(path.join(root, 'report.json'), JSON.stringify({ ...window, ...result, probe }, null, 2))
   assert.equal(result.smallMatches, true, 'Small native icon differs from canonical ICO')
   assert.equal(result.largeMatches, true, 'Large native icon differs from canonical ICO')
   assert.equal(result.appId, 'it.plancia.comandi', 'Window taskbar AppUserModelID missing or changed')
@@ -71,7 +74,8 @@ try {
   assert.deepEqual(await readFile(icon), await readFile(reference), 'Taskbar resource differs from the canonical ICO')
   console.log(JSON.stringify({ smoke: 'windows-icon-passed', root, electron: window.electron, ...result }))
 } catch (error) {
-  await writeFile(path.join(root, 'failure.json'), JSON.stringify({ error: String(error).slice(0, 1000) }))
+  const probe = await readFile(path.join(root, 'input.progress.json'), 'utf8').then(JSON.parse).catch(() => null)
+  await writeFile(path.join(root, 'failure.json'), JSON.stringify({ error: String(error).slice(0, 1000), probe }))
   console.error(JSON.stringify({ smoke: 'windows-icon-failed', root }))
   throw error
 } finally {

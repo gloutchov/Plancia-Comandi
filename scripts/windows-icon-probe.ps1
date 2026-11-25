@@ -1,6 +1,14 @@
 param([Parameter(Mandatory = $true)][string]$InputFile)
 $ErrorActionPreference = 'Stop'
+$probeTimer = [Diagnostics.Stopwatch]::StartNew()
+$probeProgress = [IO.Path]::ChangeExtension($InputFile, '.progress.json')
+function Write-ProbeProgress([string]$Stage) {
+    $value = [ordered]@{ stage = $Stage; elapsedMs = $probeTimer.ElapsedMilliseconds } | ConvertTo-Json -Compress
+    [IO.File]::WriteAllText($probeProgress, $value, [Text.UTF8Encoding]::new($false))
+}
+Write-ProbeProgress 'drawing-load'
 Add-Type -AssemblyName System.Drawing
+Write-ProbeProgress 'native-compile'
 Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @'
 using System;
 using System.Drawing;
@@ -67,9 +75,18 @@ public static class WindowsIconProbe {
 '@
 $inputData = Get-Content -Raw -LiteralPath $InputFile | ConvertFrom-Json
 $evidence = Split-Path -Parent $InputFile
+Write-ProbeProgress 'app-id'
+$taskbarId = [WindowsIconProbe]::Property([long]$inputData.handle, 5)
+Write-ProbeProgress 'icon-resource'
+$iconResource = [WindowsIconProbe]::Property([long]$inputData.handle, 3)
+Write-ProbeProgress 'small-icon'
+$smallMatches = [WindowsIconProbe]::Matches([long]$inputData.handle, 0, $inputData.reference, $evidence)
+Write-ProbeProgress 'large-icon'
+$largeMatches = [WindowsIconProbe]::Matches([long]$inputData.handle, 1, $inputData.reference, $evidence)
+Write-ProbeProgress 'complete'
 [ordered]@{
-    appId = [WindowsIconProbe]::Property([long]$inputData.handle, 5)
-    iconResource = [WindowsIconProbe]::Property([long]$inputData.handle, 3)
-    smallMatches = [WindowsIconProbe]::Matches([long]$inputData.handle, 0, $inputData.reference, $evidence)
-    largeMatches = [WindowsIconProbe]::Matches([long]$inputData.handle, 1, $inputData.reference, $evidence)
+    appId = $taskbarId
+    iconResource = $iconResource
+    smallMatches = $smallMatches
+    largeMatches = $largeMatches
 } | ConvertTo-Json -Compress
