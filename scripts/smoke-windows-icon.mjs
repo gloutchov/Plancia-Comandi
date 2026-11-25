@@ -56,13 +56,15 @@ try {
   const inputFile = path.join(root, 'input.json')
   const reference = path.join(source, 'build', 'icon.ico')
   await writeFile(inputFile, JSON.stringify({ handle: window.handle, reference }))
+  await writeFile(path.join(root, 'input.progress.json'), JSON.stringify({ stage: 'not-started', elapsedMs: 0 }))
   // Windows PowerShell 5.1 provides System.Drawing without extra dependencies.
   // Use its absolute system path, static script and arguments, no policy bypass.
   const powershell = path.join(env.SystemRoot || env.SYSTEMROOT, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
+  const probeEnv = { ...env, PSModulePath: path.join(path.dirname(powershell), 'Modules') }
   const script = fileURLToPath(new URL('./windows-icon-probe.ps1', import.meta.url))
   // Allow for PowerShell/.NET startup and Add-Type on hosted Windows runners.
   // Keep a finite budget and retain the last static phase if it expires.
-  const { stdout } = await promisify(execFile)(powershell, ['-NoProfile', '-NonInteractive', '-File', script, '-InputFile', inputFile], { env, windowsHide: true, timeout: 45000, maxBuffer: 4096 })
+  const { stdout } = await promisify(execFile)(powershell, ['-NoProfile', '-NonInteractive', '-File', script, '-InputFile', inputFile], { env: probeEnv, windowsHide: true, timeout: 45000, maxBuffer: 4096 })
   const result = JSON.parse(stdout.replace(/^\uFEFF/, '').trim())
   const probe = JSON.parse(await readFile(path.join(root, 'input.progress.json'), 'utf8'))
   await writeFile(path.join(root, 'report.json'), JSON.stringify({ ...window, ...result, probe }, null, 2))

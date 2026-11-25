@@ -178,6 +178,7 @@ Plancia-Comandi/
 |   |-- smoke-initial-locale.mjs    M33: otto primi avvii reali su gemello, lingue/temi e override
 |   |-- smoke-windows-icon.mjs       Identità e icone native Windows sul gemello, senza installazione
 |   |-- windows-icon-probe.ps1       Lettura proprietà Shell e confronto pixel delle icone HWND
+|   |-- windows-icon-probe.test.ts   Isolamento da moduli PowerShell esterni con modulo sintetico
 |   |-- window-chrome-regions.mjs    Asserzioni CSS distinte macOS/Windows, senza input nativo
 |   |-- window-chrome-regions.test.ts Test regressione Windows e casi negativi dei controlli
 |   |-- smoke-terminal-stream.mjs    Renderer sintetico: DA/OSC, viste e avviso processi IT/EN da 0.3.14
@@ -510,6 +511,7 @@ Plancia-Comandi/
 |   |-- smoke-initial-locale.mjs    M33: eight real twin launches, languages/themes and overrides
 |   |-- smoke-windows-icon.mjs       Native Windows identity and icons on the twin, no installation
 |   |-- windows-icon-probe.ps1       Shell property reads and HWND icon pixel comparisons
+|   |-- windows-icon-probe.test.ts   External PowerShell module isolation with a synthetic module
 |   |-- window-chrome-regions.mjs    Separate macOS/Windows CSS assertions, no native input
 |   |-- window-chrome-regions.test.ts Windows regression and negative control-region cases
 |   |-- smoke-terminal-stream.mjs    Synthetic renderer: DA/OSC, views and process warning IT/EN from 0.3.14

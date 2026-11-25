@@ -1,9 +1,12 @@
 param([Parameter(Mandatory = $true)][string]$InputFile)
 $ErrorActionPreference = 'Stop'
+# Match the native quoting fixtures: never discover installed/user modules.
+$env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
 $probeTimer = [Diagnostics.Stopwatch]::StartNew()
 $probeProgress = [IO.Path]::ChangeExtension($InputFile, '.progress.json')
 function Write-ProbeProgress([string]$Stage) {
-    $value = [ordered]@{ stage = $Stage; elapsedMs = $probeTimer.ElapsedMilliseconds } | ConvertTo-Json -Compress
+    # Write the first phase without triggering cmdlet/module auto-loading.
+    $value = '{"stage":"' + $Stage + '","elapsedMs":' + $probeTimer.ElapsedMilliseconds + '}'
     [IO.File]::WriteAllText($probeProgress, $value, [Text.UTF8Encoding]::new($false))
 }
 Write-ProbeProgress 'drawing-load'

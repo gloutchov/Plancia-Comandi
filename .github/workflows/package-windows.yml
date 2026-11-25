@@ -205,5 +205,7 @@ jobs:
             ${{ runner.temp }}/plancia-multiline-paste-*/failure.png
             ${{ runner.temp }}/plancia-initial-locale-*/*/failure.json
             ${{ runner.temp }}/plancia-initial-locale-*/*/failure.png
+            ${{ runner.temp }}/plancia-icon-modules-*/input.progress.json
+            ${{ runner.temp }}/plancia-icon-modules-*/external-module.txt
           if-no-files-found: ignore
           retention-days: 7
