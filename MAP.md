@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.18**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.19**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -176,6 +176,8 @@ Plancia-Comandi/
 |   |-- smoke-terminal-geometry.mjs  M29: geometria, rotella, barra, viste/font e buffer sintetici
 |   |-- smoke-window-chrome.mjs     M31: regioni drag/no-drag e controlli; prova nativa interattiva
 |   |-- smoke-initial-locale.mjs    M33: otto primi avvii reali su gemello, lingue/temi e override
+|   |-- smoke-windows-icon.mjs       Identità e icone native Windows sul gemello, senza installazione
+|   |-- windows-icon-probe.ps1       Lettura proprietà Shell e confronto pixel delle icone HWND
 |   |-- window-chrome-regions.mjs    Asserzioni CSS distinte macOS/Windows, senza input nativo
 |   |-- window-chrome-regions.test.ts Test regressione Windows e casi negativi dei controlli
 |   |-- smoke-terminal-stream.mjs    Renderer sintetico: DA/OSC, viste e avviso processi IT/EN da 0.3.14
@@ -243,6 +245,8 @@ Plancia-Comandi/
 M40 unificata (21 novembre 2026, assorbe M41–M43): dominio pubblico `https://planciacomandi.glaucosilvestri.it/`, CNAME/metadati coerenti e DNS/HTTPS verificati; i workflow richiedono SHA completo e versione espliciti, senza default di release; Windows usa `windows-2025`, macOS conserva `macos-15`. Trigger solo manuali, un job per piattaforma e permessi `contents: read` invariati. `.gitignore` esclude `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12` e `*.pfx`, con eccezione per `.env.example`: i file già tracciati e la cronologia non vengono filtrati. I tag `docs/*` sono storici; nuovi checkpoint `milestone/C<n>`, nuovi tag di versione solo `vX.Y.Z` quando la regola Release lo prevede. `STARTUP_PREFERENCES_HOME.md` è conservato senza modifiche.
 
 ### 2. Flusso e responsabilità
+
+Patch locale 0.3.19: `createWindow` assegna identità e ICO al pulsante Windows con `setAppDetails`, prima di mostrarlo. `win.extraResources` copia l’ICO ufficiale in `resources/icon.ico`: Explorer legge un file reale, mentre l’ASAR conserva la copia C33. L’ispettore verifica anche questa risorsa da 0.3.19. `node scripts/smoke-windows-icon.mjs <eseguibile-gemello-fuse-aperti> .` legge AppUserModelID/RelaunchIconResource tramite PowerShell 5.1 e confronta i pixel di entrambe le icone HWND con l’ICO canonico; profili e finestre sono sintetici/nascosti. Il workflow Windows manuale esistente aggiunge solo il passo da 0.3.19 e le evidenze: nessun trigger/job/permesso nuovo né dispatch locale. Ultima release pubblicata 0.3.18.
 
 M37/0.3.16: configurazione validata → `main` → `SessionManager` (cap sessioni/capacità matcher, soglia e ritenzione backlog, timer) e `children.ts` (timeout). `runtimeLimits` aggiunge il cap al boot esistente per il messaggio UI. `install-native.mjs` verifica le prebuild macOS con `macos-prebuild.mjs`, usando Electron stock separato, architettura e permessi; fallback senza nuove dipendenze. `node scripts/smoke-macos-prebuild.mjs .` prova una copia senza build e un PTY sintetico reale, conservando le evidenze. Nessuna API/flag di prova nel prodotto o nuovo workflow.
 
@@ -330,7 +334,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.18** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.19** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -504,6 +508,8 @@ Plancia-Comandi/
 |   |-- smoke-terminal-geometry.mjs  M29: geometry, wheel, thumb, views/fonts and synthetic buffers
 |   |-- smoke-window-chrome.mjs     M31: drag/no-drag regions and controls; interactive native check
 |   |-- smoke-initial-locale.mjs    M33: eight real twin launches, languages/themes and overrides
+|   |-- smoke-windows-icon.mjs       Native Windows identity and icons on the twin, no installation
+|   |-- windows-icon-probe.ps1       Shell property reads and HWND icon pixel comparisons
 |   |-- window-chrome-regions.mjs    Separate macOS/Windows CSS assertions, no native input
 |   |-- window-chrome-regions.test.ts Windows regression and negative control-region cases
 |   |-- smoke-terminal-stream.mjs    Synthetic renderer: DA/OSC, views and process warning IT/EN from 0.3.14
@@ -571,6 +577,8 @@ Plancia-Comandi/
 Unified M40 (21 November 2026, absorbs M41–M43): public domain `https://planciacomandi.glaucosilvestri.it/`, consistent CNAME/metadata and verified DNS/HTTPS; workflows require an explicit full SHA and version, with no release default; Windows uses `windows-2025`, macOS keeps `macos-15`. Manual-only triggers, one job per platform and `contents: read` permissions stay unchanged. `.gitignore` excludes `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12` and `*.pfx`, except `.env.example`: already tracked files and history are not filtered. The `docs/*` tags are historical; new checkpoints use `milestone/C<n>`, with new version tags only `vX.Y.Z` when required by the Release rule. `STARTUP_PREFERENCES_HOME.md` is preserved unchanged.
 
 ### 2. Flow and responsibilities
+
+Local 0.3.19 patch: `createWindow` assigns the Windows button identity and ICO with `setAppDetails` before showing it. `win.extraResources` copies the official ICO to `resources/icon.ico`: Explorer reads a real file while ASAR retains the C33 copy. The inspector checks this resource from 0.3.19. `node scripts/smoke-windows-icon.mjs <open-fuse-twin-executable> .` reads AppUserModelID/RelaunchIconResource through PowerShell 5.1 and compares both HWND icon pixel arrays with the canonical ICO; profiles and windows are synthetic/hidden. The existing manual Windows workflow only adds the step from 0.3.19 and its evidence: no new trigger/job/permission or local dispatch. Latest published release 0.3.18.
 
 M37/0.3.16: validated configuration → `main` → `SessionManager` (session cap/matcher capacity, backlog threshold/retention, timer) and `children.ts` (timeouts). `runtimeLimits` adds the cap to the existing boot data for the UI message. `install-native.mjs` checks macOS prebuilds with `macos-prebuild.mjs`, using separate stock Electron, architecture and permissions; fallback without new dependencies. `node scripts/smoke-macos-prebuild.mjs .` checks a copy without builds and a real synthetic PTY, retaining evidence. No product test API/flag or new workflow.
 

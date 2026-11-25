@@ -31,6 +31,10 @@ describe('packaged app identity', () => {
     expect(sizes).toEqual(expect.arrayContaining([16, 32, 48, 256]))
   })
 
+  it('provides the Windows Shell with the canonical ICO outside ASAR', () => {
+    expect(config.win.extraResources).toContainEqual({ from: 'build/icon.ico', to: 'icon.ico' })
+  })
+
   it('recognizes current and legacy names without matching unrelated executables', () => {
     for (const name of ['Plancia Comandi.exe', 'PLANCIA COMANDI.EXE', 'plancia-comandi.exe']) expect(isWindowsAppExe(name)).toBe(true)
     for (const name of ['Other Plancia Comandi.exe', 'PlanciaComandi.exe', '', 'helper.exe']) expect(isWindowsAppExe(name)).toBe(false)

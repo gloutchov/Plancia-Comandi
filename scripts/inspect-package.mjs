@@ -36,6 +36,10 @@ const iconAssets = (buildConfig.files ?? []).filter(entry => typeof entry === 's
 for (const relative of iconAssets) {
   assert.deepEqual(asar.extractFile(archive, relative), fs.readFileSync(path.join(source, relative)), `Packaged icon differs: ${relative}`)
 }
+const [major, minor, patch] = version.split('.').map(Number)
+if (packageNeedsConptyHostCheck(resources) && (major > 0 || minor > 3 || (minor === 3 && patch >= 19))) {
+  assert.deepEqual(fs.readFileSync(path.join(resources, 'icon.ico')), fs.readFileSync(path.join(source, 'build', 'icon.ico')), 'Windows taskbar ICO differs or is missing outside ASAR')
+}
 assert.deepEqual(fs.readFileSync(path.join(resources, 'config', 'app.config.json')), fs.readFileSync(path.join(source, 'config', 'app.config.json')))
 assert(fs.existsSync(path.join(resources, 'app.asar.unpacked', 'node_modules', 'node-pty')), 'Native PTY is not unpacked')
 const conptyHost = packageNeedsConptyHostCheck(resources)

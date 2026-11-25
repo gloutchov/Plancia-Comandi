@@ -32,6 +32,8 @@
   },
   win: {
     icon: "build/icon.ico",
+    // Explorer cannot resolve a taskbar RelaunchIconResource inside app.asar.
+    extraResources: [{ from: "build/icon.ico", to: "icon.ico" }],
     target: [
       { target: "nsis", arch: ["x64"] },
       { target: "portable", arch: ["x64"] },

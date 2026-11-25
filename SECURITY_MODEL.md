@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.18** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
+Questo documento descrive i controlli osservabili nei sorgenti di Plancia Comandi **0.3.19** e i limiti residui. È una descrizione del comportamento implementato, non una certificazione di sicurezza.
 
 **Sommario**
 
@@ -54,6 +54,8 @@ Le scadenze usano un orologio monotono, senza essere anticipate dalle correzioni
 Verifiche locali M32: adapter con comandi simulati, timer finti, sessioni/PTY simulate, privacy dell’avviso e recupero; suite 535 riusciti/3 saltati, build e renderer Electron con profili/bridge sintetici, IT/EN, chiaro/scuro e tre dimensioni desktop. Le fixture aggiungono l’avviso solo al proprio bridge esterno: nessun flag o API di prova nel prodotto e nessuna lettura di appunti, shell o credenziali personali. Il passo di smoke aggiunto ai workflow manuali esistenti verifica il renderer prima del packaging, senza nuovi trigger, job o permessi. Il primo lancio della suite nel sandbox era impedito da EPERM sul loopback; la ripetizione con loopback consentito passa. Windows x64 reale/pacchettizzato e PowerShell 5.1/7 richiedono il workflow necessario dopo approvazione del commit. CLM su Windows 11 non provata; AppLocker resta un limite dichiarato, non viene disabilitato o aggirato.
 
 ### 3. Persistenza, logging e privacy
+
+La patch locale 0.3.19 espone ai metadati nativi del solo pulsante Windows l’identificativo invariato `it.plancia.comandi` e il percorso dell’ICO ufficiale. Il file statico `resources/icon.ico` è copiato dal packaging Windows perché Explorer non legge risorse interne all’ASAR; l’ispettore confronta i byte col sorgente. Non cambiano IPC, rete, permessi o preferenze; non si imposta un comando di rilancio. La regressione esterna usa un gemello con fuse aperti e profili sintetici, legge le proprietà del solo HWND di prova e ne confronta le due icone con la risorsa canonica. Non installa l’app, non legge/modifica collegamenti personali e non cancella cache. La prova non certifica l’icona mostrata da Explorer per collegamenti già fissati; ultima release distribuita 0.3.18.
 
 C33/0.3.13 legge solo le lingue preferite dal sistema dopo ready (fallback al locale applicativo e poi `en`); non registra né invia l’elenco o la regione. La lingua valida salvata prevale e solo il valore applicativo `it`/`en` rimane nelle preferenze. La rinomina dell’eseguibile/bundle conserva `appId` e `app.setName`, quindi non richiede migrazione o cancellazione di `settings.json`. L’ICO Windows è una risorsa statica ufficiale nell’ASAR. Le sonde di primo avvio sono esterne su gemelli e profili sintetici, senza nuovi flag, IPC, accessi di rete o permessi del prodotto. Il harness fuse limita la pulizia al percorso assoluto dell’eseguibile di prova e preserva i PID presenti alla prima verifica: non termina app omonime altrove. La sonda di upgrade Windows è bloccata fuori dai runner GitHub ospitati, rifiuta installazioni/preferenze preesistenti e scarica via HTTPS il solo installer pubblico 0.3.1, verificandone il digest SHA-256 prima dell’esecuzione. Usa registro e profilo sintetici dell’ambiente effimero e conserva le preferenze anche dopo la rimozione.
 
@@ -263,7 +265,7 @@ Questi esiti sono la base del [piano M5–M9](PLAN.md#21-milestone-di-sicurezza-
 
 ## English
 
-This document describes controls observable in Plancia Comandi **0.3.18** source and remaining limitations. It documents implemented behavior rather than certifying security.
+This document describes controls observable in Plancia Comandi **0.3.19** source and remaining limitations. It documents implemented behavior rather than certifying security.
 
 **Contents**
 
@@ -315,6 +317,8 @@ Deadlines use a monotonic clock and cannot be brought forward by system-clock ch
 Local M32 checks: mock-command adapter, fake timers, synthetic sessions/PTYs, warning privacy and recovery; suite 535 passed/3 skipped, build and Electron renderer with synthetic profiles/bridge, IT/EN, light/dark and three desktop sizes. Fixtures add the warning only to their external bridge: no product test flag or API, and no personal clipboard, shell or credential access. The smoke step added to the existing manual workflows checks the renderer before packaging, without new triggers, jobs or permissions. The first sandboxed suite run was blocked by loopback EPERM; rerunning with loopback allowed passes. Real/packaged Windows x64 and PowerShell 5.1/7 require the necessary workflow after commit approval. Windows 11 CLM not tested; AppLocker remains a declared limitation and is not disabled or bypassed.
 
 ### 3. Persistence, logging and privacy
+
+The local 0.3.19 patch exposes the unchanged `it.plancia.comandi` identity and official ICO path to the native metadata of the Windows button only. Windows packaging copies the static `resources/icon.ico` because Explorer cannot read resources inside ASAR; the inspector compares its bytes with the source. IPC, network, permissions and preferences are unchanged; no relaunch command is set. The external regression uses an open-fuse twin and synthetic profiles, reads properties of its test HWND only and compares both icons with the canonical resource. It neither installs the app, reads/modifies personal shortcuts nor clears caches. This does not certify the icon Explorer displays for existing pinned shortcuts; latest distributed release 0.3.18.
 
 C33/0.3.13 reads only preferred system languages after ready (falling back to the application locale and then `en`); it neither logs nor sends the list or region. A valid saved language takes precedence, and only the app value `it`/`en` remains in preferences. Renaming the executable/bundle preserves `appId` and `app.setName`, requiring no migration or deletion of `settings.json`. The Windows ICO is an official static ASAR resource. First-launch probes are external on twins and synthetic profiles, adding no product flags, IPC, network access or permissions. The fuse harness scopes cleanup to the absolute probe executable path and preserves PIDs present at its first check: it does not terminate same-named apps elsewhere. The Windows upgrade probe is blocked outside GitHub-hosted runners, refuses preexisting installations/preferences and downloads only the public 0.3.1 installer over HTTPS, verifying its SHA-256 digest before execution. It uses the disposable environment’s synthetic registry/profile and preserves preferences after removal too.
 

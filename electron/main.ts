@@ -27,6 +27,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
 const RENDERER_DIST = path.join(APP_ROOT, 'dist')
 const APP_TITLE = 'Plancia Comandi'
+const APP_ID = 'it.plancia.comandi'
 
 function devServerUrl(): string | undefined {
   return rendererDevServerUrl(app.isPackaged, process.env['VITE_DEV_SERVER_URL'])
@@ -292,6 +293,11 @@ function delay(ms: number): Promise<void> {
 function createWindow(): void {
   const darwin = process.platform === 'darwin'
   const dark = settings ? isDark(settings.data.theme) : true
+  // Windows Shell reads taskbar resources itself, so the ICO must be a real
+  // file outside ASAR. Development keeps using the canonical build asset.
+  const icon = process.platform === 'win32' && app.isPackaged
+    ? path.join(process.resourcesPath, 'icon.ico')
+    : path.join(APP_ROOT, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png')
   win = new BrowserWindow({
     width: demoMode() ? 1440 : 1280,
     height: demoMode() ? 900 : 820,
@@ -303,7 +309,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     titleBarStyle: darwin ? 'hiddenInset' : 'default',
     trafficLightPosition: darwin ? { x: 16, y: 18 } : undefined,
-    icon: path.join(APP_ROOT, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
+    icon,
     webPreferences: {
       preload: preloadPath(),
       contextIsolation: true,
@@ -312,6 +318,10 @@ function createWindow(): void {
       devTools: !app.isPackaged,
     },
   })
+
+  if (process.platform === 'win32') {
+    win.setAppDetails({ appId: APP_ID, appIconPath: icon, appIconIndex: 0 })
+  }
 
   win.webContents.on('preload-error', (_event, _preload, error) => {
     reportDiagnostic('preload-failed', error)
@@ -415,7 +425,7 @@ function start(): void {
 }
 
 app.setName(APP_TITLE)
-if (process.platform === 'win32') app.setAppUserModelId('it.plancia.comandi')
+if (process.platform === 'win32') app.setAppUserModelId(APP_ID)
 
 const gotLock = app.requestSingleInstanceLock()
 startupTrace?.event('single-instance-lock', { acquired: gotLock, ready: app.isReady() })

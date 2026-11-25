@@ -2,6 +2,8 @@
 
 ## Italiano
 
+**Intervento corrente — 25 novembre 2026:** patch locale **0.3.19** su `patch/0.3.19-windows-taskbar-icon`, da main `17d8f8268440c0ea432863637b6d9c3b9f818f34`. Corregge identità e risorsa icona del pulsante Windows con metadati espliciti e ICO fuori ASAR. Suite, build, prova nativa e smoke del pacchetto scompattato fuori checkout riusciti. Approvazione del commit e distribuzione pendenti; ultima release pubblicata 0.3.18. Nessuna milestone o proposta avviata. Dettagli in 1.7 e 4.39.
+
 **Consuntivo documentale — 24 novembre 2026:** allineamento delle release 0.3.17/0.3.18 e della chiusura delle PR Dependabot completato sul commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, approvato esplicitamente da Glauco, integrato con fast-forward e pubblicato su main. Pages `45417297561` riuscita sullo stesso commit. Il branch locale `patch/0.3.18-release-docs` e la cartella `out/release-docs-20261124/` sono stati rimossi dopo conferma separata. Sorgenti e ultima release **0.3.18**; nessuna modifica applicativa, incremento, tag o nuova release. Dettagli in 1.6 e 4.38. La cronologia delle milestone e le proposte restano invariate.
 
 **Intervento precedente — 23 novembre 2026:** patch di runtime su `patch/0.3.18-xterm-runtime`, da main `0590eec15701e49ef953c60559c04b86a81c0ec6` (release 0.3.17). Adotta `@xterm/addon-fit` 0.11.0, `@xterm/addon-web-links` 0.12.0, React e ReactDOM 19.3.1, pin esatti. `TerminalView` misura la scrollbar prima di ogni `fit`. Versione pubblicata **0.3.18**. Sostituisce la PR Dependabot #20, chiusa senza merge. Pubblicata come PR #25; push approvato ed eseguito. Run Windows `45200473912` e macOS `45200481623` verdi. Prima approvazione di Glauco il 23 novembre 2026 alle 17:00. PR #25 integrata; tag annotato `v0.3.18` e release pubblicati il 23 novembre sul commit `16d87d7c0c9944424870f572dcdc3907232483c3`. Run finali Windows `45228957575` e macOS `45228965581` riuscite. Dettaglio in 1.4 e 4.36.
@@ -183,6 +185,18 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Versione / release | 0.3.18 invariata; nessun nuovo tag, checkpoint o release. Il tag pubblicato resta sul suo commit applicativo. |
 | Verifiche | Letture remote di main, PR, release, tag annotati e run; controlli locali di documenti, link/anchor, capitoli, parità IT/EN, esempi JSON, versioni e `check:site`; `git diff --check`. Nessuna nuova suite, build, installazione, packaging o smoke per la sola documentazione. |
 | Stato | Completata: commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` approvato da Glauco, integrato con fast-forward e pubblicato su main; Pages `45417297561` riuscita. Branch locale e temporanei della patch rimossi dopo conferma separata. Esiti in 4.38. |
+
+#### 1.7 Icona della barra delle applicazioni Windows — 25 novembre 2026
+
+| Campo | Patch applicativa |
+| --- | --- |
+| Obiettivo | Usare l’icona ufficiale per il pulsante Windows anche nell’app installata. |
+| Base / branch | Main locale e riferimento origin/main `17d8f8268440c0ea432863637b6d9c3b9f818f34`; `patch/0.3.19-windows-taskbar-icon`. |
+| Evidenza / correzione | Il pacchetto precedente carica le icone HWND ma non assegna AppUserModelID/RelaunchIconResource alla finestra. `setAppDetails` li assegna prima della visualizzazione, mantenendo `it.plancia.comandi` e indicando `resources/icon.ico,0`. Il packaging Windows copia l’ICO ufficiale fuori ASAR e l’ispettore ne verifica i byte da 0.3.19. |
+| Versione / release | 0.3.19, incremento +0.0.1 per bugfix; release proposta secondo HOME, subordinata all’approvazione. Nessun checkpoint di milestone; ultima release pubblicata 0.3.18. |
+| Regressione | Sonda esterna sul gemello: proprietà Shell e confronto pixel di entrambe le icone native con l’ICO canonico. Passo nel solo workflow Windows manuale esistente da 0.3.19, con evidenze; trigger, job, runner e permessi invariati. Nessun dispatch. |
+| Verifiche / limiti | 612 test riusciti/5 saltati su Windows, PowerShell 5.1/7 (46 casi ciascuno), build, prova negativa sul pacchetto precedente e positiva sul corretto, ispezione/fuse, otto avvii IT/EN e temi, smoke release fuori checkout. Non provati installer/portatile 0.3.19, macOS/Linux o visualizzazione Explorer di collegamenti già fissati. Dettagli in 4.39. |
+| Stato | Implementata e verificata localmente; commit da sottoporre al controllo personale. Nessun push, merge, tag, release, installazione personale o pulizia. |
 
 ### 2. Milestone e proposte
 
@@ -1171,6 +1185,18 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] [Pages 45417297561](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45417297561) completata con successo sul commit approvato. Nessun workflow di packaging avviato; versione 0.3.18, tag e release invariati.
 - [x] Dopo la conferma separata «procedi», rimossi il solo branch locale `patch/0.3.18-release-docs` e la sola cartella `out/release-docs-20261124/`, previa verifica del percorso risolto nella workspace e dei suoi nove file temporanei. Worktree finale pulito su main, allineato al remoto; altri temporanei storici non ricensiti o rimossi.
 
+#### 4.39 Icona della barra delle applicazioni Windows — 25 novembre 2026
+
+- [x] Identità Git `Gloutchov <gloutchov@gmail.com>` e account GitHub `gloutchov` verificato tramite connettore; worktree inizialmente pulito su main, branch dedicato. Modifiche e temporanei storici preservati.
+- [x] Finestra Windows con metadati taskbar espliciti e ICO ufficiale esterno all’ASAR. AppId, nome, preferenze, fuse e IPC invariati. Nuova regressione solo esterna; controllo della copia ICO nell’ispettore da 0.3.19. Nessuna nuova dipendenza o API di prova nel prodotto.
+- [x] Dipendenze riallineate con `npm ci` al lockfile dopo due ECONNRESET, usando la cache npm già presente; audit dell’installazione: zero rilievi. Suite finale `npm test -- --reporter=verbose`: 612 riusciti/5 saltati, 62 file; saltati cinque casi POSIX/symlink non abilitati su Windows. PowerShell 5.1.26100.9818 e 7.5.2: 46 casi ciascuno riusciti. Il primo tentativo finale nel sandbox era bloccato da EPERM; ripetizione con processi consentiti riuscita.
+- [x] `npm run build` riuscito con Node 24.18.1 e Electron 45.4.1; resta l’avviso preesistente sul renderer oltre 500 kB. Pacchetto Windows x64 di prova costruito da Electron già installato (`electronDist`), senza disabilitare TLS: il primo download del builder era impedito dalla CA della rete. Ispezione ASAR/risorse/ConPTY e lettura dei nove fuse riuscite.
+- [x] Regressione negativa sul pacchetto 0.3.18: AppUserModelID della finestra nullo. Sul corretto 0.3.19: identità e percorso esterno indice 0 esatti, icone piccola/grande identiche all’ICO canonico. Copia fuori checkout in `%TEMP%/plancia-icon-review-LLcwUy/`: ispezione, sonda nativa (`plancia-windows-icon-YKLkR5`) e smoke release con fuse chiusi (`plancia-package-smoke-rYuMSD`) riusciti, con PTY sintetica e nessun orfano. Otto avvii lingue/override/temi riusciti (`plancia-initial-locale-nEFI0Z`).
+- [x] Versione canonica 0.3.19 e documenti IT/EN aggiornati; ultima release pubblicata resta 0.3.18. HOME invariato, SHA-256 `21de078fd1830d3cdf6c527788ff62d3b426d8876b951f7876f7299ae984f566`. Testo dei menu, renderer e immagini ufficiali preservati. Workflow Windows: solo passo/evidenze della regressione, nessuna esecuzione remota.
+- [x] Nove documenti obbligatori, 350 link locali/anchor, quattro esempi JSON e dodici capitoli dei due manuali verificati; sezioni IT/EN e versioni coerenti. `npm run check:site` e `git diff --check` riusciti; controllo YAML conferma il solo trigger manuale, un job e permessi invariati.
+- [ ] Controllo personale e approvazione esplicita del commit finale prima di pubblicazione/merge/tag. Release 0.3.19 proposta per bugfix; installer/portatile, artifact macOS e checksum distribuibili da preparare/verificare nella successiva chiusura autorizzata. Nessuna release o compatibilità aggiuntiva dichiarata.
+- [ ] Pulizia non autorizzata: conservati `out/windows-taskbar-icon-20261125/`, copie e profili di prova in `%TEMP%/plancia-*`. Non modificati cache icone, collegamenti, installazioni o preferenze personali. Verifica visiva Explorer di collegamenti già fissati, installer/portatile, macOS e Linux non eseguiti: questo intervento verifica proprietà e icone native Windows sul pacchetto scompattato.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -1178,6 +1204,8 @@ Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi
 Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Il workflow `package-macos.yml` si avvia solo manualmente sul runner `macos-15` per DMG e ZIP ARM64 non firmati; non parte su push o PR. È stato eseguito nella run `43257940568` e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Il piano di chiusura di M2 approvato il 12 novembre 2026 prevede questa build remota riproducibile per gli artifact della release v0.3.0, con SHA-256, accanto al workflow Windows: consuma minuti solo quando viene avviato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`. `.github/dependabot.yml` (23 novembre 2026) non è un workflow e non parte su push o pull request. Dopo la pubblicazione su `main`, gli aggiornamenti di versione li apre il servizio Dependabot.
 
 ## English
+
+**Current work — 25 November 2026:** local **0.3.19** patch on `patch/0.3.19-windows-taskbar-icon`, from main `17d8f8268440c0ea432863637b6d9c3b9f818f34`. Fixes the Windows button identity and icon resource with explicit metadata and an ICO outside ASAR. Suite, build, native probe and unpacked-package smoke outside checkout passed. Commit approval and distribution are pending; latest published release 0.3.18. No milestone or proposal started. Details in 1.7 and 4.39.
 
 **Documentation closeout — 24 November 2026:** alignment of releases 0.3.17/0.3.18 and the closed Dependabot PRs completed at `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, explicitly approved by Glauco, integrated with fast-forward and published on main. Pages `45417297561` succeeded at the same commit. The local `patch/0.3.18-release-docs` branch and `out/release-docs-20261124/` directory were removed after separate confirmation. Source and latest release **0.3.18**; no application changes, increment, tag or new release. Details in 1.6 and 4.38. Milestone history and proposals remain unchanged.
 
@@ -1360,6 +1388,18 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Version / release | 0.3.18 unchanged; no new tag, checkpoint or release. The published tag stays at its application commit. |
 | Checks | Remote reads of main, PRs, releases, annotated tags and runs; local document, link/anchor, chapter, IT/EN parity, JSON example, version and `check:site` checks; `git diff --check`. No new suite, build, installation, packaging or smoke for documentation alone. |
 | Status | Completed: commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` approved by Glauco, integrated with fast-forward and published on main; Pages `45417297561` succeeded. Local branch and patch temporary files removed after separate confirmation. Results in 4.38. |
+
+#### 1.7 Windows taskbar icon — 25 November 2026
+
+| Field | Application patch |
+| --- | --- |
+| Goal | Use the official icon for the Windows button, including the installed app. |
+| Baseline / branch | Local main and origin/main reference `17d8f8268440c0ea432863637b6d9c3b9f818f34`; `patch/0.3.19-windows-taskbar-icon`. |
+| Evidence / fix | The previous package loads HWND icons but does not assign AppUserModelID/RelaunchIconResource to the window. `setAppDetails` assigns them before display, preserving `it.plancia.comandi` and referencing `resources/icon.ico,0`. Windows packaging copies the official ICO outside ASAR and the inspector checks its bytes from 0.3.19. |
+| Version / release | 0.3.19, +0.0.1 bugfix increment; release proposed under HOME, subject to approval. No milestone checkpoint; latest published release 0.3.18. |
+| Regression | External twin probe: Shell properties and pixel comparisons of both native icons with the canonical ICO. Step in the existing manual Windows workflow only from 0.3.19, with evidence; triggers, jobs, runner and permissions unchanged. No dispatch. |
+| Checks / limits | 612 passed/5 skipped tests on Windows, PowerShell 5.1/7 (46 cases each), build, negative probe on the previous package and positive probe on the fixed one, inspection/fuses, eight IT/EN and theme launches, release smoke outside checkout. 0.3.19 installer/portable, macOS/Linux and Explorer display of existing pinned shortcuts untested. Details in 4.39. |
+| Status | Implemented and verified locally; commit to be submitted for personal review. No push, merge, tag, release, personal installation or cleanup. |
 
 ### 2. Milestones and proposals
 
@@ -2347,6 +2387,18 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Glauco explicitly approved final commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e` with “si, approvo”. Fast-forward merge and main push completed without changing the approved commit; local and remote main verified at the same SHA.
 - [x] [Pages 45417297561](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45417297561) completed successfully at the approved commit. No packaging workflow started; version 0.3.18, tags and release unchanged.
 - [x] After the separate “procedi” confirmation, removed only the local `patch/0.3.18-release-docs` branch and `out/release-docs-20261124/` directory, after checking the resolved workspace path and its nine temporary files. Final worktree clean on main, aligned with the remote; other historical temporary files were not inventoried again or removed.
+
+#### 4.39 Windows taskbar icon — 25 November 2026
+
+- [x] Git identity `Gloutchov <gloutchov@gmail.com>` and GitHub account `gloutchov` verified through the connector; initially clean worktree on main, dedicated branch. Historical changes and temporary files preserved.
+- [x] Windows window with explicit taskbar metadata and official ICO outside ASAR. AppId, name, preferences, fuses and IPC unchanged. New external-only regression; inspector checks the ICO copy from 0.3.19. No new dependency or in-product test API.
+- [x] Dependencies aligned with the lockfile using `npm ci` after two ECONNRESET failures, using the existing npm cache; installation audit: zero findings. Final `npm test -- --reporter=verbose`: 612 passed/5 skipped, 62 files; five POSIX/symlink cases not enabled on Windows skipped. PowerShell 5.1.26100.9818 and 7.5.2: 46 cases each passed. The first final attempt in the sandbox was blocked by EPERM; retry with process spawning allowed passed.
+- [x] `npm run build` passed with Node 24.18.1 and Electron 45.4.1; existing renderer warning over 500 kB remains. Windows x64 test package built from installed Electron (`electronDist`), without disabling TLS: the first builder download was blocked by the network CA. ASAR/resources/ConPTY inspection and reads of all nine fuses passed.
+- [x] Negative regression on the 0.3.18 package: null window AppUserModelID. Fixed 0.3.19: exact identity and external path/index 0, small/large icons identical to the canonical ICO. Copy outside checkout in `%TEMP%/plancia-icon-review-LLcwUy/`: inspection, native probe (`plancia-windows-icon-YKLkR5`) and release smoke with closed fuses (`plancia-package-smoke-rYuMSD`) passed, with a synthetic PTY and no orphans. Eight language/override/theme launches passed (`plancia-initial-locale-nEFI0Z`).
+- [x] Canonical version 0.3.19 and IT/EN documents updated; latest published release remains 0.3.18. HOME unchanged, SHA-256 `21de078fd1830d3cdf6c527788ff62d3b426d8876b951f7876f7299ae984f566`. Menu text, renderer and official images preserved. Windows workflow: regression step/evidence only, no remote run.
+- [x] Nine required documents, 350 local links/anchors, four JSON examples and twelve chapters in both manuals verified; matching IT/EN sections and versions. `npm run check:site` and `git diff --check` passed; YAML check confirms a manual-only trigger, one job and unchanged permissions.
+- [ ] Personal review and explicit approval of the final commit before publication/merge/tags. Release 0.3.19 proposed for the bugfix; distributable installer/portable, macOS artifacts and checksums to be prepared/verified during subsequent authorized closeout. No additional release or compatibility claimed.
+- [ ] Cleanup not authorized: `out/windows-taskbar-icon-20261125/`, test copies and profiles in `%TEMP%/plancia-*` retained. No personal icon caches, shortcuts, installations or preferences changed. Visual Explorer checks of existing pinned shortcuts, installer/portable, macOS and Linux not run: this work verifies native Windows properties and icons on the unpacked package.
 
 ### 5. Versions, CI and distribution
 

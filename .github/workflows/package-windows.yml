@@ -98,6 +98,14 @@ jobs:
             node tooling/scripts/smoke-initial-locale.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE)
             if ($LASTEXITCODE) { exit $LASTEXITCODE }
           }
+      - name: Verify native Windows window and taskbar icons
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          if ([version]$env:EXPECTED_VERSION -ge [version]'0.3.19') {
+            node tooling/scripts/smoke-windows-icon.mjs (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE) app
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
       - name: Read release and twin fuse wires
         run: node tooling/scripts/check-fuse-wires.mjs (Join-Path 'app/release/win-unpacked' $env:PLANCIA_APP_EXE) (Join-Path 'app/release/win-unpacked-open-fuses' $env:PLANCIA_APP_EXE)
       - name: Smoke the open-fuse twin with the full harness
@@ -173,6 +181,9 @@ jobs:
           path: |
             ${{ runner.temp }}/plancia-fuse-variants/variants.json
             ${{ runner.temp }}/plancia-initial-locale-*/report.json
+            ${{ runner.temp }}/plancia-windows-icon-*/report.json
+            ${{ runner.temp }}/plancia-windows-icon-*/failure.json
+            ${{ runner.temp }}/plancia-windows-icon-*/*.png
             ${{ runner.temp }}/plancia-name-upgrade-*/report.json
           if-no-files-found: ignore
           retention-days: 7

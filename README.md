@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. Sorgenti e ultima release pubblicata sono **0.3.18**.
+Nei sorgenti **M37/0.3.16** (M38 assorbita), `sessions` e `processSnapshot` rendono configurabili numero massimo di sessioni, backlog, intervallo di stato e timeout. I default restano invariati. Su macOS il postinstall usa la prebuild `node-pty` solo dopo verifica dell’architettura e caricamento nell’Electron di sviluppo, preparando il permesso del suo helper; assenza/incompatibilità o errore mantengono il ripiego di compilazione. Sorgenti **0.3.19**; ultima release pubblicata **0.3.18**. La patch locale assegna esplicitamente identità e ICO al pulsante della barra delle applicazioni Windows, usando una risorsa esterna all’ASAR. Approvazione e distribuzione sono pendenti.
 
 Nei sorgenti **M36/0.3.15**, incollare o trascinare testo contenente LF o CR, anche una sola riga con a capo finale, apre **Incollare più righe?** se il programma nel terminale non ha attivato il bracketed paste. Il dialogo indica la sessione senza mostrare il testo: **Annulla** è selezionato inizialmente; **Incolla** autorizza il testo già acquisito e limitato. Una riga senza a capo e il bracketed paste attivo restano immediati. C36 è pubblicata nella release 0.3.15 con pacchetti e checksum verificati.
 
@@ -16,7 +16,7 @@ Sono mantenuti il trascinamento della barra superiore macOS, i pulsanti delle vi
 
 Plancia Comandi riunisce più terminali reali in una finestra desktop. Puoi lavorare con shell e CLI per programmare con l'AI, vedere quali sessioni stanno lavorando o attendono un intervento e affiancare i terminali che ti servono.
 
-**Sorgenti 0.3.18 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** L’ultima release pubblicata è la [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). Il runtime resta Electron **45.4.1**, pin esatto, con fuse C27. Fit 0.11 usa la larghezza reale della scrollbar. I tool eseguiti nei terminali si installano separatamente.
+**Sorgenti 0.3.19 · sviluppo iniziale · target macOS, Windows e Linux · Apache-2.0.** L’ultima release pubblicata è la [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). Il runtime resta Electron **45.4.1**, pin esatto, con fuse C27. Fit 0.11 usa la larghezza reale della scrollbar. I tool eseguiti nei terminali si installano separatamente.
 
 ![Icona aggiornata e due terminali affiancati nel tema scuro](docs/screenshots/plancia-dark.png)
 
@@ -198,7 +198,7 @@ Licenza **Apache License 2.0**: testo completo in [LICENSE](LICENSE).
 
 ## English
 
-In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. Source and the latest published release are **0.3.18**.
+In **M37/0.3.16 source** (M38 absorbed), `sessions` and `processSnapshot` make maximum sessions, backlog, status interval and snapshot timeouts configurable. Defaults stay unchanged. On macOS postinstall uses the `node-pty` prebuild only after architecture and development-Electron load checks, preparing its helper permission; absence/incompatibility or errors retain the compilation fallback. Source **0.3.19**; latest published release **0.3.18**. The local patch explicitly assigns the identity and ICO to the Windows taskbar button, using a resource outside ASAR. Approval and distribution are pending.
 
 In **M36/0.3.15 source**, pasting or dropping text containing LF or CR, including one line with a trailing newline, opens **Paste multiple lines?** when the program in the terminal has not enabled bracketed paste. The dialog names the session without showing the text: **Cancel** is initially focused; **Paste** authorizes the text already captured and limited. A line without a newline and enabled bracketed paste remain immediate. C36 is published in release 0.3.15 with verified packages and checksums.
 
@@ -212,7 +212,7 @@ Draggable macOS top bar, clickable view buttons and menus matching the app IT/EN
 
 Plancia Comandi brings several real terminals into one desktop window. Work with shells and AI coding CLIs, see which sessions are working or waiting for input, and tile the terminals you need.
 
-**Source 0.3.18 · early development · macOS, Windows and Linux targets · Apache-2.0.** The latest published release is [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). The runtime remains Electron **45.4.1**, an exact pin, with C27 fuses. Fit 0.11 uses the real scrollbar width. Install terminal tools separately.
+**Source 0.3.19 · early development · macOS, Windows and Linux targets · Apache-2.0.** The latest published release is [0.3.18](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18). The runtime remains Electron **45.4.1**, an exact pin, with C27 fuses. Fit 0.11 uses the real scrollbar width. Install terminal tools separately.
 
 ![Updated icon and two side-by-side terminals in the dark theme](docs/screenshots/plancia-dark-en.png)
 
