@@ -51,7 +51,7 @@ try {
   const window = await until(() => main.evaluate(`(() => {
     const win = __smokeElectron.BrowserWindow.getAllWindows()[0];
     if (!win || win.webContents.isLoading()) return null;
-    return { handle: win.getNativeWindowHandle().readBigUInt64LE().toString(), resources: process.resourcesPath, electron: process.versions.electron };
+    return { handle: win.getNativeWindowHandle().readBigUInt64LE().toString(), resources: process.resourcesPath, electron: process.versions.electron, version: __smokeElectron.app.getVersion() };
   })()`), 'native window')
   const inputFile = path.join(root, 'input.json')
   const reference = path.join(source, 'build', 'icon.ico')
@@ -70,7 +70,11 @@ try {
   await writeFile(path.join(root, 'report.json'), JSON.stringify({ ...window, ...result, probe }, null, 2))
   assert.equal(result.smallMatches, true, 'Small native icon differs from canonical ICO')
   assert.equal(result.largeMatches, true, 'Large native icon differs from canonical ICO')
-  assert.equal(result.appId, 'it.plancia.comandi', 'Window taskbar AppUserModelID missing or changed')
+  const [major, minor, patch] = window.version.split('.').map(Number)
+  const expectedAppId = major > 0 || minor > 3 || (minor === 3 && patch >= 20)
+    ? 'it.plancia.comandi.Desktop'
+    : 'it.plancia.comandi'
+  assert.equal(result.appId, expectedAppId, 'Window taskbar AppUserModelID missing or changed')
   const icon = path.join(window.resources, 'icon.ico')
   assert.equal(result.iconResource, `${icon},0`, 'Taskbar icon must reference the real external ICO')
   assert.deepEqual(await readFile(icon), await readFile(reference), 'Taskbar resource differs from the canonical ICO')

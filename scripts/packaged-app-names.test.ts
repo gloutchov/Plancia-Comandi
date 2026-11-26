@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
+import { windowsAppUserModelId } from '../electron/windowsAppIdentity'
 import { isWindowsAppExe, MAC_APP_NAME, WINDOWS_APP_EXE } from './packaged-app-names.mjs'
 import { fuseTarget } from './electron-fuses.mjs'
 
@@ -8,18 +9,29 @@ const require = createRequire(import.meta.url)
 const config = require('json5').parse(readFileSync(new URL('../electron-builder.json5', import.meta.url), 'utf8'))
 const metadata = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 const { AppInfo } = require('app-builder-lib/out/appInfo.js')
+const { UUID } = require('builder-util-runtime')
 
 describe('packaged app identity', () => {
-  it('uses the spaced product filename in the actual builder on Windows and macOS, preserving appId', () => {
+  it('uses the spaced product filename in the actual builder on Windows and macOS', () => {
     for (const platform of ['win', 'mac']) {
       const info = new AppInfo({ config, metadata }, undefined, config[platform])
       expect(info.productName).toBe('Plancia Comandi')
       expect(info.productFilename).toBe('Plancia Comandi')
-      expect(info.id).toBe('it.plancia.comandi')
     }
     expect(WINDOWS_APP_EXE).toBe(`${config.executableName}.exe`)
     expect(MAC_APP_NAME).toBe(`${config.executableName}.app`)
     expect(config.linux.executableName).toBe('plancia-comandi')
+  })
+
+  it('uses distinct Windows development and release identities and retains the legacy installer GUID', () => {
+    const windows = new AppInfo({ config, metadata }, undefined, config.win)
+    const mac = new AppInfo({ config, metadata }, undefined, config.mac)
+    expect(windows.id).toBe('it.plancia.comandi.Desktop')
+    expect(windowsAppUserModelId(true)).toBe(windows.id)
+    expect(windowsAppUserModelId(false)).toBe('it.plancia.comandi.Dev')
+    expect(mac.id).toBe('it.plancia.comandi')
+    const nsisNamespace = UUID.parse('50e065bc-3134-11e6-9bab-38c9862bdaf3')
+    expect(config.nsis.guid).toBe(UUID.v5('it.plancia.comandi', nsisNamespace))
   })
 
   it('includes the native Windows ICO alongside the PNG and provides multiple icon sizes', () => {

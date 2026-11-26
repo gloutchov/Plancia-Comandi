@@ -28,17 +28,21 @@ function Installed-Records {
   @(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
     Where-Object { $_.DisplayName -eq 'Plancia Comandi' -or $_.DisplayName -like 'Plancia Comandi *' })
 }
-function Shortcut-Targets {
-  $shell = New-Object -ComObject WScript.Shell
-  $targets = @()
+function App-Shortcuts {
+  $shell = New-Object -ComObject Shell.Application
+  $shortcuts = @()
   foreach ($folder in @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('DesktopDirectory'))) {
     if ($folder -and (Test-Path $folder)) {
       foreach ($link in @(Get-ChildItem $folder -Recurse -Filter 'Plancia Comandi.lnk' -ErrorAction SilentlyContinue)) {
-        $targets += $shell.CreateShortcut($link.FullName).TargetPath
+        $item = $shell.NameSpace($link.DirectoryName).ParseName($link.Name)
+        $shortcuts += [pscustomobject]@{
+          Target = $item.ExtendedProperty('System.Link.TargetParsingPath')
+          AppId = $item.ExtendedProperty('System.AppUserModel.ID')
+        }
       }
     }
   }
-  return $targets
+  return $shortcuts
 }
 if ((Installed-Records).Count) { throw 'An app installation already exists; refusing to replace it' }
 $preferencesDirectory = Join-Path $env:APPDATA 'Plancia Comandi'
@@ -59,8 +63,9 @@ $after = @(Installed-Records)
 if ($after.Count -ne 1 -or $after[0].PSChildName -ne $registryKey -or $after[0].DisplayVersion -ne $ExpectedVersion -or $after[0].DisplayName -ne "Plancia Comandi $ExpectedVersion") { throw 'Upgrade changed registration identity or left duplicates' }
 $metadata = (Get-Item $exe).VersionInfo
 if ($metadata.ProductName -ne 'Plancia Comandi' -or $metadata.FileDescription -ne 'Plancia Comandi') { throw 'Windows product metadata differs' }
-$targets = @(Shortcut-Targets)
-if (-not $targets.Count -or @($targets | Where-Object { $_ -ne $exe }).Count) { throw 'Shortcut still points to an obsolete executable' }
+$shortcuts = @(App-Shortcuts)
+$expectedAppId = if ([version]$ExpectedVersion -ge [version]'0.3.20') { 'it.plancia.comandi.Desktop' } else { 'it.plancia.comandi' }
+if (-not $shortcuts.Count -or @($shortcuts | Where-Object { $_.Target -ne $exe -or $_.AppId -ne $expectedAppId }).Count) { throw 'Shortcut has an obsolete target or AppUserModelID' }
 if ((Get-FileHash $settings -Algorithm SHA256).Hash -ne $settingsHash) { throw 'Upgrade changed saved preferences' }
 $uninstallers = @(Get-ChildItem $destination -Filter 'Uninstall*.exe')
 if ($uninstallers.Count -ne 1) { throw 'Expected one uninstaller' }
@@ -70,6 +75,6 @@ $deadline = [DateTime]::UtcNow.AddSeconds(30)
 while (((Test-Path $exe) -or (Installed-Records).Count) -and [DateTime]::UtcNow -lt $deadline) { Start-Sleep -Milliseconds 200 }
 if ((Test-Path $exe) -or (Installed-Records).Count) { throw 'Uninstallation left app files or registration' }
 if ((Get-FileHash $settings -Algorithm SHA256).Hash -ne $settingsHash) { throw 'Uninstallation changed saved preferences' }
-$report = @{ probe = 'windows-name-upgrade'; from = '0.3.1'; to = $ExpectedVersion; spacedPath = $true; sameRegistryIdentity = $true; shortcuts = $targets.Count; preferencesPreserved = $true; uninstall = 'passed' }
+$report = @{ probe = 'windows-name-upgrade'; from = '0.3.1'; to = $ExpectedVersion; spacedPath = $true; sameRegistryIdentity = $true; shortcuts = $shortcuts.Count; shortcutAppId = $expectedAppId; preferencesPreserved = $true; uninstall = 'passed' }
 $report | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $root 'report.json')
 $report | ConvertTo-Json -Compress

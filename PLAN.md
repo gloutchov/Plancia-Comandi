@@ -198,6 +198,15 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | Verifiche / limiti | 613 riusciti/5 saltati, PowerShell 5.1/7, build, regressioni renderer, sonda nativa dell’icona, smoke e upgrade Windows; macOS ARM64 con DMG/ZIP reali. Portatile verificato localmente, sei allegati/manifest e ZIP/TAR sorgenti confrontati. Explorer sui collegamenti già fissati, Linux, macOS Intel e Gatekeeper su download in quarantena non verificati. |
 | Stato | Approvata e pubblicata: main/tag sul commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`, release 0.3.19 e pacchetti verificati; consuntivo documentale locale da approvare, pulizia separata pendente. |
 
+#### 1.8 Associazione del pulsante in Explorer — 26 novembre 2026
+
+| Campo | Patch 0.3.20 |
+| --- | --- |
+| Evidenza | Sulla 0.3.19 installata Explorer mostrava Electron, pur con ICO ufficiale nell’EXE e sulla finestra. Il catalogo `shell:AppsFolder` associava `it.plancia.comandi` a `node_modules/electron/dist/electron.exe`. Le prove su uno stesso eseguibile mostravano l’icona ufficiale solo con la nuova identità. La notifica al collegamento e il riavvio di Explorer conservavano la vecchia associazione. |
+| Correzione | `it.plancia.comandi.Desktop` per i pacchetti Windows e i collegamenti dell’installer, `it.plancia.comandi.Dev` in sviluppo. Entrambi impostano processo e finestra. GUID NSIS storico esplicito per gli upgrade, identità non Windows e risorse ufficiali conservate. |
+| Versione / branch | Sorgenti 0.3.20 su `patch/0.3.20-windows-taskbar-identity`. Ultima release pubblicata 0.3.19. |
+| Verifiche richieste | Suite, build, confronto delle identità, manifest SHA-256, sonda HWND e avvio visibile su Explorer. Verificare l’upgrade su Windows effimero, inclusi ID dei collegamenti e preferenze, e i pacchetti macOS ARM64 prima di un’eventuale pubblicazione. |
+
 ### 2. Milestone e proposte
 
 C1, già M1, è integrata e pubblicata con i sorgenti. C2, già M2, è approvata per la chiusura e resta distinta dalla patch di packaging di C1. La release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0) e i tag `milestone/C2` e `v0.3.0` sono pubblicati. C3 è chiusa e pubblicata; C4 è pubblicata e usa l'icona e gli screenshot aggiornati da C3. Le proposte sotto non diventano eseguibili da sole.
@@ -1207,6 +1216,14 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [ ] Pubblicazione del consuntivo documentale su `patch/0.3.19-release-docs` dopo controllo del suo nuovo commit. Versione 0.3.19 invariata, nessun tag o release aggiuntivi.
 - [ ] Pulizia separata ancora da autorizzare: conservati il branch applicativo e `out/windows-taskbar-icon-20261125/` con copie/profili di prova; inventario locale in `cleanup-inventory.json`, nessuna cancellazione. Nessuna modifica a installazioni, preferenze, cache o collegamenti personali. Limiti residui: icone Explorer di collegamenti già fissati, Linux, macOS Intel e Gatekeeper su download in quarantena.
 
+#### 4.40 Associazione del pulsante in Explorer — 26 novembre 2026
+
+- [x] Patch 0.3.20, identità separate per pacchetti Windows e sviluppo, GUID NSIS storico e documentazione IT/EN.
+- [x] Suite 614 riusciti/5 saltati su Windows, compresi PowerShell 5.1 e 7, build, sito e documentazione. Packaging x64 locale di installer e portabile, verifica dei due SHA-256, ispezione ASAR, risorse, fuse e smoke di avvio e chiusura ConPTY. Sonda HWND con identità, risorsa e pixel verificati.
+- [x] Schermata di Explorer verificata nella stessa sessione dove il vecchio ID mostra ancora Electron. Il pacchetto scompattato e il wrapper portabile mostrano nome e icona ufficiali. L’avvio di sviluppo usa il suo ID separato. Profili sintetici e copie dei pacchetti fuori checkout.
+- [ ] Verifica upgrade su Windows, ID dei collegamenti e preferenze. Packaging e smoke macOS ARM64 prima di un’eventuale release. Verifica dei collegamenti personali già fissati distinta dalle prove sintetiche.
+- [ ] Controllo del commit locale e approvazione esplicita prima della pubblicazione, del merge, dei tag o di una release. Conservare copie, manifest e profili di prova per la revisione e richiedere autorizzazione separata per la pulizia.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -1410,6 +1427,15 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | Regression | External twin probe: Shell properties and pixel comparisons of both native icons with the canonical ICO. Step in the existing manual Windows workflow only from 0.3.19, with evidence; triggers, jobs, runner and permissions unchanged. Necessary manual runs executed and verified. |
 | Checks / limits | 613 passed/5 skipped, PowerShell 5.1/7, build, renderer regressions, native icon probe, Windows smoke and upgrade; macOS ARM64 with real DMG/ZIP. Portable verified locally, six attachments/manifests and source ZIP/TAR compared. Explorer for existing pinned shortcuts, Linux, Intel macOS and Gatekeeper on quarantined downloads unverified. |
 | Status | Approved and published: main/tag at `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`, release 0.3.19 and packages verified; local documentation closeout awaiting approval, separate cleanup pending. |
+
+#### 1.8 Explorer taskbar button association — 26 November 2026
+
+| Field | Patch 0.3.20 |
+| --- | --- |
+| Evidence | Explorer showed Electron for installed 0.3.19 even though the EXE and window used the official ICO. The `shell:AppsFolder` catalog associated `it.plancia.comandi` with `node_modules/electron/dist/electron.exe`. Tests on the same executable displayed the official icon only with a fresh identity. Notifying the shortcut and restarting Explorer retained the old association. |
+| Fix | `it.plancia.comandi.Desktop` for Windows packages and installer shortcuts, `it.plancia.comandi.Dev` during development. Both set the process and window identity. Explicit historical NSIS GUID for upgrades, with other platforms’ identities and official assets preserved. |
+| Version / branch | 0.3.20 source on `patch/0.3.20-windows-taskbar-identity`. Latest published release 0.3.19. |
+| Required checks | Suite, build, identity comparisons, SHA-256 manifest, native window probe and a visible launch in Explorer. Verify upgrade on disposable Windows including shortcut IDs and preferences, and verify macOS ARM64 packages before any publication. |
 
 ### 2. Milestones and proposals
 
@@ -2419,6 +2445,14 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Local closeout in eight Markdown documents: nine required documents, 358 local links/anchors, four JSON examples and twelve IT/EN chapters verified; `check:site` and `git diff --check` passed. HOME unchanged. Suite, build and packaging not repeated for documentation only: sources, dependencies, workflows and published artifacts are unchanged.
 - [ ] Publish documentation closeout on `patch/0.3.19-release-docs` after review of its new commit. Version 0.3.19 unchanged, no additional tag or release.
 - [ ] Separate cleanup still awaiting authorization: application branch and `out/windows-taskbar-icon-20261125/` with test copies/profiles retained; local inventory in `cleanup-inventory.json`, nothing deleted. No personal installations, preferences, caches or shortcuts modified. Residual limits: Explorer icons of existing pinned shortcuts, Linux, Intel macOS and Gatekeeper on quarantined downloads.
+
+#### 4.40 Explorer taskbar button association — 26 November 2026
+
+- [x] Patch 0.3.20, separate identities for Windows packages and development, historical NSIS GUID and IT/EN documentation.
+- [x] Windows suite with 614 passed/5 skipped, including PowerShell 5.1 and 7, build, site and documentation. Local x64 installer and portable packages, verification of both SHA-256 checksums, inspection of ASAR, resources and fuses, and launch and ConPTY close smoke. Native window identity, resource and pixel probe passed.
+- [x] Explorer verified in the same session where the old ID still displays Electron. The unpacked package and portable wrapper show the official name and icon. The development launch uses its separate ID. Synthetic profiles and package copies outside the checkout.
+- [ ] Verify Windows upgrade, shortcut IDs and preferences. Package and smoke-test macOS ARM64 before any release. Existing personal pinned shortcuts require separate verification from the synthetic probes.
+- [ ] Review the local commit and obtain explicit approval before publication, merge, tags or release. Retain test copies, manifests and profiles for review and request separate authorization for cleanup.
 
 ### 5. Versions, CI and distribution
 

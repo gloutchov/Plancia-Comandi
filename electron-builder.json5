@@ -31,6 +31,7 @@
     artifactName: "PlanciaComandi-mac-${version}-${arch}.${ext}",
   },
   win: {
+    appId: "it.plancia.comandi.Desktop",
     icon: "build/icon.ico",
     // Explorer cannot resolve a taskbar RelaunchIconResource inside app.asar.
     extraResources: [{ from: "build/icon.ico", to: "icon.ico" }],
@@ -41,6 +42,8 @@
     artifactName: "PlanciaComandi-win-${version}-${arch}.${ext}",
   },
   nsis: {
+    // Preserve the installation and uninstall registration across the AppUserModelID change.
+    guid: "0afcd0a3-78db-51ba-9797-e42794a20e00",
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,

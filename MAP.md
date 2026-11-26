@@ -2,7 +2,7 @@
 
 ## Italiano
 
-Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.19**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
+Questa mappa descrive la struttura dei sorgenti di Plancia Comandi **0.3.20**, le responsabilità dei moduli e i file generati. Aggiornarla quando cambiano sorgenti, comandi, test, workflow o documentazione.
 
 **Sommario**
 
@@ -53,6 +53,7 @@ Plancia-Comandi/
 |   |-- privateFile.ts               File regolari, temporanei esclusivi, fsync e rename
 |   |-- diagnostics.ts               Log locali limitati con soli metadati consentiti
 |   |-- startupFailure.ts            Avviso IT/EN, diagnostica consentita e uscita 1 differita
+|   |-- windowsAppIdentity.ts        Identità Windows distinte per sviluppo e pacchetti
 |   |-- shells.ts                    Rilevamento delle shell per piattaforma
 |   |-- children.ts                  Snapshot cancellabili, timeout ed errori PowerShell terminanti
 |   |-- childPolling.ts              Unico polling condiviso, scadenze, backoff e annullamento
@@ -247,6 +248,8 @@ M40 unificata (21 novembre 2026, assorbe M41–M43): dominio pubblico `https://p
 
 ### 2. Flusso e responsabilità
 
+Sorgenti 0.3.20: `windowsAppIdentity.ts` sceglie l’ID di sviluppo o distribuzione per processo e finestra. La configurazione Windows di electron-builder usa lo stesso ID dei pacchetti e conserva il GUID NSIS storico per l’aggiornamento. La sonda di upgrade verifica l’ID e la destinazione dei collegamenti.
+
 Release 0.3.19: `createWindow` assegna identità e ICO al pulsante Windows con `setAppDetails`, prima di mostrarlo. `win.extraResources` copia l’ICO ufficiale in `resources/icon.ico`: Explorer legge un file reale, mentre l’ASAR conserva la copia C33. L’ispettore verifica anche questa risorsa da 0.3.19. `node scripts/smoke-windows-icon.mjs <eseguibile-gemello-fuse-aperti> .` legge AppUserModelID/RelaunchIconResource tramite PowerShell 5.1 e confronta i pixel di entrambe le icone HWND con l’ICO canonico; profili e finestre sono sintetici/nascosti. Il workflow Windows manuale esistente aggiunge solo il passo da 0.3.19 e le evidenze: nessun trigger/job/permesso nuovo. Release 0.3.19 pubblicata e verificata.
 
 M37/0.3.16: configurazione validata → `main` → `SessionManager` (cap sessioni/capacità matcher, soglia e ritenzione backlog, timer) e `children.ts` (timeout). `runtimeLimits` aggiunge il cap al boot esistente per il messaggio UI. `install-native.mjs` verifica le prebuild macOS con `macos-prebuild.mjs`, usando Electron stock separato, architettura e permessi; fallback senza nuove dipendenze. `node scripts/smoke-macos-prebuild.mjs .` prova una copia senza build e un PTY sintetico reale, conservando le evidenze. Nessuna API/flag di prova nel prodotto o nuovo workflow.
@@ -285,7 +288,7 @@ Nei sorgenti M32/0.3.14, `sessions.ts` delega le interrogazioni a `childPolling.
 
 ### 3. Comandi e verifiche
 
-**Release 0.3.19 pubblicata, 25 novembre 2026.** Corregge l’icona della barra delle applicazioni Windows, assegnando identità e risorsa ICO esplicite. [Release e SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.19) sul commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`; [Windows 45595863728](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45595863728) e [macOS ARM64 45597077290](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45597077290) riuscite. Windows: 613 test/5 saltati, PowerShell 5.1/7, sonda nativa dell’icona, installer/portatile e aggiornamento verificati. macOS: build e smoke dei DMG/ZIP reali. Portatile provato anche su Windows locale. Quattro pacchetti e due manifest riscaricati, SHA-256 e sei URL pubblici verificati; ZIP/TAR sorgenti confrontati con 224 file Git. Nessuna firma di distribuzione o notarizzazione; Linux, macOS Intel e icone di collegamenti personali già fissati non verificati. Dettagli nel [piano](PLAN.md).
+**Release 0.3.19 pubblicata, 25 novembre 2026.** Aggiunge identità e risorsa ICO esplicite al pulsante nella barra delle applicazioni Windows. [Release e SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.19) sul commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`; [Windows 45595863728](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45595863728) e [macOS ARM64 45597077290](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45597077290) riuscite. Windows: 613 test/5 saltati, PowerShell 5.1/7, sonda nativa dell’icona, installer/portatile e aggiornamento verificati. macOS: build e smoke dei DMG/ZIP reali. Portatile provato anche su Windows locale. Quattro pacchetti e due manifest riscaricati, SHA-256 e sei URL pubblici verificati; ZIP/TAR sorgenti confrontati con 224 file Git. Nessuna firma di distribuzione o notarizzazione; Linux, macOS Intel e icone di collegamenti personali già fissati non verificati. Dettagli nel [piano](PLAN.md).
 
 **Release 0.3.18 pubblicata, 23 novembre 2026.** Fit 0.11, web-links 0.12 e React/ReactDOM 19.3.1 sono inclusi nella [release](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) sul commit `16d87d7c0c9944424870f572dcdc3907232483c3`, con Electron 45.4.1. Le run [Windows 45228957575](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228957575) e [macOS ARM64 45228965581](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228965581) sono riuscite; le note registrano smoke dei pacchetti, geometria del terminale e checksum verificati. Sono allegati installer/portable Windows x64, DMG/ZIP macOS ARM64 e due manifest SHA-256. Le prove sono sui runner GitHub: nessuna firma di distribuzione o notarizzazione, nessun pacchetto Linux o macOS Intel e nessuna nuova prova visiva su macchine personali. La successiva [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26), integrata il 24 novembre, aggiorna solo la toolchain a Vitest 5.1.1; versione e pacchetti della release restano invariati. Dettagli nel [piano](PLAN.md).
 
@@ -337,7 +340,7 @@ release/                          Pacchetti generati; ignorati da Git
 
 ## English
 
-This map describes Plancia Comandi **0.3.19** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
+This map describes Plancia Comandi **0.3.20** source structure, module responsibilities and generated files. Update it when sources, commands, tests, workflows or documentation change.
 
 **Contents**
 
@@ -388,6 +391,7 @@ Plancia-Comandi/
 |   |-- privateFile.ts               Regular files, exclusive temporary files, fsync and rename
 |   |-- diagnostics.ts               Bounded local logs with allowlisted metadata only
 |   |-- startupFailure.ts            IT/EN error, allowlisted diagnostics and deferred exit 1
+|   |-- windowsAppIdentity.ts        Separate Windows identities for development and packages
 |   |-- shells.ts                    Platform shell detection
 |   |-- children.ts                  Cancellable snapshots, timeouts and terminating PowerShell errors
 |   |-- childPolling.ts              Shared polling, deadlines, backoff and cancellation
@@ -582,6 +586,8 @@ Unified M40 (21 November 2026, absorbs M41–M43): public domain `https://planci
 
 ### 2. Flow and responsibilities
 
+0.3.20 source: `windowsAppIdentity.ts` selects the development or distribution ID for the process and window. The electron-builder Windows configuration uses the same ID as the packages and retains the historical NSIS GUID for upgrades. The upgrade probe checks shortcut identities and targets.
+
 Release 0.3.19: `createWindow` assigns the Windows button identity and ICO with `setAppDetails` before showing it. `win.extraResources` copies the official ICO to `resources/icon.ico`: Explorer reads a real file while ASAR retains the C33 copy. The inspector checks this resource from 0.3.19. `node scripts/smoke-windows-icon.mjs <open-fuse-twin-executable> .` reads AppUserModelID/RelaunchIconResource through PowerShell 5.1 and compares both HWND icon pixel arrays with the canonical ICO; profiles and windows are synthetic/hidden. The existing manual Windows workflow only adds the step from 0.3.19 and its evidence: no new trigger/job/permission. Release 0.3.19 published and verified.
 
 M37/0.3.16: validated configuration → `main` → `SessionManager` (session cap/matcher capacity, backlog threshold/retention, timer) and `children.ts` (timeouts). `runtimeLimits` adds the cap to the existing boot data for the UI message. `install-native.mjs` checks macOS prebuilds with `macos-prebuild.mjs`, using separate stock Electron, architecture and permissions; fallback without new dependencies. `node scripts/smoke-macos-prebuild.mjs .` checks a copy without builds and a real synthetic PTY, retaining evidence. No product test API/flag or new workflow.
@@ -620,7 +626,7 @@ In M32/0.3.14 source, `sessions.ts` delegates queries to `childPolling.ts`: one 
 
 ### 3. Commands and checks
 
-**Release 0.3.19 published, 25 November 2026.** Fixes the Windows taskbar icon by assigning an explicit identity and ICO resource. [Release and SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.19) at commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`; [Windows 45595863728](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45595863728) and [macOS ARM64 45597077290](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45597077290) passed. Windows: 613 tests/5 skipped, PowerShell 5.1/7, native icon probe, installer/portable and upgrade verified. macOS: build and real DMG/ZIP smoke. Portable also tested on local Windows. Four packages and two manifests downloaded again, SHA-256 and six public URLs verified; source ZIP/TAR compared with 224 Git files. No distribution signing or notarization; Linux, Intel macOS and existing personal pinned shortcut icons unverified. Details in the [plan](PLAN.md).
+**Release 0.3.19 published, 25 November 2026.** Adds an explicit identity and ICO resource to the Windows taskbar button. [Release and SHA-256](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.19) at commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`; [Windows 45595863728](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45595863728) and [macOS ARM64 45597077290](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45597077290) passed. Windows: 613 tests/5 skipped, PowerShell 5.1/7, native icon probe, installer/portable and upgrade verified. macOS: build and real DMG/ZIP smoke. Portable also tested on local Windows. Four packages and two manifests downloaded again, SHA-256 and six public URLs verified; source ZIP/TAR compared with 224 Git files. No distribution signing or notarization; Linux, Intel macOS and existing personal pinned shortcut icons unverified. Details in the [plan](PLAN.md).
 
 **Release 0.3.18 published, 23 November 2026.** Fit 0.11, web-links 0.12 and React/ReactDOM 19.3.1 are included in the [release](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.18) at `16d87d7c0c9944424870f572dcdc3907232483c3`, with Electron 45.4.1. [Windows 45228957575](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228957575) and [macOS ARM64 45228965581](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45228965581) succeeded; the notes record package smoke, terminal geometry and verified checksums. Attached are Windows x64 installer/portable, macOS ARM64 DMG/ZIP and two SHA-256 manifests. Checks ran on GitHub runners: no distribution signing or notarization, no Linux or Intel macOS package and no new visual checks on personal machines. The subsequent [PR #26](https://github.com/gloutchov/Plancia-Comandi/pull/26), integrated on 24 November, updates only the toolchain to Vitest 5.1.1; the release version and packages are unchanged. Details in the [plan](PLAN.md).
 

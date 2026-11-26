@@ -22,12 +22,13 @@ import { canonicalDocumentUrl, isTrustedRendererSender, type IpcSenderEvent } fr
 import { denyRendererPermissions } from './permissions'
 import { developmentOptions } from '../src/shared/developmentOptions'
 import { showStartupFailure } from './startupFailure'
+import { windowsAppUserModelId } from './windowsAppIdentity'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
 const RENDERER_DIST = path.join(APP_ROOT, 'dist')
 const APP_TITLE = 'Plancia Comandi'
-const APP_ID = 'it.plancia.comandi'
+const WINDOWS_APP_ID = windowsAppUserModelId(app.isPackaged)
 
 function devServerUrl(): string | undefined {
   return rendererDevServerUrl(app.isPackaged, process.env['VITE_DEV_SERVER_URL'])
@@ -320,7 +321,7 @@ function createWindow(): void {
   })
 
   if (process.platform === 'win32') {
-    win.setAppDetails({ appId: APP_ID, appIconPath: icon, appIconIndex: 0 })
+    win.setAppDetails({ appId: WINDOWS_APP_ID, appIconPath: icon, appIconIndex: 0 })
   }
 
   win.webContents.on('preload-error', (_event, _preload, error) => {
@@ -425,7 +426,7 @@ function start(): void {
 }
 
 app.setName(APP_TITLE)
-if (process.platform === 'win32') app.setAppUserModelId(APP_ID)
+if (process.platform === 'win32') app.setAppUserModelId(WINDOWS_APP_ID)
 
 const gotLock = app.requestSingleInstanceLock()
 startupTrace?.event('single-instance-lock', { acquired: gotLock, ready: app.isReady() })
