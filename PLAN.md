@@ -2,7 +2,7 @@
 
 ## Italiano
 
-**Intervento applicativo completato — 25 novembre 2026:** release **0.3.19** pubblicata sul commit approvato `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`, integrato con fast-forward e verificato su main. PR #27 integrata; tag annotato `v0.3.19` e sei allegati verificati. Windows 45595863728 e macOS 45597077290 riuscite; portatile provato anche localmente. Consuntivo documentale preparato su `patch/0.3.19-release-docs`, da controllare prima della pubblicazione. Nessun nuovo incremento, checkpoint o release per il consuntivo. Dettagli in 1.7 e 4.39.
+**Intervento applicativo completato — 26 novembre 2026.** Il commit approvato `c2537da020a67408e620a32944d0487e2a1c3267` è stato integrato con fast-forward su `main`. Il tag annotato `v0.3.20` e la release stabile sono pubblicati e verificati. Il branch applicativo è stato rimosso in locale e su GitHub. Questo consuntivo su `patch/0.3.20-release-docs` aggiorna la documentazione della 0.3.20. Dettagli in 1.8 e 4.40. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
 
 **Consuntivo documentale — 24 novembre 2026:** allineamento delle release 0.3.17/0.3.18 e della chiusura delle PR Dependabot completato sul commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, approvato esplicitamente da Glauco, integrato con fast-forward e pubblicato su main. Pages `45417297561` riuscita sullo stesso commit. Il branch locale `patch/0.3.18-release-docs` e la cartella `out/release-docs-20261124/` sono stati rimossi dopo conferma separata. Sorgenti e ultima release **0.3.18**; nessuna modifica applicativa, incremento, tag o nuova release. Dettagli in 1.6 e 4.38. La cronologia delle milestone e le proposte restano invariate.
 
@@ -204,8 +204,8 @@ La base di `main` per C1, avviata come M1, è il commit `05062668b528d737d5c7026
 | --- | --- |
 | Evidenza | Sulla 0.3.19 installata Explorer mostrava Electron, pur con ICO ufficiale nell’EXE e sulla finestra. Il catalogo `shell:AppsFolder` associava `it.plancia.comandi` a `node_modules/electron/dist/electron.exe`. Le prove su uno stesso eseguibile mostravano l’icona ufficiale solo con la nuova identità. La notifica al collegamento e il riavvio di Explorer conservavano la vecchia associazione. |
 | Correzione | `it.plancia.comandi.Desktop` per i pacchetti Windows e i collegamenti dell’installer, `it.plancia.comandi.Dev` in sviluppo. Entrambi impostano processo e finestra. GUID NSIS storico esplicito per gli upgrade, identità non Windows e risorse ufficiali conservate. |
-| Versione / branch | Sorgenti 0.3.20 su `patch/0.3.20-windows-taskbar-identity`. Ultima release pubblicata 0.3.19. |
-| Verifiche richieste | Suite, build, confronto delle identità, manifest SHA-256, sonda HWND e avvio visibile su Explorer. Verificare l’upgrade su Windows effimero, inclusi ID dei collegamenti e preferenze, e i pacchetti macOS ARM64 prima di un’eventuale pubblicazione. |
+| Versione / branch | Sorgenti e release 0.3.20. Il branch `patch/0.3.20-windows-taskbar-identity` è integrato e rimosso. Main e tag `v0.3.20` verificati sul commit `c2537da020a67408e620a32944d0487e2a1c3267`. |
+| Esiti | Suite Windows, upgrade e ID dei collegamenti, DMG e ZIP macOS ARM64, avvio locale su Explorer e SHA-256 dei sei allegati pubblici verificati. [Windows](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787767504) · [macOS](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787772253) · [GitHub Pages](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45790726005) |
 
 ### 2. Milestone e proposte
 
@@ -1221,8 +1221,13 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Patch 0.3.20, identità separate per pacchetti Windows e sviluppo, GUID NSIS storico e documentazione IT/EN.
 - [x] Suite 614 riusciti/5 saltati su Windows, compresi PowerShell 5.1 e 7, build, sito e documentazione. Packaging x64 locale di installer e portabile, verifica dei due SHA-256, ispezione ASAR, risorse, fuse e smoke di avvio e chiusura ConPTY. Sonda HWND con identità, risorsa e pixel verificati.
 - [x] Schermata di Explorer verificata nella stessa sessione dove il vecchio ID mostra ancora Electron. Il pacchetto scompattato e il wrapper portabile mostrano nome e icona ufficiali. L’avvio di sviluppo usa il suo ID separato. Profili sintetici e copie dei pacchetti fuori checkout.
-- [ ] Verifica upgrade su Windows, ID dei collegamenti e preferenze. Packaging e smoke macOS ARM64 prima di un’eventuale release. Verifica dei collegamenti personali già fissati distinta dalle prove sintetiche.
-- [ ] Controllo del commit locale e approvazione esplicita prima della pubblicazione, del merge, dei tag o di una release. Conservare copie, manifest e profili di prova per la revisione e richiedere autorizzazione separata per la pulizia.
+- [x] Aggiornamento locale dalla 0.3.19 alla build 0.3.20 autorizzato e verificato. Un’unica registrazione NSIS nella stessa posizione, GUID identico, collegamento Start con il nuovo AppUserModelID e checksum delle preferenze invariato. L’app installata e la portabile finale scaricata mostrano l’icona ufficiale in Explorer.
+- [x] Autorizzazione esplicita alla pubblicazione del commit `c2537da020a67408e620a32944d0487e2a1c3267`. Branch pubblicato sullo stesso SHA. Su Windows sono passati suite, sonda HWND, fuse, upgrade dalla 0.3.1 con ID dei collegamenti, installer e portabile. Su macOS ARM64 sono passati build, smoke e apertura di DMG e ZIP. [Windows 45787767504](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787767504) · [macOS 45787772253](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787772253)
+- [x] Merge fast-forward e push del commit approvato su `main`. Verificati `main` remoto e deploy Pages sullo stesso commit. [Pages 45790726005](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45790726005)
+- [x] Ricalcolati gli SHA-256 dei quattro pacchetti prima del tag. Tag annotato `v0.3.20` (oggetto `5003fc6cccbd0cd7820b1beac85e2ca6d4068cd4`) verificato sul remoto. Release ID `459185683` pubblicata il 26 novembre 2026 alle 09:21:32 UTC, contrassegnata latest. Quattro pacchetti e due manifest riscaricati tramite URL pubblici e confrontati con i file CI e i digest GitHub. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
+- [x] Rimosso il branch applicativo in locale e su GitHub dopo verifica della release. Su conferma separata sono state rimosse le quattro directory temporanee inventariate, 73 file e 626.210.726 byte complessivi. Conservati i pacchetti CI originali e i rapporti di verifica.
+- [x] Consuntivo IT/EN verificato con nove documenti obbligatori, 358 link locali e anchor, quattro esempi JSON, `npm run check:site` e `git diff --check`.
+- [ ] Consuntivo documentale su `patch/0.3.20-release-docs` da approvare prima della pubblicazione. Versione 0.3.20. La release e il tag identificano il commit applicativo già verificato. I pacchetti sono privi di firma di distribuzione e quelli macOS sono privi di notarizzazione. Verifiche su collegamenti personali già fissati, Linux, Mac Intel e Gatekeeper su download in quarantena fuori dall’ambito di questa release.
 
 ### 5. Versioni, CI e distribuzione
 
@@ -1232,7 +1237,7 @@ Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costr
 
 ## English
 
-**Application work completed — 25 November 2026:** release **0.3.19** published at approved commit `6b77a70d018eeaa59ad64ffc63f913baea5e4b37`, fast-forward merged and verified on main. PR #27 merged; annotated `v0.3.19` tag and six attachments verified. Windows 45595863728 and macOS 45597077290 passed; portable also tested locally. Documentation closeout prepared on `patch/0.3.19-release-docs`, awaiting review before publication. No new increment, checkpoint or release for the closeout. Details in 1.7 and 4.39.
+**Application work completed — 26 November 2026.** Approved commit `c2537da020a67408e620a32944d0487e2a1c3267` was fast-forward merged into `main`. The annotated `v0.3.20` tag and stable release were published and verified. The application branch was removed locally and on GitHub. This closeout on `patch/0.3.20-release-docs` updates the 0.3.20 documentation. Details in 1.8 and 4.40. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
 
 **Documentation closeout — 24 November 2026:** alignment of releases 0.3.17/0.3.18 and the closed Dependabot PRs completed at `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, explicitly approved by Glauco, integrated with fast-forward and published on main. Pages `45417297561` succeeded at the same commit. The local `patch/0.3.18-release-docs` branch and `out/release-docs-20261124/` directory were removed after separate confirmation. Source and latest release **0.3.18**; no application changes, increment, tag or new release. Details in 1.6 and 4.38. Milestone history and proposals remain unchanged.
 
@@ -1434,8 +1439,8 @@ C1, started as M1, uses `main` commit `05062668b528d737d5c702673657bfd2b3dbaf8e`
 | --- | --- |
 | Evidence | Explorer showed Electron for installed 0.3.19 even though the EXE and window used the official ICO. The `shell:AppsFolder` catalog associated `it.plancia.comandi` with `node_modules/electron/dist/electron.exe`. Tests on the same executable displayed the official icon only with a fresh identity. Notifying the shortcut and restarting Explorer retained the old association. |
 | Fix | `it.plancia.comandi.Desktop` for Windows packages and installer shortcuts, `it.plancia.comandi.Dev` during development. Both set the process and window identity. Explicit historical NSIS GUID for upgrades, with other platforms’ identities and official assets preserved. |
-| Version / branch | 0.3.20 source on `patch/0.3.20-windows-taskbar-identity`. Latest published release 0.3.19. |
-| Required checks | Suite, build, identity comparisons, SHA-256 manifest, native window probe and a visible launch in Explorer. Verify upgrade on disposable Windows including shortcut IDs and preferences, and verify macOS ARM64 packages before any publication. |
+| Version / branch | 0.3.20 source and release. Branch `patch/0.3.20-windows-taskbar-identity` was merged and removed. Main and tag `v0.3.20` verified at commit `c2537da020a67408e620a32944d0487e2a1c3267`. |
+| Results | Verified the Windows suite, upgrade and shortcut IDs, macOS ARM64 DMG and ZIP, local Explorer launch and SHA-256 checksums for the six public assets. [Windows](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787767504) · [macOS](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787772253) · [GitHub Pages](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45790726005) |
 
 ### 2. Milestones and proposals
 
@@ -2451,8 +2456,13 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Patch 0.3.20, separate identities for Windows packages and development, historical NSIS GUID and IT/EN documentation.
 - [x] Windows suite with 614 passed/5 skipped, including PowerShell 5.1 and 7, build, site and documentation. Local x64 installer and portable packages, verification of both SHA-256 checksums, inspection of ASAR, resources and fuses, and launch and ConPTY close smoke. Native window identity, resource and pixel probe passed.
 - [x] Explorer verified in the same session where the old ID still displays Electron. The unpacked package and portable wrapper show the official name and icon. The development launch uses its separate ID. Synthetic profiles and package copies outside the checkout.
-- [ ] Verify Windows upgrade, shortcut IDs and preferences. Package and smoke-test macOS ARM64 before any release. Existing personal pinned shortcuts require separate verification from the synthetic probes.
-- [ ] Review the local commit and obtain explicit approval before publication, merge, tags or release. Retain test copies, manifests and profiles for review and request separate authorization for cleanup.
+- [x] Authorized and verified the local upgrade from 0.3.19 to the 0.3.20 build. One NSIS registration in the same location, same GUID, Start shortcut with the new AppUserModelID and unchanged preferences checksum. The installed app and the final downloaded portable show the official icon in Explorer.
+- [x] Explicit approval to publish commit `c2537da020a67408e620a32944d0487e2a1c3267`. Branch pushed at that SHA. Windows passed the suite, native window probe, fuse checks, upgrade from 0.3.1 with shortcut IDs, and installer and portable checks. macOS ARM64 passed build, smoke and opening both DMG and ZIP. [Windows 45787767504](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787767504) · [macOS 45787772253](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45787772253)
+- [x] Fast-forward merged and pushed the approved commit to `main`. Verified remote `main` and Pages deployment at the same commit. [Pages 45790726005](https://github.com/gloutchov/Plancia-Comandi/actions/runs/45790726005)
+- [x] Recomputed SHA-256 checksums for all four packages before creating the tag. Verified the annotated `v0.3.20` tag (object `5003fc6cccbd0cd7820b1beac85e2ca6d4068cd4`) on the remote. Release ID `459185683` published on 26 November 2026 at 09:21:32 UTC and marked latest. Four packages and two manifests were downloaded again from public URLs and compared with CI files and GitHub digests. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
+- [x] Removed the application branch locally and on GitHub after verifying the release. Separate confirmation authorized removal of the four inventoried temporary directories, totaling 73 files and 626,210,726 bytes. Retained the original CI packages and verification reports.
+- [x] Verified the IT/EN closeout with nine required documents, 358 local links and anchors, four JSON examples, `npm run check:site` and `git diff --check`.
+- [ ] Documentation closeout on `patch/0.3.20-release-docs` awaiting approval before publication. Version 0.3.20. The release and tag identify the verified application commit. The packages lack distribution signatures and the macOS packages are unnotarized. Existing personal pins, Linux, Intel Macs and Gatekeeper on quarantined downloads were outside the scope of this release.
 
 ### 5. Versions, CI and distribution
 
