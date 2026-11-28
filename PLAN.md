@@ -2,6 +2,8 @@
 
 ## Italiano
 
+**Milestone in corso.** [M44 — Isolamento delle sessioni di progetto](#m44--isolamento-delle-sessioni-di-progetto) aggiunge una scelta per ogni nuova sessione tra terminale standard, scrittura limitata al progetto e ambiente isolato.
+
 **Intervento applicativo completato — 26 novembre 2026.** Il commit approvato `c2537da020a67408e620a32944d0487e2a1c3267` è stato integrato con fast-forward su `main`. Il tag annotato `v0.3.20` e la release stabile sono pubblicati e verificati. Il branch applicativo è stato rimosso in locale e su GitHub. Questo consuntivo su `patch/0.3.20-release-docs` aggiorna la documentazione della 0.3.20. Dettagli in 1.8 e 4.40. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
 
 **Consuntivo documentale — 24 novembre 2026:** allineamento delle release 0.3.17/0.3.18 e della chiusura delle PR Dependabot completato sul commit `2ee3b1add652f565e82c17f6dfb925a34b0b641e`, approvato esplicitamente da Glauco, integrato con fast-forward e pubblicato su main. Pages `45417297561` riuscita sullo stesso commit. Il branch locale `patch/0.3.18-release-docs` e la cartella `out/release-docs-20261124/` sono stati rimossi dopo conferma separata. Sorgenti e ultima release **0.3.18**; nessuna modifica applicativa, incremento, tag o nuova release. Dettagli in 1.6 e 4.38. La cronologia delle milestone e le proposte restano invariate.
@@ -41,6 +43,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [2. Milestone e proposte](#2-milestone-e-proposte)
 - [2.1 Milestone di sicurezza pianificate](#21-milestone-di-sicurezza-pianificate)
 - [2.2 Piano esecutivo: correzioni funzionali prima](#22-piano-esecutivo-correzioni-funzionali-prima)
+  - [M44 — Isolamento delle sessioni di progetto](#m44--isolamento-delle-sessioni-di-progetto)
 - [2.3 Proposte e parti residue](#23-proposte-e-parti-residue)
 - [2.4 Baseline Vesta del 13 novembre 2026](#24-baseline-vesta-del-13-novembre-2026)
 - [2.5 Regola unica sulle release, 14 novembre 2026](#25-regola-unica-sulle-release-14-novembre-2026)
@@ -74,6 +77,7 @@ Questo piano registra la base esistente di Plancia Comandi e le attività future
 - [4.35 Electron 45.4.1](#435-electron-4541--23-novembre-2026)
 - [4.36 Runtime xterm](#436-runtime-xterm--23-novembre-2026)
 - [4.37 Revisione PR Dependabot](#437-revisione-pr-dependabot--24-novembre-2026)
+- [4.41 Checklist M44](#441-checklist-m44)
 - [5. Versioni, CI e distribuzione](#5-versioni-ci-e-distribuzione)
 
 ### 1. Base e intervento corrente
@@ -371,7 +375,7 @@ Questa patch usa `patch/0.3.1-security-roadmap`, da main `d954c2eaee23276d5c5bad
 
 Riordino richiesto da Glauco il 18 novembre 2026 dopo i test della 0.3.8 su Windows e macOS. M18 conserva numero, branch previsto e ambito perché completa C27. Seguono i tre nuovi difetti e gli altri problemi d’uso; configurazione, packaging e manutenzione del repository passano in fondo. Le voci concluse e i loro tag non cambiano. Le altre attività aperte assumono M28–M43, senza riutilizzare numeri di checkpoint storici.
 
-**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → C40 chiusa (M41–M43) → C32 chiusa → C36 chiusa → C37 unificata chiusa (M38 assorbita).
+**Ordine corrente:** C27 chiusa → C18 chiusa → C28 chiusa → C29 chiusa → C31 chiusa → C33 chiusa (M34/M35) → C40 chiusa (M41–M43) → C32 chiusa → C36 chiusa → C37 unificata chiusa (M38 assorbita) → M44 in corso.
 
 **Decisione del 21 novembre 2026.** Su richiesta di Glauco, M39 (già M16/PC-07) è rimossa dal piano esecutivo: la configurazione di sicurezza e manutenzione sarà ripensata insieme per tutti i suoi repository, con uno standard comune. L'esigenza resta valida, ma non viene aperta una nuova proposta o milestone locale. Nessuna impostazione GitHub viene modificata; non sono previsti branch o checkpoint C39. Le altre milestone conservano il proprio numero. La successiva richiesta di Glauco nella stessa sessione accorpa M40–M43 e le anticipa a M32 sul branch attuale: M40 segue C33, M32 segue il futuro checkpoint C40.
 
@@ -389,6 +393,7 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | 7 | C32, già M32 — Polling dei processi figli su Windows | M15 | PC-06 | `v0.3.14` |
 | 8 | C36, già M36 — Conferma dell’incolla e del trascinamento multilinea | M19 | PC-12 | `v0.3.15` |
 | 9 | C37, già M37 unificata — Limiti configurabili e installazione macOS (M38 assorbita) | M20/M24 | PC-14/PC-18 | `v0.3.16` pubblicata |
+| 10 | [M44 — Isolamento delle sessioni di progetto](#m44--isolamento-delle-sessioni-di-progetto) | Nuova | Richiesta del progettista | `v0.4.0` proposta |
 
 | Campo | C18, già M18 — DevTools e demo solo fuori dal pacchetto |
 | --- | --- |
@@ -565,6 +570,31 @@ Il precedente riordino documentale non avviava implementazioni. Con una successi
 | Stato | M43 assorbita in C40, già M40, attuata, verificata e pubblicata nel checkpoint C40; nessuna chiusura autonoma. |
 
 
+##### M44 — Isolamento delle sessioni di progetto
+
+| Campo | Pianificazione |
+| --- | --- |
+| Numero e obiettivo | M44 — Scegliere in **Nuova sessione** quali file può leggere o modificare il terminale. Il profilo vale per i comandi digitati, per quelli eseguiti dagli agenti e per i processi figli. |
+| Dipendenza e branch previsto | `milestone/44-project-session-isolation` da `main` allineato a GitHub, dopo verifica di `milestone/C37`. Base di pianificazione 0.3.20. |
+| Checkpoint e versione previsti | `milestone/C44`. Incremento minore `+0.1.0` e release `v0.4.0` proposti, da confermare secondo le regole HOME. |
+| Stato | In corso. Confermata la scrittura diretta nel progetto, con copia indipendente facoltativa al suo interno. Verificato il flusso Git locale in due prototipi su macOS ARM64. [Verifiche e checklist M44](#441-checklist-m44). |
+
+| Modalità | Comportamento previsto |
+| --- | --- |
+| **Standard** | Impostazione predefinita. La shell parte dalla cartella scelta con i permessi dell'utente. |
+| **Scrittura limitata al progetto** | La shell può leggere i file normalmente accessibili all'utente. Creazioni, modifiche, rinomine e cancellazioni sono consentite solo nella cartella del progetto, compresi i file temporanei della sessione che richiedono scrittura su disco. |
+| **Ambiente isolato** | La cartella del progetto è l'unica cartella del computer condivisa con l'ambiente. Le modifiche al progetto persistono. La sessione ha una propria home, strumenti e file temporanei e parte con la rete disattivata. Credenziali, profili personali e socket dell'host restano fuori dall'ambiente. |
+
+**Attività principali.** Valutare un launcher nativo per la scrittura limitata e un container o una macchina virtuale per l'ambiente isolato. Verificare avvio interattivo, compatibilità PTY, strumenti disponibili, prerequisiti e pulizia alla chiusura prima di scegliere le dipendenze. Integrare il selettore IT/EN nel flusso esistente; validare modalità e cartella effettiva nel main e applicare i limiti prima di avviare la shell. Mostrare la modalità nella sessione. Se la piattaforma o il runtime non possono applicarla, spiegare il motivo e lasciare chiusa la sessione.
+
+**Flusso Git.** I profili protetti scrivono nella cartella scelta. In un repository con metadati locali alla cartella, `git switch -c`, `git add`, `git commit` e `git switch main` operano normalmente e rispettano i controlli Git sulle modifiche non committate. Un worktree con metadati esterni richiede una copia indipendente per poter modificare i riferimenti restando nel confine. L'utente può scegliere di creare una copia in una nuova sottocartella del progetto, con file e metadati Git propri. Se la copia deriva da un clone locale, include i commit e i riferimenti clonati. La sessione della copia ha come confine la nuova sottocartella.
+
+**Criteri di accettazione.** Nei due profili protetti i comandi possono scrivere nel progetto e il sistema rifiuta modifiche fuori dal perimetro, anche dopo un cambio di directory, tramite link simbolici o junction e da processi figli. I file esterni devono restare intatti anche se condividono un hard link con il progetto. In **Scrittura limitata al progetto** la lettura esterna consentita funziona. In **Ambiente isolato** la lettura di un file personale esterno è negata, la home è indipendente e la rete è disattivata all'avvio. **Standard** conserva il comportamento attuale. L'obiettivo iniziale comprende Windows x64 e macOS ARM64. Esporre una modalità solo sulle piattaforme dove è verificata e sottoporre eventuali riduzioni di copertura all'approvazione del progettista. Dichiarare Linux o macOS Intel solo dopo prove dedicate.
+
+**Test richiesti.** Test automatici di validazione IPC, selezione modalità, avvio fallito, compatibilità con richieste precedenti e chiusura dei processi. Verifiche native con file e credenziali fittizi, percorsi con spazi, tentativi di lettura e di creazione, modifica, rinomina e cancellazione dentro e fuori dal progetto, link simbolici, junction, hard link preesistenti e nuovi, cambio directory, processi figli e rete. Su Git verificare branch, commit, ritorno a `main`, protezione delle modifiche in conflitto, metadati esterni e copia indipendente. Suite, build e verifica di UI IT/EN in entrambi i temi. Smoke dei pacchetti reali fuori dal checkout e verifica dei checksum per le piattaforme distribuite.
+
+**Documentazione.** Aggiornare README, manuali IT/EN e quick start con la scelta, gli strumenti disponibili, i prerequisiti e gli errori. Aggiornare `SECURITY_MODEL.md`, `MAP.md` e `AGENTS.md` con i confini verificati, i limiti, i componenti e le regole operative effettive. Registrare risultati e limiti in `PLAN.md` seguendo la checklist di chiusura.
+
 #### 2.3 Proposte e parti residue
 
 | Voce e stato | Obiettivo e riferimenti | Esito o accettazione proposta |
@@ -636,7 +666,7 @@ Il 14 novembre 2026, ore 10:54 (Europe/Rome), Glauco ha confermato l'eccezione: 
 ### 3. Convenzioni delle milestone
 
 - `P<n>`: proposta facoltativa, non eseguibile senza decisione esplicita del progettista.
-- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → C40 chiusa → C32 chiusa → C36 chiusa → C37 unificata chiusa e pubblicata, M38 assorbita (M41–M43 assorbite in C40; M39 rimossa; M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
+- `M<n>`: milestone pianificata su branch dedicato da `main`, dopo verifica del checkpoint precedente e richiesta di avvio separata. Ordine: C29 chiusa, C31 chiusa, poi C33 chiusa → C40 chiusa → C32 chiusa → C36 chiusa → C37 unificata chiusa e pubblicata, M38 assorbita (M41–M43 assorbite in C40; M39 rimossa; M34/M35 assorbite in C33; M30 in C29) come in 2.2, dopo C28 chiusa. M44 segue C37. C18, già M18, conserva il numero 18 per continuità con C27. Voci concluse e tag storici non cambiano; le vecchie eccezioni di ordine restano cronologia.
 - `C<n>`: lavoro approvato dal progettista, con lo stesso numero della relativa `M`; pubblicazione e chiusura operativa possono essere ancora pendenti.
 
 Le numerazioni `P` e `M` sono indipendenti. Ogni futura `M` deve specificare obiettivo funzionale, branch, checkpoint `milestone/C<n>`, incremento di versione, attività, criteri di accettazione, test, documenti e stato. Non iniziare la milestone successiva finché `main` e il checkpoint della precedente non sono verificati sul remoto.
@@ -1229,6 +1259,33 @@ Glauco ha riferito che la prima correzione provata con `npm run dev` funziona co
 - [x] Consuntivo IT/EN verificato con nove documenti obbligatori, 358 link locali e anchor, quattro esempi JSON, `npm run check:site` e `git diff --check`.
 - [ ] Consuntivo documentale su `patch/0.3.20-release-docs` da approvare prima della pubblicazione. Versione 0.3.20. La release e il tag identificano il commit applicativo già verificato. I pacchetti sono privi di firma di distribuzione e quelli macOS sono privi di notarizzazione. Verifiche su collegamenti personali già fissati, Linux, Mac Intel e Gatekeeper su download in quarantena fuori dall’ambito di questa release.
 
+#### 4.41 Checklist M44
+
+**Avvio e prototipo del 28 novembre 2026.** Prove su macOS ARM64 con cartelle, profilo Codex e file esterni sintetici.
+
+- Seatbelt e `codex sandbox` 0.172.0 con il profilo di scrittura hanno consentito la lettura esterna e la scrittura nel progetto e nei temporanei. Hanno respinto creazione, sovrascrittura, rinomina e cancellazione fuori progetto, comprese le prove tramite link simbolico e da un processo figlio. `sandbox-exec` è deprecato. Il profilo Codex più restrittivo provato ha consentito letture e scritture esterne.
+- Docker Desktop con Alpine 3.23 su Linux ARM64 ha avviato una PTY con la sola cartella di prova montata, home e temporanei privati e rete impostata a `none`. La scrittura nel progetto è persistita. Le prove con link simbolici assoluti e relativi verso l'esterno sono state respinte. Non risultavano rotte IPv4 o IPv6 verso l'esterno. La sentinella esterna è rimasta integra ed è stata verificata la rimozione del container di prova.
+- La scrittura di un file già condiviso mediante hard link ha cambiato la sentinella esterna sia con i due launcher di scrittura sia con il montaggio Docker. La prova Docker con una copia indipendente ha consentito la scrittura e preservato la sentinella.
+- Il progettista ha scelto la scrittura diretta con copia indipendente facoltativa in una sottocartella. `node scripts/probe-m44-git.mjs` verifica con Seatbelt la creazione di un branch, il commit, il ritorno a `main`, il rifiuto di sovrascrivere una modifica in conflitto e il blocco della scrittura di metadati in un worktree con `.git` esterno. Seatbelt ha respinto la creazione di un hard link a un file esterno. La scansione del prototipo ha distinto gli hard link interamente interni da un link verso l'esterno e ha verificato la copia Git indipendente. La scansione va convalidata insieme alle protezioni applicate durante la sessione prima dell'integrazione.
+- Una PTY Docker su macOS ARM64 con Git 2.52.1 e rete disattivata ha eseguito branch, commit e ritorno a `main` preservando il commit sul branch e la modifica in conflitto fino al commit. Verificati sul Mac lo stato finale del repository montato e la rimozione del container. Windows x64 e l'integrazione con la PTY di Plancia devono ancora essere verificati.
+
+- [x] Identità privata GitHub e checkpoint `milestone/C37` verificati. `main` confrontato con GitHub e modifiche utente preservate.
+- [x] Branch locale `milestone/44-project-session-isolation` creato dal `main` verificato.
+- [ ] Prototipo, implementazione, configurazione e test mirati completati.
+- [ ] Test automatici, verifiche native e smoke eseguiti. Omissioni e limiti registrati.
+- [ ] Versione sincronizzata quando prevista. Contenuto del commit controllato per escludere segreti e temporanei.
+- [ ] Documentazione IT/EN, piano, modello di sicurezza, mappa e regole operative aggiornati dove applicabile.
+- [ ] Commit locali sul branch dedicato e branch congelato con voce `M44`.
+- [ ] Hash, diff rispetto a `main`, test, esiti e limiti presentati. Primo controllo personale e approvazione esplicita ottenuti.
+- [ ] Voce rinominata `C44` dopo la prima approvazione. Esiti, limiti, versione e checkpoint registrati in un nuovo commit locale.
+- [ ] Nuovo hash e diff presentati. Secondo controllo personale e approvazione esplicita ottenuti prima di push, merge o tag.
+- [ ] Branch o PR pubblicati quando necessari. CI necessaria verificata prima del merge. Eventuali fix sottoposti a nuova approvazione.
+- [ ] Merge, push e commit remoto di `main` verificati. CI su `main` verificata quando necessaria.
+- [ ] Pacchetti, smoke e SHA-256 verificati sul commit finale prima dei tag.
+- [ ] Checkpoint annotato `milestone/C44` e tag versione previsti creati e verificati sul remoto.
+- [ ] Release prevista pubblicata e verificata. Branch obsoleto rimosso dopo approvazione e verifiche.
+- [ ] Temporanei presentati per conferma separata prima della pulizia. Worktree finale controllato.
+
 ### 5. Versioni, CI e distribuzione
 
 Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi principali. La pubblicazione segue la regola unica della sezione Release di `STARTUP_PREFERENCES_HOME.md`, dal 14 novembre 2026, senza eccezioni di progetto: una release solo per modifiche significative per il funzionamento dell'app. Documentazione, CI, test e refactoring senza effetti non hanno release, lasciano invariata la versione e non creano tag `vX.Y.Z`. Se l'app non è utilizzabile, una release dovuta si indica come prerelease. Non configurare firma, notarizzazione o aggiornamenti automatici senza credenziali e processo espliciti.
@@ -1236,6 +1293,8 @@ Usare `+0.0.1` per patch, `+0.1.0` per funzionalità minori e `+1.0.0` per cambi
 Il workflow `package-windows.yml` si avvia manualmente per un tentativo di costruzione Windows non equivalente in locale. Non parte su push o PR. La run `43226304320` ha prodotto i pacchetti Windows della release v0.3.0 e ha verificato anche il portable e l'app installata. Il workflow `package-macos.yml` si avvia solo manualmente sul runner `macos-15` per DMG e ZIP ARM64 non firmati; non parte su push o PR. È stato eseguito nella run `43257940568` e gli artifact sono nella release [v0.3.0](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.0). Il piano di chiusura di M2 approvato il 12 novembre 2026 prevede questa build remota riproducibile per gli artifact della release v0.3.0, con SHA-256, accanto al workflow Windows: consuma minuti solo quando viene avviato. Le verifiche macOS ARM64 della release `v0.2.0` sono locali. Altri workflow richiedono una motivazione distinta. Non dichiarare un pacchetto verificato sulla sola base di `npm run build`. `.github/dependabot.yml` (23 novembre 2026) non è un workflow e non parte su push o pull request. Dopo la pubblicazione su `main`, gli aggiornamenti di versione li apre il servizio Dependabot.
 
 ## English
+
+**Milestone in progress.** [M44 — Project session isolation](#m44--project-session-isolation) adds a choice for each new session between a standard terminal, project-only writes, and an isolated environment.
 
 **Application work completed — 26 November 2026.** Approved commit `c2537da020a67408e620a32944d0487e2a1c3267` was fast-forward merged into `main`. The annotated `v0.3.20` tag and stable release were published and verified. The application branch was removed locally and on GitHub. This closeout on `patch/0.3.20-release-docs` updates the 0.3.20 documentation. Details in 1.8 and 4.40. [Release 0.3.20](https://github.com/gloutchov/Plancia-Comandi/releases/tag/v0.3.20)
 
@@ -1276,6 +1335,7 @@ This plan records the existing Plancia Comandi baseline and future work. Latest 
 - [2. Milestones and proposals](#2-milestones-and-proposals)
 - [2.1 Planned security milestones](#21-planned-security-milestones)
 - [2.2 Execution plan: functional fixes first](#22-execution-plan-functional-fixes-first)
+  - [M44 — Project session isolation](#m44--project-session-isolation)
 - [2.3 Proposals and remaining work](#23-proposals-and-remaining-work)
 - [2.4 Vesta baseline of 13 November 2026](#24-vesta-baseline-of-13-november-2026)
 - [2.5 Single release rule, 14 November 2026](#25-single-release-rule-14-november-2026)
@@ -1309,6 +1369,7 @@ This plan records the existing Plancia Comandi baseline and future work. Latest 
 - [4.35 Electron 45.4.1](#435-electron-4541--23-november-2026)
 - [4.36 xterm runtime](#436-xterm-runtime--23-november-2026)
 - [4.37 Dependabot PR review](#437-dependabot-pr-review--24-november-2026)
+- [4.41 M44 checklist](#441-m44-checklist)
 - [5. Versions, CI and distribution](#5-versions-ci-and-distribution)
 
 ### 1. Baseline and current work
@@ -1606,7 +1667,7 @@ This patch uses `patch/0.3.1-security-roadmap`, from main `d954c2eaee23276d5c5ba
 
 Reordering requested by Glauco on 18 November 2026 after testing 0.3.8 on Windows and macOS. M18 keeps its number, planned branch and scope because it completes C27. The three new defects and other usability problems follow; configuration, packaging and repository maintenance move to the end. Completed entries and their tags do not change. Other open work becomes M28–M43, without reusing historical checkpoint numbers.
 
-**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → closed C40 (M41–M43) → closed C32 → closed C36 → closed unified C37 (M38 absorbed).
+**Current order:** closed C27 → closed C18 → closed C28 → closed C29 → closed C31 → closed C33 (M34/M35) → closed C40 (M41–M43) → closed C32 → closed C36 → closed unified C37 (M38 absorbed) → M44 in progress.
 
 **Decision of 21 November 2026.** At Glauco's request, M39 (formerly M16/PC-07) is removed from the execution plan: security and maintenance configuration will be reconsidered together for all his repositories, using one common standard. The need remains valid, but no new local proposal or milestone is opened. No GitHub setting is changed; no C39 branch or checkpoint is planned. Other milestones retain their numbers. Glauco's subsequent request in the same session combines M40–M43 and brings them forward before M32 on the current branch: M40 follows C33, M32 follows the future C40 checkpoint.
 
@@ -1624,6 +1685,7 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | 7 | C32, formerly M32 — Windows child-process polling | M15 | PC-06 | `v0.3.14` |
 | 8 | C36, formerly M36 — Confirm multiline paste and drop | M19 | PC-12 | `v0.3.15` |
 | 9 | C37, formerly unified M37 — Configurable limits and macOS installation (M38 absorbed) | M20/M24 | PC-14/PC-18 | `v0.3.16` published |
+| 10 | [M44 — Project session isolation](#m44--project-session-isolation) | New | Designer request | `v0.4.0` proposed |
 
 | Field | C18, formerly M18 — DevTools and demo only outside the package |
 | --- | --- |
@@ -1800,6 +1862,31 @@ The earlier documentation reordering started no implementation. In a subsequent 
 | Status | M43 absorbed into C40, formerly M40, implemented, checked and published in the C40 checkpoint; no standalone closure. |
 
 
+##### M44 — Project session isolation
+
+| Field | Plan |
+| --- | --- |
+| Number and goal | M44 — Choose in **New session** which files the terminal can read or modify. The profile applies to typed commands, commands run by agents, and child processes. |
+| Dependency and planned branch | `milestone/44-project-session-isolation` from `main` synchronized with GitHub, after verifying `milestone/C37`. Planning baseline 0.3.20. |
+| Planned checkpoint and version | `milestone/C44`. Proposed minor increment `+0.1.0` and `v0.4.0` release, subject to confirmation under the HOME rules. |
+| Status | In progress. Direct project writes confirmed, with an optional independent copy inside the project. The local Git workflow passed in two prototypes on macOS ARM64. [M44 checks and checklist](#441-m44-checklist). |
+
+| Mode | Planned behavior |
+| --- | --- |
+| **Standard** | Default setting. The shell starts in the selected folder with the user's permissions. |
+| **Project-only writes** | The shell can read files normally accessible to the user. It can create, modify, rename, or delete files only inside the project folder, including temporary session files that require disk writes. |
+| **Isolated environment** | The project folder is the only host folder shared with the environment. Project changes persist. The session has its own home, tools, and temporary files and starts with networking disabled. Host credentials, personal profiles, and sockets stay outside the environment. |
+
+**Main tasks.** Evaluate a native launcher for project-only writes and a container or virtual machine for the isolated environment. Verify interactive startup, PTY compatibility, available tools, prerequisites, and cleanup on exit before choosing dependencies. Add the IT/EN selector to the existing flow. Validate the mode and effective folder in the main process and enforce the limits before starting the shell. Show the mode in the session. If the platform or runtime cannot enforce it, explain the reason and leave the session closed.
+
+**Git workflow.** Protected profiles write directly to the selected folder. In a repository with its metadata inside the folder, `git switch -c`, `git add`, `git commit`, and `git switch main` work normally and respect Git's uncommitted-change checks. A worktree with external metadata requires an independent copy to update refs within the boundary. The user can choose to create a copy in a new project subfolder with its own files and Git metadata. A local clone copy contains the cloned commits and refs. The copy's session is bounded by the new subfolder.
+
+**Acceptance criteria.** In both protected profiles, commands can write inside the project and the system denies changes outside the boundary, including after changing directories, through symbolic links or junctions, and from child processes. External files must remain intact even when they share a hard link with the project. In **Project-only writes**, permitted reads outside the project succeed. In **Isolated environment**, a read of an external personal file is denied, the home is separate, and networking is disabled at startup. **Standard** preserves current behavior. Initial targets are Windows x64 and macOS ARM64. Expose a mode only on verified platforms and submit any coverage reduction to the designer for approval. List Linux or Intel macOS support only after dedicated checks.
+
+**Required tests.** Automated tests for IPC validation, mode selection, failed startup, compatibility with existing requests, and process cleanup. Native checks with synthetic files and credentials, paths with spaces, reads and create, modify, rename, and delete attempts inside and outside the project, symbolic links, junctions, existing and new hard links, directory changes, child processes, and networking. Check Git branch creation, commit, return to `main`, conflicting-edit protection, external metadata, and an independent copy. Test suite, build, and IT/EN UI checks in both themes. Smoke-test real packages outside the checkout and verify checksums for distributed platforms.
+
+**Documentation.** Update README, the IT/EN manuals, and the quick start with the selection, available tools, prerequisites, and errors. Update `SECURITY_MODEL.md`, `MAP.md`, and `AGENTS.md` with the verified boundaries, limitations, components, and applicable operating rules. Record results and limitations in `PLAN.md` using the closure checklist.
+
 #### 2.3 Proposals and remaining work
 
 | Item and status | Goal and references | Outcome or proposed acceptance |
@@ -1871,7 +1958,7 @@ On 14 November 2026, at 10:54 (Europe/Rome), Glauco confirmed the exception: M26
 ### 3. Milestone conventions
 
 - `P<n>`: optional proposal, not executable without an explicit designer decision.
-- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → closed C40 → closed C32 → closed C36 → closed and published unified C37, M38 absorbed (M41–M43 absorbed into C40; M39 removed; M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
+- `M<n>`: planned milestone on a dedicated branch from `main`, after verification of the preceding checkpoint and a separate start request. Order: closed C29, closed C31, then closed C33 → closed C40 → closed C32 → closed C36 → closed and published unified C37, M38 absorbed (M41–M43 absorbed into C40; M39 removed; M34/M35 absorbed into C33; M30 into C29) as in 2.2, after closed C28. M44 follows C37. C18, formerly M18, retains number 18 for continuity with C27. Completed entries and historical tags do not change; earlier order exceptions remain history.
 - `C<n>`: work approved by the designer, retaining its `M` number; publication and operational closure may still be pending.
 
 `P` and `M` numbering is independent. Each future `M` must specify a functional goal, branch, `milestone/C<n>` checkpoint, version increment, tasks, acceptance criteria, tests, documentation and status. Do not start the next milestone until the preceding `main` and checkpoint are verified on the remote.
@@ -2463,6 +2550,33 @@ Glauco reported that the first fix tested with `npm run dev` works correctly. In
 - [x] Removed the application branch locally and on GitHub after verifying the release. Separate confirmation authorized removal of the four inventoried temporary directories, totaling 73 files and 626,210,726 bytes. Retained the original CI packages and verification reports.
 - [x] Verified the IT/EN closeout with nine required documents, 358 local links and anchors, four JSON examples, `npm run check:site` and `git diff --check`.
 - [ ] Documentation closeout on `patch/0.3.20-release-docs` awaiting approval before publication. Version 0.3.20. The release and tag identify the verified application commit. The packages lack distribution signatures and the macOS packages are unnotarized. Existing personal pins, Linux, Intel Macs and Gatekeeper on quarantined downloads were outside the scope of this release.
+
+#### 4.41 M44 checklist
+
+**Kickoff and prototype on 28 November 2026.** Checks on macOS ARM64 with synthetic folders, Codex profile, and external files.
+
+- Seatbelt and `codex sandbox` 0.172.0 with the write profile allowed external reads and writes to the project and temporary directory. They denied external creation, overwrites, renames, and deletions, including the symbolic-link and child-process checks. `sandbox-exec` is deprecated. The more restrictive Codex profile tested allowed external reads and writes.
+- Docker Desktop with Alpine 3.23 on Linux ARM64 started a PTY with only the test folder mounted, a private home and temporary directory, and networking set to `none`. Project writes persisted. Checks through absolute and relative symbolic links pointing outside were denied. No IPv4 or IPv6 route led outside. The external sentinel remained intact and removal of the test container was verified.
+- Writing to a file already shared through a hard link changed the external sentinel with both write launchers and the Docker mount. The Docker check with an independent copy allowed the write and preserved the sentinel.
+- The designer chose direct writes with an optional independent copy in a subfolder. `node scripts/probe-m44-git.mjs` checks branch creation, commit, return to `main`, refusal to overwrite a conflicting edit, and denial of metadata writes from a worktree with an external `.git` using Seatbelt. Seatbelt denied creation of a hard link to an external file. The prototype scan distinguished entirely internal hard links from an external alias and checked the independent Git copy. The scan and the protections active during a session need joint validation before integration.
+- A Docker PTY on macOS ARM64 with Git 2.52.1 and networking disabled ran branch creation, commit, and return to `main`, preserving the branch commit and the conflicting edit until committed. The host checks verified the final state of the mounted repository and the test container's removal. Windows x64 and integration with Plancia's PTY still need verification.
+
+- [x] Private GitHub identity and `milestone/C37` checkpoint verified. `main` checked against GitHub and user changes preserved.
+- [x] Local `milestone/44-project-session-isolation` branch created from verified `main`.
+- [ ] Prototype, implementation, configuration, and targeted tests completed.
+- [ ] Automated tests, native checks, and smoke tests run. Omissions and limitations recorded.
+- [ ] Version synchronized when required. Commit checked for secrets and temporary files.
+- [ ] IT/EN documentation, plan, security model, map, and operating rules updated where applicable.
+- [ ] Local commits on the dedicated branch and branch frozen with the `M44` entry.
+- [ ] Hash, diff against `main`, tests, results, and limitations presented. First personal review and explicit approval obtained.
+- [ ] Entry renamed to `C44` after the first approval. Results, limitations, version, and checkpoint recorded in a new local commit.
+- [ ] New hash and diff presented. Second personal review and explicit approval obtained before push, merge, or tagging.
+- [ ] Branch or PR published when necessary. Required CI verified before merge. Any fixes submitted for renewed approval.
+- [ ] Merge, push, and remote `main` commit verified. CI on `main` verified when necessary.
+- [ ] Packages, smoke tests, and SHA-256 verified on the final commit before tagging.
+- [ ] Planned annotated `milestone/C44` checkpoint and version tag created and verified on the remote.
+- [ ] Planned release published and verified. Obsolete branch removed after approval and verification.
+- [ ] Temporary paths presented for separate confirmation before cleanup. Final worktree checked.
 
 ### 5. Versions, CI and distribution
 

@@ -161,6 +161,7 @@ Plancia-Comandi/
 |   |-- macos-prebuild.d.mts        Contratto della sonda di compatibilità
 |   |-- macos-prebuild.test.ts      Casi negativi ABI/architettura/file/permessi/ambiente
 |   |-- smoke-macos-prebuild.mjs    Installazione pulita sintetica senza compilatore e PTY reale
+|   |-- probe-m44-git.mjs          Prova esterna macOS di branch Git, hard link e copia indipendente
 |   |-- mac-unpacked-paths.mjs       Trova l'unico .app e legge CFBundleExecutable
 |   |-- package-macos-cli.mjs        Avvio di electron-builder per macOS
 |   |-- package-macos.mjs            Opzioni macOS arm64, DMG e ZIP, senza firma
@@ -501,6 +502,7 @@ Plancia-Comandi/
 |   |-- macos-prebuild.d.mts        Compatibility-probe contract
 |   |-- macos-prebuild.test.ts      Negative ABI/architecture/file/permission/env cases
 |   |-- smoke-macos-prebuild.mjs    Clean synthetic installation without compiler and real PTY
+|   |-- probe-m44-git.mjs          External macOS probe for Git branches, hard links and an independent copy
 |   |-- mac-unpacked-paths.mjs       Finds the single .app and reads CFBundleExecutable
 |   |-- package-macos-cli.mjs        Starts electron-builder for macOS
 |   |-- package-macos.mjs            Unsigned macOS arm64 DMG and ZIP options
